@@ -93,7 +93,7 @@ S21 = numpy.zeros(Nf, dtype=complex)
 
 for i, frequency in enumerate(frequencies):
     if is_main_process:
-        print(f"\nFrequency {i+1} of {Nf}...")
+        print(f"\nFrequency {i+1}/{Nf}: {frequency/1e9:.3f}GHz")
 
     model.set_frequency(frequency)
     runner.advance(1)

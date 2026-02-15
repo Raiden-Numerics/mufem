@@ -20,7 +20,7 @@ domain_marker = "Domain" @ mufem.Vol
 model = estat.ElectrostaticsModel(marker=domain_marker, order=2)
 sim.get_model_manager().add_model(model)
 
-material = estat.ElectrostaticMaterial.Constant(name="Air", marker=domain_marker)
+material = estat.ElectrostaticMaterial(name="Air", marker=domain_marker)
 model.add_material(material)
 
 # Setup the conditions -----------------------------------------------------------------

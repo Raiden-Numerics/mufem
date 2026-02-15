@@ -30,18 +30,18 @@ magnetic_model = TimeHarmonicMagneticModel(Vol.Everywhere, frequency=50, order=3
 sim.get_model_manager().add_model(magnetic_model)
 
 # Define the materials
-air_material = TimeHarmonicMagneticGeneralMaterial.Constant(
-    name="Air", marker="Air" @ Vol
+air_material = TimeHarmonicMagneticGeneralMaterial(
+    name="Air", marker="Air" @ Vol, has_eddy_currents=False
 )
 
-copper_material = TimeHarmonicMagneticGeneralMaterial.Constant(
-    name="Copper", marker="Coil" @ Vol
+copper_material = TimeHarmonicMagneticGeneralMaterial(
+    name="Copper", marker="Coil" @ Vol, has_eddy_currents=False
 )
 
-alu_material = TimeHarmonicMagneticGeneralMaterial.Constant(
+alu_material = TimeHarmonicMagneticGeneralMaterial(
     name="Alu",
     marker="Plate" @ Vol,
-    relative_magnetic_permeability=1.0,
+    magnetic_permeability=1.0,
     electric_conductivity=3.526e7,
 )
 

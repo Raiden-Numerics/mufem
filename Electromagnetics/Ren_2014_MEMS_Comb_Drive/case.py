@@ -125,8 +125,7 @@ mesh_refiner.set_refinement_fraction(0.3)
 
 
 # Materials ----------------------------------------------------------------------------
-eps = 1.0  # relative permittivity
-material = ElectrostaticMaterial.Constant("Air", Everywhere @ Vol, eps)
+material = ElectrostaticMaterial("Air", Everywhere @ Vol, electric_permittivity=1.0)
 model.add_material(material)
 
 
