@@ -1,0 +1,201 @@
+.hero-logo {
+  width: 640px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.hero-text {
+  max-width: 900px;
+  font-size: 1.05rem;
+}
+
+.nav-btns .btn {
+  border-radius: 999px;
+}
+
+/* Visible link styling */
+a {
+  color: #0d6efd;
+}
+
+a:hover {
+  color: #0a58ca;
+}
+
+/* Strong visible panel */
+.panel {
+  border-radius: 1.2rem;
+  border: 2px solid #d0d7de;
+  background: #ffffff;
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.08),
+    0 2px 4px rgba(0,0,0,.05);
+  transition: transform .15s ease, box-shadow .15s ease;
+  overflow: hidden;
+  height: 100%;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.12),
+    0 3px 8px rgba(0,0,0,.06);
+}
+
+.panel-header {
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.06rem;
+  background: #f6f8fa;
+  border-bottom: 2px solid #d0d7de;
+  letter-spacing: .02em;
+}
+
+.panel-title-link {
+  text-decoration: underline;
+  color: #0d6efd;
+}
+
+.panel img {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background: #ffffff;
+  display: block;
+  padding: .6rem;
+}
+
+.panel-body {
+  padding: 1.1rem 1.2rem 1.3rem 1.2rem;
+  font-size: .97rem;
+  color: #444;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.tagline {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: #2c2f33;
+}
+
+/* Category wrappers with subtle themed borders/backgrounds */
+.category {
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.1rem 1.3rem 1.1rem;
+  /*border: 2px solid #e5e7eb;*/
+  box-shadow: 0 10px 22px rgba(0,0,0,.04);
+}
+
+.category-header {
+  margin-bottom: 1rem;
+}
+
+.category-title {
+  width: 100%;
+  text-align: center;
+
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: .02em;
+
+  padding: .65rem 1rem;
+  border-radius: 0.5rem;
+
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.75);
+}
+/* Electromagnetics: cool blue */
+.category-emag {
+  border-color: #b6d4fe;
+}
+.category-emag .category-title {
+  color: #0a58ca;
+  border-color: rgba(13,110,253,.35);
+  background: rgba(13,110,253,.08);
+}
+
+/* Structural: warm orange */
+.category-struct {
+  border-color: #fed7aa;
+}
+.category-struct .category-title {
+  color: #9a3412;
+  border-color: rgba(234,88,12,.35);
+  background: rgba(234,88,12,.10);
+}
+
+/* Plasma: purple */
+.category-plasma {
+  border-color: #ddd6fe;
+}
+.category-plasma .category-title {
+  color: #5b21b6;
+  border-color: rgba(124,58,237,.35);
+  background: rgba(124,58,237,.10);
+}
+
+/* Make panels sit nicely inside colored categories */
+.category .panel {
+  border-color: rgba(0,0,0,.14);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.06),
+    0 2px 4px rgba(0,0,0,.05);
+}
+
+
+.technology {
+    width: 100%;
+
+}
+
+.technology-card {
+  border-radius: 1.2rem;
+  padding: 1.15rem 1.25rem;
+  text-align: left;
+  color: #4a4f55;
+  line-height: 1.55;
+}
+
+.tech-list {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.tech-list li {
+  margin-bottom: .4rem;
+}
+
+.hero-links {
+  display: flex;
+  justify-content: center;
+  gap: .9rem;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  background-color: #0d6efd;
+  color: #ffffff;
+  font-weight: 600;
+  padding: .6rem 1.25rem;
+  font-size: .95rem;
+  border-radius: 999px;
+  border: none;
+  box-shadow: 0 6px 14px rgba(13,110,253,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+
+.hero-btn:hover {
+  background-color: #0b5ed7;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(13,110,253,.35);
+}
+
+.hero-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(13,110,253,.25);
+}
+
