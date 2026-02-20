@@ -5,7 +5,8 @@ md_math_lint.py
 
 Rules:
 - Inline math MUST be exactly: $` ... `$   (dollar + backticks)
-  follwing https://github.blog/changelog/2023-05-08-new-delimiter-syntax-for-inline-mathematical-expressions/
+  follwing https://github.blog/changelog/2023-05-08-new-delimiter- \
+  syntax-for-inline-mathematical-expressions/
 - Block math MUST be fenced as:
     ```math
     ...
@@ -175,9 +176,9 @@ def lint_file(path: str, raw: str) -> list[Issue]:
     for m in DISPLAY_DOLLAR_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
         excerpt = (
-            raw[m.start() : m.end()].splitlines()[0] + " …"
-            if "\n" in raw[m.start() : m.end()]
-            else raw[m.start() : m.end()]
+            raw[m.start(): m.end()].splitlines()[0] + " …"
+            if "\n" in raw[m.start(): m.end()]
+            else raw[m.start(): m.end()]
         )
         issues.append(
             Issue(path, line, col, "forbidden_display_dollars", excerpt.strip())
@@ -186,7 +187,7 @@ def lint_file(path: str, raw: str) -> list[Issue]:
     # 2) Forbid legacy single-dollar inline math ($...$) not part of allowed $`...`$
     for m in LEGACY_INLINE_DOLLAR_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
-        excerpt = raw[m.start() : m.end()]
+        excerpt = raw[m.start(): m.end()]
         excerpt = excerpt.splitlines()[0] + " …" if "\n" in excerpt else excerpt
         issues.append(
             Issue(path, line, col, "forbidden_inline_dollar", excerpt.strip())
@@ -201,7 +202,7 @@ def lint_file(path: str, raw: str) -> list[Issue]:
                 line,
                 col,
                 "forbidden_backslash_math_delimiter",
-                raw[m.start() : m.start() + 2],
+                raw[m.start(): m.start() + 2],
             )
         )
 
@@ -221,14 +222,14 @@ def lint_file(path: str, raw: str) -> list[Issue]:
             line, col = compute_line_col(raw, pos)
             issues.append(
                 Issue(
-                    path, line, col, "unmatched_inline_math_opener", raw[pos : pos + 2]
+                    path, line, col, "unmatched_inline_math_opener", raw[pos:pos + 2]
                 )
             )
         for pos in close_positions:
             line, col = compute_line_col(raw, pos)
             issues.append(
                 Issue(
-                    path, line, col, "unmatched_inline_math_closer", raw[pos : pos + 2]
+                    path, line, col, "unmatched_inline_math_closer", raw[pos:pos + 2]
                 )
             )
 
