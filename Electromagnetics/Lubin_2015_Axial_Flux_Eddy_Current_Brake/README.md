@@ -14,9 +14,9 @@ The publication [1] studies an axial-flux eddy current brake (or coupling) and d
 
 The system consists of a magnetic plate carrying a collection of permanent magnets and a conductive copper plate separated by an air gap. Rotation of the copper plate induces eddy currents, which interact with the magnetic field and generate a braking torque opposing the motion.
 
-The air gap thickness is chosen as 3 mm (the reference considers $d = 3\,\mathrm{mm}$, $5\,\mathrm{mm}$, 
-and $7\,\mathrm{mm}$), and the magnetic plate uses 5 pole pairs ($p$). The copper plate thickness is $d = 5\,\mathrm{mm}$.
-The back iron on both sides is modeled using the same linear magnetic material with relative permeability ($\mu_r = 1000$). This linear approximation is justified, as the design avoids magnetic saturation.
+The air gap thickness is chosen as 3 mm (the reference considers $`d = 3\,\mathrm{mm}`$, $`5\,\mathrm{mm}`$, 
+and $`7\,\mathrm{mm}`$), and the magnetic plate uses 5 pole pairs ($`p`$). The copper plate thickness is $`d = 5\,\mathrm{mm}`$.
+The back iron on both sides is modeled using the same linear magnetic material with relative permeability ($`\mu_r = 1000`$). This linear approximation is justified, as the design avoids magnetic saturation.
 
 Reference [1] provides analytical expressions for the braking torque and axial force as functions of the rotation rate, which are used here for comparison with the numerical results.
 
@@ -46,7 +46,8 @@ A naive rigid transformation of the mesh nodes belonging to the copper plate and
 Here, `MeshMotionPartialRemeshing` is used to remesh the surrounding air region at every time step, maintaining mesh quality while allowing large rotational displacements.
 
 
-We run the simulations for 20 time steps with a time step size of $\Delta t = 5 \times 10^{-4}$, after which we
+We run the simulations for 20 time steps with a time step size of $`\Delta t = 5 \times 10^{-4}`$,
+after which we
 update increase the rotation rate of the plate and continue.
 
 ## Results

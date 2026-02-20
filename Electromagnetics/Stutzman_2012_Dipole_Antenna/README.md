@@ -28,11 +28,11 @@ elements or components in more complex designs.
 
 In our simulation, the dipole antenna consists of two perfectly conducting
 cylinders modeled using the
-[Perfect Electric Conductor Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/perfect_electric_conductor.html)).
-Each cylinder has a length of $L=1$ m and a radius of $a=L/20=5$ cm, separated
-by a narrow gap of length $l=L/100=1$ cm.
+[Perfect Electric Conductor Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/perfect_electric_conductor.html).
+Each cylinder has a length of $`L=1`$ m and a radius of $`a=L/20=5`$ cm, separated
+by a narrow gap of length $`l=L/100=1`$ cm.
 Given these geometric parameters, the operating wavelength is approximately
-$\lambda=4$ m, corresponding to a frequency of $f=0.0749$ GHz.
+$`\lambda=4`$ m, corresponding to a frequency of $`f=0.0749`$ GHz.
 This design is inspired by [[2]](#references).
 
 The gap acts as the excitation point for the antenna.
@@ -41,7 +41,7 @@ The feeding circuit is modeled using a
 applied to a flat rectangular strip connecting the two arms of the antenna.
 
 The antenna is surrounded by free space, represented in the model by an
-enclosing sphere of radius $r=1.5\lambda=6$ m, centered at the origin.
+enclosing sphere of radius $`r=1.5\lambda=6`$ m, centered at the origin.
 An
 [Absorbing Boundary Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/absorbing.html)
 is applied to the sphere's boundary to simulate an infinite domain.
@@ -50,13 +50,13 @@ The problem geometry and corresponding mesh are generated in the
 [geometry.py](geometry.py) file using the [Gmsh](https://gmsh.info/) mesh
 generator.
 To achieve higher precision, we set the maximum size of the mesh elements to
-one-fifth of the radiation wavelength $\lambda$:
+one-fifth of the radiation wavelength $`\lambda`$:
 
 ```py
 gmsh.option.setNumber("Mesh.MeshSizeMax", wavelength / 5)
 ```
 Additionally, we employ second-order mesh elements to ensure at least 12
-elements per $2\pi$ radians of the mesh curvature:
+elements per $`2\pi`$ radians of the mesh curvature:
 
 ```py
 gmsh.option.setNumber("Mesh.ElementOrder", 2)
@@ -167,7 +167,7 @@ cross-sections to the analytical solution for a radiating elementary dipole
       \right|,
 ```
 
-where $\theta$ is the azimuthal angle and $\phi$ is the polar angle.
+where $`\theta`$ is the azimuthal angle and $`\phi`$ is the polar angle.
 The corresponding script can be found in the
 [radiation_pattern_cross_sections.py](radiation_pattern_cross_sections.py) file.
 As depicted in Fig. 5., the simulated radiation pattern closely matches the
