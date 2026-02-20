@@ -18,15 +18,16 @@ The goal of the benchmark is to calculate the torque acting on the rotor.
 ### Updating the B-H Curve
 
 The *rotor* and *stator* are made of iron with a constant electrical conductivity of
-$\sigma = 4.54 \times 10^6 \, \mathrm{S/m}$ and a nonlinear permeability described by a B-H curve.
+$`\sigma = 4.54 \times 10^6 \, \mathrm{S/m}`$ and a nonlinear permeability described by a B-H curve.
 
 However, as pointed out in [2], the provided [B-H curve](data/tables/Table_1_BH_curve.csv) lacks sufficient data near zero, leading to significant errors. To address this, a modified Fröhlich formula is used to fit the data, ensuring physical behavior [3]:
 
-$$
+```math
 B(H) = \frac{1}{a + b H} + \mu_0 H \quad,
-$$
+```
 
-where $a$ and $b$ are fitting parameters. These parameters are computed from the full curve and used to interpolate its initial segment.
+where $`a`$ and $`b`$ are fitting parameters. These parameters are computed from the full curve and used
+to interpolate its initial segment.
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Modified B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
@@ -35,7 +36,7 @@ where $a$ and $b$ are fitting parameters. These parameters are computed from the
 
 ### Setting the Coils
 
-A constant electric voltage of $U=23.1 \, \mathrm{V}$ is applied to the stranded coils.
+A constant electric voltage of $`U=23.1 \, \mathrm{V}`$ is applied to the stranded coils.
 
 We specify a stranded coil by using the [Stranded Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/type_stranded_coil.html) option, and the voltage excitation is set by using
 [Excitation Voltage](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/excitation_voltage.html) option.
@@ -82,19 +83,19 @@ As the iron is conductive, eddy currents occur in the stator and rotor. To resol
 
 For time-harmonic problems, the skin depth can be estimated by:
 
-$$
+```math
 \delta_s = \sqrt{\frac{2}{\omega \mu \sigma}},
-$$
+```
 
-where $\omega = 2\pi f$ and $f$ is the excitation frequency. In time-transient problems, there is no single frequency; instead, the behavior is governed by the excitation time scale (e.g., rise time $\tau$).
+where $`\omega = 2\pi f`$ and $`f`$ is the excitation frequency. In time-transient problems, there is no single frequency; instead, the behavior is governed by the excitation time scale (e.g., rise time $`\tau`$).
 
 For a linear setup with a single coil and no eddy currents, the current evolution is:
 
-$$
+```math
 I(t) = \frac{V}{R} \left( 1 - e^{-t/\tau} \right),
-$$
+```
 
-with $\tau = L/R$, where $L$ is inductance and $R$ resistance.
+with $`\tau = L/R`$, where $`L`$ is inductance and $`R`$ resistance.
 
 These values are estimated using the [Magnetic Inductance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/magnetic_inductance_report.html)
 and the [Coil Resistance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/coil_resistance_report.html) via:
@@ -119,12 +120,12 @@ Result:
     0.5145621732484141
 ```
 
-Thus, $\tau \approx 0.01 / 0.5 = 0.02 \ \mathrm{s}$. Note that this is a rough estimate due to nonlinearity and eddy currents.
+Thus, $`\tau \approx 0.01 / 0.5 = 0.02 \ \mathrm{s}`$. Note that this is a rough estimate due to nonlinearity and eddy currents.
 
 The eddy current penetration depth follows a diffusion law:
-$$
+```math
 \delta = \sqrt{D \tau} \quad, \quad \text{with} \quad D = \frac{1}{\mu \sigma} \quad.
-$$
+```
 
 <div align="center">
     <img src="results/Scene_ElementType.png" alt="Element Type" width="50%">
@@ -178,4 +179,4 @@ To generate the animation, ensure `output_for_animation = True` is set in `case.
 
 [2] Rüberg, T., Kielhorn, L., & Zechner, J. (2021). Electromagnetic devices with moving parts—simulation with FEM/BEM coupling. *Mathematics, 9*(15), 1804.
 
-[3] Diez, P., & Webb, J. P. (2015). A Rational Approach to \( B \)–\( H \) Curve Representation. *IEEE Transactions on Magnetics, 52*(3), 1-4.
+[3] Diez, P., & Webb, J. P. (2015). A Rational Approach to B-H Curve Representation. *IEEE Transactions on Magnetics, 52*(3), 1-4.

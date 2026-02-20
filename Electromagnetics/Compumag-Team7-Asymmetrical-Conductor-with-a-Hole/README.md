@@ -17,9 +17,9 @@ results reported by Fujiwara et al. [2].
 
 ## Problem Description
 
-The aluminum plate has an electrical conductivity of $\sigma = 3.526 \times 10^7\,\mathrm{S/m}$.
-The stranded coil is excited by a sinusoidal current corresponding to $2742\rm{AT}$ at a frequency
-of $f=50\rm{Hz}$ (reference results at $200\rm{Hz}$ are also available).
+The aluminum plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
+The stranded coil is excited by a sinusoidal current corresponding to $`2742\rm{AT}`$ at a frequency
+of $`f=50\rm{Hz}`$ (reference results at $`200\rm{Hz}`$ are also available).
 The numerical results are compared with measurements of the magnetic flux density along two
 lines on top of the plate, denoted A1–B1 and A2–B2.
 
@@ -80,7 +80,7 @@ The
 [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitation_coil_model)
 is added to the simulation. The coil is modeled as
 
-- a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/excitation_current) with \(I = 1\,\mathrm{A}\),
+- a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/excitation_current) with $`I = 1\,\mathrm{A}`$,
 - a [stranded coil type](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/type_stranded_coil) with 2742 turns,
 - a [closed coil topology](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/closed_coil).
 
@@ -122,8 +122,8 @@ The computed magnetic flux density is compared with the reference data from [2]
 provides real and imaginary components of the magnetic flux density, corresponding to
 measurements at
 
-- $t = 0\,\mathrm{ms}$ (phase $\phi = 0^\circ$),
-- $t = 5\,\mathrm{ms}$ (phase $\phi = 90^\circ$).
+- $`t = 0\,\mathrm{ms}`$ (phase $`\phi = 0^\circ`$),
+- $`t = 5\,\mathrm{ms}`$ (phase $`\phi = 90^\circ`$).
 
 | Magnetic Flux Density along A1–B1 | Magnetic Flux Density along A2–B2 |
 |----------------------------------|----------------------------------|
@@ -131,14 +131,14 @@ measurements at
 
 A very good agreement is observed for both measurement lines.
 
-Note that the solution is time-periodic with a period of $T = 20\,\mathrm{ms}$. The magnetic flux density at an arbitrary time $t$ can be
+Note that the solution is time-periodic with a period of $`T = 20\,\mathrm{ms}`$. The magnetic flux
+density at an arbitrary time $`t`$ can be
 reconstructed from the complex solution using
 
 ```math
 \mathbf{B}(t) = \mathbf{B}_r \cos(\omega t) - \mathbf{B}_i \sin(\omega t),
 ```
-
-where $\omega = 2\pi f$.
+where $`\omega = 2\pi f`$.
 
 
 ## Visualization

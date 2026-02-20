@@ -81,16 +81,16 @@ cavity ("Walls"), and the entire computational domain ("Domain").
 For the simulation we use
 [Time-Harmonic Maxwell Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
 which solves the following equation for the complex amplitude
-$\tilde{\mathbf{E}}$ of the electric field:
+$`\tilde{\mathbf{E}}`$ of the electric field:
 
 ```math
     \nabla \times \left(\frac{1}{\mu} \nabla \times \tilde{\mathbf{E}}\right) -
     \omega^2 \varepsilon \tilde{\mathbf{E}} = 0,
 ```
 
-where $\mu$ and $\varepsilon$ are the permeability and the permittivity of the
-material filling the waveguides and the cavity, and $\omega = 2\pi f$ is the
-angular frequency of the incoming radiation of frequency $f$.
+where $`\mu`$ and $`\varepsilon`$ are the permeability and the permittivity of the
+material filling the waveguides and the cavity, and $`\omega = 2\pi f`$ is the
+angular frequency of the incoming radiation of frequency $`f`$.
 
 As the boundary conditions we use the
 [Perfect Electric Conductor Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/perfect_electric_conductor.html)
@@ -100,7 +100,7 @@ and the
 [Waveguide Output Port Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/waveguide_output_port.html)
 for the input and output ports of the waveguides.
 
-As the incident electric field we consider the field in the $\text{TE}_{10}$
+As the incident electric field we consider the field in the $`\text{TE}_{10}`$
 mode, entering through the input port of the waveguide.
 
 We also assume that the volume of the waveguides and the cavity is filled with
@@ -116,7 +116,7 @@ we use the
 [S-parameters Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/reports/s_parameters.html).
 This report calculates scattering parameters, or S-parameters, which describe
 the input-output relationships between various ports of a device.
-In our case, we are interested in the $S_{21}$ parameter, which plays the role
+In our case, we are interested in the $`S_{21}`$ parameter, which plays the role
 of the filter transmission coefficient and is determined by the formula:
 
 ```math
@@ -130,14 +130,14 @@ of the filter transmission coefficient and is determined by the formula:
       },
 ```
 
-where $\tilde{\mathbf{E}}$ is the amplitude of the electric field obtained as a
-result of the simulation, $\tilde{\mathbf{e}}_1$ is the first mode of the
-waveguide (the $\text{TE}_{10}$ mode in the case of rectangular waveguides), and
+where $`\tilde{\mathbf{E}}`$ is the amplitude of the electric field obtained as a
+result of the simulation, $`\tilde{\mathbf{e}}_1`$ is the first mode of the
+waveguide (the $`\text{TE}_{10}`$ mode in the case of rectangular waveguides), and
 the integration is performed over the plane of the output port (arbitrarily
 indexed by the number 2).
-The $S_{21}$ parameter shows what portion of radiation emitted from the
+The $`S_{21}`$ parameter shows what portion of radiation emitted from the
 waveguide input port reaches the waveguide output port in the form of the
-$\text{TE}_{10}$ mode.
+$`\text{TE}_{10}`$ mode.
 
 
 ## Running the case
@@ -162,12 +162,12 @@ for i, frequency in enumerate(frequencies):
     S21[i] = report_data[0, 0]
 ```
 
-At each iteration, we extract the data corresponding to $S_{21}$ parameter and
+At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
 For two frequencies 12 and 14 GHz stored in the list `frequencies_paraview`, we
 save the electric field in the [VTK](https://vtk.org/) file format for
 subsequent visualization with [ParaView](https://www.paraview.org/).
-Figure 3 shows the squared magnitude of the obtained $S_{21}$​ parameter as a
+Figure 3 shows the squared magnitude of the obtained $`S_{21}`$​ parameter as a
 function of frequency.
 
 <div align="center">

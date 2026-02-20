@@ -23,7 +23,10 @@ The setup is a conductive aluminum cylinder with a homogeneous magnetic field in
 ```math
 B_y(t) = B_0 e^{-t/\tau} \quad,
 ```
-where $t=0$ represents the initial time where the magnetic field fully penetrates the cylinder. The decay constant is $\tau=0.0069$ and initial magnetic flux density is $B_0 = 0.1 \left[T \right]$. The decaying external magnetic flux density field can be incorporated into our solution by imposing at outer boundary a time-varying magnetic field of the form
+where $`t=0`$ represents the initial time where the magnetic field fully penetrates the cylinder. The decay
+constant is $`\tau=0.0069`$ and initial magnetic flux density is $`B_0 = 0.1 \left[T \right]`$. The 
+decaying external magnetic flux density field can be incorporated into our solution by imposing at outer 
+boundary a time-varying magnetic field of the form
 ```math
 \mathbf{H}(t) =
 \left(
@@ -41,7 +44,7 @@ The changing magnetic field induces eddy currents in the cylinder. Part of the b
    \left[ \frac{\rm{W}}{\rm{m}^3} \right]
    = \vec{J} \cdot \vec{E} = \sigma \frac{\partial \vec{A}}{\partial t} \cdot \frac{\partial \vec{A}}{\partial t} \quad.
 ```
-The resistivity of the aluminum is $\rho = \sigma^{-1} = 3.94 \times 10^{-8} \left[\frac{\rm{\Omega}}{\rm{m}} \right]$.
+The resistivity of the aluminum is $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \left[\frac{\rm{\Omega}}{\rm{m}} \right]`$.
 
 We setup an unsteady simulation with the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/time_domain_magnetic_model). A *Magnetostatic initialization* is used to model the initial penetration of the magnetic field in the conductive cylinder. The [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition is used to impose the magnetic field.
 
