@@ -37,7 +37,7 @@ follows:
 ```math
 \begin{align}
     \nabla \cdot \left(\varepsilon \nabla \phi\right) & = -\rho, \\
-    \left. \phi \right|_{\Gamma} & = 0, \vphantom{\frac{Q}{4 \pi}} \\
+    \left. \phi \right|_{\Gamma} & = 0,  \\
     \rho(r) & = \frac{Q}{4 \pi} \exp\left(-\frac{r^2}{2 a^2}\right).
 \end{align}
 ```

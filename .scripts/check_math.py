@@ -5,6 +5,7 @@ md_math_lint.py
 
 Rules:
 - Inline math MUST be exactly: $` ... `$   (dollar + backticks)
+  follwing https://github.blog/changelog/2023-05-08-new-delimiter-syntax-for-inline-mathematical-expressions/
 - Block math MUST be fenced as:
     ```math
     ...
