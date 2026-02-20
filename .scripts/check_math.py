@@ -29,16 +29,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-
 FENCE_RE = re.compile(r"^(\s*)(```+|~~~+)(.*)$")
 INLINE_ALLOWED_RE = re.compile(r"(?<!\\)\$`(.+?)`(?<!\\)\$", re.DOTALL)
 
 # Things to forbid
 LEGACY_INLINE_DOLLAR_RE = re.compile(r"(?<!\\)\$(?!\$)(.+?)(?<!\\)\$", re.DOTALL)
 DISPLAY_DOLLAR_RE = re.compile(r"(?<!\\)\$\$(.+?)(?<!\\)\$\$", re.DOTALL)
-PAREN_MATH_RE = re.compile(r"(?<!\\)\\\(|(?<!\\)\\\)|(?<!\\)\\\[|(?<!\\)\\\]", re.DOTALL)
+PAREN_MATH_RE = re.compile(
+    r"(?<!\\)\\\(|(?<!\\)\\\)|(?<!\\)\\\[|(?<!\\)\\\]", re.DOTALL
+)
 
 INLINE_CODE_SPAN_RE = re.compile(r"`([^`]|``)*`")  # simple masking
+
 
 @dataclass(frozen=True)
 class Issue:
@@ -78,7 +80,7 @@ def mask_ranges(s: str, ranges: list[tuple[int, int]], fill: str = " ") -> str:
     return "".join(arr)
 
 
-def build_masks(raw: str) -> tuple[str, list[tuple[int,int]], list[tuple[int,int]]]:
+def build_masks(raw: str) -> tuple[str, list[tuple[int, int]], list[tuple[int, int]]]:
     """
     Returns:
       scan_text: raw with non-math fenced blocks masked out (spaces), math fences kept.
@@ -88,8 +90,8 @@ def build_masks(raw: str) -> tuple[str, list[tuple[int,int]], list[tuple[int,int
     lines = raw.splitlines(keepends=True)
 
     out = []
-    math_block_ranges: list[tuple[int,int]] = []
-    non_math_fence_ranges: list[tuple[int,int]] = []
+    math_block_ranges: list[tuple[int, int]] = []
+    non_math_fence_ranges: list[tuple[int, int]] = []
 
     in_fence = False
     fence_char = ""
@@ -107,9 +109,9 @@ def build_masks(raw: str) -> tuple[str, list[tuple[int,int]], list[tuple[int,int
 
             if not in_fence:
                 in_fence = True
-                fence_char = token[0]   # ` or ~
+                fence_char = token[0]  # ` or ~
                 fence_len = len(token)
-                is_math = (fence_char == "`" and info == "math")
+                is_math = fence_char == "`" and info == "math"
                 block_start = idx
 
                 out.append(line)  # keep fence line
@@ -133,13 +135,19 @@ def build_masks(raw: str) -> tuple[str, list[tuple[int,int]], list[tuple[int,int
                     if is_math:
                         out.append(line)
                     else:
-                        out.append(" " * (len(line) - (1 if line.endswith("\n") else 0)) + ("\n" if line.endswith("\n") else ""))
+                        out.append(
+                            " " * (len(line) - (1 if line.endswith("\n") else 0))
+                            + ("\n" if line.endswith("\n") else "")
+                        )
         else:
             if in_fence:
                 if is_math:
                     out.append(line)
                 else:
-                    out.append(" " * (len(line) - (1 if line.endswith("\n") else 0)) + ("\n" if line.endswith("\n") else ""))
+                    out.append(
+                        " " * (len(line) - (1 if line.endswith("\n") else 0))
+                        + ("\n" if line.endswith("\n") else "")
+                    )
             else:
                 out.append(line)
 
@@ -154,7 +162,9 @@ def lint_file(path: str, raw: str) -> list[Issue]:
     scan_text, _, _ = build_masks(raw)
 
     # Mask allowed inline $`...`$ first
-    allowed_ranges = [(m.start(), m.end()) for m in INLINE_ALLOWED_RE.finditer(scan_text)]
+    allowed_ranges = [
+        (m.start(), m.end()) for m in INLINE_ALLOWED_RE.finditer(scan_text)
+    ]
     tmp = mask_ranges(scan_text, allowed_ranges, fill=" ")
 
     # Mask inline code spans (outside allowed math)
@@ -164,20 +174,36 @@ def lint_file(path: str, raw: str) -> list[Issue]:
     # 1) Forbid $$...$$ anywhere (outside masked areas)
     for m in DISPLAY_DOLLAR_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
-        excerpt = raw[m.start():m.end()].splitlines()[0] + " …" if "\n" in raw[m.start():m.end()] else raw[m.start():m.end()]
-        issues.append(Issue(path, line, col, "forbidden_display_dollars", excerpt.strip()))
+        excerpt = (
+            raw[m.start() : m.end()].splitlines()[0] + " …"
+            if "\n" in raw[m.start() : m.end()]
+            else raw[m.start() : m.end()]
+        )
+        issues.append(
+            Issue(path, line, col, "forbidden_display_dollars", excerpt.strip())
+        )
 
     # 2) Forbid legacy single-dollar inline math ($...$) not part of allowed $`...`$
     for m in LEGACY_INLINE_DOLLAR_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
-        excerpt = raw[m.start():m.end()]
+        excerpt = raw[m.start() : m.end()]
         excerpt = excerpt.splitlines()[0] + " …" if "\n" in excerpt else excerpt
-        issues.append(Issue(path, line, col, "forbidden_inline_dollar", excerpt.strip()))
+        issues.append(
+            Issue(path, line, col, "forbidden_inline_dollar", excerpt.strip())
+        )
 
     # 3) Forbid \( \) and \[ \]
     for m in PAREN_MATH_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
-        issues.append(Issue(path, line, col, "forbidden_backslash_math_delimiter", raw[m.start():m.start()+2]))
+        issues.append(
+            Issue(
+                path,
+                line,
+                col,
+                "forbidden_backslash_math_delimiter",
+                raw[m.start() : m.start() + 2],
+            )
+        )
 
     # 4) Detect broken $`...`$ (unbalanced)
     # Strategy: on tmp (where allowed ranges are masked) find remaining '$`' or '`$' tokens.
@@ -193,10 +219,18 @@ def lint_file(path: str, raw: str) -> list[Issue]:
         # If any remain, they are unmatched (since matched ones were masked as allowed)
         for pos in open_positions:
             line, col = compute_line_col(raw, pos)
-            issues.append(Issue(path, line, col, "unmatched_inline_math_opener", raw[pos:pos+2]))
+            issues.append(
+                Issue(
+                    path, line, col, "unmatched_inline_math_opener", raw[pos : pos + 2]
+                )
+            )
         for pos in close_positions:
             line, col = compute_line_col(raw, pos)
-            issues.append(Issue(path, line, col, "unmatched_inline_math_closer", raw[pos:pos+2]))
+            issues.append(
+                Issue(
+                    path, line, col, "unmatched_inline_math_closer", raw[pos : pos + 2]
+                )
+            )
 
     return issues
 
