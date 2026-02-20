@@ -1,6 +1,7 @@
 # μfem
 
-A finite-element multi-physics application framework based on [MFEM](https://mfem.org/) library.
+A [finite-element multi-physics application framework](https://raiden-numerics.github.io/mufem/) based
+on the [MFEM](https://mfem.org/) library.
 
 ![Logo](.logo.png)
 
@@ -47,7 +48,7 @@ To run the validations please make sure to follow the [Installation](https://rai
   A long-standing set of reference problems from the NAFEMS simulation community
   covering structural, thermal, fluid, and multi-physics analyses.
 
-  - [Cameron 1986: Cameron 1986: Heat Transfer With Convection](Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
+  - [Cameron 1986: Heat Transfer With Convection](Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
 
 
 ## Continuous Integration
