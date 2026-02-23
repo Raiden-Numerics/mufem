@@ -8,9 +8,6 @@ from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
     CoilTopologyOpen,
     ExcitationCoilModel,
-    CoilSpecification,
-    CoilTopologyOpen,
-    ExcitationCoilModel,
 )
 from mufem.electromagnetics.timeharmonicmagnetic import (
     TimeHarmonicMagneticGeneralMaterial,
@@ -23,7 +20,6 @@ from mufem.electromagnetics.coil import (
     CoilTopologyOpen,
     ExcitationCoilModel,
     CoilTypeSolid,
-    BackElectromotiveForceReport,
 )
 
 from mufem import Vol, Bnd
@@ -140,5 +136,6 @@ for n in range(25):
 
     if is_main_process:
         print(
-            f"Coil {n+1}: Ohmic Heating = {report_value:.4f} W, Reference = {reference_value:.4f} W"
+            f"Coil {n+1}: Ohmic Heating = {report_value:.4f} W, "
+            f"Reference = {reference_value:.4f} W"
         )
