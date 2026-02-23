@@ -86,7 +86,6 @@ for n in range(25):
         f"Coil {n+1}::Back" @ Bnd, f"Coil {n+1}::Front" @ Bnd
     )
     coil_type = CoilTypeSolid()
-    # @todo: should be in constructor
     coil_type.drive_method = CoilTypeSolid.DriveMethod.Source
 
     coil_excitation = CoilExcitationCurrent.Harmonic(
