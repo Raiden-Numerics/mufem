@@ -3,13 +3,12 @@ import numpy
 import mufem
 
 
-
 from mufem.electromagnetics.coil import (
     CoilSpecification,
     CoilExcitationCurrent,
     CoilTopologyOpen,
     ExcitationCoilModel,
-        CoilSpecification,
+    CoilSpecification,
     CoilTopologyOpen,
     ExcitationCoilModel,
 )
@@ -30,15 +29,14 @@ from mufem.electromagnetics.coil import (
 from mufem import Vol, Bnd
 
 
-
-
 from pathlib import Path
 
 dir_path = Path(__file__).resolve().parent
 
 
 sim = mufem.Simulation.New(
-    name="Biro 1993: 3D Iron Core Current Driven Conductors", mesh_path=f"{dir_path}/geometry.mesh"
+    name="Biro 1993: 3D Iron Core Current Driven Conductors",
+    mesh_path=f"{dir_path}/geometry.mesh",
 )
 
 
@@ -126,7 +124,6 @@ vis.add_field_output("Electric Current Density-Imag")
 vis.save(order=2)
 
 
-
 ## Compare with reference
 
 reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True)
@@ -137,10 +134,11 @@ for n in range(25):
         f"Ohmic Heating", f"Coil {n+1}" @ Vol, "Ohmic Heating"
     )
 
-    report_value = report.evaluate() * 4 # due to symmetry
+    report_value = report.evaluate() * 4  # due to symmetry
 
-    reference_value = reference[2, n] # 0-based index, column 3 in file
+    reference_value = reference[2, n]  # 0-based index, column 3 in file
 
     if is_main_process:
-        print(f"Coil {n+1}: Ohmic Heating = {report_value:.4f} W, Reference = {reference_value:.4f} W")
-
+        print(
+            f"Coil {n+1}: Ohmic Heating = {report_value:.4f} W, Reference = {reference_value:.4f} W"
+        )

@@ -14,9 +14,9 @@ Ohmic loss within each individual conductor to the reference.
 
 ## Introduction
 
-The core has a permeability of $\mu_r=1000$ (with no eddy currents) and the conductors have a
-conductivity of $\sigma=5.6 \times 10^7$. In each turn a peak current of $I=10 \rm{A}$, phase
-$\phi=0 ^\circ$ and frequency $f = 5 \rm{kHz}$ is imposed.
+The core has a permeability of $`\mu_r=1000`$ (with no eddy currents) and the conductors have a
+conductivity of $`\sigma=5.6 \times 10^7`$. In each turn a peak current of $`I=10 \rm{A}`$, phase
+$`\phi=0 ^\circ`$ and frequency $`f = 5 \rm{kHz}`$ is imposed.
 
 We compare the Ohmic heating generated inside each conductor with the values provides in [1] (Table I) for
 3D with air gap.
