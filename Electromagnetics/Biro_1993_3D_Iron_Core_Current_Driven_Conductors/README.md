@@ -70,7 +70,7 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
 * **Electric Current Density**
 
 
-  | Electric Current Density ($\phi=0$) | Electric Current Density ($\phi=90$) |
+  | Electric Current Density ($`\phi=`0$) | Electric Current Density ($`\phi=90`$) |
   | ---- | ---- |
   | ![Re Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Real.png) | ![Im Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Imag.png) |
 
@@ -79,7 +79,7 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
 
 * **Magnetic Flux Density**
 
-  | Magnetic Flux Density ($\phi=0$) | Magnetic Flux Density ($\phi=90$) |
+  | Magnetic Flux Density ($`\phi=0`$) | Magnetic Flux Density ($`\phi=90`$) |
   | ---- | ---- |
   | ![Re Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Real.png) | ![Im Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Imag.png) |
 

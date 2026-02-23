@@ -3,12 +3,6 @@ import numpy
 import mufem
 
 
-from mufem.electromagnetics.coil import (
-    CoilSpecification,
-    CoilExcitationCurrent,
-    CoilTopologyOpen,
-    ExcitationCoilModel,
-)
 from mufem.electromagnetics.timeharmonicmagnetic import (
     TimeHarmonicMagneticGeneralMaterial,
     TimeHarmonicMagneticModel,
@@ -19,6 +13,7 @@ from mufem.electromagnetics.coil import (
     CoilSpecification,
     CoilTopologyOpen,
     ExcitationCoilModel,
+    CoilExcitationCurrent,
     CoilTypeSolid,
 )
 
@@ -120,14 +115,14 @@ vis.add_field_output("Electric Current Density-Imag")
 vis.save(order=2)
 
 
-## Compare with reference
+# Compare with reference
 
 reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True)
 
 for n in range(25):
 
     report = mufem.VolumeIntegralReport(
-        f"Ohmic Heating", f"Coil {n+1}" @ Vol, "Ohmic Heating"
+        "Ohmic Heating", f"Coil {n+1}" @ Vol, "Ohmic Heating"
     )
 
     report_value = report.evaluate() * 4  # due to symmetry
