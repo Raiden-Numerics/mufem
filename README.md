@@ -37,7 +37,12 @@ To run the validations please make sure to follow the [Installation](https://rai
 
   - [Lubin 2015: Axial-Flux Eddy Current Brake](Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
 
-* **[Time-Harmonic Maxwell (High-Frequency Electromagnetics)](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
+
+* **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
+
+  - [Biro 1993: 3D Iron Core Current Driven Conductors](Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md)
+
+* **[Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
   - [Montejo-Garai 1995: Circular Cavity Filter](Electromagnetics/Montejo-Garai_1995_Circular_Cavity_Filter/README.md)
   - [Stutzman 2012: Dipole Antenna](Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)
 
