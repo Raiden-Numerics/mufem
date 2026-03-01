@@ -32,7 +32,7 @@ Figure 2: The mesh used in the simulation visualized using <a href="https://glvi
 
 ### Model
 
-We use the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/time_domain_magnetic_model) which solves for the magnetic field using finite-element discretization and following equation:
+We use the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) which solves for the magnetic field using finite-element discretization and following equation:
 ```math
 \rm{curl}\, \mu^{-1} \rm{curl}\, \mathbf{A} = \mathbf{J} \quad,
 ```
@@ -52,7 +52,7 @@ as well.
 
 ### Excitation
 
-The electric current density in the right-hand side of the equation is provided by the [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitation_coil_model) which models the properties of the stranded coil. The electric current density inside the coil body can be calculated using
+The electric current density in the right-hand side of the equation is provided by the [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) which models the properties of the stranded coil. The electric current density inside the coil body can be calculated using
 ```math
 \mathbf{J}= I \frac{n_t}{S_c} \mathbf{d} \quad,
 ```
