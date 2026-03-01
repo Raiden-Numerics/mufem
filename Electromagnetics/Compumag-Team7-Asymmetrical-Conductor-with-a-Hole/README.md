@@ -27,9 +27,9 @@ lines on top of the plate, denoted A1–B1 and A2–B2.
 ## Setup
 
 Since the problem is linear and the excitation is sinusoidal, the
-[Time-Harmonic Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/time_harmonic_magnetic_model)
+[Time-Harmonic Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
 can beused. The excitation is prescribed using the
-[Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitation_coil_model).
+[Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html).
 
 The setup script is provided in [here](case.py) and the corresponding mesh can be found [here](geometry.mesh). The mesh contains three
 [named attributes](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13): **Air**, **Coil**, and **Plate**.
@@ -50,26 +50,29 @@ magnetic_model = TimeHarmonicMagneticModel(
 ### Materials
 
 Three
-[materials](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/materials/time_harmonic_magnetic_material)
+[materials](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/materials/general_material.html)
 are defined: *air*, *copper*, and *aluminium*. Only aluminium is electrically conductive and
 therefore supports eddy currents.
 
 ```python
-air_material = TimeHarmonicMagneticGeneralMaterial.Constant(
+air_material = TimeHarmonicMagneticGeneralMaterial(
     name="Air",
     marker="Air" @ Vol,
+    has_eddy_currents=False,
 )
 
-copper_material = TimeHarmonicMagneticGeneralMaterial.Constant(
+copper_material = TimeHarmonicMagneticGeneralMaterial(
     name="Copper",
     marker="Coil" @ Vol,
+    has_eddy_currents=False,
 )
 
-alu_material = TimeHarmonicMagneticGeneralMaterial.Constant(
+alu_material = TimeHarmonicMagneticGeneralMaterial(
     name="Alu",
     marker="Plate" @ Vol,
-    relative_magnetic_permeability=1.0,
+    magnetic_permeability=1.0,
     electric_conductivity=3.526e7,
+    has_eddy_currents=True,
 )
 ```
 
@@ -77,7 +80,7 @@ alu_material = TimeHarmonicMagneticGeneralMaterial.Constant(
 ### Coil Excitation
 
 The
-[Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitation_coil_model)
+[Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html)
 is added to the simulation. The coil is modeled as
 
 - a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/excitation_current) with $`I = 1\,\mathrm{A}`$,

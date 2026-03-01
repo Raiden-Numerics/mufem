@@ -46,7 +46,7 @@ The changing magnetic field induces eddy currents in the cylinder. Part of the b
 ```
 The resistivity of the aluminum is $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \left[\frac{\rm{\Omega}}{\rm{m}} \right]`$.
 
-We setup an unsteady simulation with the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/time_domain_magnetic_model). A *Magnetostatic initialization* is used to model the initial penetration of the magnetic field in the conductive cylinder. The [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition is used to impose the magnetic field.
+We setup an unsteady simulation with the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html). A *Magnetostatic initialization* is used to model the initial penetration of the magnetic field in the conductive cylinder. The [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition is used to impose the magnetic field.
 
 ## Results
 
