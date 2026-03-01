@@ -198,3 +198,163 @@ a:hover {
   box-shadow: 0 4px 10px rgba(13,110,253,.25);
 }
 
+.tech-list-icons {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.tech-list-icons li {
+  display: flex;
+  align-items: center;      /* vertical centering */
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.tech-icon {
+  font-size: 1.5rem;
+  color: #dc3545;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;      /* ensure icon itself is centered */
+  justify-content: center;
+}
+
+.tech-list-icons li span {
+  flex: 1;
+}
+
+/* add to css/style.css */
+.tech-more {
+  display: flex;
+  justify-content: center;
+}
+
+.tech-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  color: inherit;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+.tech-more-link:hover {
+  text-decoration: none;
+  border-color: rgba(0,0,0,0.35);
+}
+
+.tech-more-icon {
+  font-size: 1.15rem;
+  color: #dc3545; /* match your red icons */
+}
+
+/* replace .hero-btn styles with this pill link style */
+.hero-links {
+  display: flex;
+  justify-content: center;
+  gap: .9rem;
+  flex-wrap: wrap;
+}
+
+.hero-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  font-weight: 650;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  color: #1f2937;
+  border: 1px solid rgba(0,0,0,.12);
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(0,0,0,.05);
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.hero-link-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0,0,0,.22);
+  box-shadow: 0 10px 20px rgba(0,0,0,.07);
+}
+
+.hero-link-icon {
+  font-size: 1.15rem;
+  color: #0d6efd;
+}
+
+.models-more {
+  display: flex;
+  justify-content: center;
+}
+
+:root {
+  --accent: #dc3545;        /* red */
+  --accent_hover: #bb2d3b;
+}
+
+/* hero external links */
+.hero-link-icon {
+  color: var(--accent);
+}
+
+/* technology list icons */
+.tech-icon {
+  color: var(--accent);
+}
+
+/* technology / models “want to know more” */
+.tech-more-icon {
+  color: var(--accent);
+}
+
+/* add to css/style.css */
+/* replace the existing .top-nav block with this */
+/* smaller sticky gray top bar */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: #f3f4f6;
+  border-bottom: 1px solid rgba(0,0,0,0.10);
+  padding: 0.35rem 0;          /* smaller */
+}
+
+.top-nav .container {
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;                /* tighter */
+  flex-wrap: wrap;
+}
+
+/* smaller pills */
+.top-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  font-weight: 650;
+  padding: 0.32rem 0.7rem;     /* smaller */
+  border-radius: 999px;
+  color: #1f2937;
+  border: 1px solid rgba(0,0,0,0.16);
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(0,0,0,.06);
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  font-size: 0.95rem;          /* smaller text */
+}
+
+.top-nav-pill:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  border-color: rgba(0,0,0,0.30);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+
+.top-nav-icon {
+  font-size: 1.05rem;          /* smaller icon */
+  color: #dc3545;
+}

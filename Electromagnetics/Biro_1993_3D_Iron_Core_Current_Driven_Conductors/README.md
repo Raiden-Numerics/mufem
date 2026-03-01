@@ -70,7 +70,7 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
 * **Electric Current Density**
 
 
-  | Electric Current Density ($`\phi=`0$) | Electric Current Density ($`\phi=90`$) |
+  | Electric Current Density ($`\phi=0`$) | Electric Current Density ($`\phi=90`$) |
   | ---- | ---- |
   | ![Re Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Real.png) | ![Im Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Imag.png) |
 

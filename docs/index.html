@@ -6,11 +6,32 @@
     <title>mufem</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">    
     <link href="css/style.css" rel="stylesheet" />
   </head>
 
   <body>
  
+<nav class="top-nav" aria-label="Section navigation">
+  <div class="container">
+          <a class="top-nav-pill" href="#top" title="Top" aria-label="Top">
+        <i class="bi bi-arrow-up-circle top-nav-icon" aria-hidden="true"></i>
+        Top
+      </a>
+    <a class="top-nav-pill" href="#technology">
+      <i class="bi bi-cpu top-nav-icon" aria-hidden="true"></i>
+      Technology
+    </a>
+    <a class="top-nav-pill" href="#models">
+      <i class="bi bi-grid-3x3-gap top-nav-icon" aria-hidden="true"></i>
+      Models
+    </a>
+    <a class="top-nav-pill" href="#validations">
+      <i class="bi bi-check2-circle top-nav-icon" aria-hidden="true"></i>
+      Validations
+    </a>
+  </div>
+</nav>
     <header class="py-5">
       <div class="container text-center">
 
@@ -21,55 +42,71 @@
 </div>
 
 <div class="text-secondary mx-auto mt-3 hero-text">
-  mufem is a highly scalable finite element framework focused on electromagnetics, plasma, and multi-physics.
-  It provides a native Python interface, and is designed for automation, machine learning, AI-driven studies, 
+  <i>mufem</i> is a highly scalable finite element framework focused on electromagnetics, plasma, and multi-physics
+  simulations. It provides a native Python interface, and is designed for automation, machine learning, AI-driven studies, 
   and large-scale repetitive simulation workflows.
 </div>
 
 <div class="hero-links mt-3">
-  <a class="btn hero-btn"
+  <a class="hero-link-pill"
      href="https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html">
+    <i class="bi bi-download hero-link-icon" aria-hidden="true"></i>
     Installation
-  </a>
-
-  <a class="btn hero-btn"
-     href="https://raiden-numerics.github.io/mufem-doc/index.html">
-    Documentation
-  </a>
-
-  <a class="btn hero-btn"
-     href="https://github.com/Raiden-Numerics/mufem-release?tab=readme-ov-file#validation-cases">
-    Validations
   </a>
 </div>
 
-<h1 class="mt-5 mb-3 display-6">Technology</h1>
+<h1 id="technology" class="mt-5 mb-3 display-6">Technology</h1>
 
 <div class="technology mx-auto">
   <div class="technology-card">
     <div class="row g-3">
       <div class="col-12 col-md-6">
-        <ul class="tech-list">
-          <li>Using MFEM as backend for efficient discretization.</li>
-          <li>Higher-order accuracy with higher-order geometry on unstructured meshes.</li>
-          <li>Adaptive Mesh refinement with hanging nodes support.</li>
+        <ul class="tech-list tech-list-icons">
+          <li>
+            <i class="bi bi-grid-3x3-gap-fill tech-icon" aria-hidden="true"></i>
+            <span>Using MFEM as backend for efficient discretization.</span>
+          </li>
+          <li>
+            <i class="bi bi-grid-3x3 tech-icon" aria-hidden="true"></i>
+            <span>Higher-order accuracy with higher-order geometry on unstructured meshes.</span>
+          </li>
+          <li>
+            <i class="bi bi-diagram-3-fill tech-icon" aria-hidden="true"></i>
+            <span>Adaptive Mesh refinement with hanging nodes support.</span>
+          </li>
         </ul>
       </div>
+
       <div class="col-12 col-md-6">
-        <ul class="tech-list">
-          <li>Native Python interface for problem specification and automation.</li>
-          <li>Performance portability across heterogeneous CPU/GPU platforms.</li>
-          <li>Cartesian meshes with implicit geometry workflows.</li>
+        <ul class="tech-list tech-list-icons">
+          <li>
+            <i class="bi bi-filetype-py tech-icon" aria-hidden="true"></i>
+            <span>Native Python interface for problem specification and automation.</span>
+          </li>
+          <li>
+            <i class="bi bi-gpu-card tech-icon" aria-hidden="true"></i>
+            <span>Performance portability across heterogeneous CPU/GPU platforms.</span>
+          </li>
+          <li>
+            <i class="bi bi-boxes tech-icon" aria-hidden="true"></i>
+            <span>Cartesian meshes with implicit geometry workflows.</span>
+          </li>
         </ul>
       </div>
+    </div>
+
+    <div class="tech-more mt-3">
+      <a class="tech-more-link"
+         href="https://raiden-numerics.github.io/mufem-doc/getting_started/technology.html">
+        <i class="bi bi-arrow-right-circle tech-more-icon" aria-hidden="true"></i>
+        Want to know more
+      </a>
     </div>
   </div>
 </div>
 
 
-
-
-<h1 class="mt-5 mb-3 display-6">Models</h1>
+<h1 id="models" class="mt-5 mb-3 display-6">Models</h1>
 
 <!-- Electromagnetics -->
 <div class="category category-emag mb-4">
@@ -199,6 +236,44 @@
 </div>
 
 
+<!-- add this after Plasma category (new Validations section) -->
+<h1 id="validations" class="mt-5 mb-3 display-6">Validations</h1>
+
+<div class="category mb-4">
+  <div class="category-header">
+    <div class="category-title">Benchmarks & Test Cases</div>
+  </div>
+
+  <div class="row g-4 justify-content-center mt-0">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="technology-card">
+        <ul class="tech-list tech-list-icons">
+          <li>
+            <i class="bi bi-check2-circle tech-icon" aria-hidden="true"></i>
+            <span>Reproducible validation suite with reference results and automated comparisons.</span>
+          </li>
+          <li>
+            <i class="bi bi-clipboard-data tech-icon" aria-hidden="true"></i>
+            <span>Physics-based benchmarks covering magnetostatics, eddy currents, and RF problems.</span>
+          </li>
+          <li>
+            <i class="bi bi-graph-up-arrow tech-icon" aria-hidden="true"></i>
+            <span>Automated plots, baselines, and regression tracking for solver changes.</span>
+          </li>
+        </ul>
+
+        <div class="tech-more mt-3">
+          <a class="tech-more-link ext-link"
+             href="https://github.com/Raiden-Numerics/mufem-release?tab=readme-ov-file#validation-cases"
+             target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right tech-more-icon" aria-hidden="true"></i>
+            View validation cases
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
         </div>
