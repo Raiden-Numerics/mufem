@@ -33,7 +33,7 @@ To run the validations please make sure to follow the [Installation](https://rai
   - [Ren 2014: MEMS Comb Drive](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
   - [David 2019: Nonuniform Charge Density](Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
 
-* **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/time_domain_magnetic_model.html)**
+* **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
 
   - [Lubin 2015: Axial-Flux Eddy Current Brake](Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
 
