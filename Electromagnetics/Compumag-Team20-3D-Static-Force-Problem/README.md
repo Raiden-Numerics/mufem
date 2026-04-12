@@ -157,7 +157,7 @@ The results are presented in Figure 3, where we find a good match to the experim
 reported in [[2]](#[2]) and [[3]](#[3]). Note that initially the force increases quadratically with an 
 increase of current until around $`I=3`$ A, where the steel saturates.
 
-Finally, we save the fields at $`I=5`$ A for further evaluation with [ParaView](https://www.paraview.org/).
+Finally, we save the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 
 <div align="center">
 <img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="600">
