@@ -89,6 +89,13 @@ coil_model.add_coil_specification(coil)
 
 sim.run()
 
+vis = sim.get_field_exporter()
+vis.add_field_output("Magnetic Flux Density")
+vis.add_field_output("Electric Current Density")
+
+vis.save(order=2)
+
+
 # Plot Results
 # flake8: noqa: FKA100
 
