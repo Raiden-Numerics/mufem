@@ -33,11 +33,10 @@ We use second order accuracy.
 
 * **Scenes**
 
-*Click on the image to view the interactive 3D result*
-
-<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
+  *Click on the image to view the interactive 3D result*
+  <a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
   <img src="results/TEAM-13-Results.png" alt="TEAM-13 Results"/>
-</a>
+  </a>
 
 * **Magnetic Flux Density in the Air**
 
