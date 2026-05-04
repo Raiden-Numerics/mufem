@@ -44,8 +44,6 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        python -m venv $HOME/mufem
-        echo "VIRTUAL_ENV=$HOME/mufem" >> $GITHUB_ENV
         pip install mufem==$MUFEM_VERSION
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
