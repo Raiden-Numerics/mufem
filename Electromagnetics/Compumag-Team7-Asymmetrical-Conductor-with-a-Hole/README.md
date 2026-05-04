@@ -28,10 +28,10 @@ lines on top of the plate, denoted A1–B1 and A2–B2.
 
 Since the problem is linear and the excitation is sinusoidal, the
 [Time-Harmonic Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
-can beused. The excitation is prescribed using the
+can be used. The excitation is prescribed using the
 [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html).
 
-The setup script is provided in [here](case.py) and the corresponding mesh can be found [here](geometry.mesh). The mesh contains three
+The setup script is provided in [case.py](case.py) and the corresponding mesh can be found in [geometry.mesh](geometry.mesh). The mesh contains three
 [named attributes](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13): **Air**, **Coil**, and **Plate**.
 
 ### Model

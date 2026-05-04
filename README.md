@@ -58,6 +58,10 @@ To run the validations please make sure to follow the [Installation](https://rai
 
 ## Continuous Integration
 
-[![Run Examples](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml/badge.svg)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
+Examples Linux:
+[![Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.12)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
+[![Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.13)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
+[![Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.14)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
+
 [![Python Black](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/black-check.yaml/badge.svg)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/black-check.yaml)
 [![Python flake8](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/flake8.yaml/badge.svg)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/flake8.yaml)

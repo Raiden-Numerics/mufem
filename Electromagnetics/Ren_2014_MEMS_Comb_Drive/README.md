@@ -140,7 +140,7 @@ Mesh Refiner:
 mesh_refiner = model.get_mesh_refiner()
 mesh_refiner.set_refinement_fraction(0.3)
 ```
-For instance, in the code above, we set the mesh refinement fraction to 0.3, indicating that 70% of the 
+For instance, in the code above, we set the mesh refinement fraction to 0.3, indicating that the top 30% of 
 elements with the highest error will be refined.
 
 As an example, Figure 3 illustrates the calculated electric field potential along with the mesh edges for 
@@ -154,8 +154,7 @@ becomes denser near the edges of the combs, where the electric potential changes
   <br/>
   Figure 3: A slice of the computational domain displaying the calculated electric field potential along 
   with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several 
-  cycles of adaptive mesh refinement. The images are obtained using <a href="paraview_mesh.
-  py">paraview_mesh.py</a> file.
+  cycles of adaptive mesh refinement. The images are obtained using <a href="paraview_mesh.py">paraview_mesh.py</a> file.
 </div>
 <br/>
 
@@ -189,7 +188,7 @@ voltage is applied.
     <img src="results/Electric_Potential.gif" width="600">
     <br/>
     <br/>
-    Figure 5: The distribution of electric potential for various shifts between the combs. The git 
+    Figure 5: The distribution of electric potential for various shifts between the combs. The GIF 
     animation is obtained using <a href="paraview_gif.py">paraview_gif.py</a> file.
 </div>
 <br/>
@@ -205,9 +204,9 @@ F = \frac{1}{2} \frac{\partial C}{\partial x} V^2,
 where $`\partial C/\partial x`$ represents the change in capacitance with respect to distance between
 the combs, and $`V`$ is the applied voltage.
 
-To calculate the derivative $`\partial C/\partial x`$​ in Figure 6, we plot the capacitance against 
+To calculate the derivative $`\partial C/\partial x`$ in Figure 6, we plot the capacitance against 
 the shift distance. As observed, the capacitance decreases linearly as the distance between the 
-combs increases.  By applying a linear fit, we can extract the value of $`\partial C/\partial x`$​, 
+combs increases.  By applying a linear fit, we can extract the value of $`\partial C/\partial x`$, 
 which in this case is equal to $`-2.78\times10^{-10}`$ F/m. Using this value in the formula provided 
 earlier, we can estimate that the comb drive generates a force $`F`$ with an amplitude of 0.139 nN.
 

@@ -15,13 +15,13 @@ Ohmic loss within each individual conductor to the reference.
 ## Introduction
 
 The core has a permeability of $`\mu_r=1000`$ (with no eddy currents) and the conductors have a
-conductivity of $`\sigma=5.6 \times 10^7`$. In each turn a peak current of $`I=10 \rm{A}`$, phase
-$`\phi=0 ^\circ`$ and frequency $`f = 5 \rm{kHz}`$ is imposed.
+conductivity of $`\sigma=5.6 \times 10^7 \, \mathrm{S/m}`$. In each turn a peak current of $`I=10 \, \mathrm{A}`$, phase
+$`\phi=0^\circ`$ and frequency $`f = 5 \, \mathrm{kHz}`$ is imposed.
 
-We compare the Ohmic heating generated inside each conductor with the values provides in [1] (Table I) for
+We compare the Ohmic heating generated inside each conductor with the values provided in [1] (Table I) for
 3D with air gap.
 
-Each copper conductor is setup as a solid coil (conductor) - thus eddy currents are resolved and we have
+Each copper conductor is set up as a solid coil (conductor) - thus eddy currents are resolved and we have
 a strong skin effect.
 
 ## Setup
@@ -63,7 +63,7 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
     | 24   | 0.2920    | 0.25992  | 0.03208   | 10.99         |
     | 25   | 0.1166    | 0.11824  | 0.00164   | 1.41          |
 
-    We find some deviation around 10%. However, the size of the gap is an uncertainty which need to be quantified (does a smaller gap improve the results).
+    We find some deviation around 10%. However, the size of the gap is an uncertainty which needs to be quantified; whether a smaller gap improves the agreement remains to be investigated.
 
 ## Scenes
 

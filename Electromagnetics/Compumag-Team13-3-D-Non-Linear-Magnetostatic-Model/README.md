@@ -3,23 +3,23 @@
 
 ## Introduction
 
-The problem [1] is a non linear magnetostatic case with an exciting coil set between two steel channels, and
-a steel plate inserted between the channels. The applied coil current is is large enough to saturate the steel.
+The problem [1] is a nonlinear magnetostatic case with an exciting coil set between two steel channels, and
+a steel plate inserted between the channels. The applied coil current is large enough to saturate the steel.
 The goal is to calculate the magnetic flux density at certain points.
 
 <div align="center">
 <img src="./data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>Geometry of the benchmark. An excitation coil surrounded by thin steel plate. Due to symmetry only half the model is modeleld..</em>
+<em>Geometry of the benchmark. An excitation coil surrounded by thin steel plates. Due to symmetry only half the model is modelled.</em>
 </div>
 <br /><br />
 
 
-The problem exhibits a strong nonlinearity due to the bh curve used in the channels and center plate with a Rayleigh region and saturation:
+The problem exhibits a strong nonlinearity due to the B-H curve used in the channels and center plate with a Rayleigh region and saturation:
 
 
-| BH Curve | Zoomed-om Rayleigh region |
+| B-H Curve | Zoomed-in Rayleigh region |
 | -------- | --------- |
 | ![BHCurve](data/bh_curve.png) | ![BHCurve](./data/bh_curve_low.png) |
 

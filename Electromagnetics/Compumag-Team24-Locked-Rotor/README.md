@@ -95,7 +95,7 @@ For a linear setup with a single coil and no eddy currents, the current evolutio
 I(t) = \frac{V}{R} \left( 1 - e^{-t/\tau} \right),
 ```
 
-with $`\tau = L/R`$, where $`L`$ is inductance and $`R`$ resistance.
+with $`\tau = L/R`$, where $`L`$ is the inductance and $`R`$ is the resistance.
 
 These values are estimated using the [Magnetic Inductance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/magnetic_inductance_report.html)
 and the [Coil Resistance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/coil_resistance_report.html) via:

@@ -9,8 +9,19 @@ jobs:
       image: ubuntu:24.04
     if: github.event.pull_request.draft == false
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.python-version }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: '3.12'
+            case-path: '.'
+          - python-version: '3.13'
+            case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+          - python-version: '3.14'
+            case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
 
     steps:
     - name: Checkout repository
@@ -26,18 +37,17 @@ jobs:
         echo "MUFEM_VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Install Python dependencies
       run: |
-        python -m venv $HOME/mufem
-        echo "VIRTUAL_ENV=$HOME/mufem" >> $GITHUB_ENV
-        pip install mufem==$MUFEM_VERSION        
+        pip install mufem==$MUFEM_VERSION
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
     - name: Run the examples
       run: |
-        python3 ./run_cases.py
+        python3 ./run_cases.py ${{ matrix.case-path }}
