@@ -9,18 +9,18 @@ The problem [[1]](#[1]) is a non-linear magnetostatic case with a center pole an
 <img src="data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-    <br/>Figure 1: Geometry of the benchmark. An excitation coil surrounds a steel pole and yoke. Due to symmetry only 1/4th model is modelled.
+    <br/>Figure 1: Geometry of the benchmark. An excitation coil surrounds a steel pole and yoke. Due to symmetry only one quarter of the geometry is modelled.
 </div>
 <br /><br />
 
-When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested the relation between the coil current and the resulting force on the pole. The force on the center pole is compared to **experimental values** presented in [[3]](#[3]).
+When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested in the relation between the coil current and the resulting force on the pole. The force on the center pole is compared to **experimental values** presented in [[3]](#[3]).
 
 ## Setup
 
 
 ### Mesh
 
-The mesh was created using netgen and saved in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Center and Coil) and boundaries.
+The mesh was created using netgen and saved in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries.
 
 <div align="center">
 <img src="data/Mesh.png" alt="drawing" width="400">
@@ -46,9 +46,7 @@ in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \ma
 As for the boundary, by symmetry the magnetic flux needs to be tangential to the symmetry faces; thus we
 assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition) which ensures that
 $`\mathbf{B} \cdot \mathbf{n} = 0`$. This is achieved by specifying the tangential components of 
-$`\mathbf{A}`$ to zero, i.e. $`\mathbf{n} \times \mathbf{A} = 0`$. While the air boundary, as a far field
-boundary can be chosen to be either left free, for simplicity we assign a tangential flux condition to it 
-as well.
+$`\mathbf{A}`$ to zero, i.e. $`\mathbf{n} \times \mathbf{A} = 0`$. Although the outer air boundary, being a far-field boundary, could be left free, for simplicity we apply a tangential flux condition there as well.
 
 ### Excitation
 
@@ -61,7 +59,7 @@ $`S_c[\rm{m}^2]`$
 is the coil cross section and $`\mathbf{d}`$ is the coil path (please note that the actual calculation is 
 more involved as we need to ensure that the electric current density is homogeneous along a coil cross 
 section as well as support non-constant cross sections of the coil geometry). Here, we choose $`n_t=1000`$ 
-and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ with a total 11 measurements.
+and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ with a total of 11 measurements.
 
 ### Reports
 
@@ -79,12 +77,12 @@ where $`\mathbf{n}`$ is the normal along the surface. Note that only the z-compo
 
 ### Materials
 
-While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the [bh-curve](data/Table_1_BH_Curve.csv) in tabulated is used, also shown in Figure 2.
+While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) is used, also shown in Figure 3.
 
 <div style="display: flex; align-items: flex-start;">
     <img src="./data/bh_curve.png" alt="BH Curve" width="600" style="margin-right: 20px;">
     <div>
-        <p><em>Figure 2: The BH curve used in the problem.</em></p>
+        <p><em>Figure 3: The B-H curve used in the problem.</em></p>
         <p>
             The BH curve shown represents the magnetic response of the ferromagnetic material. It exhibits two important regions:
         </p>
@@ -148,12 +146,12 @@ Which sets the current, runs the simulation and stores the resulting force. Fina
 <img src="results/Force_vs_Current.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>Figure 3: The resulting force in relation to the applied coil current and compared with the experimental values obtained from [2].</em>
+<em>Figure 4: The resulting force in relation to the applied coil current and compared with the experimental values obtained from [2].</em>
 </div>
 <br /><br />
 
 
-The results are presented in Figure 3, where we find a good match to the experimental and numerical values
+The results are presented in Figure 4, where we find a good match to the experimental and numerical values
 reported in [[2]](#[2]) and [[3]](#[3]). Note that initially the force increases quadratically with an 
 increase of current until around $`I=3`$ A, where the steel saturates.
 
@@ -163,7 +161,7 @@ Finally, we save the fields at $`I=5`$ A for further evaluation with e.g. [mufem
 <img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>Figure 4: The magnetic flux density at I=5 A. At the corner of the center pole the magnitude of the magnetic flux density exceeds the values of the provided bh table requiring extrapolation.</em>
+<em>Figure 5: The magnetic flux density at I=5 A. At the corner of the center pole the magnitude of the magnetic flux density exceeds the values of the provided B-H table requiring extrapolation.</em>
 </div>
 <br /><br />
 

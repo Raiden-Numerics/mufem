@@ -7,8 +7,8 @@ The dipole antenna is one of the simplest and most widely used types of antenna
 [[1]](#references).
 It consists of two thin metallic rods that have a sinusoidal voltage difference
 applied between them.
-The length of the rods is equal to a quarter of the wavelength at the operating
-frequency.
+Each rod has a length equal to a quarter of the wavelength at the operating
+frequency, giving a total dipole length of half a wavelength (a half-wave dipole).
 This design produces a donut-shaped radiation pattern that approximates that of
 an elementary electric dipole.
 Simple yet versatile, dipole antennas are used in various applications,
@@ -167,7 +167,7 @@ cross-sections to the analytical solution for a radiating elementary dipole
       \right|,
 ```
 
-where $`\theta`$ is the azimuthal angle and $`\phi`$ is the polar angle.
+where $`\theta`$ is the polar angle and $`\phi`$ is the azimuthal angle.
 The corresponding script can be found in the
 [radiation_pattern_cross_sections.py](radiation_pattern_cross_sections.py) file.
 As depicted in Fig. 5., the simulated radiation pattern closely matches the
@@ -179,7 +179,7 @@ analytical result.
     <br/>
     <br/>
     Figure 5: Cross-sections of the far-field radiation pattern:
-    (left) E-pane cross-section and (right) H-plane cross-section.
+    (left) E-plane cross-section and (right) H-plane cross-section.
 </div>
 <br/>
 

@@ -76,7 +76,7 @@ calculated using the following integral of the charge density $`\rho`$:
 \begin{align}
     Q_\text{tot}
     & = \int_0^R \rho(r) r^2 dr
-        \int_0^{2\pi} d\theta \int_0^\pi \sin\phi\, d\phi \notag \\
+        \int_0^{2\pi} d\varphi \int_0^\pi \sin\theta\, d\theta \notag \\
     & = Q \left[
         \sqrt{\frac{\pi}{2}} a^3 \mathrm{erf}\left(\frac{R}{\sqrt{2} a}\right) -
         a^2 R \exp\left(-\frac{R^2}{2 a^2}\right)
@@ -163,7 +163,7 @@ tag_outer = boundary[0][1]
 This function returns a list of dimension-tag pairs, and since the sphere has
 only one boundary, we extract the tag of the first element.
 
-Next, we assign the name attribute "Sphere" to the sphere and "Sphere::Boundary"
+Next, we assign the name attribute "Domain" to the sphere and "Domain::Boundary"
 to its boundary using the Gmsh function `add_physical_group`:
 
 ```python
@@ -273,7 +273,7 @@ sim.get_model_manager().add_model(model)
 ```
 
 In this case, the `domain_marker`, an instance of the `mufem.Marker`, refers to
-the mesh volume with the name attribute "Sphere" that we defined during mesh
+the mesh volume with the name attribute "Domain" that we defined during mesh
 generation (more information on markers can be found in
 [Markers](https://raiden-numerics.github.io/mufem-doc/framework/markers.html)).
 To enhance simulation precision, we also pass the `order=2` argument, indicating
@@ -333,7 +333,7 @@ For this purpose, we use an instance of the
 electric potential of zero at the boundary:
 
 ```python
-boundary_marker = "Sphere::Boundary" @ mufem.Bnd
+boundary_marker = "Domain::Boundary" @ mufem.Bnd
 potential_condition = estat.ElectricPotentialCondition.Constant(
     name="Potential = 0V", marker=boundary_marker, electric_potential=0
 )
@@ -341,7 +341,7 @@ potential_condition = estat.ElectricPotentialCondition.Constant(
 
 To indicate the boundary of the computational domain, we use the marker that
 refers to the corresponding mesh entity with the name attribute
-"Sphere::Boundary".
+"Domain::Boundary".
 
 Having created the source condition and the boundary condition, we register them
 in the model by calling the following function:

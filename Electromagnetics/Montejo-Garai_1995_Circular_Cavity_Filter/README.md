@@ -167,13 +167,13 @@ store it in a separate array.
 For two frequencies 12 and 14 GHz stored in the list `frequencies_paraview`, we
 save the electric field in the [VTK](https://vtk.org/) file format for
 subsequent visualization with [ParaView](https://www.paraview.org/).
-Figure 3 shows the squared magnitude of the obtained $`S_{21}`$​ parameter as a
+Figure 3 shows the squared magnitude of the obtained $`S_{21}`$ parameter as a
 function of frequency.
 
 <div align="center">
     <img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="50%">
     <br/>
-    Figure 3: Transmission spectrum (the squared magnitude of S21​ parameter as a
+    Figure 3: Transmission spectrum (the squared magnitude of S21 parameter as a
               function of frequency) of the waveguide circular cavity filter.
 </div>
 <br/>

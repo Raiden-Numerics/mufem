@@ -3,7 +3,7 @@
 ## Introduction
 
 The *TEAM-1b: Felix Short cylinder* test case is a part of *Compumag TEAM's benchmark suite* [[1]](#CompumagCase)  and has played a significant role in evaluating the accuracy of electromagnetic programs to predict the evolution of eddy currents.
-It dates back to the Argonne National Labs of the FELIX (Fusion ELectromagnetic Induction eXperiment) efforts.
+It originates from the FELIX (Fusion ELectromagnetic Induction eXperiment) program at Argonne National Laboratory.
 
 The goal of the benchmark is to measure the circulating eddy currents over time, the Ohmic losses, and the stored magnetic energy.
 Here, we only focus on the Ohmic losses.
@@ -25,14 +25,14 @@ B_y(t) = B_0 e^{-t/\tau} \quad,
 ```
 where $`t=0`$ represents the initial time where the magnetic field fully penetrates the cylinder. The decay
 constant is $`\tau=0.0069`$ and initial magnetic flux density is $`B_0 = 0.1 \left[T \right]`$. The 
-decaying external magnetic flux density field can be incorporated into our solution by imposing at outer 
+decaying external magnetic flux density field can be incorporated into our solution by imposing at the outer
 boundary a time-varying magnetic field of the form
 ```math
 \mathbf{H}(t) =
 \left(
     \begin{array}{c}
     0 \\
-    \mu_0 B_y(t) \\
+    B_y(t)/\mu_0 \\
      0
         \end{array}
 \right) \quad.
@@ -44,13 +44,13 @@ The changing magnetic field induces eddy currents in the cylinder. Part of the b
    \left[ \frac{\rm{W}}{\rm{m}^3} \right]
    = \vec{J} \cdot \vec{E} = \sigma \frac{\partial \vec{A}}{\partial t} \cdot \frac{\partial \vec{A}}{\partial t} \quad.
 ```
-The resistivity of the aluminum is $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \left[\frac{\rm{\Omega}}{\rm{m}} \right]`$.
+The resistivity of the aluminum is $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \, \Omega \cdot \rm{m}`$.
 
 We setup an unsteady simulation with the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html). A *Magnetostatic initialization* is used to model the initial penetration of the magnetic field in the conductive cylinder. The [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition is used to impose the magnetic field.
 
 ## Results
 
-The quantity of interest is the *Ohmic Heating Loss* inside the cylinder over time. The reference results can be found [Davey (1988)](#Davey1988)
+The quantity of interest is the *Ohmic Heating Loss* inside the cylinder over time. The reference results can be found in [Davey (1988)](#Davey1988).
 
 ![Ohmic Heating Loss](results/OhmicHeating.png)
 
