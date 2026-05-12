@@ -35,7 +35,7 @@ copper_material = TimeDomainMagneticGeneralMaterial(
 magnetic_model.add_materials([air_material, copper_material])
 
 # Setup Boundary Conditions
-cff_fall = mufem.CffExpressionScalar("79577.488101574*exp(-time()/0.0069)")
+cff_fall = mufem.CffExpressionScalar("79577.488101574*exp(-{Time}/0.0069)")
 cff_zero = mufem.CffConstantScalar(0.0)
 
 cff_magnetic_field = mufem.CffVectorComponent(

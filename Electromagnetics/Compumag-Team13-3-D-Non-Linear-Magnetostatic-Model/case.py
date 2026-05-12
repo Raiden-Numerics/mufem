@@ -74,7 +74,7 @@ sim.get_model_manager().add_model(coil_model)
 coil_topology = CoilTopologyClosed(x=0.09, y=0.0, z=0.001, dx=0.0, dy=1.0, dz=0.0)
 coil_type = CoilTypeStranded(number_of_turns=500)
 
-coil_excitation = CoilExcitationCurrent.Constant(3.0)
+coil_excitation = CoilExcitationCurrent(current=3.0)
 
 coil = CoilSpecification(
     name="Coil",

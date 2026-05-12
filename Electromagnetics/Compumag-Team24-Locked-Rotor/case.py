@@ -102,7 +102,7 @@ for coil in ["Upper", "Lower"]:
 
     coil_type = CoilTypeStranded(number_of_turns=350)
 
-    coil_excitation = CoilExcitationVoltage.Constant(
+    coil_excitation = CoilExcitationVoltage(
         voltage=23.1 * symmetry, resistance=3.09 * symmetry
     )
 

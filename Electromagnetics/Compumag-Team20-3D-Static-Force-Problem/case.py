@@ -76,7 +76,7 @@ coil_topology = CoilTopologyOpen(
 coil_type = CoilTypeStranded(number_of_turns=1000)
 
 coil_drive_current = CffConstantScalar(1.0)
-coil_excitation = CoilExcitationCurrent(coil_drive_current)
+coil_excitation = CoilExcitationCurrent(current=coil_drive_current)
 
 coil = CoilSpecification(
     name="Coil",
