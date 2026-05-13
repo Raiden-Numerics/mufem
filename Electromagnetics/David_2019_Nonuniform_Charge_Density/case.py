@@ -28,7 +28,7 @@ Q = 1.0  # [C] charge
 a = 0.5  # [m] radius of the charge distribution
 
 charge_expr = f"""
-    var r := sqrt(x()^2 + y()^2 + z()^2);
+    var r := sqrt({{Position}}.X^2 + {{Position}}.Y^2 + {{Position}}.Z^2);
     var Q := {Q};
     var a := {a};
 

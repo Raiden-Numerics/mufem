@@ -88,9 +88,7 @@ for n in range(25):
     coil_type = CoilTypeSolid()
     coil_type.drive_method = CoilTypeSolid.DriveMethod.Source
 
-    coil_excitation = CoilExcitationCurrent.Harmonic(
-        current_magnitude=10, current_phase=0.0
-    )
+    coil_excitation = CoilExcitationCurrent(current=(10, 0.0))
 
     coil = CoilSpecification(
         f"Coil {n+1}",
