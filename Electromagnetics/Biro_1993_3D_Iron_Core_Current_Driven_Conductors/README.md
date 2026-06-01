@@ -1,22 +1,22 @@
 # Biro 1993: 3D Iron Core Current Driven Conductors
 
 We are testing the current-driven solid coils following the example shown in [1], Section IV. We validate by comparing the
-Ohmic loss within each individual conductor to the reference.
+Ohmic heating within each individual conductor to the reference.
 
 
 <div align="center">
 <img src="./data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>The geometry of the setup. A core and 25 solid coils. Due to symmetry only 1/8th of the geometry is modelled.</em>
+<em>The geometry of the setup: a core and 25 solid coils. Due to symmetry, only 1/8th of the geometry is modelled.</em>
 </div>
 <br /><br />
 
 ## Introduction
 
-The core has a permeability of $`\mu_r=1000`$ (with no eddy currents) and the conductors have a
-conductivity of $`\sigma=5.6 \times 10^7 \, \mathrm{S/m}`$. In each turn a peak current of $`I=10 \, \mathrm{A}`$, phase
-$`\phi=0^\circ`$ and frequency $`f = 5 \, \mathrm{kHz}`$ is imposed.
+The core has a permeability of $`\mu_r=1000`$ (with no eddy currents), and the conductors have a
+conductivity of $`\sigma=5.6 \times 10^7 \, \mathrm{S/m}`$. In each turn, a peak current of $`I=10 \, \mathrm{A}`$, phase
+$`\phi=0^\circ`$, and frequency $`f = 5 \, \mathrm{kHz}`$ is imposed.
 
 We compare the Ohmic heating generated inside each conductor with the values provided in [1] (Table I) for
 3D with air gap.
@@ -31,9 +31,9 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
 
 ## Results
 
-* **Ohmic loss**
+* **Ohmic heating**
 
-  The total Ohmic loss in each conductor is calculated and compared with the reference.
+  The total Ohmic heating in each conductor is calculated and compared with the reference.
 
     | Coil | Reference | Obtained | Abs Error | Rel Error (%) |
     | ---- | --------- | -------- | --------- | ------------- |
@@ -63,7 +63,7 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
     | 24   | 0.2920    | 0.25992  | 0.03208   | 10.99         |
     | 25   | 0.1166    | 0.11824  | 0.00164   | 1.41          |
 
-    We find some deviation around 10%. However, the size of the gap is an uncertainty which needs to be quantified; whether a smaller gap improves the agreement remains to be investigated.
+    We find some deviation around 10%. However, the size of the gap is an uncertainty that needs to be quantified (does a smaller gap improve the results?).
 
 ## Scenes
 

@@ -2,26 +2,28 @@
 
 ## Introduction
 
-In the Compumag TEAM Problem 7 [1], a thick aluminum plate with a hole is placed below an excitation
-coil carrying a sinusoidal current. The time-varying magnetic field induces eddy currents inside
-the plate. The magnetic flux density measured above the plate is compared with experimental
-results reported by Fujiwara et al. [2].
+Problem 7 of the Compumag TEAM benchmark suite [1] is a thick aluminium plate with an
+off-centred rectangular hole, placed below an excitation coil driven by a sinusoidal
+current. It is a classical 3-D eddy-current validation case, with measured data
+published at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$ [2].
 
 <div align="center">
 <img src="./data/Geometry.png" alt="Geometry of the benchmark" width="600">
 </div>
 <div align="center">
-<em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminium plate with a hole.</em>
+<em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminium plate with an off-centred hole.</em>
 </div>
 
 
 ## Problem Description
 
-The aluminum plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
-The stranded coil is excited by a sinusoidal current corresponding to $`2742\rm{AT}`$ at a frequency
-of $`f=50\rm{Hz}`$ (reference results at $`200\rm{Hz}`$ are also available).
+The aluminium plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
+The stranded coil is driven by a sinusoidal current of $`2742\,\mathrm{AT}`$ at a frequency
+of $`f = 50\,\mathrm{Hz}`$ (reference data for $`200\,\mathrm{Hz}`$ also exists).
 The numerical results are compared with measurements of the magnetic flux density along two
-lines on top of the plate, denoted A1–B1 and A2–B2.
+lines above the plate, denoted A1-B1 and A2-B2, as reported by Fujiwara and Nakata [2].
+A discrepancy in the absolute coil-current values reported in [2] has been cross-checked
+against the NGSolve TEAM-7 reference [3].
 
 
 ## Setup
@@ -121,14 +123,14 @@ After running the simulation with `pymufem`, the following results are obtained 
 
 ### Magnetic Flux Density
 
-The computed magnetic flux density is compared with the reference data from [2]. The reference
+The computed magnetic flux density is compared with the reference data from [2]. The reference
 provides real and imaginary components of the magnetic flux density, corresponding to
 measurements at
 
 - $`t = 0\,\mathrm{ms}`$ (phase $`\phi = 0^\circ`$),
 - $`t = 5\,\mathrm{ms}`$ (phase $`\phi = 90^\circ`$).
 
-| Magnetic Flux Density along A1–B1 | Magnetic Flux Density along A2–B2 |
+| Magnetic Flux Density along A1-B1 | Magnetic Flux Density along A2-B2 |
 |----------------------------------|----------------------------------|
 | <img src="./results/Magnetic_Flux_Density-A1-B1.png" width="600"> | <img src="./results/Magnetic_Flux_Density-A2-B2.png" width="600"> |
 
@@ -139,7 +141,7 @@ density at an arbitrary time $`t`$ can be
 reconstructed from the complex solution using
 
 ```math
-\mathbf{B}(t) = \mathbf{B}_r \cos(\omega t) - \mathbf{B}_i \sin(\omega t),
+\vec{B}(t) = \vec{B}_r \cos(\omega t) - \vec{B}_i \sin(\omega t),
 ```
 where $`\omega = 2\pi f`$.
 
@@ -156,13 +158,18 @@ over one excitation cycle.
 <em>Absolute value of the magnetic flux density over one period.</em>
 </div>
 
-The animation is generated using the script [`create_anim.sh`](create_anim.sh).
+The animation is generated using the script [`create_anim.sh`](create_anim.sh). A static
+scene of the absolute magnetic flux density is rendered via [`create_scene.py`](create_scene.py).
 
 
 ## References
 
-[1] Compumag TEAM Benchmark Problem 7: https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
+[1] Compumag, "Problem 7 - Asymmetrical Conductor with a Hole",
+    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
 
-[2] K. Fujiwara, T. Nakata, "Results for benchmark problem 7 (asymmetrical conductor with a hole),"
-COMPEL – The International Journal for Computation and Mathematics in Electrical and Electronic Engineering,
-vol. 9, no. 3, pp. 137–154, 1990.
+[2] K. Fujiwara and T. Nakata, "Results for benchmark problem 7 (asymmetrical conductor
+    with a hole)," *COMPEL - The International Journal for Computation and Mathematics
+    in Electrical and Electronic Engineering*, vol. 9, no. 3, pp. 137-154, 1990.
+
+[3] NGSolve TEAM-7 reference,
+    https://ngsolve.github.io/TEAM-problems/TEAM-7/team7.html

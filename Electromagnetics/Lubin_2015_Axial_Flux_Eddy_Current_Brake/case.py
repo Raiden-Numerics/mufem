@@ -57,10 +57,7 @@ unsteady_runner = UnsteadyRunner(
 )
 
 sim.set_runner(unsteady_runner)
-# @todo: second order is much more accurate but slower
-magnetic_model = TimeDomainMagneticModel(
-    marker=Vol.Everywhere, order=1, magnetostatic_initialization=True
-)
+magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
 sim.get_model_manager().add_model(magnetic_model)
 
 # Material
@@ -78,8 +75,7 @@ copper_material = TimeDomainMagneticGeneralMaterial(
 iron_material = TimeDomainMagneticGeneralMaterial(
     name="AISI-1010 Carbon Steel",
     marker=["Back Iron::Magnet Side", "Back Iron::Copper Side"] @ Vol,
-    relative_magnetic_permeability=1000.0,
-    electric_conductivity=0.0,
+    magnetic_permeability=1000.0,
     has_eddy_currents=False,
 )
 
@@ -88,7 +84,7 @@ iron_material = TimeDomainMagneticGeneralMaterial(
 magnet_material_ns = TimeDomainMagneticGeneralMaterial(
     name="NdFeB N40",
     marker=["Magnet::0", "Magnet::2", "Magnet::4", "Magnet::6", "Magnet::8"] @ Vol,
-    relative_magnetic_permeability=1.0,
+    magnetic_permeability=1.0,
     remanent_flux_density=[0.0, 0.0, 1.25],
     has_eddy_currents=False,
 )
@@ -96,7 +92,7 @@ magnet_material_ns = TimeDomainMagneticGeneralMaterial(
 magnet_material_sn = TimeDomainMagneticGeneralMaterial(
     name="NdFeB N40",
     marker=["Magnet::1", "Magnet::3", "Magnet::5", "Magnet::7", "Magnet::9"] @ Vol,
-    relative_magnetic_permeability=1.0,
+    magnetic_permeability=1.0,
     remanent_flux_density=[0.0, 0.0, -1.25],
     has_eddy_currents=False,
 )

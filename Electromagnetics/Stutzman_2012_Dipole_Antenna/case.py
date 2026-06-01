@@ -27,7 +27,6 @@ sim.set_runner(runner)
 # Model
 # **************************************************************************************
 model = TimeHarmonicMaxwellModel(
-    marker="Domain" @ Vol,
     frequency=0.0749e9,  # [Hz]
     order=2,  # finite element polynomial degree
 )
@@ -57,10 +56,10 @@ condition_arms = PerfectElectricConductorCondition(
 )
 
 w = 0.10  # [m] port width
-h = 0.04  # [m] port length
+length = 0.04  # [m] port length
 R = 50  # [Ohm] transmission line resistance
-Z = R  # [Ohm] transmission line impedance: 1/Z = 1/R + 1/(i*w*L) + i*w*C
-Zs = Z * w / h  # [Ohm] surface impedance
+Z = R  # [Ohm] transmission line impedance: 1/Z = 1/R + 1/(j*w*L) + j*w*C
+Zs = Z * w / length  # [Ohm] surface impedance
 condition_port = LumpedPortCondition(
     name="Port",
     marker="Port" @ Bnd,
@@ -80,6 +79,8 @@ sim.run()
 vis = sim.get_field_exporter()
 vis.add_field_output("Electric Field-Real")
 vis.add_field_output("Electric Field-Imag")
+vis.add_field_output("Magnetic Field-Real")
+vis.add_field_output("Magnetic Field-Imag")
 vis.save(order=2)
 
 

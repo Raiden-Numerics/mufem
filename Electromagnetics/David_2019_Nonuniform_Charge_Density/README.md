@@ -49,7 +49,7 @@ domain as a sphere that encircles the charge distribution.
 Assuming that the radius of this sphere is much larger than $`a`$, we set the
 electric potential at its boundary $`\Gamma`$ to zero.
 After solving this problem, we can determine the electric field using the
-relationship: $`\mathbf{E} = -\nabla \phi`$.
+relationship: $`\vec{E} = -\nabla \phi`$.
 
 To validate our results, we will compare them to an analytical solution derived
 from the integral form of Gauss's law, expressed as an integral over a surface
@@ -57,13 +57,13 @@ enclosing the total charge $`Q_\text{tot}`$:
 
 ```math
 \begin{align}
-    \oint \mathbf{E} \cdot d\mathbf{\Gamma}
+    \oint \vec{E} \cdot d\vec{\Gamma}
     = \frac{Q_\text{tot}}{\varepsilon_0},
 \end{align}
 ```
 
-where $`\varepsilon_0`$ is the electric permittivity of free space, $`\mathbf{E}`$
-is the electric field we seek, and $`d\mathbf{\Gamma}`$ is a vector representing
+where $`\varepsilon_0`$ is the electric permittivity of free space, $`\vec{E}`$
+is the electric field we seek, and $`d\vec{\Gamma}`$ is a vector representing
 an infinitesimal area element of the surface.
 By choosing a sphere of arbitrary radius $`R`$ as the enclosing surface, we can
 rewrite the equation as $`4 \pi R^2 E = Q_\text{tot} / \varepsilon_0`$, which
@@ -268,7 +268,7 @@ We register the model in our simulation by adding it to the
 ```python
 domain_marker = "Domain" @ mufem.Vol
 
-model = estat.ElectrostaticsModel(marker=domain_marker, order=2)
+model = estat.ElectrostaticsModel(order=2)
 sim.get_model_manager().add_model(model)
 ```
 
@@ -283,43 +283,43 @@ solution within each finite element.
 Next, we specify the type of material filling the computational domain.
 In our simulation, we assume that the domain is filled with air, which can be
 treated as having the same electric permittivity as vacuum.
-This material can be defined using the `ElectrostaticMaterial.Constant` class,
+This material can be defined using the `ElectrostaticMaterial` class,
 which specifies an electrostatic material with constant electric permittivity,
 defaulting to the vacuum value.
 After creating the material, we register it by adding it to the model:
 
 ```python
-material = estat.ElectrostaticMaterial.Constant(name="Air", marker=domain_marker)
+material = estat.ElectrostaticMaterial(name="Air", marker=domain_marker)
 model.add_material(material)
 ```
 
-We then define the Gaussian charge density distribution using the
-`mufem.CffExpressionScalar` coefficient function.
-This function creates a scalar coefficient from a provided mathematical
-expression string:
+We then define the Gaussian charge density distribution as a string expression
+that μfem parses into a scalar coefficient function.
+The expression uses the built-in `{Position}` symbol to access the spatial
+coordinates and supports standard mathematical operators and functions:
 
 ```python
 Q = 1.0  # [C] charge
 a = 0.5  # [m] radius of the charge distribution
-expr = f"""
-    var r := sqrt(x()^2 + y()^2 + z()^2);
+
+charge_expr = f"""
+    var r := sqrt({{Position}}.X^2 + {{Position}}.Y^2 + {{Position}}.Z^2);
     var Q := {Q};
     var a := {a};
 
     Q / (4 * pi) * exp(-r^2 / (2 * a^2))
 """
-cff_charge = mufem.CffExpressionScalar(expr)
 ```
 
 More information on μfem coefficients can be found in
 [Coefficients](https://raiden-numerics.github.io/mufem-doc/framework/coefficients.html).
 
-We use this scalar coefficient to define the source condition with an instance
-of the `ChargeDensityCondition` class:
+We pass this expression directly to the source condition via an instance of the
+`ChargeDensityCondition` class:
 
 ```python
 charge_density_condition = estat.ChargeDensityCondition(
-    name="Volume Charge", marker=domain_marker, charge_density=cff_charge
+    name="Volume Charge", marker=domain_marker, charge_density=charge_expr
 )
 ```
 
@@ -329,12 +329,12 @@ specify the region where this source condition is defined.
 Following Eq. (1), we specify the boundary condition at the boundary of the
 computational domain.
 For this purpose, we use an instance of the
-`ElectricPotentialCondition.Constant` class, which allows us to set a constant
+`ElectricPotentialCondition` class, which allows us to set a constant
 electric potential of zero at the boundary:
 
 ```python
 boundary_marker = "Domain::Boundary" @ mufem.Bnd
-potential_condition = estat.ElectricPotentialCondition.Constant(
+potential_condition = estat.ElectricPotentialCondition(
     name="Potential = 0V", marker=boundary_marker, electric_potential=0
 )
 ```
@@ -442,6 +442,7 @@ information about the field exporter can be found in the
 ```python
 vis = sim.get_field_exporter()
 vis.add_field_output("Electric Field")
+vis.add_field_output("Electric Potential")
 vis.save(order=2)
 ```
 

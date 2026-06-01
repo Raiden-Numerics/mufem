@@ -38,13 +38,12 @@ steady_runner = mufem.SteadyRunner(total_iterations=1)
 sim.set_runner(steady_runner)
 
 # Magnetic Model
-magnetic_model = TimeHarmonicMagneticModel(Vol.Everywhere, 5000, 2)
+magnetic_model = TimeHarmonicMagneticModel(frequency=5000, order=2)
 sim.get_model_manager().add_model(magnetic_model)
 
 magnetic_solver = magnetic_model.get_solver()
 magnetic_solver.set_verbose(True)
 magnetic_solver.set_iteration_number(150)
-magnetic_solver.set_tolerance_threshold(1.0e-6)
 
 # Material
 
@@ -83,7 +82,7 @@ sim.get_model_manager().add_model(coil_model)
 for n in range(25):
 
     coil_topology = CoilTopologyOpen(
-        f"Coil {n+1}::Back" @ Bnd, f"Coil {n+1}::Front" @ Bnd
+        f"Coil {n + 1}::Back" @ Bnd, f"Coil {n + 1}::Front" @ Bnd
     )
     coil_type = CoilTypeSolid()
     coil_type.drive_method = CoilTypeSolid.DriveMethod.Source
@@ -91,8 +90,8 @@ for n in range(25):
     coil_excitation = CoilExcitationCurrent(current=(10, 0.0))
 
     coil = CoilSpecification(
-        f"Coil {n+1}",
-        Vol(f"Coil {n+1}"),
+        f"Coil {n + 1}",
+        Vol(f"Coil {n + 1}"),
         coil_topology,
         coil_type,
         coil_excitation,
@@ -119,7 +118,7 @@ reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpa
 for n in range(25):
 
     report = mufem.VolumeIntegralReport(
-        "Ohmic Heating", f"Coil {n+1}" @ Vol, "Ohmic Heating"
+        "Ohmic Heating", f"Coil {n + 1}" @ Vol, "Ohmic Heating"
     )
 
     report_value = report.evaluate() * 4  # due to symmetry
@@ -128,6 +127,6 @@ for n in range(25):
 
     if is_main_process:
         print(
-            f"Coil {n+1}: Ohmic Heating = {report_value:.4f} W, "
+            f"Coil {n + 1}: Ohmic Heating = {report_value:.4f} W, "
             f"Reference = {reference_value:.4f} W"
         )

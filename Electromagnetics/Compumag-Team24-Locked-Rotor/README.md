@@ -1,11 +1,11 @@
-# Compumag TEAM-24: Nonlinear Time-Transient Rotational Test Rig
+# Compumag Team 24: Nonlinear Time-Transient Rotational Test Rig
 
-This benchmark case [1] is a transient magnetic problem involving eddy currents and nonlinear materials, solved using [case.py](case.py). The geometry is shown below:
+Problem 24 of the Compumag TEAM benchmark suite [1] is a transient magnetic problem combining bulk eddy currents, magnetic non-linearity, and voltage-driven coils. The geometry is a rotor locked at $`22°`$, a stator, and two coils mounted on the stator. The benchmark provides measured coil current and rotor torque [1]. It is solved using [case.py](case.py):
 
 <div align="center">
     <img src="data/Geometry.png" alt="Geometry" width="85%">
     <br/>
-    <em>Figure 1: The geometry consists of a rotor locked at 22°, a stator, and two coils surrounded by an air domain.</em>
+    <em>Figure 1: Geometry of the benchmark: a stator carrying two coils and a rotor ring locked at 22°.</em>
 </div>
 <br/>
 
@@ -17,17 +17,14 @@ The goal of the benchmark is to calculate the torque acting on the rotor.
 
 ### Updating the B-H Curve
 
-The *rotor* and *stator* are made of iron with a constant electrical conductivity of
-$`\sigma = 4.54 \times 10^6 \, \mathrm{S/m}`$ and a nonlinear permeability described by a B-H curve.
-
-However, as pointed out in [2], the provided [B-H curve](data/tables/Table_1_BH_curve.csv) lacks sufficient data near zero, leading to significant errors. To address this, a modified Fröhlich formula is used to fit the data, ensuring physical behavior [3]:
+The *rotor* and *stator* are made of iron with a constant electrical conductivity
+$`\sigma = 4.54 \times 10^6 \ \mathrm{S/m}`$ and a non-linear $`B(H)`$ curve. As pointed out by Rüberg *et al.* [2], the provided [B-H curve](data/tables/Table_1_BH_curve.csv) is too sparse between zero and the first data point, which introduces a noticeable error in the saturated regime. We fit the data with the modified Fröhlich relation
 
 ```math
 B(H) = \frac{1}{a + b H} + \mu_0 H \quad,
 ```
 
-where $`a`$ and $`b`$ are fitting parameters. These parameters are computed from the full curve and used
-to interpolate its initial segment.
+where $`a`$ and $`b`$ are obtained from a least-squares fit over the full curve and used to fill in the low-$`H`$ portion. The modification ensures physical behaviour at large $`H`$ [3].
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Modified B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
@@ -77,17 +74,33 @@ This results in a current rise, compared against the [reference](data/tables/Tab
 </div>
 <br/>
 
-### Skin-Depth Layered Mesh
+### Skin-Depth-Aware Boundary Layer Mesh
 
 As the iron is conductive, eddy currents occur in the stator and rotor. To resolve them accurately, a mesh with a *prismatic boundary layer* is used.
 
 For time-harmonic problems, the skin depth can be estimated by:
 
 ```math
-\delta_s = \sqrt{\frac{2}{\omega \mu \sigma}},
+\delta = \sqrt{\frac{2}{\omega \mu \sigma}} \quad,
 ```
 
-where $`\omega = 2\pi f`$ and $`f`$ is the excitation frequency. In time-transient problems, there is no single frequency; instead, the behavior is governed by the excitation time scale (e.g., rise time $`\tau`$).
+where $`\omega = 2\pi f`$ and $`f`$ is the excitation frequency. In time-transient problems, there is no single frequency; instead, the behavior is governed by the excitation time scale (e.g., rise-time constant $`\tau`$), with dominant frequency $`f \approx 1/(2\pi \tau)`$.
+
+The skin depth is resolved by a prism boundary layer of total thickness $`t_{\text{bl}} \geq 3\delta`$ (preferably $`5`$ to $`6\,\delta`$), with first-layer thickness $`t_0 \leq \delta/3`$ and a geometric progression $`t_i = t_0\, r^{i-1}`$ ($`r \in [1.2, 1.5]`$) so that
+
+```math
+\sum_{i=1}^{n} t_i = t_0\, \frac{1 - r^n}{1 - r} \approx t_{\text{bl}} \quad.
+```
+
+**Summary of recommended values**
+
+| Parameter             | Recommendation                       |
+| --------------------- | ------------------------------------ |
+| Skin depth $`\delta`$ | $`\sqrt{2/(\omega \mu \sigma)}`$     |
+| Total BL thickness    | $`> 3\delta`$ (better $`5`$–$`6\,\delta`$) |
+| First layer $`t_0`$   | $`< \delta/3`$                       |
+| Layer count           | 5–10                                 |
+| Growth rate $`r`$     | 1.2 to 1.5                           |
 
 For a linear setup with a single coil and no eddy currents, the current evolution is:
 
@@ -175,8 +188,9 @@ To generate the animation, ensure `output_for_animation = True` is set in `case.
 
 ## References
 
-[1] https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
+[1] Compumag, "Problem 24 — Nonlinear Time-Transient Rotational Test Rig",
+    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
 
-[2] Rüberg, T., Kielhorn, L., & Zechner, J. (2021). Electromagnetic devices with moving parts—simulation with FEM/BEM coupling. *Mathematics, 9*(15), 1804.
+[2] Rüberg, T., Kielhorn, L. and Zechner, J., 2021. Electromagnetic devices with moving parts — simulation with FEM/BEM coupling. *Mathematics*, 9(15), p.1804.
 
-[3] Diez, P., & Webb, J. P. (2015). A Rational Approach to B-H Curve Representation. *IEEE Transactions on Magnetics, 52*(3), 1-4.
+[3] Diez, P. and Webb, J.P., 2015. A rational approach to $`B`$–$`H`$ curve representation. *IEEE Transactions on Magnetics*, 52(3), pp.1-4.

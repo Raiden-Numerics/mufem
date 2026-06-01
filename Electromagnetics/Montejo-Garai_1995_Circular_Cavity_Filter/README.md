@@ -4,18 +4,18 @@
 
 Waveguide filters are devices designed to pass signals only at certain
 frequencies.
-The main component of waveguide filters is a cavity resonator connected to the
-rest of the waveguide through a small input and output irises.
-The incident electromagnetic wave with a frequency matching the cavity's
+The main component of a waveguide filter is a cavity resonator connected to the
+rest of the waveguide through small input and output irises.
+An incident electromagnetic wave with a frequency matching the cavity's
 resonant frequency will pass through the cavity, while other frequencies will be
 reflected.
 In electronics, waveguide filters are used to isolate signals and reduce noise
 in devices like multiplexers, receivers, and transmitters, which serve as
 essential components in satellite communication systems, radars, telephone
-networks and television broadcasting.
+networks, and television broadcasting.
 
-In this test case we consider a microwave waveguide filter consisting of a
-circular resonator connected to the input and output rectangular waveguides via
+In this test case, we consider a microwave waveguide filter consisting of a
+circular resonator connected to input and output rectangular waveguides via
 thin rectangular irises.
 Figure 1 shows the geometry of the filter.
 
@@ -33,7 +33,7 @@ filter passes the incoming signal.
 We then compare the obtained results to the experimental results published in
 [[1]](#Montejo-Garai1995).
 We also visualize the electric field inside the filter obtained at one of the
-resonant frequencies of the cavity and at one frequency outside of the
+resonant frequencies of the cavity and at one frequency outside the
 resonance.
 
 
@@ -43,12 +43,12 @@ resonance.
 
 Following [[1]](#Montejo-Garai1995) and [[2]](#Liu2002), we use the following
 dimensions of the waveguide filter components.
-The input and output waveguides are WR75 rectangular waveguides, with the width
-of 19.05 mm and height of 9.525 mm.
+The input and output waveguides are WR75 rectangular waveguides, with a width
+of 19.05 mm and a height of 9.525 mm.
 The length of the waveguide sections is 20 mm.
 The circular cavity has a length of 100 mm and a radius of 12 mm.
-Finally, the connecting input and output irises have the width of 9.7 mm, the
-height of 3 mm, and the length of 1 mm.
+Finally, the connecting input and output irises have a width of 9.7 mm, a
+height of 3 mm, and a length of 1 mm.
 
 
 ### Mesh
@@ -81,11 +81,11 @@ cavity ("Walls"), and the entire computational domain ("Domain").
 For the simulation we use
 [Time-Harmonic Maxwell Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
 which solves the following equation for the complex amplitude
-$`\tilde{\mathbf{E}}`$ of the electric field:
+$`\tilde{\vec{E}}`$ of the electric field:
 
 ```math
-    \nabla \times \left(\frac{1}{\mu} \nabla \times \tilde{\mathbf{E}}\right) -
-    \omega^2 \varepsilon \tilde{\mathbf{E}} = 0,
+    \nabla \times \left(\frac{1}{\mu} \nabla \times \tilde{\vec{E}}\right) -
+    \varepsilon \omega^2 \tilde{\vec{E}} = 0,
 ```
 
 where $`\mu`$ and $`\varepsilon`$ are the permeability and the permittivity of the
@@ -123,20 +123,20 @@ of the filter transmission coefficient and is determined by the formula:
     S_{21}
     = \frac{
           \int_{\Gamma_2}
-          \tilde{\mathbf{E}} \cdot \tilde{\mathbf{e}}_1\, d\Gamma
+          \tilde{\vec{E}} \cdot \tilde{\vec{e}}_1\, d\Gamma
       }{
           \int_{\Gamma_2}
-          \tilde{\mathbf{e}}_1 \cdot \tilde{\mathbf{e}}_1\, d\Gamma
+          \tilde{\vec{e}}_1 \cdot \tilde{\vec{e}}_1\, d\Gamma
       },
 ```
 
-where $`\tilde{\mathbf{E}}`$ is the amplitude of the electric field obtained as a
-result of the simulation, $`\tilde{\mathbf{e}}_1`$ is the first mode of the
+where $`\tilde{\vec{E}}`$ is the amplitude of the electric field obtained as a
+result of the simulation, $`\tilde{\vec{e}}_1`$ is the first mode of the
 waveguide (the $`\text{TE}_{10}`$ mode in the case of rectangular waveguides), and
 the integration is performed over the plane of the output port (arbitrarily
 indexed by the number 2).
-The $`S_{21}`$ parameter shows what portion of radiation emitted from the
-waveguide input port reaches the waveguide output port in the form of the
+The $`S_{21}`$ parameter shows what portion of the radiation emitted from the
+input port reaches the output port in the form of the
 $`\text{TE}_{10}`$ mode.
 
 
@@ -205,7 +205,7 @@ filter has a number of resonances around 10.4, 11.5, and 12.6 GHz, as well as a
 fairly wide bandwidth from 13.8 to 14.5 GHz.
 Radiation emitted at these frequencies passes through the filter with minimal
 loss, while radiation at other frequencies is reflected back.
-Figure 3 also shows that the results of our simulations are in a very good
+Figure 3 also shows that the results of our simulations are in very good
 agreement with the experimental data presented in [[1]](#Montejo-Garai1995).
 
 To illustrate the electric field configuration inside the filter at frequencies
@@ -229,9 +229,9 @@ filter at both frequencies.
 </div>
 <br/>
 
-We see that at 12 GHz, most of the electric field entering through the waveguide
-input port is reflected back.
-At the same time, an electric field at the frequency of 14 GHz passes through
+We see that at 12 GHz, most of the electric field entering through the input
+port is reflected back.
+At the same time, the electric field at the frequency of 14 GHz passes through
 the circular cavity without obstruction.
 This observation is in complete agreement with Figure 3.
 

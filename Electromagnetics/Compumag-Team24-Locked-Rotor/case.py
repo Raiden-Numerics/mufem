@@ -37,9 +37,7 @@ unsteady_runner = mufem.UnsteadyRunner(
 sim.set_runner(unsteady_runner)
 
 
-magnetic_domain = ["Rotor", "Stator", "Upper Coil", "Lower Coil", "Air"] @ Vol
-
-magnetic_model = TimeDomainMagneticModel(marker=magnetic_domain, order=1)
+magnetic_model = TimeDomainMagneticModel(order=1)
 sim.get_model_manager().add_model(magnetic_model)
 
 
@@ -55,7 +53,6 @@ copper_material = TimeDomainMagneticGeneralMaterial(
     electric_conductivity=5.8e7,
     has_eddy_currents=False,
 )
-copper_material.set_eddy_currents(False)
 
 bh = numpy.loadtxt(
     f"{dir_path}/data/tables/Updated_BH_curve.csv", delimiter=",", comments="#"
@@ -156,7 +153,9 @@ if output_for_animation:
     field_exporter = sim.get_field_exporter()
     field_exporter.add_field_output("Electric Current Density")
     field_exporter.add_field_output("Magnetic Flux Density")
+    field_exporter.add_field_output("Magnetic Vector Potential")
     field_exporter.add_field_output("Element Type")
+    field_exporter.add_field_output("Cell Volume")
 
     field_exporter.save()
 

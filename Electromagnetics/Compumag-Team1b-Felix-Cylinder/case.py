@@ -20,11 +20,9 @@ sim = mufem.Simulation.New(
 )
 
 # Setup Problem
-mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=2)
+mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
 
-magnetic_model = TimeDomainMagneticModel(
-    marker=["Air", "Cylinder"] @ Vol, order=1, magnetostatic_initialization=True
-)
+magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
 
 # Setup Materials
 air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
@@ -35,11 +33,8 @@ copper_material = TimeDomainMagneticGeneralMaterial(
 magnetic_model.add_materials([air_material, copper_material])
 
 # Setup Boundary Conditions
-cff_fall = mufem.CffExpressionScalar("79577.488101574*exp(-{Time}/0.0069)")
-cff_zero = mufem.CffConstantScalar(0.0)
-
-cff_magnetic_field = mufem.CffVectorComponent(
-    cff_x=cff_zero, cff_y=cff_fall, cff_z=cff_zero
+cff_magnetic_field = mufem.CffExpressionVector(
+    "[0, 79577.488101574*exp(-{Time}/0.0069), 0]"
 )
 
 tangential_magnetic_field_bc = TangentialMagneticFieldBoundaryCondition(
@@ -65,6 +60,7 @@ sim.get_monitor_manager().add_monitor(ohmic_heating_monitor)
 sim.run()
 
 vis = sim.get_field_exporter()
+vis.add_field_output("Magnetic Flux Density")
 vis.add_field_output("Electric Current Density")
 vis.save()
 

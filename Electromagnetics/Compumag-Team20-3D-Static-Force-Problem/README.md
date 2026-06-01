@@ -1,4 +1,4 @@
-# Compumag Team-20: 3D Static Force Problem
+# Compumag Team 20: 3-D Static Force Problem
 
 ## Introduction
 
@@ -34,29 +34,29 @@ Figure 2: The mesh used in the simulation visualized using <a href="https://glvi
 
 We use the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) which solves for the magnetic field using finite-element discretization and following equation:
 ```math
-\rm{curl}\, \mu^{-1} \rm{curl}\, \mathbf{A} = \mathbf{J} \quad,
+\rm{curl}\, \mu^{-1} \rm{curl}\, \vec{A} = \vec{J} \quad,
 ```
-where $`\mathbf{A} [\frac{\rm{Wb}}{\rm{m}}]`$ is the magnetic vector potential, 
-$`\mu [\frac{\rm{H}}{\rm{m}}]`$ is the magnetic permeability, and $`\mathbf{J} [\frac{\rm{A}}{\rm{m}^2}]`$
-is the electric current density. The magnetic flux density $`\mathbf{B} [T]`$ is then given by 
-$`\mathbf{B} = \rm{curl} \mathbf{A}`$. The magnetic field $`\mathbf{H}[\frac{\rm{A}}{\rm{m}}]`$ can be 
-obtained from $`\mathbf{H} = \mu^{-1} \mathbf{B}`$. Note that the electric current density is only non-zero
-in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \mathbf{J} = 0`$.
+where $`\vec{A} [\frac{\rm{Wb}}{\rm{m}}]`$ is the magnetic vector potential, 
+$`\mu [\frac{\rm{H}}{\rm{m}}]`$ is the magnetic permeability, and $`\vec{J} [\frac{\rm{A}}{\rm{m}^2}]`$
+is the electric current density. The magnetic flux density $`\vec{B} [T]`$ is then given by 
+$`\vec{B} = \rm{curl}\, \vec{A}`$. The magnetic field $`\vec{H}[\frac{\rm{A}}{\rm{m}}]`$ can be 
+obtained from $`\vec{H} = \mu^{-1} \vec{B}`$. Note that the electric current density is only non-zero
+in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \vec{J} = 0`$.
 
 As for the boundary, by symmetry the magnetic flux needs to be tangential to the symmetry faces; thus we
 assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition) which ensures that
-$`\mathbf{B} \cdot \mathbf{n} = 0`$. This is achieved by specifying the tangential components of 
-$`\mathbf{A}`$ to zero, i.e. $`\mathbf{n} \times \mathbf{A} = 0`$. Although the outer air boundary, being a far-field boundary, could be left free, for simplicity we apply a tangential flux condition there as well.
+$`\vec{B} \cdot \vec{n} = 0`$. This is achieved by specifying the tangential components of 
+$`\vec{A}`$ to zero, i.e. $`\vec{n} \times \vec{A} = 0`$. Although the outer air boundary, being a far-field boundary, could be left free, for simplicity we apply a tangential flux condition there as well.
 
 ### Excitation
 
 The electric current density in the right-hand side of the equation is provided by the [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) which models the properties of the stranded coil. The electric current density inside the coil body can be calculated using
 ```math
-\mathbf{J}= I \frac{n_t}{S_c} \mathbf{d} \quad,
+\vec{J}= I \frac{n_t}{S_c} \vec{d} \quad,
 ```
 where $`I [\rm{A}]`$ is the applied coil current, $`n_t`$ is the number of coil turns, and 
 $`S_c[\rm{m}^2]`$ 
-is the coil cross section and $`\mathbf{d}`$ is the coil path (please note that the actual calculation is 
+is the coil cross section and $`\vec{d}`$ is the coil path (please note that the actual calculation is 
 more involved as we need to ensure that the electric current density is homogeneous along a coil cross 
 section as well as support non-constant cross sections of the coil geometry). Here, we choose $`n_t=1000`$ 
 and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ with a total of 11 measurements.
@@ -66,13 +66,13 @@ and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ with a total 
 The force is calculated using the [Magnetic Force Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_force_report) which uses the Maxwell stress 
 tensor $`\mathbb{T} [\rm{Pa}]`$ given by
 ```math
-\mathbb{T} = \mathbf{B} \otimes \mathbf{H} - \frac{1}{2} \left( \mathbf{B} \cdot \mathbf{H} \right) \mathbb{I}   \quad.
+\mathbb{T} = \vec{B} \otimes \vec{H} - \frac{1}{2} \left( \vec{B} \cdot \vec{H} \right) \mathbb{I}   \quad.
 ```
-The force $`\mathbf{F}[\rm{N}]`$ is then given by integrating over the surface $`S`$ of the center pole body with
+The force $`\vec{F}[\rm{N}]`$ is then given by integrating over the surface $`S`$ of the center pole body with
 ```math
-\mathbf{F} = \int_S \mathbb{T} \cdot \mathbf{n} \,\rm{d}S \quad,
+\vec{F} = \int_S \mathbb{T} \cdot \vec{n} \,\rm{d}S \quad,
 ```
-where $`\mathbf{n}`$ is the normal along the surface. Note that only the z-component of $`\mathbf{F}`$ is relevant for the benchmark here.
+where $`\vec{n}`$ is the normal along the surface. Note that only the z-component of $`\vec{F}`$ is relevant for the benchmark here.
 
 
 ### Materials
@@ -170,8 +170,8 @@ As an outlook, the paper [[3]](#[3]) suggests to investigate the effect of model
 
 ## References
 
-<a id="[1]"></a> [1] https://www.compumag.org/wp/wp-content/uploads/2018/06/problem20.pdf
+<a id="[1]"></a> [1] Compumag, "Problem 20 — 3-D Static Force Problem", https://www.compumag.org/wp/team/ sha1: 159da183684ccc3f663c0f4952535be6c02c3efd
 
-<a id="[2]"></a> [2] N. Takahashi, T. Nakata, and H. Morishige. "Summary of results for problem 20 (3‐D static force problem)." COMPEL-The international journal for computation and mathematics in electrical and electronic engineering 14.2/3 (1995): 57-75. doi.org/10.1108/eb010138
+<a id="[2]"></a> [2] Takahashi, N., Nakata, T. and Morishige, H., 1995. Summary of results for problem 20 (3-D static force problem). *COMPEL — The international journal for computation and mathematics in electrical and electronic engineering*, 14(2/3), pp.57-75. doi: 10.1108/eb010138
 
-<a id="[3]"></a> [3] N. Takahashi, N. Takayoshi, and H. Morishige. "Investigation of a model to verify software for 3-D static force calculation." IEEE transactions on magnetics 30.5 (1994): 3483-3486. doi.org/10.1109/20.312689
+<a id="[3]"></a> [3] Takahashi, N., Nakata, T. and Morishige, H., 1994. Investigation of a model to verify software for 3-D static force calculation. *IEEE Transactions on Magnetics*, 30(5), pp.3483-3486. doi: 10.1109/20.312689 sha1: 8f0fb72ec5c2e04619ecc24308a6b5e66fa3cd9c
