@@ -38,8 +38,8 @@ to interpolate its initial segment.
 
 A constant electric voltage of $`U=23.1 \, \mathrm{V}`$ is applied to the stranded coils.
 
-We specify a stranded coil by using the [Stranded Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/type_stranded_coil.html) option, and the voltage excitation is set by using
-[Excitation Voltage](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/specs/excitation_voltage.html) option.
+We specify a stranded coil by using the [Stranded Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/types/stranded_coil.html) option, and the voltage excitation is set by using
+[Excitation Voltage](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitations/voltage.html) option.
 
 ```python
 for coil in ["Upper", "Lower"]:
