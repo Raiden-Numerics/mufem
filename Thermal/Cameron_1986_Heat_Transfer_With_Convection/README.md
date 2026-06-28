@@ -23,13 +23,13 @@ The objective is to verify the temperature at a specified location.
 
 The computational domain is a rectangle of width 0.6 m and height 1 m.
 The bottom edge is held at a prescribed temperature of $`100^\circ`$ C (modeled by
-[TemperatureCondition](https://raiden-numerics.github.io/mufem-doc/models/thermal/solid_temperature/conditions/temperature.html)).
+[TemperatureCondition](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/conditions/temperature.html)).
 The left edge is adiabatic (modeled by
-[AdiabaticBoundaryCondition](https://raiden-numerics.github.io/mufem-doc/models/thermal/solid_temperature/conditions/adiabatic.html)).
+[AdiabaticBoundaryCondition](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/conditions/adiabatic.html)).
 The top and right edges are subject to convection to an ambient temperature of
 $`0^\circ`$ C with a surface heat transfer coefficient
 $`\kappa = 750`$ W/($`\text{m}^2`$ K) (modeled by
-[ConvectionBoundaryCondition](https://raiden-numerics.github.io/mufem-doc/models/thermal/solid_temperature/conditions/convection.html)).
+[ConvectionBoundaryCondition](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/conditions/convection.html)).
 No internal heat generation is present.
 
 
