@@ -81,13 +81,18 @@ sim.get_report_manager().add_report(report_s_parameters)
 # **************************************************************************************
 # Run the simulation
 # **************************************************************************************
-Nf = 251  # number of frequencies to scan
-frequencies = numpy.linspace(10e9, 15e9, Nf)  # [Hz] frequencies to scan
+PRECALCULATE = False  # Set to True to regenerate the full transmission spectrum.
 
-frequencies_paraview = [12e9, 14e9]  # [Hz] frequencies at which to save the field
+if PRECALCULATE:
+    Nf = 251  # number of frequencies to scan
+    frequencies = numpy.linspace(10e9, 15e9, Nf)  # [Hz] frequencies to scan
+else:
+    frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies at which to save
+    Nf = len(frequencies)
 
-vis = sim.get_field_exporter()
-vis.add_field_output("Electric Field-Real")
+if not PRECALCULATE:
+    vis = sim.get_field_exporter()
+    vis.add_field_output("Electric Field-Real")
 
 S21 = numpy.zeros(Nf, dtype=complex)
 
@@ -98,11 +103,24 @@ for i, frequency in enumerate(frequencies):
     model.set_frequency(frequency)
     runner.advance(1)
 
-    if frequency in frequencies_paraview:
+    if not PRECALCULATE:
         vis.save(order=2)
 
     report_data = report_s_parameters.evaluate().to_numpy()
     S21[i] = report_data[0, 0]
+
+
+# **************************************************************************************
+# Store the precalculated spectrum
+# **************************************************************************************
+if PRECALCULATE and is_main_process:
+    numpy.savetxt(
+        "data/S21_precalculated.csv",
+        numpy.column_stack((frequencies, numpy.real(S21), numpy.imag(S21))),
+        delimiter=", ",
+        comments="# ",
+        header="Frequency [Hz], Real(S21), Imag(S21)",
+    )
 
 
 # **************************************************************************************
@@ -116,11 +134,19 @@ f_GHz = data[:, 0]
 S21_dB = data[:, 1]
 plt.plot(f_GHz, S21_dB, "k^", label="Montejo-Garai 1995", markersize=10)
 
+# Precalculated spectrum:
+data = numpy.loadtxt("data/S21_precalculated.csv", delimiter=",")
+f_GHz = data[:, 0] / 1e9
+S21_precalculated = data[:, 1] + 1j * data[:, 2]
+S21_abs2 = numpy.abs(S21_precalculated) ** 2
+S21_dB = 10 * numpy.log10(S21_abs2)
+plt.plot(f_GHz, S21_dB, label="$\\mu$fem (precalculated)", color="red")
+
 # Simulated data:
 f_GHz = frequencies / 1e9
 S21_abs2 = numpy.abs(S21) ** 2
 S21_dB = 10 * numpy.log10(S21_abs2)
-plt.plot(f_GHz, S21_dB, label="$\\mu$fem", color="red")
+plt.plot(f_GHz, S21_dB, "*", label="$\\mu$fem", color="blue", markersize=12)
 
 plt.legend(loc="best", frameon=False)
 plt.xlabel("Frequency [GHz]")
