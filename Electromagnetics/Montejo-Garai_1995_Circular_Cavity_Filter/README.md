@@ -148,15 +148,35 @@ terminal command:
 pymufem case.py
 ```
 
-Inside [case.py](case.py) we iterate through input frequencies in the range of
-10 to 15 GHz using the following loop:
+Resolving the transmission spectrum of the filter requires a scan over 251
+frequencies in the range of 10 to 15 GHz, which takes a considerable amount of
+time.
+The spectrum is therefore supplied precalculated in
+[data/S21_precalculated.csv](data/S21_precalculated.csv), and by default
+[case.py](case.py) solves only the two frequencies 12 and 14 GHz at which we
+visualize the electric field:
+```py
+PRECALCULATE = False
+
+if PRECALCULATE:
+    Nf = 251  # number of frequencies to scan
+    frequencies = numpy.linspace(10e9, 15e9, Nf)  # [Hz] frequencies to scan
+else:
+    frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies at which to save
+    Nf = len(frequencies)
+```
+
+Setting `PRECALCULATE` to `True` scans the whole frequency range instead and
+regenerates the precalculated spectrum, skipping the field export.
+
+For either choice of the frequencies we then use the same loop:
 ```py
 for i, frequency in enumerate(frequencies):
     model.set_frequency(frequency)
-    steady_runner.advance(1)
+    runner.advance(1)
 
-    if frequency in frequencies_paraview:
-        vis.save()
+    if not PRECALCULATE:
+        vis.save(order=2)
 
     report_data = report_s_parameters.evaluate().to_numpy()
     S21[i] = report_data[0, 0]
@@ -164,11 +184,13 @@ for i, frequency in enumerate(frequencies):
 
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
-For two frequencies 12 and 14 GHz stored in the list `frequencies_paraview`, we
-save the electric field in the [VTK](https://vtk.org/) file format for
-subsequent visualization with [ParaView](https://www.paraview.org/).
-Figure 3 shows the squared magnitude of the obtained $`S_{21}`$ parameter as a
-function of frequency.
+Unless we are precalculating the spectrum, we also save the electric field in
+the [VTK](https://vtk.org/) file format for subsequent visualization with
+[ParaView](https://www.paraview.org/).
+
+Figure 3 shows the squared magnitude of the precalculated $`S_{21}`$ parameter
+as a function of frequency, with the two frequencies solved by the default run
+marked by stars.
 
 <div align="center">
     <img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="50%">
