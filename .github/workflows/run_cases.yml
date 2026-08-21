@@ -30,7 +30,10 @@ jobs:
     - name: Install dependencies
       run: |
         apt-get update
-        apt-get install -y libgomp1 libstdc++6
+        # libmufem is self-contained (bundles its own libs, needs only glibc +
+        # libstdc++ which ship in ubuntu:24.04). libgomp1 is for the gmsh -nox
+        # build, which is compiled with OpenMP and links libgomp.so.1.
+        apt-get install -y libgomp1
 
     - name: Set MUFEM version from VERSION file
       run: |
