@@ -54,19 +54,6 @@ Eq. 5):
 \quad \text{with } \rho_0 = 10^{-14}\,\Omega\cdot\mathrm{m} \quad .
 ```
 
-For the bilinear form, the Newton tangent
-$`\sigma_J = \partial[\sigma(|\vec{E}|)\,\vec{E}]/\partial \vec{E}`$ is used:
-```math
-\sigma_J = \sigma\,I
-\;+\;
-\frac{\partial \sigma}{\partial |\vec{E}|}\,\frac{1}{|\vec{E}|}\,\vec{E} \otimes \vec{E} \quad ,
-```
-which gives quadratic local convergence on the steep $`n=25`$ nonlinearity
-once the iteration is on the saturated branch. The constitutive scalar
-$`\sigma`$ is used to compute the current density and the Ohmic-heating
-density $`\sigma|\vec{E}|^2`$ — using $`\sigma_J`$ there would contaminate
-the physical observables with the rank-1 tangent correction.
-
 ### Material parameters
 
 The parameters are representative of cylindrical Bi-2223 samples
@@ -131,6 +118,14 @@ induced $`|\vec{E}|`$ in the conductor — is maximal (Ref.
 $`\approx 30\,\mathrm{mW}`$ (full-cube instantaneous loss); for the
 1/8-symmetric model the integrated value is multiplied by $`8`$ before
 plotting against the reference.
+
+<div align="center">
+    <img src="./results/Ohmic_Heating.png" alt="AC loss" width="600">
+    <br/>
+    <br/>
+    <em>Figure 2: Instantaneous AC loss over one period compared against the Berger (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
+</div>
+<br/>
 
 
 ## References
