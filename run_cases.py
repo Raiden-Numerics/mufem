@@ -40,7 +40,7 @@ def run_cases(base_directory):
         print("\nThe following cases failed:")
         for case in failed_cases:
             print(case)
-        sys.exit(status=1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
