@@ -2,7 +2,6 @@
 *.msh
 vis/
 VisualizationOutput/
-results/
 __pycache__
 .mypy_cache/
 .claude/
