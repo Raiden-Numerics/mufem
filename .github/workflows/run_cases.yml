@@ -48,9 +48,18 @@ jobs:
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
-    - name: Verify native engine loads
+    - name: Diagnose pymufem resolution
       run: |
-        python3 -c "import libmufem; import mufem; print('mufem import OK')"
+        set -x
+        which -a pymufem || true
+        PYMUFEM=$(command -v pymufem)
+        REAL=$(realpath "$PYMUFEM")
+        BIN_DIR=$(dirname "$REAL")
+        echo "invoked=$PYMUFEM real=$REAL BIN_DIR=$BIN_DIR"
+        ls -la "$BIN_DIR"/python* || true
+        echo "--- PATH python3 ---"; python3 -c 'import sys,importlib.util as u; print(sys.executable); print(u.find_spec("libmufem"))'
+        echo "--- BIN_DIR/python (what pymufem uses) ---"
+        "$BIN_DIR/python" -c 'import sys,importlib.util as u; print(sys.executable); print(u.find_spec("libmufem"))' || true
 
     - name: Run the examples
       run: |
