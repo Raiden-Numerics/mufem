@@ -31,7 +31,7 @@ def run_cases(base_directory):
                 print(f"Success: {case_path}")
             except subprocess.CalledProcessError as e:
                 print(f"Error running {case_path}: {e}")
-                failed_cases.append(object=case_path)
+                failed_cases.append(case_path)
             finally:
                 # Return to the original working directory
                 os.chdir(path=original_dir)

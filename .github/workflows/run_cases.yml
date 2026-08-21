@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         apt-get update
-        apt-get install -y libgomp1
+        apt-get install -y libgomp1 libstdc++6
 
     - name: Set MUFEM version from VERSION file
       run: |
@@ -47,6 +47,10 @@ jobs:
         pip install mufem==$MUFEM_VERSION
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
+
+    - name: Verify native engine loads
+      run: |
+        python3 -c "import libmufem; import mufem; print('mufem import OK')"
 
     - name: Run the examples
       run: |
