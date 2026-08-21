@@ -44,22 +44,21 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        pip install mufem==$MUFEM_VERSION
+        pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION libmufem==$MUFEM_VERSION
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
-    - name: Diagnose pymufem resolution
+    - name: Verify native engine install
       run: |
-        set -x
-        which -a pymufem || true
-        PYMUFEM=$(command -v pymufem)
-        REAL=$(realpath "$PYMUFEM")
-        BIN_DIR=$(dirname "$REAL")
-        echo "invoked=$PYMUFEM real=$REAL BIN_DIR=$BIN_DIR"
-        ls -la "$BIN_DIR"/python* || true
-        echo "--- PATH python3 ---"; python3 -c 'import sys,importlib.util as u; print(sys.executable); print(u.find_spec("libmufem"))'
-        echo "--- BIN_DIR/python (what pymufem uses) ---"
-        "$BIN_DIR/python" -c 'import sys,importlib.util as u; print(sys.executable); print(u.find_spec("libmufem"))' || true
+        python3 - <<'EOF'
+        import importlib.util as u, sys
+        s = u.find_spec("libmufem")
+        if s is None or not s.origin:
+            sys.exit(f"libmufem is a namespace/partial install (origin={s and s.origin}); the package contents are missing")
+        print("libmufem OK:", s.origin)
+        import libmufem, mufem
+        print("mufem import OK")
+        EOF
 
     - name: Run the examples
       run: |
