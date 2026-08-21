@@ -36,6 +36,7 @@ mufem.UnsteadyRunner(
 )
 
 magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=False)
+sim.get_model_manager().add_model(magnetic_model)
 
 # Line search stabilises Newton's iteration on the n=25 power-law nonlinearity.
 line_search = magnetic_model.get_solver().get_line_search()

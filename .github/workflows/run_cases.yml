@@ -61,5 +61,11 @@ jobs:
         EOF
 
     - name: Run the examples
+      env:
+        # Enlarge the dynamic loader's static-TLS surplus. Cases that generate a
+        # mesh with gmsh dlopen() libgmsh (initial-exec TLS) inside the MPI process
+        # after OpenMPI has consumed the small default surplus, otherwise failing
+        # with "cannot allocate memory in static TLS block".
+        GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
         python3 ./run_cases.py ${{ matrix.case-path }}

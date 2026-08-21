@@ -35,6 +35,7 @@ sim = Simulation.New(
 steady_runner = SteadyRunner(total_iterations=0)
 
 magnetic_model = TimeDomainMagneticModel(order=1)
+sim.get_model_manager().add_model(magnetic_model)
 
 air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
 
