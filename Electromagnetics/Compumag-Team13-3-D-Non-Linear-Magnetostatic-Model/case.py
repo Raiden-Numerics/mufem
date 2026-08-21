@@ -11,7 +11,6 @@ from mufem.electromagnetics.coil import (
 from mufem.electromagnetics.timedomainmagnetic import (
     TimeDomainMagneticGeneralMaterial,
     TimeDomainMagneticModel,
-    TangentialMagneticFluxBoundaryCondition,
 )
 
 from pathlib import Path
@@ -29,16 +28,12 @@ is_main_process = sim.get_machine().is_main_process()
 steady_runner = mufem.SteadyRunner(total_iterations=12)
 sim.set_runner(steady_runner)
 
-magnetic_domain = [
-    "Center Plate",
-    "Outer Plate 1",
-    "Outer Plate 2",
-    "Coil",
-    "Air",
-] @ mufem.Vol
-
-magnetic_model = TimeDomainMagneticModel(marker=magnetic_domain, order=2)
+magnetic_model = TimeDomainMagneticModel(order=2)
 sim.get_model_manager().add_model(magnetic_model)
+
+line_search = magnetic_model.get_solver().get_line_search()
+line_search.set_active(True)
+line_search.set_iteration_window(min_iter=0, max_iter=6)
 
 # Materials
 air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ mufem.Vol)
@@ -57,15 +52,9 @@ iron_material = TimeDomainMagneticGeneralMaterial(
     name="Iron",
     marker=["Center Plate", "Outer Plate 1", "Outer Plate 2"] @ mufem.Vol,
     magnetic_permeability=(bh[:, 1], bh[:, 0]),
+    electric_conductivity=0.0,
 )
 magnetic_model.add_materials([air_material, copper_material, iron_material])
-
-# Boundaries (all normal)
-tangential_magnetic_flux_bc = TangentialMagneticFluxBoundaryCondition(
-    name="TangentialFlux",
-    marker="Air::Tangential Flux" @ mufem.Bnd,
-)
-magnetic_model.add_condition(tangential_magnetic_flux_bc)
 
 # Coil
 coil_model = ExcitationCoilModel()
@@ -100,22 +89,17 @@ vis.save(order=2)
 # flake8: noqa: FKA100
 
 
-x_vals = numpy.linspace(0.01, 0.11, 23, endpoint=True)
-b_vals = []
+probe_report = mufem.ProbeReport.Line(
+    "B",
+    "Magnetic Flux Density",
+    start=(0.01, 0.02, 0.055),
+    end=(0.11, 0.02, 0.055),
+    number_points=23,
+)
 
+xy_values = [(p.x, v.mag) for p, v in probe_report.evaluate_all()]
 
-for x in x_vals:
-
-    probe_report = mufem.ProbeReport.SinglePoint(
-        "B", "Magnetic Flux Density", x=x, y=0.02, z=0.055
-    )
-
-    b = probe_report.evaluate().mag
-
-    b_vals.append(b)
-
-
-res = numpy.column_stack((x_vals, b_vals))
+res = numpy.array(xy_values)
 ref = numpy.loadtxt(
     f"{dir_path}/data/Table7_FluxDensity.csv", delimiter=",", comments="#"
 )

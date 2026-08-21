@@ -30,6 +30,9 @@ jobs:
     - name: Install dependencies
       run: |
         apt-get update
+        # libmufem is self-contained (bundles its own libs, needs only glibc +
+        # libstdc++ which ship in ubuntu:24.04). libgomp1 is for the gmsh -nox
+        # build, which is compiled with OpenMP and links libgomp.so.1.
         apt-get install -y libgomp1
 
     - name: Set MUFEM version from VERSION file
@@ -44,10 +47,28 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        pip install mufem==$MUFEM_VERSION
+        pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION libmufem==$MUFEM_VERSION
         pip install -r requirements.txt
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
+    - name: Verify native engine install
+      run: |
+        python3 - <<'EOF'
+        import importlib.util as u, sys
+        s = u.find_spec("libmufem")
+        if s is None or not s.origin:
+            sys.exit(f"libmufem is a namespace/partial install (origin={s and s.origin}); the package contents are missing")
+        print("libmufem OK:", s.origin)
+        import libmufem, mufem
+        print("mufem import OK")
+        EOF
+
     - name: Run the examples
+      env:
+        # Enlarge the dynamic loader's static-TLS surplus. Cases that generate a
+        # mesh with gmsh dlopen() libgmsh (initial-exec TLS) inside the MPI process
+        # after OpenMPI has consumed the small default surplus, otherwise failing
+        # with "cannot allocate memory in static TLS block".
+        GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
         python3 ./run_cases.py ${{ matrix.case-path }}

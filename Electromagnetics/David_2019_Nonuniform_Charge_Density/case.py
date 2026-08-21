@@ -17,7 +17,7 @@ sim.set_runner(runner)
 # Setup the model and material ---------------------------------------------------------
 domain_marker = "Domain" @ mufem.Vol
 
-model = estat.ElectrostaticsModel(marker=domain_marker, order=2)
+model = estat.ElectrostaticsModel(order=2)
 sim.get_model_manager().add_model(model)
 
 material = estat.ElectrostaticMaterial(name="Air", marker=domain_marker)
@@ -90,4 +90,5 @@ plt.savefig("results/Electric_Field.png")
 # Export the electric field data to a VTK file:
 vis = sim.get_field_exporter()
 vis.add_field_output("Electric Field")
+vis.add_field_output("Electric Potential")
 vis.save(order=2)

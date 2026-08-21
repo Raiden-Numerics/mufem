@@ -44,14 +44,14 @@ To investigate the change in capacitance as the distance between the combs incre
 ### Model
 
 For the simulation, we employ the [Electrostatics Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html), 
-which describes a static electric field $`\mathbf{E}`$ in terms of its scalar electric potential $`\phi`$
+which describes a static electric field $`\vec{E}`$ in terms of its scalar electric potential $`\phi`$
 using the following equation:
 ```math
     \nabla \cdot \varepsilon \nabla\phi = -\rho,
 ```
 where $`\varepsilon`$ is the electric permittivity, and $`\rho`$ denotes the density of free electric
 charges, which is zero in our case. By solving this equation we calculate the total electric energy density
-$`W=\varepsilon\mathbf{E}^2/2`$ with $`\mathbf{E}=-\nabla\phi`$. Knowing the energy $`W`$ and the
+$`W=\varepsilon\vec{E}^2/2`$ with $`\vec{E}=-\nabla\phi`$. Knowing the energy $`W`$ and the
 voltage $`V`$ imposed between the two comb electrodes we can find the capacitance $`C`$ of the comb
 drive as [[3]](#Wikipedia)
 ```math

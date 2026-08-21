@@ -116,8 +116,7 @@ sim.get_model_manager().add_model(refinement_model)
 
 
 # Model --------------------------------------------------------------------------------
-order = 2  # finite element polynomial degree
-model = ElectrostaticsModel(Everywhere @ Vol, order)
+model = ElectrostaticsModel(order=2)
 sim.get_model_manager().add_model(model)
 
 mesh_refiner = model.get_mesh_refiner()

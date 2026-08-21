@@ -185,6 +185,6 @@ analytical result.
 
 
 ## References
-[1] https://en.wikipedia.org/wiki/Dipole_antenna \
-[2] https://awslabs.github.io/palace/stable/examples/antenna \
+[1] [Dipole antenna (Wikipedia)](https://en.wikipedia.org/wiki/Dipole_antenna) \
+[2] [Palace: Dipole Antenna and Radiation Fields](https://awslabs.github.io/palace/dev/examples/antenna/) \
 [3] W.L. Stutzman and G.A. Thiele "Antenna Theory and Design", 3rd ed., John Wiley & Sons (2012)

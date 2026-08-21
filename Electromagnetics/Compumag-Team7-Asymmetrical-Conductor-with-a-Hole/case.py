@@ -23,10 +23,10 @@ dir_path = Path(__file__).resolve().parent
 sim = mufem.Simulation.New(name="Team-7", mesh_path=f"{dir_path}/geometry.mesh")
 
 # Setup Problem
-steady_runner = mufem.SteadyRunner(total_iterations=1)
+steady_runner = mufem.SteadyRunner(total_iterations=3)
 sim.set_runner(steady_runner)
 
-magnetic_model = TimeHarmonicMagneticModel(Vol.Everywhere, frequency=50, order=3)
+magnetic_model = TimeHarmonicMagneticModel(frequency=50, order=3)
 sim.get_model_manager().add_model(magnetic_model)
 
 # Define the materials
@@ -43,6 +43,7 @@ alu_material = TimeHarmonicMagneticGeneralMaterial(
     marker="Plate" @ Vol,
     magnetic_permeability=1.0,
     electric_conductivity=3.526e7,
+    has_eddy_currents=True,
 )
 
 magnetic_model.add_materials([air_material, copper_material, alu_material])

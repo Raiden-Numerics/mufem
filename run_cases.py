@@ -4,12 +4,6 @@ import subprocess
 
 from typing import List
 
-# Temporary workaround for cases which currently do not support
-# parallel execution.
-serial_only_cases = [
-    "Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake",
-]
-
 
 def run_cases(base_directory):
 
@@ -27,10 +21,6 @@ def run_cases(base_directory):
 
             case_path = f"{root}/case.py"
 
-            if any(case in case_path for case in serial_only_cases):
-                print(f"Skipping serial-only case: {case_path}")
-                continue
-
             print(f"Running case: {case_path}")
 
             # Execute the command
@@ -41,7 +31,7 @@ def run_cases(base_directory):
                 print(f"Success: {case_path}")
             except subprocess.CalledProcessError as e:
                 print(f"Error running {case_path}: {e}")
-                failed_cases.append(object=case_path)
+                failed_cases.append(case_path)
             finally:
                 # Return to the original working directory
                 os.chdir(path=original_dir)
@@ -50,7 +40,7 @@ def run_cases(base_directory):
         print("\nThe following cases failed:")
         for case in failed_cases:
             print(case)
-        sys.exit(status=1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

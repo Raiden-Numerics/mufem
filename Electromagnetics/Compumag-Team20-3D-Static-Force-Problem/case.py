@@ -8,6 +8,8 @@ from mufem.electromagnetics.coil import (
     CoilTopologyOpen,
     CoilTypeStranded,
     ExcitationCoilModel,
+    MagneticInductanceReport,
+    ResistanceReport,
 )
 from mufem.electromagnetics.timedomainmagnetic import (
     MagneticForceReport,
@@ -32,8 +34,8 @@ sim = Simulation.New(
 # Setup Problem
 steady_runner = SteadyRunner(total_iterations=0)
 
-magnetic_domain = ["Yoke", "Pole", "Coil", "Air"] @ Vol
-magnetic_model = TimeDomainMagneticModel(marker=magnetic_domain, order=1)
+magnetic_model = TimeDomainMagneticModel(order=1)
+sim.get_model_manager().add_model(magnetic_model)
 
 air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
 
@@ -47,7 +49,7 @@ iron_material = TimeDomainMagneticGeneralMaterial(
     name="Iron",
     marker=["Yoke", "Pole"] @ Vol,
     magnetic_permeability=(bh[:, 1], bh[:, 0]),
-    electric_conductivity=0.0,
+    has_eddy_currents=False,
 )
 
 magnetic_model.add_materials([air_material, copper_material, iron_material])
@@ -88,6 +90,13 @@ coil = CoilSpecification(
 coil_model.add_coil_specification(coil)
 
 magnetic_force_report_1 = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
+sim.get_report_manager().add_report(magnetic_force_report_1)
+
+inductance_report = MagneticInductanceReport(name="Coil Inductance")
+sim.get_report_manager().add_report(inductance_report)
+
+coil_resistance_report = ResistanceReport(name="Coil Resistance", coil_index=0)
+sim.get_report_manager().add_report(coil_resistance_report)
 
 
 # Run the scan
@@ -146,4 +155,4 @@ vis = sim.get_field_exporter()
 vis.add_field_output("Magnetic Flux Density")
 vis.add_field_output("Electric Current Density")
 
-vis.save()
+vis.save(order=1)
