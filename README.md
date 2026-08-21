@@ -46,6 +46,7 @@ run a specific case with:
 
 * **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
   - [Lubin 2015: Axial-Flux Eddy Current Brake](Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
+  - [Berger 2017: High-Temperature Superconductor Cube](Electromagnetics/Berger_2017_HTS_Cube/README.md)
 
 * **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
   - [Biro 1993: 3D Iron Core Current Driven Conductors](Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md)
