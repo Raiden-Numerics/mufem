@@ -187,9 +187,9 @@ sim.get_model_manager().add_model(refinement_model)
 # Run the simulation -------------------------------------------------------------------
 vis = sim.get_field_exporter()
 vis.add_field_output("Temperature")
-vis.add_field_output("Magnetic Flux Density-Abs")
+vis.add_field_output("Magnetic Flux Density-Real")
+vis.add_field_output("Magnetic Flux Density-Imag")
 vis.add_field_output("Ohmic Heating")
-vis.add_field_output("Relative Magnetic Permeability")
 
 sim.initialize()
 vis.save()
