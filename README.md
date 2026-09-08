@@ -1,13 +1,40 @@
 # μfem
 
-A [finite-element multi-physics application framework](https://raiden-numerics.github.io/mufem/) based
-on the [MFEM](https://mfem.org/) library.
+A [multi-physics finite-element simulation code](https://raiden-numerics.github.io/mufem/) focused on
+**electromagnetics**, **plasmas**, and **multi-physics coupling**, based on the [MFEM](https://mfem.org/) library.
+
+μfem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
+and **design optimization**, and a natural fit for **agentic workflows**.
+
+μfem is **free for both academic and commercial use**.
+
+This repository hosts a quick introduction to μfem together with a collection of validation and example
+cases. For platform-specific setup see the
+[Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
+tutorials and the full API reference see the
+[μfem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
 ![Logo](.logo.png)
 
+## Why μfem
+
+* **Python-native**: build, run, and post-process simulations from a clean Python API; no custom input decks.
+* **Multi-physics**: electromagnetics (low- and high-frequency), plasmas, thermal and structural, with coupling.
+* **High-order & parallel**: built on [MFEM](https://mfem.org/) for high-order finite elements and MPI scalability.
+* **Validated**: continuously tested against the TEAM and NAFEMS benchmark suites as well as published experimental, analytical, and reference numerical results (see below).
+* **Automation-friendly**: a scriptable interface that fits parametric sweeps, optimization, and agentic workflows.
+* **Free**: for both academic and commercial use.
+
 ## Getting started
 
-Install the latest release from PyPI:
+First create and activate a virtual environment:
+
+```bash
+python -m venv mufem-venv
+source mufem-venv/bin/activate
+```
+
+Then install the latest release from PyPI:
 
 ```bash
 pip install mufem
@@ -17,7 +44,89 @@ See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting
 for platform-specific instructions, and the [μfem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
 for tutorials and API reference.
 
+That is all you need to run the [validation cases](#validation-cases) below directly.
+
 For questions or support please [open an issue](https://github.com/Raiden-Numerics/mufem-release/issues/new/choose).
+
+## Quick example
+
+Solve the electrostatic field inside a cube held at 1 V across two faces. The simulation reads a mesh
+whose **tagged attributes** (a `Cube` volume and its `Anode`/`Cathode` boundary faces) are referenced by
+markers (`"Cube" @ Vol`, `"Anode" @ Bnd`, ...):
+
+```python
+import mufem
+import mufem.electromagnetics.electrostatics as estat
+from mufem import Vol, Bnd
+
+sim = mufem.Simulation.New(name="Charged Cube", mesh_path="cube.msh")
+sim.set_runner(mufem.SteadyRunner(total_iterations=1))
+
+# Electrostatics model on the tagged "Cube" volume
+model = estat.ElectrostaticsModel(order=2)
+sim.get_model_manager().add_model(model)
+model.add_material(estat.ElectrostaticMaterial(name="Air", marker="Cube" @ Vol))
+
+# Apply 1 V across the cube: anode at 1 V, cathode grounded
+model.add_conditions([
+    estat.ElectricPotentialCondition(name="Anode", marker="Anode" @ Bnd, electric_potential=1.0),
+    estat.ElectricPotentialCondition(name="Cathode", marker="Cathode" @ Bnd, electric_potential=0.0),
+])
+
+# Report the stored electric energy
+report = mufem.VolumeIntegralReport(name="Energy", cff_name="Electric Energy Density")
+sim.get_report_manager().add_report(report)
+
+sim.run()
+print("Electric energy:", report.evaluate(), "J")
+
+# Export the fields for visualization (ParaView / VTK)
+vis = sim.get_field_exporter()
+vis.add_field_output("Electric Potential")
+vis.add_field_output("Electric Field")
+vis.save()
+```
+
+See the [electrostatics cases](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md) for full, runnable
+examples, including mesh generation and comparison against reference results.
+
+## Gallery
+
+<table>
+<tr>
+<td width="40%"><a href="Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
+<td width="60%">
+
+**[Locked rotor (TEAM 24)](Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)**
+
+Study the transient rotor torque and coil currents of a rotating machine using the **Time-Domain Magnetic**
+model coupled to an **Excitation Coil**.
+
+</td>
+</tr>
+<tr>
+<td width="40%"><a href="Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
+<td width="60%">
+
+**[Dipole antenna (Stutzman 2012)](Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)**
+
+Compute the full-wave radiation pattern and far-field of a dipole antenna using the **Time-Harmonic Maxwell**
+model.
+
+</td>
+</tr>
+<tr>
+<td width="40%"><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
+<td width="60%">
+
+**[Felix cylinder (TEAM 1b)](Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
+
+Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the **Time-Domain
+Magnetic** model.
+
+</td>
+</tr>
+</table>
 
 ## Validation cases
 
@@ -26,10 +135,13 @@ After following the [Installation guide](https://raiden-numerics.github.io/mufem
 run a specific case with:
 
 ```bash
-(mufem-env) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
+(mufem-venv) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
 
 ### Electromagnetics
+
+μfem supports both low-frequency (magnetostatics, eddy currents, time-domain and time-harmonic magnetics)
+and high-frequency (full-wave Maxwell) electromagnetics.
 
 * [**TEAM (Testing Electromagnetic Analysis Methods) Benchmark Suite**](https://www.compumag.org/wp/team/) \
   Introduced in the late 1980s and continuously updated, the TEAM benchmarks focus primarily on low-frequency magnetic problems, providing a standard framework for evaluating numerical methods. Available cases:
@@ -66,10 +178,7 @@ run a specific case with:
 
 ## Continuous Integration
 
-Examples Linux:
 [![Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.12)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
 [![Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.13)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
 [![Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Python%203.14)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
 
-[![Python Black](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/black-check.yaml/badge.svg)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/black-check.yaml)
-[![Python flake8](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/flake8.yaml/badge.svg)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/flake8.yaml)
