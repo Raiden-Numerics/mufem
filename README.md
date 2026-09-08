@@ -25,29 +25,6 @@ tutorials and the full API reference see the
 * **Automation-friendly**: a scriptable interface that fits parametric sweeps, optimization, and agentic workflows.
 * **Free**: for both academic and commercial use.
 
-## Getting started
-
-First create and activate a virtual environment:
-
-```bash
-python -m venv mufem-venv
-source mufem-venv/bin/activate
-```
-
-Then install the latest release from PyPI:
-
-```bash
-pip install mufem
-```
-
-See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
-for platform-specific instructions, and the [μfem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
-for tutorials and API reference.
-
-That is all you need to run the [validation cases](#validation-cases) below directly.
-
-For questions or support please [open an issue](https://github.com/Raiden-Numerics/mufem-release/issues/new/choose).
-
 ## Quick example
 
 Solve the electrostatic field inside a cube held at 1 V across two faces. The simulation reads a mesh
@@ -127,6 +104,29 @@ Magnetic** model.
 </td>
 </tr>
 </table>
+
+## Getting started
+
+First create and activate a virtual environment:
+
+```bash
+python -m venv mufem-venv
+source mufem-venv/bin/activate
+```
+
+Then install the latest release from PyPI:
+
+```bash
+pip install mufem
+```
+
+See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
+for platform-specific instructions, and the [μfem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
+for tutorials and API reference.
+
+That is all you need to run the [validation cases](#validation-cases) below directly.
+
+For questions or support please [open an issue](https://github.com/Raiden-Numerics/mufem-release/issues/new/choose).
 
 ## Validation cases
 
