@@ -16,9 +16,9 @@ cooled by convection.
 
 ## Setup
 
-The package is a stack of five layers, each $13 \times 13\,\mathrm{mm}$:
+The package is a stack of five layers, each $`13 \times 13\,\mathrm{mm}`$:
 
-| Component | Material | Thickness [mm] | $k$ [W/m/K] | $\rho$ [kg/m³] | $c_p$ [J/kg/K] |
+| Component | Material | Thickness [mm] | $`k`$ [W/m/K] | $`\rho`$ [kg/m³] | $`c_p`$ [J/kg/K] |
 | - | - | - | - | - | - |
 | Die | Silicon | 0.50 | 111 | 2330 | 668 |
 | TIM 1 | Ag-Epoxy | 0.10 | 2.0 | 4400 | 400 |
@@ -26,9 +26,9 @@ The package is a stack of five layers, each $13 \times 13\,\mathrm{mm}$:
 | TIM 2 | Grease (Al filler) | 0.05 | 1.0 | 2500 | 900 |
 | Heat sink base | Copper | 6.00 | 390 | 8890 | 385 |
 
-Starting from a uniform $T = 273.15\,\mathrm{K}$, the die dissipation is modelled as a surface heat
-flux of $5917\,\mathrm{W/m^2}$ between the die and TIM 1, and the heat-sink base is cooled by a
-convective flux with coefficient $20000\,\mathrm{W/m^2/K}$. The transient is run to $10\,\mathrm{s}$.
+Starting from a uniform $`T = 273.15\,\mathrm{K}`$, the die dissipation is modelled as a surface heat
+flux of $`5917\,\mathrm{W/m^2}`$ between the die and TIM 1, and the heat-sink base is cooled by a
+convective flux with coefficient $`20000\,\mathrm{W/m^2/K}`$. The transient is run to $`10\,\mathrm{s}`$.
 
 ## Results
 

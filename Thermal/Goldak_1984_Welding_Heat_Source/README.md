@@ -23,10 +23,10 @@ The governing equation is the transient heat equation with a moving volumetric s
 = Q(\mathbf{x}-\mathbf{x}_s(t))
 ```
 
-where $T$ is the temperature, $k(T)$ the thermal conductivity, $c(T)$ the volumetric heat capacity,
-and $Q$ the welding heat source traveling along the weld path.
+where $`T`$ is the temperature, $`k(T)`$ the thermal conductivity, $`c(T)`$ the volumetric heat capacity,
+and $`Q`$ the welding heat source traveling along the weld path.
 
-The Goldak model splits the source into **front and rear ellipsoids** ($Q_f$ and $Q_r$):
+The Goldak model splits the source into **front and rear ellipsoids** ($`Q_f`$ and $`Q_r`$):
 
 ```math
 \begin{aligned}
@@ -39,8 +39,8 @@ Q_r(x,y,z) &=
 \end{aligned}
 ```
 
-with total power $Q = \eta V I$, ellipsoid semi-axes $a, b, c_f, c_r$, and front/rear power fractions
-$f_f + f_r = 2$. The source moves with welding speed $v$ via $z \rightarrow z - v t$.
+with total power $`Q = \eta V I`$, ellipsoid semi-axes $`a, b, c_f, c_r`$, and front/rear power fractions
+$`f_f + f_r = 2`$. The source moves with welding speed $`v`$ via $`z \rightarrow z - v t`$.
 
 ## Setup
 
@@ -53,25 +53,25 @@ low-carbon steel, plate thickness **10 cm**.
 | Current | 1170 A |
 | Welding speed | 0.005 m/s |
 | Efficiency | 0.95 |
-| Ellipsoid semi-axes | $a = b = 2.0$ cm, $c_f = 1.5$ cm, $c_r = 3.0$ cm |
-| Power fractions | $f_f = 0.6$, $f_r = 1.4$ |
+| Ellipsoid semi-axes | $`a = b = 2.0`$ cm, $`c_f = 1.5`$ cm, $`c_r = 3.0`$ cm |
+| Power fractions | $`f_f = 0.6`$, $`f_r = 1.4`$ |
 
-The source starts at $z_0 = 0.1\,\mathrm{m}$, reaches the measuring line at $z = 0.15\,\mathrm{m}$ after
+The source starts at $`z_0 = 0.1\,\mathrm{m}`$, reaches the measuring line at $`z = 0.15\,\mathrm{m}`$ after
 **10 s**, and the simulation continues to **21.5 s** (11.5 s of cooling). Temperature-dependent
-$k(T)$ and $c_p(T)$ are used; the melting temperature is $T = 1480\,^{\circ}\mathrm{C}$.
+$`k(T)`$ and $`c_p(T)`$ are used; the melting temperature is $`T = 1480\,^{\circ}\mathrm{C}`$.
 
 **Phase change** is captured with a *mushy-zone* enthalpy formulation over a solidus–liquidus interval
-$\Delta T = T_l - T_s$, adding the latent heat of fusion to the effective heat capacity:
+$`\Delta T = T_l - T_s`$, adding the latent heat of fusion to the effective heat capacity:
 
 ```math
 c_{\mathrm{eff}}(T) = \rho\, c_s(T) + \frac{\rho L}{T_l - T_s}.
 ```
 
-Surface losses use a nonlinear radiative/convective heat flux with emissivity $\varepsilon = 0.9$.
+Surface losses use a nonlinear radiative/convective heat flux with emissivity $`\varepsilon = 0.9`$.
 
 ## Results
 
-**Temperature vs. Position** (across the weld at $z = 0.15\,\mathrm{m}$):
+**Temperature vs. Position** (across the weld at $`z = 0.15\,\mathrm{m}`$):
 
 ![Temperature vs Position](./results/Temperature_vs_Position.png)
 
