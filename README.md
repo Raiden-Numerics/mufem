@@ -151,6 +151,7 @@ and high-frequency (full-wave Maxwell) electromagnetics.
   - [Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model](Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md)
   - [Compumag TEAM 20: 3D Static Force Problem](Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
   - [Compumag TEAM 24: Locked Rotor](Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
+  - [Compumag TEAM 36: Induction Heating Device](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md)
 
 * **[Electrostatic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**
   - [Ren 2014: MEMS Comb Drive](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
@@ -169,11 +170,20 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Structural
 
+* **Structural Mechanics**
+  - [Slaughter 2002: Linear Cantilever Beam](Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
+
+### Thermal
+
 * [**NAFEMS Benchmark Suite**](https://www.nafems.org/publications/resource_center/r0006/) \
   A long-standing set of reference problems from the NAFEMS simulation community
   covering structural, thermal, fluid, and multi-physics analyses.
 
   - [Cameron 1986: Heat Transfer With Convection](Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
+
+* **Heat Transfer**
+  - [Goldak 1984: Welding Heat Source](Thermal/Goldak_1984_Welding_Heat_Source/README.md)
+  - [Bruce 2012: Heat Transfer in Electronic Design](Thermal/Bruce_2012_Heat_Transfer_Electronic_Design/README.md)
 
 
 ## Continuous Integration
