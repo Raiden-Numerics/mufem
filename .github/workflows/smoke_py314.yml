@@ -1,0 +1,12 @@
+name: Smoke (Python 3.14)
+
+on: push
+
+# Smoke test on Python 3.14: runs a single representative case (Team1b) to confirm
+# the release imports and runs on this Python version.
+jobs:
+  smoke:
+    uses: ./.github/workflows/run_cases_workflow.yaml
+    with:
+      python-version: '3.14'
+      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
