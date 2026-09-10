@@ -1,4 +1,4 @@
-name: Smoke (Python 3.13)
+name: Smoke (Linux x86-64, Python 3.13)
 
 on: push
 

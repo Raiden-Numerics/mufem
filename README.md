@@ -1,7 +1,8 @@
-# mufem
+# mufem: fast and accurate simulations
 
-A [multi-physics finite-element simulation code](https://raiden-numerics.github.io/mufem/) focused on
-**electromagnetics**, **plasmas**, and **multi-physics coupling**.
+mufem is a [finite-element simulation code](https://raiden-numerics.github.io/mufem/) focused on
+**electromagnetics**, **plasmas**, and **coupled multi-physics problems**, built for **industry-relevant**
+engineering applications.
 
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
 and **design optimization**, and a natural fit for **agentic workflows**. mufem is
@@ -186,7 +187,7 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ## Continuous Integration
 
-[![Examples · Python 3.12 · Linux x86-64](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Examples%20%C2%B7%20Python%203.12%20%C2%B7%20Linux%20x86-64)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
-[![Smoke · Python 3.13 · Linux x86-64](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/smoke_py313.yml?label=Smoke%20%C2%B7%20Python%203.13%20%C2%B7%20Linux%20x86-64)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/smoke_py313.yml)
-[![Smoke · Python 3.14 · Linux x86-64](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/smoke_py314.yml?label=Smoke%20%C2%B7%20Python%203.14%20%C2%B7%20Linux%20x86-64)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/smoke_py314.yml)
+[![Examples · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/run_cases.yml?label=Examples%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/run_cases.yml)
+[![Smoke · Linux x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/smoke_py313.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/smoke_py313.yml)
+[![Smoke · Linux x86-64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem-examples/smoke_py314.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem-examples/actions/workflows/smoke_py314.yml)
 

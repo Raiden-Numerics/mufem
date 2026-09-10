@@ -15,7 +15,7 @@ changes substantially over the heating cycle [1, 2].
 <br />
 
 This case couples a **Time-Harmonic Magnetic** model with a **Thermal** model and is a good
-illustration of μfem's multi-physics coupling on temperature-dependent materials.
+illustration of mufem's multi-physics coupling on temperature-dependent materials.
 
 ## Introduction
 
@@ -59,7 +59,7 @@ ohmic heating power, against the reference data in [1, 2].
 
 The two-way coupling is active: as the steel approaches the Curie point its permeability collapses,
 which reshapes the ohmic heating (the characteristic peak near $`t \approx 10\,\mathrm{s}`$ followed by
-decay) and in turn the temperature. The μfem results track the reference data, with the largest
+decay) and in turn the temperature. The mufem results track the reference data, with the largest
 discrepancy in the early transient (the ohmic-heating peak and the surface-temperature plateau).
 
 ## References

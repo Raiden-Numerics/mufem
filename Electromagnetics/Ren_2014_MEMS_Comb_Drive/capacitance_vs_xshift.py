@@ -30,7 +30,7 @@ print(f"Force F = {F} [N]")
 print(f"Force F = {F/1e-9} [nN]")
 
 plt.figure(constrained_layout=True)
-plt.plot(x / 1e-6, C / 1e-15, "o", label="μfem")
+plt.plot(x / 1e-6, C / 1e-15, "o", label="mufem")
 plt.plot(x / 1e-6, (a * x + b) / 1e-15, "-", label="linear fit")
 plt.legend(loc=0, frameon=False)
 plt.xlabel("Shift [μm]")

@@ -28,7 +28,7 @@ def make_goldak_double_ellipsoid(
     y0: float = 0.0,
     z0: float = 0.0,
 ):
-    """Goldak double-ellipsoidal moving heat source as a μfem coefficient expression."""
+    """Goldak double-ellipsoidal moving heat source as a mufem coefficient expression."""
 
     def pre(f, c):
         return (6.0 * math.sqrt(3.0) * f * Q) / (
@@ -165,7 +165,7 @@ plt.plot(
     color="r",
     marker=".",
     linestyle="-",
-    label="$\\mu$fem",
+    label="mufem",
     markersize=6,
 )
 plt.xlabel("Position [mm]")

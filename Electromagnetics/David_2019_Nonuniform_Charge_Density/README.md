@@ -2,19 +2,19 @@
 
 ## Introduction
 
-In this tutorial, we will explore the basic usage of μfem, focusing on several
+In this tutorial, we will explore the basic usage of mufem, focusing on several
 key aspects of the simulation process.
 Our goal is to demonstrate how to create a mesh, set up a simulation, utilize
 markers, define materials and boundary conditions, apply coefficient functions,
 and analyze simulation results through reports.
 
-Each μfem simulation is executed through a Python script.
+Each mufem simulation is executed through a Python script.
 Utilizing Python scripts offers the flexibility to customize simulations,
 especially when performing parameter sweeps.
-Furthermore, the capabilities of μfem simulations can be enhanced by integrating
+Furthermore, the capabilities of mufem simulations can be enhanced by integrating
 additional Python libraries such as NumPy, SciPy, and Matplotlib.
 
-To run a μfem simulation defined in a Python script file (for example,
+To run a mufem simulation defined in a Python script file (for example,
 `case.py`), you simply execute the following command in the terminal:
 
 ```bash
@@ -22,7 +22,7 @@ pymufem case.py
 ```
 
 For those who prefer an interactive approach, you can also launch simulations by
-entering μfem commands directly in an IPython shell or Jupyter notebook.
+entering mufem commands directly in an IPython shell or Jupyter notebook.
 
 
 ## Mathematical Description of the Problem
@@ -148,7 +148,7 @@ gmsh.model.occ.synchronize()
 Without this synchronization, the entities in the OpenCASCADE CAD representation
 will not be accessible to functions outside the OpenCASCADE CAD kernel.
 
-We will now assign name attributes to the entities for reference in the μfem
+We will now assign name attributes to the entities for reference in the mufem
 code.
 This will help us mark the computational domain and its boundary for applying
 boundary conditions.
@@ -207,7 +207,7 @@ The complete code to generate the mesh for our problem can be found in the file
 
 ### Setting Up the Simulation
 
-In this section, we begin the μfem Python script by importing the μfem library.
+In this section, we begin the mufem Python script by importing the mufem library.
 For convenience, we also import the electrostatics module under the alias
 `estat`:
 
@@ -256,7 +256,7 @@ residual error.
 
 After setting up the simulation object and the runner, we configure the model
 for our simulations.
-To solve electrostatic problems, such as the one described in Eqs. (1)-(3), μfem
+To solve electrostatic problems, such as the one described in Eqs. (1)-(3), mufem
 utilizes the
 [Electrostatics Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html).
 We create this model by calling the constructor of the `ElectrostaticsModel`
@@ -294,7 +294,7 @@ model.add_material(material)
 ```
 
 We then define the Gaussian charge density distribution as a string expression
-that μfem parses into a scalar coefficient function.
+that mufem parses into a scalar coefficient function.
 The expression uses the built-in `{Position}` symbol to access the spatial
 coordinates and supports standard mathematical operators and functions:
 
@@ -311,7 +311,7 @@ charge_expr = f"""
 """
 ```
 
-More information on μfem coefficients can be found in
+More information on mufem coefficients can be found in
 [Coefficients](https://raiden-numerics.github.io/mufem-doc/framework/coefficients.html).
 
 We pass this expression directly to the source condition via an instance of the
@@ -403,7 +403,7 @@ E_theory = np.zeros(Nr)
 Next, we create a loop to iterate over all points across the diameter of the
 computational domain.
 At each step of the loop, we create a `mufem.ProbeReport` for a single point to
-access the electric field calculated by μfem (more information about reports can
+access the electric field calculated by mufem (more information about reports can
 be found in
 [Reports and Monitors](https://raiden-numerics.github.io/mufem-doc/framework/reports_and_monitors.html)).
 After evaluating this report, we extract the desired component of the electric
@@ -457,7 +457,7 @@ electrostatics model, ensuring consistency in our analysis.
 
 The complete code for the example can be found in the [case.py](case.py) file.
 
-The resulting figure demonstrates that the electric field obtained from the μfem
+The resulting figure demonstrates that the electric field obtained from the mufem
 simulation closely matches the field calculated using the analytical formula:
 
 ![Electric_Field.png](results/Electric_Field.png)

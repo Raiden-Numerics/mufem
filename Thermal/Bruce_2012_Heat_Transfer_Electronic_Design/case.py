@@ -113,7 +113,7 @@ def plot_evolution(monitor, reference_file, ylabel, output):
         color="r",
         marker=".",
         linestyle="-",
-        label="$\\mu$fem",
+        label="mufem",
         markersize=6,
     )
     plt.xlabel("Time [s]")
