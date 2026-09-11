@@ -54,7 +54,7 @@ height of 3 mm, and a length of 1 mm.
 ### Mesh
 
 To generate the mesh we use [Gmsh](https://gmsh.info/) mesh generator (please
-note that [Gmsh](https://gmsh.info/) is not supplied with μfem and must be
+note that [Gmsh](https://gmsh.info/) is not supplied with mufem and must be
 installed separately).
 The corresponding code can be found in the [geometry.py](geometry.py) file.
 To improve the accuracy of modeling, we use the mesh with second-order finite
@@ -213,7 +213,7 @@ both within and outside the filter's bandwidth, during the simulation we export
 the electric field at 12 GHz and 14 GHz to a [VTK](https://vtk.org/) file.
 For the visualization of the fields we use [ParaView](https://www.paraview.org/)
 (please note that [ParaView](https://www.paraview.org/) is not supplied with
-μfem and must be installed separately).
+mufem and must be installed separately).
 You can find the corresponding code in the [create_scene.py](create_scene.py)
 file.
 Figure 4 shows the distribution of the electric field inside the waveguide

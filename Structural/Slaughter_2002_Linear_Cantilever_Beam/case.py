@@ -70,7 +70,7 @@ plt.plot(
     color="r",
     marker=".",
     linestyle="none",
-    label="$\\mu$fem",
+    label="mufem",
     markersize=8,
 )
 plt.xlabel("Position [m]")
@@ -100,7 +100,7 @@ plt.plot(
     color="r",
     marker=".",
     linestyle="none",
-    label="$\\mu$fem",
+    label="mufem",
     markersize=8,
 )
 plt.xlabel("Position [m]")

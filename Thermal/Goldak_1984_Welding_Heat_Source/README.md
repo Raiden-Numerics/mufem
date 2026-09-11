@@ -75,7 +75,7 @@ Surface losses use a nonlinear radiative/convective heat flux with emissivity $`
 
 ![Temperature vs Position](./results/Temperature_vs_Position.png)
 
-The μfem solution follows the reference; the peak is bounded by the latent-heat plateau of the
+The mufem solution follows the reference; the peak is bounded by the latent-heat plateau of the
 mushy-zone model.
 
 ## Scenes

@@ -38,7 +38,7 @@ Temperature evolution at the die and lid probe points, compared against the refe
 | :---: | :---: |
 | ![Die temperature](./results/Die_Temperature_Evolution.png) | ![Lid temperature](./results/Lid_Temperature_Evolution.png) |
 
-The μfem results match the reference curves.
+The mufem results match the reference curves.
 
 ## Scenes
 

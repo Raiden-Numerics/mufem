@@ -219,7 +219,7 @@ plt.plot(
     color="r",
     marker=".",
     linestyle="-",
-    label="$\\mu$fem",
+    label="mufem",
 )
 plt.xlabel("Time t [s]")
 plt.ylabel("Ohmic Heating [kW]")
@@ -243,7 +243,7 @@ for probe_name, reference_file, output in [
         color="r",
         marker=".",
         linestyle="-",
-        label="$\\mu$fem",
+        label="mufem",
     )
     plt.xlabel("Time [s]")
     plt.ylabel("Temperature [°C]")

@@ -54,7 +54,7 @@ iteration.
 
 ![Von Mises Stress](./results/Von_Mises_Stress_vs_Position.png)
 
-The μfem solution matches the analytical result. The small deviation in the stress near the
+The mufem solution matches the analytical result. The small deviation in the stress near the
 clamped end ($`x = 0`$) is the expected Saint-Venant boundary effect.
 
 ## Scene
