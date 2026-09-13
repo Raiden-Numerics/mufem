@@ -1,0 +1,83 @@
+name: Smoke (macOS arm64, Python 3.13)
+
+on: push
+
+# macOS smoke test on a GitHub-hosted macos-14 runner (Apple Silicon, free for
+# this public repo). Installs the published macOS wheel from PyPI and runs the
+# bundled thermal smoke case — the real import+solve verification on genuine
+# Apple Silicon (there is no arm64 Mach-O emulator, so this is the only place the
+# macOS wheel can actually be exercised).
+#
+# The macOS wheel is a single self-contained package (engine static in mufem.so;
+# third-party dylibs bundled and resolved via @rpath) and is published as alpha,
+# so it installs only with --pre. The bundled case uses a prebuilt mesh
+# (geometry.nm2), so no gmsh is needed.
+#
+# NOTE: this is RED until the arm64 macOS wheel is published to PyPI (pending the
+# omp-mac image rebuild with python-mac + a release run).
+jobs:
+  smoke:
+    runs-on: macos-14
+    steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          allow-prereleases: true
+
+      # --no-deps: do NOT pull numpy/matplotlib. numpy ships its own OpenMP/
+      # OpenBLAS, and two OpenMP runtimes in one macOS process is a classic hard
+      # crash — isolating that is the point here. If `import mufem` succeeds
+      # without numpy present, the duplicate-runtime theory is confirmed.
+      - name: Install mufem (alpha macOS wheel, no deps)
+        run: pip install --pre --force-reinstall --no-cache-dir --no-deps mufem
+
+      - name: Import check
+        shell: bash
+        run: |
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+
+      - name: Solve smoke
+        shell: bash
+        run: |
+          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
+          # the extension; run it from a scratch dir for a real end-to-end solve.
+          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
+          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
+          cd smoke && python case.py
+
+      # On a crash (SIGSEGV on import) pinpoint the faulting library/frame.
+      - name: Diagnose crash
+        if: failure()
+        shell: bash
+        run: |
+          # Locate the package WITHOUT importing it (import segfaults): find_spec
+          # does not execute the module.
+          pkg=$(python -c "import importlib.util as u; print(u.find_spec('mufem').submodule_search_locations[0])")
+          libdir="$pkg/../libmufem/lib"
+          echo "pkg=$pkg"
+          echo "=== layout ==="; ls -la "$pkg"; echo "--- libmufem/lib ---"; ls -la "$libdir"
+          echo "=== otool -L mufem.so ==="; otool -L "$pkg/mufem.so"
+          echo "=== mufem.so LC_RPATH ==="; otool -l "$pkg/mufem.so" | grep -A2 LC_RPATH | grep "path "
+
+          # Load each bundled dylib in isolation (fresh interpreter) to find which
+          # one's static initializer faults — CDLL runs its constructors.
+          echo "=== per-dylib ctypes load probe ==="
+          for lib in "$libdir"/*.dylib; do
+            name=$(basename "$lib")
+            if python -c "import ctypes,sys; ctypes.CDLL(sys.argv[1])" "$lib" >/dev/null 2>&1; then
+              echo "OK    $name"
+            else
+              echo "CRASH $name"
+            fi
+          done
+
+          echo "=== faulthandler traceback ==="
+          python -X faulthandler -c "import mufem" 2>&1 | tail -40 || true
+          echo "=== lldb native backtrace (stop at the crash, not exec) ==="
+          lldb --batch \
+            -o "settings set target.process.stop-on-exec false" \
+            -o "run" \
+            -k "thread backtrace all" \
+            -k "quit" \
+            -- python -c "import mufem" 2>&1 | tail -100 || true
