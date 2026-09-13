@@ -1,6 +1,11 @@
 name: Smoke (Linux x86-64, Python 3.13)
 
-on: push
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
 
 # Smoke test on Python 3.13: runs a single representative case (Team1b) to confirm
 # the release imports and runs on this Python version.

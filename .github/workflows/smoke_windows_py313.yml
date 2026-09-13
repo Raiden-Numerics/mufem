@@ -1,6 +1,11 @@
 name: Smoke (Windows x86-64, Python 3.13)
 
-on: push
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
 
 # Windows smoke test on a GitHub-hosted windows-latest runner (free for this
 # public repo). Installs the published Windows wheel from PyPI and runs the
@@ -14,6 +19,7 @@ on: push
 jobs:
   smoke:
     runs-on: windows-latest
+    if: github.event.pull_request.draft == false
     steps:
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
