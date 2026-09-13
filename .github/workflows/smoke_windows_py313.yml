@@ -1,0 +1,45 @@
+name: Smoke (Windows x86-64, Python 3.13)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# Windows smoke test on a GitHub-hosted windows-latest runner (free for this
+# public repo). Installs the published Windows wheel from PyPI and runs the
+# bundled thermal smoke case — a real solve on actual Windows (stronger than the
+# Wine import check in mufem-dev CI).
+#
+# The Windows wheel is a single self-contained package (engine linked statically
+# into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
+# only with --pre. The bundled case uses a prebuilt mesh (geometry.nm2), so no
+# gmsh is needed.
+jobs:
+  smoke:
+    runs-on: windows-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          allow-prereleases: true
+
+      - name: Install mufem (alpha Windows wheel)
+        run: pip install --pre --force-reinstall --no-cache-dir mufem
+
+      - name: Import + solve smoke
+        shell: bash
+        run: |
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
+          # the extension; run it from a scratch dir for a real end-to-end solve.
+          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
+          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
+          cd smoke && python case.py
