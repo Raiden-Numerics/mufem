@@ -1,6 +1,6 @@
 # mufem: fast and accurate simulations
 
-mufem is a [finite-element simulation code](https://raiden-numerics.github.io/mufem/) focused on
+mufem (pronounced /ˈmjuːfɛm/) is a finite-element simulation code focused on
 **electromagnetics**, **plasmas**, and **coupled multi-physics problems**, built for **industry-relevant**
 engineering applications.
 
