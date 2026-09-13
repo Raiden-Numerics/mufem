@@ -28,20 +28,15 @@ plugins:
   # to their generated site URLs so they don't 404.
   - jekyll-relative-links
 
+# The build source is this docs/ directory (see .github/workflows/pages.yml).
+# README.md and its images are copied in here at build time by the workflow's
+# "Assemble site source" step; the root copies stay authoritative.
+#
 # The banner is a dotfile (.marquee.png); Jekyll skips dotfiles unless included.
 include:
   - .marquee.png
 
-# Keep non-site content out of the build (Doxygen dump, scripts, CI, the old
-# hand-authored HTML site, dotfiles).
+# README.md is pulled in via index.md's {% include_relative %}; exclude it so it
+# is not also emitted as a standalone /readme.html page.
 exclude:
-  - .github/
-  - docs/
-  - "*.sh"
-  - flake8.ini
-  - install_flake
-  - requirements.txt
-  - Dockerfile
-  - VERSION
-  - LICENSE
-  - check_links.sh
+  - README.md

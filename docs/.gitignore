@@ -1,0 +1,6 @@
+# Copied into docs/ at build time by the "Assemble site source" workflow step
+# (authoritative copies live at the repo root). Never commit these.
+/README.md
+/.marquee.png
+/Electromagnetics/
+/_site/
