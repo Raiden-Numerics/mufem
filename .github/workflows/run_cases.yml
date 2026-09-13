@@ -2,7 +2,11 @@ name: Examples (Linux x86-64, Python 3.12)
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   push:
     branches:
       - main
