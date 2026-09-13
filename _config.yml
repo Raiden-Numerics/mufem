@@ -1,0 +1,47 @@
+# GitHub Pages (Jekyll) site config.
+#
+# SEO is handled by two plugins bundled in the github-pages gem:
+#   jekyll-seo-tag  -> <title>, meta description, canonical, Open Graph,
+#                      Twitter cards, and JSON-LD (rendered by the {% seo %} tag,
+#                      which the minima theme's <head> already includes).
+#   jekyll-sitemap  -> generates /sitemap.xml automatically.
+#
+# IMPORTANT: set url + baseurl to the real Pages address. For this repo the
+# default is https://raiden-numerics.github.io/mufem (url =
+# https://raiden-numerics.github.io, baseurl = /mufem). If you serve it
+# from a custom domain, set url to that and baseurl to "" and add a CNAME file.
+title: mufem
+description: >-
+  mufem (/ˈmjuːfɛm/) is a finite-element simulation code for electromagnetics,
+  plasmas, and coupled multi-physics, driven from Python. Free for academic and
+  commercial use.
+url: https://raiden-numerics.github.io
+baseurl: /mufem
+lang: en_US
+author: Raiden Numerics
+theme: minima
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  # Rewrite the README's relative .md links (e.g. Electromagnetics/.../README.md)
+  # to their generated site URLs so they don't 404.
+  - jekyll-relative-links
+
+# The banner is a dotfile (.marquee.png); Jekyll skips dotfiles unless included.
+include:
+  - .marquee.png
+
+# Keep non-site content out of the build (Doxygen dump, scripts, CI, the old
+# hand-authored HTML site, dotfiles).
+exclude:
+  - .github/
+  - docs/
+  - "*.sh"
+  - flake8.ini
+  - install_flake
+  - requirements.txt
+  - Dockerfile
+  - VERSION
+  - LICENSE
+  - check_links.sh
