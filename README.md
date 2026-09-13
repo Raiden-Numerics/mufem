@@ -17,7 +17,7 @@ cases. For platform-specific setup see the
 tutorials and the full API reference see the
 [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
-![Logo](.logo.png)
+![Marquee](.marquee.png)
 
 ## Why mufem
 
