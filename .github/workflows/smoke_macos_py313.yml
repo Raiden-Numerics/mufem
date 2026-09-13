@@ -25,8 +25,12 @@ jobs:
           python-version: '3.13'
           allow-prereleases: true
 
-      - name: Install mufem (alpha macOS wheel)
-        run: pip install --pre --force-reinstall --no-cache-dir mufem
+      # --no-deps: do NOT pull numpy/matplotlib. numpy ships its own OpenMP/
+      # OpenBLAS, and two OpenMP runtimes in one macOS process is a classic hard
+      # crash — isolating that is the point here. If `import mufem` succeeds
+      # without numpy present, the duplicate-runtime theory is confirmed.
+      - name: Install mufem (alpha macOS wheel, no deps)
+        run: pip install --pre --force-reinstall --no-cache-dir --no-deps mufem
 
       - name: Import check
         shell: bash
