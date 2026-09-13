@@ -1,0 +1,39 @@
+name: Smoke (macOS arm64, Python 3.13)
+
+on: push
+
+# macOS smoke test on a GitHub-hosted macos-14 runner (Apple Silicon, free for
+# this public repo). Installs the published macOS wheel from PyPI and runs the
+# bundled thermal smoke case — the real import+solve verification on genuine
+# Apple Silicon (there is no arm64 Mach-O emulator, so this is the only place the
+# macOS wheel can actually be exercised).
+#
+# The macOS wheel is a single self-contained package (engine static in mufem.so;
+# third-party dylibs bundled and resolved via @rpath) and is published as alpha,
+# so it installs only with --pre. The bundled case uses a prebuilt mesh
+# (geometry.nm2), so no gmsh is needed.
+#
+# NOTE: this is RED until the arm64 macOS wheel is published to PyPI (pending the
+# omp-mac image rebuild with python-mac + a release run).
+jobs:
+  smoke:
+    runs-on: macos-14
+    steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          allow-prereleases: true
+
+      - name: Install mufem (alpha macOS wheel)
+        run: pip install --pre --force-reinstall --no-cache-dir mufem
+
+      - name: Import + solve smoke
+        shell: bash
+        run: |
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
+          # the extension; run it from a scratch dir for a real end-to-end solve.
+          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
+          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
+          cd smoke && python case.py
