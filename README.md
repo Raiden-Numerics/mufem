@@ -23,16 +23,16 @@ tutorials and the full API reference see the
 
 <table>
 <tr>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/python.png" width="20" align="absmiddle"> <strong>Python-native</strong><br>build, run, and post-process simulations from a clean Python API; ideal for parametric sweeps, optimization, and agentic workflows.</td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/account_tree.png" width="20" align="absmiddle"> <strong>Multi-physics</strong><br>model electromagnetic, thermal, and structural phenomena and their interactions, all within a single framework.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/python.svg" width="20" align="absmiddle"> <strong>Python-native</strong><br>build, run, and post-process simulations from a clean Python API; ideal for parametric sweeps, optimization, and agentic workflows.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/account_tree.svg" width="20" align="absmiddle"> <strong>Multi-physics</strong><br>model electromagnetic, thermal, and structural phenomena and their interactions, all within a single framework.</td>
 </tr>
 <tr>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/code.png" width="20" align="absmiddle"> <strong>Advanced discretization</strong><br>built on <a href="https://mfem.org/">MFEM</a> for high-order finite elements on curved, unstructured, non-conformal, and Cartesian meshes.</td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/memory.png" width="20" align="absmiddle"> <strong>GPU-accelerated</strong><br>parallel CPU and GPU solvers that scale efficiently from a single laptop to a large cluster.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/code.svg" width="20" align="absmiddle"> <strong>Advanced discretization</strong><br>built on <a href="https://mfem.org/">MFEM</a> for high-order finite elements on curved, unstructured, non-conformal, and Cartesian meshes.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/memory.svg" width="20" align="absmiddle"> <strong>GPU-accelerated</strong><br>parallel CPU and GPU solvers that scale efficiently from a single laptop to a large cluster.</td>
 </tr>
 <tr>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/fact_check.png" width="20" align="absmiddle"> <strong>Validated</strong><br>continuously tested against established benchmark suites and published experimental, analytical, and reference results.</td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.png" width="20" align="absmiddle"> <strong>Free</strong><br>the community version is free for academic and commercial use, with no license fees, covering most workflows.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/fact_check.svg" width="20" align="absmiddle"> <strong>Validated</strong><br>continuously tested against established benchmark suites and published experimental, analytical, and reference results.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.svg" width="20" align="absmiddle"> <strong>Free</strong><br>the community version is free for academic and commercial use, with no license fees, covering most workflows.</td>
 </tr>
 </table>
 
