@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: "mufem — finite-element multi-physics simulation from Python"
 description: >-
   mufem (/ˈmjuːfɛm/) is a finite-element simulation code for electromagnetics,

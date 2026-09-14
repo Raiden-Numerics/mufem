@@ -33,21 +33,11 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Assemble site source
-        # The Jekyll source is docs/, but README.md and its images live at the
-        # repo root (authoritative, so they still render on github.com). Copy
-        # them into docs/ so index.md's include_relative and the relative image
-        # paths resolve. Keep this list in sync with images referenced by README.
-        run: |
-          set -euo pipefail
-          cp README.md docs/README.md
-          for img in \
-            .marquee.png \
-            Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif \
-            Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png \
-            Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png ; do
-            mkdir -p "docs/$(dirname "$img")"
-            cp "$img" "docs/$img"
-          done
+        # The Jekyll source is docs/, but README.md lives at the repo root
+        # (authoritative, so it still renders on github.com). Copy it in so
+        # index.md's include_relative resolves. Images are referenced by
+        # absolute raw.githubusercontent URLs, so nothing else needs copying.
+        run: cp README.md docs/README.md
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
