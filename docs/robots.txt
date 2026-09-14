@@ -1,4 +1,8 @@
+---
+# Rendered by Jekyll so {{ site.url }} is substituted.
+layout: null
+---
 User-agent: *
 Allow: /
 
-Sitemap: https://raiden-numerics.github.io/mufem/sitemap.xml
+Sitemap: {{ site.url }}{{ site.baseurl }}/sitemap.xml
