@@ -8,7 +8,7 @@ mufem is driven through a **Python interface**, making it ideal for exploratory 
 and **design optimization**, and a natural fit for **agentic workflows**. mufem is
 **free for both academic and commercial use**.
 
-For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem-release/issues/new/choose)
+For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 This repository hosts a quick introduction to mufem together with a collection of validation and example
@@ -17,16 +17,24 @@ cases. For platform-specific setup see the
 tutorials and the full API reference see the
 [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
-![Marquee](.marquee.png)
+![Marquee](https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.marquee.png)
 
 ### Why mufem
 
-* **Python-native**: build, run, and post-process simulations from a clean Python API; no custom input decks.
-* **Multi-physics**: electromagnetics (low- and high-frequency), plasmas, thermal and structural, with coupling.
-* **High-order & parallel**: built on [MFEM](https://mfem.org/) for high-order finite elements and MPI scalability.
-* **Validated**: continuously tested against the TEAM and NAFEMS benchmark suites as well as published experimental, analytical, and reference numerical results (see below).
-* **Automation-friendly**: a scriptable interface that fits parametric sweeps, optimization, and agentic workflows.
-* **Free**: for both academic and commercial use.
+<table>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/python.png" width="20" align="absmiddle"> <strong>Python-native</strong><br>build, run, and post-process simulations from a clean Python API; ideal for parametric sweeps, optimization, and agentic workflows.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/account_tree.png" width="20" align="absmiddle"> <strong>Multi-physics</strong><br>coupled electromagnetics (low- and high-frequency), plasmas, thermal, and structural physics in a single framework.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/code.png" width="20" align="absmiddle"> <strong>Advanced discretization</strong><br>built on <a href="https://mfem.org/">MFEM</a> for high-order finite elements on curved, unstructured, non-conformal, and Cartesian meshes.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/memory.png" width="20" align="absmiddle"> <strong>GPU-accelerated</strong><br>parallel CPU and GPU solvers that scale efficiently from a single laptop to a large cluster.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/fact_check.png" width="20" align="absmiddle"> <strong>Validated</strong><br>continuously tested against established benchmark suites and published experimental, analytical, and reference results.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.png" width="20" align="absmiddle"> <strong>Free</strong><br>the community version is free for academic and commercial use, with no license fees, covering most workflows.</td>
+</tr>
+</table>
 
 ### Quick example
 
@@ -74,7 +82,7 @@ examples, including mesh generation and comparison against reference results.
 
 <table>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
 <td width="60%">
 
 **[Locked rotor (TEAM 24)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)**
@@ -85,7 +93,7 @@ model coupled to an **Excitation Coil**.
 </td>
 </tr>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
 <td width="60%">
 
 **[Dipole antenna (Stutzman 2012)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)**
@@ -96,7 +104,7 @@ model.
 </td>
 </tr>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
 <td width="60%">
 
 **[Felix cylinder (TEAM 1b)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
@@ -112,13 +120,13 @@ Magnetic** model.
 
 mufem provides finite-element models across several physics domains, composable for coupled multi-physics:
 
-- **Electrostatics** — electric fields and potentials in dielectrics.
-- **Magnetostatics** — static magnetic fields, including nonlinear materials.
-- **Time-Domain Magnetic** — eddy currents and transient low-frequency magnetics.
-- **Time-Harmonic Magnetic** — steady-state AC magnetics.
-- **Full-wave Maxwell (time-harmonic)** — high-frequency electromagnetics and antennas.
-- **Thermal** — steady and transient heat conduction.
-- **Structural** — linear elasticity.
+- **Electrostatics**: electric fields and potentials in dielectrics.
+- **Magnetostatics**: static magnetic fields, including nonlinear materials.
+- **Time-Domain Magnetic**: eddy currents and transient low-frequency magnetics.
+- **Time-Harmonic Magnetic**: steady-state AC magnetics.
+- **Full-wave Maxwell (time-harmonic)**: high-frequency electromagnetics and antennas.
+- **Thermal**: steady and transient heat conduction.
+- **Structural**: linear elasticity.
 
 See the [documentation](https://raiden-numerics.github.io/mufem-doc/index.html) for the full model list and details.
 
