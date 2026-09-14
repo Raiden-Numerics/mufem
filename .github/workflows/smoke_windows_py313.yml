@@ -38,8 +38,21 @@ jobs:
       - name: Install mufem (alpha Windows wheel)
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
-      - name: Run the Team1b case (serial; no MPI/pymufem)
+      - name: Diagnostics (bundled runtime + env)
         shell: bash
+        run: |
+          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
+          echo "### mufem package dir: $pkg"
+          echo "### shipped .dll / .pyd:"
+          find "$pkg" -iname '*.dll' -o -iname '*.pyd' | sort
+          echo "### python / platform:"
+          python -c "import sys, platform; print(sys.version); print(platform.platform())"
+
+      - name: Run the Team1b case (serial, single-threaded; no MPI/pymufem)
+        shell: bash
+        env:
+          OMP_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
           cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
