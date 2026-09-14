@@ -13,18 +13,22 @@ on:
 
 # Windows smoke test on a GitHub-hosted windows-latest runner (free for this
 # public repo). Installs the published Windows wheel from PyPI and runs the
-# bundled thermal smoke case — a real solve on actual Windows (stronger than the
-# Wine import check in mufem-dev CI).
+# repo's Team1b validation case — a real solve on actual Windows (stronger than
+# the Wine import check in mufem-dev CI).
 #
 # The Windows wheel is a single self-contained package (engine linked statically
 # into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
-# only with --pre. The bundled case uses a prebuilt mesh (geometry.nm2), so no
-# gmsh is needed.
+# only with --pre. Team1b ships a prebuilt mesh (geometry.mesh), so no gmsh is
+# needed, and it is launched with plain `python` (serial, single rank): pymufem
+# is only the Linux MPI launcher, which a smoke test does not need.
 jobs:
   smoke:
     runs-on: windows-latest
     if: github.event.pull_request.draft == false
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -34,12 +38,9 @@ jobs:
       - name: Install mufem (alpha Windows wheel)
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
-      - name: Import + solve smoke
+      - name: Run the Team1b case (serial; no MPI/pymufem)
         shell: bash
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
-          # the extension; run it from a scratch dir for a real end-to-end solve.
-          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
-          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
-          cd smoke && python case.py
+          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          python case.py
