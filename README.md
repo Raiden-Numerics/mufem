@@ -1,8 +1,8 @@
 # mufem: fast and accurate simulations
 
-mufem (pronounced /ˈmjuːfɛm/) is a finite-element simulation code focused on
-**electromagnetics**, **plasmas**, and **coupled multi-physics problems**, built for **industry-relevant**
-engineering applications.
+mufem (pronounced /ˈmjuːfɛm/) is a finite-element simulation code for
+**electromagnetics**, **photonics**, and **plasmas**, and their **coupled multi-physics problems**,
+built for **industry-relevant** engineering applications.
 
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
 and **design optimization**, and a natural fit for **agentic workflows**. mufem is
@@ -24,7 +24,7 @@ tutorials and the full API reference see the
 <table>
 <tr>
 <td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/python.png" width="20" align="absmiddle"> <strong>Python-native</strong><br>build, run, and post-process simulations from a clean Python API; ideal for parametric sweeps, optimization, and agentic workflows.</td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/account_tree.png" width="20" align="absmiddle"> <strong>Multi-physics</strong><br>coupled electromagnetics (low- and high-frequency), plasmas, thermal, and structural physics in a single framework.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/account_tree.png" width="20" align="absmiddle"> <strong>Multi-physics</strong><br>model electromagnetic, thermal, and structural phenomena and their interactions, all within a single framework.</td>
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/code.png" width="20" align="absmiddle"> <strong>Advanced discretization</strong><br>built on <a href="https://mfem.org/">MFEM</a> for high-order finite elements on curved, unstructured, non-conformal, and Cartesian meshes.</td>
@@ -70,6 +70,7 @@ print("Electric energy:", report.evaluate(), "J")
 
 # Export the fields for visualization (ParaView / VTK)
 vis = sim.get_field_exporter()
+vis.set_output_directory("ChargedCubeOutput")
 vis.add_field_output("Electric Potential")
 vis.add_field_output("Electric Field")
 vis.save()

@@ -30,6 +30,13 @@
     .page-content table { border: 0; box-shadow: none; margin-bottom: 15px; }
     .page-content table td, .page-content table th { border: 0; }
     .page-content table tr:nth-child(even) { background-color: transparent; }
+
+    /* Bold headings, matching GitHub (minima renders h1-h6 too light). */
+    .page-content h1, .page-content h2, .page-content h3,
+    .page-content h4, .page-content h5, .page-content h6 { font-weight: 600; }
+
+    /* Wider content column (minima's default ~800px reads too narrow). */
+    .wrapper { max-width: 1080px; }
   </style>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
