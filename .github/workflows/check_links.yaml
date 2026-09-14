@@ -24,4 +24,5 @@ jobs:
             --retry-wait-time 2
             --require-https
             --accept '200..=299,403,405'
+            --exclude '^https://raw\.githubusercontent\.com/Raiden-Numerics/mufem/'
             './**/*.md'
