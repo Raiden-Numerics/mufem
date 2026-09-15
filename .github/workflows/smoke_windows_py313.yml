@@ -22,11 +22,17 @@ on:
 # needed, and is launched with plain `python` (serial, single rank): pymufem is
 # only the Linux MPI launcher, which a smoke test does not need.
 #
-# NOTE: the magnetic solver path currently crashes on the alpha Windows wheel
-# (Team1b exits 127 / ERROR_PROC_NOT_FOUND at magnetostatic init, even
-# single-threaded — a DLL-version mismatch to fix in the Windows wheel build).
-# Until that lands, this smoke uses a thermal case, which the Windows engine
-# handles; switch back to Team1b for Linux/Windows parity once fixed.
+# NOTE: the magnetic (H(curl)/AMS) solver path currently crashes on the alpha
+# Windows wheel. faulthandler shows a Windows fatal exception 0xC0000374
+# (STATUS_HEAP_CORRUPTION) at sim.run() during magnetostatic init. It is NOT a
+# missing symbol (libHYPRE.dll exports the full AMS API and mufem.pyd imports it
+# at load time) and NOT the numpy/OpenBLAS import order (it crashes with numpy
+# never imported) — it is a heap-corruption memory bug in the AMS path on the
+# mingw/UCRT build, likely a cross-DLL allocate-here/free-there. The Windows heap
+# manager aborts on it; glibc/Wine tolerate it, which is why mufem-dev's Wine CI
+# passes. A wheel-side fix (debug with PageHeap/ASan). Until then this smoke uses
+# a thermal case (BoomerAMG, no cross-boundary alloc); switch back to Team1b for
+# Linux/Windows parity once fixed.
 jobs:
   smoke:
     runs-on: windows-latest
