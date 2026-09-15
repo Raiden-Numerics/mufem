@@ -44,6 +44,69 @@ jobs:
       - name: Install mufem (alpha Windows wheel)
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
+      # --- DEBUG: the magnetic (H(curl)/AMS) path crashes with exit 127 /
+      # ERROR_PROC_NOT_FOUND at magnetostatic init, while the thermal (BoomerAMG)
+      # path works. Both use hypre, so hypre is present; the missing export must
+      # be something only the AMS path pulls in. Dump the export/import tables to
+      # find it: either a hypre DLL missing HYPRE_AMS* exports, or (if hypre is
+      # linked statically into mufem.pyd) a missing delay-import.
+      - name: Debug — dump bundled DLL export/import tables
+        shell: bash
+        continue-on-error: true
+        run: |
+          python -m pip install --quiet pefile
+          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
+          echo "### bundled .dll / .pyd under $pkg:"
+          find "$pkg" -iname '*.dll' -o -iname '*.pyd' | sort
+          python - "$pkg" << 'PY'
+          import os, sys, glob, pefile
+          pkg = sys.argv[1]
+          files = glob.glob(os.path.join(pkg, "**", "*.dll"), recursive=True) \
+                + glob.glob(os.path.join(pkg, "**", "*.pyd"), recursive=True)
+
+          def load(p):
+              pe = pefile.PE(p, fast_load=True)
+              pe.parse_data_directories(directories=[
+                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXPORT'],
+                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IMPORT'],
+                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT'],
+              ])
+              return pe
+
+          print("\n=== EXPORTS: AMS surface per DLL ===")
+          for f in files:
+              try: pe = load(f)
+              except Exception as e:
+                  print("  skip", os.path.basename(f), e); continue
+              exp = getattr(pe, "DIRECTORY_ENTRY_EXPORT", None)
+              if not exp: continue
+              names = [s.name.decode() for s in exp.symbols if s.name]
+              ams = sorted(n for n in names if "AMS" in n.upper())
+              boomer = sum("BOOMERAMG" in n.upper() for n in names)
+              if "hypre" in os.path.basename(f).lower() or ams or boomer:
+                  print(f"  {os.path.basename(f)}: exports={len(names)} AMS={len(ams)} BoomerAMG={boomer}")
+                  for n in ams[:80]: print("       AMS export:", n)
+
+          print("\n=== IMPORTS / DELAY-IMPORTS of mufem.pyd (delay is where a lazy PROC_NOT_FOUND lives) ===")
+          for f in files:
+              if not f.lower().endswith(".pyd"): continue
+              pe = load(f)
+              for tag, attr in [("IMPORT", "DIRECTORY_ENTRY_IMPORT"),
+                                ("DELAY", "DIRECTORY_ENTRY_DELAY_IMPORT")]:
+                  for entry in getattr(pe, attr, []) or []:
+                      dll = entry.dll.decode()
+                      funcs = [i.name.decode() for i in entry.imports if i.name]
+                      hy = [n for n in funcs if "HYPRE" in n.upper() or "AMS" in n.upper()]
+                      print(f"  [{tag}] {dll}: {len(funcs)} funcs" + (f"  <-- AMS/HYPRE: {hy[:30]}" if hy else ""))
+          PY
+
+      - name: Debug — reproduce the Team1b crash (non-fatal)
+        shell: bash
+        continue-on-error: true
+        run: |
+          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          python case.py; echo "Team1b exit=$?"
+
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
         run: |
