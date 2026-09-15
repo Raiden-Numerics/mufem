@@ -161,6 +161,47 @@ jobs:
           PY
           echo "no-numpy exit=$?"
 
+      # Linux OMP+ASan runs this case clean, so it is not a portable heap bug — it
+      # is a Windows-specific corruption (cross-DLL / invalid free, invisible on
+      # Linux's single allocator). Enable full page heap (gflags +hpa) scoped to
+      # the hypre/mfem/mufem modules, with +ust allocation stacks, and run under
+      # cdb so it breaks AT the bad free (not later at 0xC0000374). Upload a full
+      # dump for offline symbol resolution (mingw DWARF -> module+offset in cdb).
+      - name: Debug — PageHeap + cdb to catch the heap corruption (non-fatal)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $dbg = "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"
+          if (-not (Test-Path "$dbg\gflags.exe")) {
+            Write-Host "Installing Debugging Tools for Windows (windbg)..."
+            choco install windbg -y --no-progress | Out-Null
+            $g = Get-Command gflags.exe -ErrorAction SilentlyContinue
+            if ($g) { $dbg = Split-Path $g.Source }
+          }
+          $gflags = Join-Path $dbg 'gflags.exe'
+          $cdb    = Join-Path $dbg 'cdb.exe'
+          Write-Host "gflags=$gflags"; Write-Host "cdb=$cdb"
+          # Full page heap for python.exe, scoped to bound memory, + allocation stacks.
+          & $gflags /p /enable python.exe /full /dlls libHYPRE.dll libmfem.dll mufem.pyd
+          & $gflags /i python.exe +ust
+          $py  = (Get-Command python).Source
+          $dmp = Join-Path $env:GITHUB_WORKSPACE 'team1b-heap.dmp'
+          Push-Location Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          & $cdb -g -G -c "g; .echo ===VERIFIER/FAULT===; !analyze -v; .dump /ma ""$dmp""; q" $py case.py
+          Pop-Location
+          & $gflags /p /disable python.exe
+          & $gflags /i python.exe -ust
+          if (Test-Path $dmp) { Write-Host "dump written: $dmp" } else { Write-Host "no dump produced" }
+
+      - name: Upload heap-crash dump
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: team1b-heap-dump
+          path: team1b-heap.dmp
+          if-no-files-found: ignore
+
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
         run: |
