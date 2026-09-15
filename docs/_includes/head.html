@@ -37,6 +37,12 @@
 
     /* Wider content column (minima's default ~800px reads too narrow). */
     .wrapper { max-width: 1080px; }
+
+    /* Keep the site header visible while scrolling. */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #fdfdfd; border-top: 0;
+    }
   </style>
   <script>
     document.addEventListener("DOMContentLoaded", function () {

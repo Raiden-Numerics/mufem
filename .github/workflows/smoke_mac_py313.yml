@@ -1,0 +1,51 @@
+name: Smoke (macOS arm64, Python 3.13)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# macOS smoke test on a GitHub-hosted macos-latest (Apple Silicon / arm64) runner.
+# Installs the published macOS wheel from PyPI and runs the repo's thermal case and
+# then Team1b — real solves on actual macOS.
+#
+# The macOS wheel is a single self-contained package (engine linked into mufem's
+# extension; no separate libmufem) and is published as alpha, so it installs only
+# with --pre. Both cases ship a prebuilt mesh, so no gmsh is needed, and they are
+# launched with plain `python` (serial, single rank): pymufem is only the Linux MPI
+# launcher, which a smoke test does not need. Unlike the Windows wheel (which heap-
+# corrupts on the magnetic AMS path), macOS uses a single system allocator like
+# Linux, so the magnetic Team1b case is expected to run.
+jobs:
+  smoke:
+    runs-on: macos-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          allow-prereleases: true
+
+      - name: Install mufem (alpha macOS wheel)
+        run: pip install --pre --force-reinstall --no-cache-dir mufem
+
+      - name: Run a thermal case (serial; no MPI/pymufem)
+        run: |
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
+          python case.py
+
+      - name: Run the Team1b case (serial; no MPI/pymufem)
+        run: |
+          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          python case.py
