@@ -99,12 +99,21 @@ jobs:
                       print(f"  [{tag}] {dll}: {len(funcs)} funcs" + (f"  <-- AMS/HYPRE: {hy[:30]}" if hy else ""))
           PY
 
-      - name: Debug — reproduce the Team1b crash (non-fatal)
+      # All AMS symbols resolve (libHYPRE.dll exports the full AMS API and
+      # mufem.pyd imports it at load time), so the 127 is a *runtime* crash in
+      # the AMS solve, not a missing export. Capture a native stack via
+      # faulthandler, and probe the dual-OpenBLAS / OpenMP hypothesis: pin BLAS
+      # threads to 1 and import mufem before numpy.
+      - name: Debug — reproduce Team1b crash with a stack trace (non-fatal)
         shell: bash
         continue-on-error: true
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+          KMP_DUPLICATE_LIB_OK: "TRUE"
         run: |
           cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python case.py; echo "Team1b exit=$?"
+          python -X faulthandler -X dev case.py; echo "Team1b exit=$?"
 
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
