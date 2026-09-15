@@ -118,6 +118,43 @@ jobs:
           cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
           python -X faulthandler -X dev case.py; echo "Team1b exit=$?"
 
+      # Direct test of the dual-OpenBLAS theory: case.py does `import numpy`
+      # before `import mufem`, so numpy's OpenBLAS loads first. Run the SAME
+      # Team1b solve importing only mufem (numpy never imported) — if this
+      # succeeds while case.py crashes, the numpy-OpenBLAS-first ordering is the
+      # cause.
+      - name: Debug — Team1b solve without numpy (non-fatal)
+        shell: bash
+        continue-on-error: true
+        run: |
+          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          python -X faulthandler - << 'PY'
+          import mufem
+          from mufem import Bnd, Vol
+          from mufem.electromagnetics.timedomainmagnetic import (
+              TangentialMagneticFieldBoundaryCondition,
+              TimeDomainMagneticGeneralMaterial,
+              TimeDomainMagneticModel,
+          )
+          sim = mufem.Simulation.New(name="Team1b", mesh_path="geometry.mesh")
+          mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
+          model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
+          sim.get_model_manager().add_model(model)
+          model.add_materials([
+              TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol),
+              TimeDomainMagneticGeneralMaterial(
+                  name="Al", marker="Cylinder" @ Vol,
+                  electric_conductivity=25380710.659898475),
+          ])
+          cff = mufem.CffExpressionVector("[0, 79577.488101574*exp(-{Time}/0.0069), 0]")
+          model.add_condition(TangentialMagneticFieldBoundaryCondition(
+              name="ExternalField", marker="Air::Boundary" @ Bnd,
+              tangential_magnetic_field=cff))
+          sim.run()
+          print("SOLVE OK without numpy")
+          PY
+          echo "no-numpy exit=$?"
+
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
         run: |
