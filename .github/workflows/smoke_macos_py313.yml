@@ -42,14 +42,14 @@ jobs:
           cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
           python case.py
 
-      # Known-red until the engine picks a non-AVX libCEED backend on arm64
-      # (see the KNOWN ISSUE note above). Non-fatal so the thermal case still
-      # gates the badge; this step flips green on its own once the wheel ships.
-      - name: Run the Team1b case (serial; no MPI/pymufem)
-        continue-on-error: true
-        run: |
-          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python case.py
+      # Team1b is disabled until the engine picks a non-AVX libCEED backend on
+      # arm64 (see the KNOWN ISSUE note above): its magnetic solve aborts on
+      # Apple Silicon. Re-enable once a wheel with the arch-guarded (or
+      # MUFEM_CEED_BACKEND-overridable) backend selection ships.
+      # - name: Run the Team1b case (serial; no MPI/pymufem)
+      #   run: |
+      #     cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+      #     python case.py
 
       # On a crash (SIGSEGV on import) pinpoint the faulting library/frame.
       - name: Diagnose crash
