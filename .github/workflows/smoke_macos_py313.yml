@@ -4,17 +4,17 @@ on: push
 
 # macOS smoke test on a GitHub-hosted macos-14 runner (Apple Silicon, free for
 # this public repo). Installs the published macOS wheel from PyPI and runs the
-# bundled thermal smoke case — the real import+solve verification on genuine
+# repo's thermal (Cameron) and magnetic (Team1b) cases — real solves on genuine
 # Apple Silicon (there is no arm64 Mach-O emulator, so this is the only place the
 # macOS wheel can actually be exercised).
 #
 # The macOS wheel is a single self-contained package (engine static in mufem.so;
 # third-party dylibs bundled and resolved via @rpath) and is published as alpha,
-# so it installs only with --pre. The bundled case uses a prebuilt mesh
-# (geometry.nm2), so no gmsh is needed.
-#
-# NOTE: this is RED until the arm64 macOS wheel is published to PyPI (pending the
-# omp-mac image rebuild with python-mac + a release run).
+# so it installs only with --pre. Both cases ship a prebuilt mesh, so no gmsh is
+# needed, and they are launched with plain `python` (serial, single rank):
+# pymufem is only the Linux MPI launcher, which a smoke test does not need. macOS
+# uses a single system allocator like Linux, so the magnetic AMS path is expected
+# to run (unlike the Windows wheel's heap corruption).
 jobs:
   smoke:
     runs-on: macos-14
@@ -28,60 +28,19 @@ jobs:
           python-version: '3.13'
           allow-prereleases: true
 
-      # --no-deps: do NOT pull numpy/matplotlib. numpy ships its own OpenMP/
-      # OpenBLAS, and two OpenMP runtimes in one macOS process is a classic hard
-      # crash — isolating that is the point here. If `import mufem` succeeds
-      # without numpy present, the duplicate-runtime theory is confirmed.
-      - name: Install mufem (alpha macOS wheel, no deps)
-        run: pip install --pre --force-reinstall --no-cache-dir --no-deps mufem
+      - name: Install mufem (alpha macOS wheel)
+        run: pip install --pre --force-reinstall --no-cache-dir mufem
 
-      - name: Import check
-        shell: bash
+      - name: Run a thermal case (serial; no MPI/pymufem)
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
+          python case.py
 
-      - name: Solve smoke
-        shell: bash
-        run: |
-          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
-          # the extension; run it from a scratch dir for a real end-to-end solve.
-          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
-          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
-          cd smoke && python case.py
-
-      # Also exercise the repo's Team1b magnetic case (H(curl)/AMS path) on macOS.
-      # Imports only mufem (no numpy, matching --no-deps) and runs a minimal solve
-      # from Team1b's checked-out mesh, so it tests the magnetic solver without the
-      # numpy/OpenMP confound and without needing gmsh.
-      - name: Solve Team1b (magnetic; serial, no numpy)
-        shell: bash
+      - name: Run the Team1b case (serial; no MPI/pymufem)
         run: |
           cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python -X faulthandler - << 'PY'
-          import mufem
-          from mufem import Bnd, Vol
-          from mufem.electromagnetics.timedomainmagnetic import (
-              TangentialMagneticFieldBoundaryCondition,
-              TimeDomainMagneticGeneralMaterial,
-              TimeDomainMagneticModel,
-          )
-          sim = mufem.Simulation.New(name="Team1b", mesh_path="geometry.mesh")
-          mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
-          model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
-          sim.get_model_manager().add_model(model)
-          model.add_materials([
-              TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol),
-              TimeDomainMagneticGeneralMaterial(
-                  name="Al", marker="Cylinder" @ Vol,
-                  electric_conductivity=25380710.659898475),
-          ])
-          cff = mufem.CffExpressionVector("[0, 79577.488101574*exp(-{Time}/0.0069), 0]")
-          model.add_condition(TangentialMagneticFieldBoundaryCondition(
-              name="ExternalField", marker="Air::Boundary" @ Bnd,
-              tangential_magnetic_field=cff))
-          sim.run()
-          print("Team1b SOLVE OK")
-          PY
+          python case.py
 
       # On a crash (SIGSEGV on import) pinpoint the faulting library/frame.
       - name: Diagnose crash
