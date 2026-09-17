@@ -1,7 +1,7 @@
 name: run-cases (reusable)
 
 # Reusable workflow: runs the example cases under a given Python version and case
-# path. Called by the per-version workflows (validations_lin_mpi.yml, smoke_py3xx.yml) so the
+# path. Called by the per-version workflows (validations_linux_mpi.yml, smoke_py3xx.yml) so the
 # steps live in a single place.
 on:
   workflow_call:

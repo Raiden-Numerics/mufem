@@ -15,7 +15,7 @@ on:
 # the release imports and runs on this Python version.
 jobs:
   smoke:
-    uses: ./.github/workflows/run_cases_workflow.yaml
+    uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.14'
       case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
