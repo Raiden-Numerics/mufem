@@ -19,8 +19,13 @@ body:
   - type: textarea
     id: reproduce
     attributes:
-      label: Steps to reproduce
-      description: A minimal script or the case that triggers the problem.
+      label: Minimal reproducible example
+      description: >
+        The smallest self-contained script or case that reproduces the problem.
+        Please reduce it as much as possible — remove unrelated models, materials,
+        and geometry, and inline any small mesh/data if you can. A minimal,
+        runnable reproducer is the single biggest factor in how quickly we can
+        help.
       render: python
     validations:
       required: true
@@ -49,3 +54,12 @@ body:
       label: Logs / output
       description: Relevant error messages or console output.
       render: shell
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have reduced the example to the minimum needed to reproduce the problem.
+          required: true
+        - label: I have searched existing issues for duplicates.
+          required: true
