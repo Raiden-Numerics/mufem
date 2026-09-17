@@ -25,7 +25,8 @@ body:
         Please reduce it as much as possible — remove unrelated models, materials,
         and geometry, and inline any small mesh/data if you can. A minimal,
         runnable reproducer is the single biggest factor in how quickly we can
-        help.
+        help. See
+        [How to create a minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
       render: python
     validations:
       required: true
