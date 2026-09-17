@@ -48,6 +48,9 @@ jobs:
         allow-prereleases: true
 
     - name: Install Python dependencies
+      env:
+        CI: '1'
+        PIP_IS_CI: '1'
       run: |
         pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION libmufem==$MUFEM_VERSION
         pip install -r requirements.txt
