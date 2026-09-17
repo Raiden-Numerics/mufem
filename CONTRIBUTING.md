@@ -12,11 +12,9 @@ For this reason we **do not accept pull requests** here.
 
 ## How you can help
 
-- 🐛 **Report a bug** or 💡 **request a feature** via
+- 🐛 **Report a bug**, 💡 **request a feature**, or ❓ **ask a question** via
   [Issues](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
-- 💬 **Ask a question** in
-  [Discussions](https://github.com/Raiden-Numerics/mufem/discussions)
-- ✉️ **Contact us** at [info@raiden-numerics.com](mailto:info@raiden-numerics.com)
+- ✉️ **Contact us** at [mufem@raiden-numerics.com](mailto:mufem@raiden-numerics.com)
 
 ## A note on the information you share
 

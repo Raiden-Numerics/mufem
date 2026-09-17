@@ -7,7 +7,7 @@ Do **not** open a public issue, as issues in this repository are visible to
 everyone.
 
 Instead, email us at
-[info@raiden-numerics.com](mailto:info@raiden-numerics.com) with:
+[mufem@raiden-numerics.com](mailto:mufem@raiden-numerics.com) with:
 
 - a description of the issue and its potential impact,
 - steps to reproduce, and
