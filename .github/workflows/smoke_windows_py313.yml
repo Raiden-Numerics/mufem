@@ -32,6 +32,9 @@ jobs:
           allow-prereleases: true
 
       - name: Install mufem (alpha Windows wheel)
+        env:
+          CI: '1'
+          PIP_IS_CI: '1'
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
       - name: Import + solve smoke
