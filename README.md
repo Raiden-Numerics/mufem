@@ -210,7 +210,7 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ## Continuous Integration
 
-[![Validations · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/run_cases.yml?label=Validations%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/run_cases.yml)
+[![Validations · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_lin_mpi.yml?label=Validations%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_lin_mpi.yml)
 [![Smoke · Linux x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml)
 [![Smoke · Linux x86-64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py314.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py314.yml)
 [![Smoke · Windows x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py313.yml?label=Smoke%20%C2%B7%20Windows%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py313.yml)
