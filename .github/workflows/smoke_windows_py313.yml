@@ -13,26 +13,23 @@ on:
 
 # Windows smoke test on a GitHub-hosted windows-latest runner (free for this
 # public repo). Installs the published Windows wheel from PyPI and runs the
-# repo's Cameron thermal case — a real solve on actual Windows (stronger than
-# the Wine import check in mufem-dev CI).
+# repo's thermal (Cameron) and magnetic (Team1b) cases — real solves on actual
+# Windows (stronger than the Wine import check in mufem-dev CI).
 #
 # The Windows wheel is a single self-contained package (engine linked statically
 # into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
-# only with --pre. The case ships a prebuilt mesh (geometry.mesh), so no gmsh is
-# needed, and is launched with plain `python` (serial, single rank): pymufem is
-# only the Linux MPI launcher, which a smoke test does not need.
+# only with --pre. Both cases ship a prebuilt mesh, so no gmsh is needed, and are
+# launched with plain `python` (serial, single rank): pymufem is only the Linux
+# MPI launcher, which a smoke test does not need.
 #
-# FIXED in 0.5.78a0: the magnetic (H(curl)/AMS) solver path previously crashed on
-# the alpha Windows wheel with a Windows fatal exception 0xC0000374
-# (STATUS_HEAP_CORRUPTION) at sim.run() during magnetostatic init — a cross-DLL
-# allocate-here/free-there heap-corruption bug in the AMS path on the mingw/UCRT
-# build (glibc/Wine tolerated it, which is why mufem-dev's Wine CI passed). The
-# wheel now fixes it, so Team1b runs here for Linux/Windows parity. The
-# PageHeap/cdb and export/import diagnostics below are kept (continue-on-error)
-# as a safety net in case the corruption regresses.
+# NOTE: the magnetic (H(curl)/AMS) path still crashes on the alpha Windows wheel
+# (0xC0000374 STATUS_HEAP_CORRUPTION at magnetostatic init) — a cross-DLL
+# heap-corruption bug on the mingw/UCRT build that glibc/Wine tolerate. Team1b is
+# gating, so the badge stays red until a wheel-side fix lands.
 jobs:
   smoke:
     runs-on: windows-latest
+    if: github.event.pull_request.draft == false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,156 +46,6 @@ jobs:
           PIP_IS_CI: '1'
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
-      # --- DEBUG: the magnetic (H(curl)/AMS) path crashes with exit 127 /
-      # ERROR_PROC_NOT_FOUND at magnetostatic init, while the thermal (BoomerAMG)
-      # path works. Both use hypre, so hypre is present; the missing export must
-      # be something only the AMS path pulls in. Dump the export/import tables to
-      # find it: either a hypre DLL missing HYPRE_AMS* exports, or (if hypre is
-      # linked statically into mufem.pyd) a missing delay-import.
-      - name: Debug — dump bundled DLL export/import tables
-        shell: bash
-        continue-on-error: true
-        run: |
-          python -m pip install --quiet pefile
-          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
-          echo "### bundled .dll / .pyd under $pkg:"
-          find "$pkg" -iname '*.dll' -o -iname '*.pyd' | sort
-          python - "$pkg" << 'PY'
-          import os, sys, glob, pefile
-          pkg = sys.argv[1]
-          files = glob.glob(os.path.join(pkg, "**", "*.dll"), recursive=True) \
-                + glob.glob(os.path.join(pkg, "**", "*.pyd"), recursive=True)
-
-          def load(p):
-              pe = pefile.PE(p, fast_load=True)
-              pe.parse_data_directories(directories=[
-                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXPORT'],
-                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IMPORT'],
-                  pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT'],
-              ])
-              return pe
-
-          print("\n=== EXPORTS: AMS surface per DLL ===")
-          for f in files:
-              try: pe = load(f)
-              except Exception as e:
-                  print("  skip", os.path.basename(f), e); continue
-              exp = getattr(pe, "DIRECTORY_ENTRY_EXPORT", None)
-              if not exp: continue
-              names = [s.name.decode() for s in exp.symbols if s.name]
-              ams = sorted(n for n in names if "AMS" in n.upper())
-              boomer = sum("BOOMERAMG" in n.upper() for n in names)
-              if "hypre" in os.path.basename(f).lower() or ams or boomer:
-                  print(f"  {os.path.basename(f)}: exports={len(names)} AMS={len(ams)} BoomerAMG={boomer}")
-                  for n in ams[:80]: print("       AMS export:", n)
-
-          print("\n=== IMPORTS / DELAY-IMPORTS of mufem.pyd (delay is where a lazy PROC_NOT_FOUND lives) ===")
-          for f in files:
-              if not f.lower().endswith(".pyd"): continue
-              pe = load(f)
-              for tag, attr in [("IMPORT", "DIRECTORY_ENTRY_IMPORT"),
-                                ("DELAY", "DIRECTORY_ENTRY_DELAY_IMPORT")]:
-                  for entry in getattr(pe, attr, []) or []:
-                      dll = entry.dll.decode()
-                      funcs = [i.name.decode() for i in entry.imports if i.name]
-                      hy = [n for n in funcs if "HYPRE" in n.upper() or "AMS" in n.upper()]
-                      print(f"  [{tag}] {dll}: {len(funcs)} funcs" + (f"  <-- AMS/HYPRE: {hy[:30]}" if hy else ""))
-          PY
-
-      # All AMS symbols resolve (libHYPRE.dll exports the full AMS API and
-      # mufem.pyd imports it at load time), so the 127 is a *runtime* crash in
-      # the AMS solve, not a missing export. Capture a native stack via
-      # faulthandler, and probe the dual-OpenBLAS / OpenMP hypothesis: pin BLAS
-      # threads to 1 and import mufem before numpy.
-      - name: Debug — reproduce Team1b crash with a stack trace (non-fatal)
-        shell: bash
-        continue-on-error: true
-        env:
-          OPENBLAS_NUM_THREADS: "1"
-          OMP_NUM_THREADS: "1"
-          KMP_DUPLICATE_LIB_OK: "TRUE"
-        run: |
-          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python -X faulthandler -X dev case.py; echo "Team1b exit=$?"
-
-      # Direct test of the dual-OpenBLAS theory: case.py does `import numpy`
-      # before `import mufem`, so numpy's OpenBLAS loads first. Run the SAME
-      # Team1b solve importing only mufem (numpy never imported) — if this
-      # succeeds while case.py crashes, the numpy-OpenBLAS-first ordering is the
-      # cause.
-      - name: Debug — Team1b solve without numpy (non-fatal)
-        shell: bash
-        continue-on-error: true
-        run: |
-          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python -X faulthandler - << 'PY'
-          import mufem
-          from mufem import Bnd, Vol
-          from mufem.electromagnetics.timedomainmagnetic import (
-              TangentialMagneticFieldBoundaryCondition,
-              TimeDomainMagneticGeneralMaterial,
-              TimeDomainMagneticModel,
-          )
-          sim = mufem.Simulation.New(name="Team1b", mesh_path="geometry.mesh")
-          mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
-          model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
-          sim.get_model_manager().add_model(model)
-          model.add_materials([
-              TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol),
-              TimeDomainMagneticGeneralMaterial(
-                  name="Al", marker="Cylinder" @ Vol,
-                  electric_conductivity=25380710.659898475),
-          ])
-          cff = mufem.CffExpressionVector("[0, 79577.488101574*exp(-{Time}/0.0069), 0]")
-          model.add_condition(TangentialMagneticFieldBoundaryCondition(
-              name="ExternalField", marker="Air::Boundary" @ Bnd,
-              tangential_magnetic_field=cff))
-          sim.run()
-          print("SOLVE OK without numpy")
-          PY
-          echo "no-numpy exit=$?"
-
-      # Linux OMP+ASan runs this case clean, so it is not a portable heap bug — it
-      # is a Windows-specific corruption (cross-DLL / invalid free, invisible on
-      # Linux's single allocator). Enable full page heap (gflags +hpa) scoped to
-      # the hypre/mfem/mufem modules, with +ust allocation stacks, and run under
-      # cdb so it breaks AT the bad free (not later at 0xC0000374). Upload a full
-      # dump for offline symbol resolution (mingw DWARF -> module+offset in cdb).
-      - name: Debug — PageHeap + cdb to catch the heap corruption (non-fatal)
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $dbg = "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"
-          if (-not (Test-Path "$dbg\gflags.exe")) {
-            Write-Host "Installing Debugging Tools for Windows (windbg)..."
-            choco install windbg -y --no-progress | Out-Null
-            $g = Get-Command gflags.exe -ErrorAction SilentlyContinue
-            if ($g) { $dbg = Split-Path $g.Source }
-          }
-          $gflags = Join-Path $dbg 'gflags.exe'
-          $cdb    = Join-Path $dbg 'cdb.exe'
-          Write-Host "gflags=$gflags"; Write-Host "cdb=$cdb"
-          # Full page heap for python.exe, scoped to bound memory, + allocation stacks.
-          & $gflags /p /enable python.exe /full /dlls libHYPRE.dll libmfem.dll mufem.pyd
-          & $gflags /i python.exe +ust
-          $py  = (Get-Command python).Source
-          $dmp = Join-Path $env:GITHUB_WORKSPACE 'team1b-heap.dmp'
-          Push-Location Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          & $cdb -g -G -c "g; .echo ===VERIFIER/FAULT===; !analyze -v; .dump /ma ""$dmp""; q" $py case.py
-          Pop-Location
-          & $gflags /p /disable python.exe
-          & $gflags /i python.exe -ust
-          if (Test-Path $dmp) { Write-Host "dump written: $dmp" } else { Write-Host "no dump produced" }
-
-      - name: Upload heap-crash dump
-        if: always()
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: team1b-heap-dump
-          path: team1b-heap.dmp
-          if-no-files-found: ignore
-
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
         run: |
@@ -206,8 +53,6 @@ jobs:
           cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
           python case.py
 
-      # Magnetic (H(curl)/AMS) parity case — re-enabled with 0.5.78a0 (heap
-      # corruption fixed). The debug steps above still run as a safety net.
       - name: Run the Team1b case (serial; no MPI/pymufem)
         shell: bash
         run: |
