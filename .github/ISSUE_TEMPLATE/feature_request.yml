@@ -1,0 +1,30 @@
+name: 💡 Feature request
+description: Suggest a new feature, model, or validation case for mufem.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape mufem!
+
+        ⚠️ Issues are **public**. Please do not include confidential, proprietary,
+        or personal data. Information you submit may be used to improve mufem.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to do, and what is missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature, model, or case you'd like to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches or workarounds you've tried, if any.

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://raiden-numerics.github.io/mufem-doc/index.html
+    about: Tutorials, installation guide, and full API reference.
+  - name: ✉️ Contact Raiden Numerics
+    url: mailto:info@raiden-numerics.com
+    about: For private or commercial enquiries.
