@@ -1,0 +1,66 @@
+name: 🐛 Bug report
+description: Report a problem with mufem or one of the cases in this repository.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a report!
+
+        ⚠️ Issues are **public**. Please do not include confidential, proprietary,
+        or personal data. Information you submit may be used to improve mufem.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong? What did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproducible example
+      description: >
+        The smallest self-contained script or case that reproduces the problem.
+        Please reduce it as much as possible — remove unrelated models, materials,
+        and geometry, and inline any small mesh/data if you can. A minimal,
+        runnable reproducer is the single biggest factor in how quickly we can
+        help. See
+        [How to create a minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
+      render: python
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: mufem version
+      description: Output of the mufem VERSION / `pip show mufem`.
+      placeholder: e.g. 0.4.1
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, CPU/GPU backend, installation method.
+      placeholder: |
+        - OS: Ubuntu 24.04 / macOS 14 / Windows 11
+        - Python: 3.13
+        - Backend: CPU (OpenMP) / CUDA / HIP
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / output
+      description: Relevant error messages or console output.
+      render: shell
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have reduced the example to the minimum needed to reproduce the problem.
+          required: true
+        - label: I have searched existing issues for duplicates.
+          required: true

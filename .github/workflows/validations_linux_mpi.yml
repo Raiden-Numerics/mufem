@@ -1,4 +1,4 @@
-name: Examples (Linux x86-64, Python 3.12)
+name: Validations (Linux x86-64, Python 3.12)
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ on:
 # Full example suite on Python 3.12. Delegates to the reusable _run_cases workflow.
 jobs:
   examples:
-    uses: ./.github/workflows/run_cases_workflow.yaml
+    uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.12'
       case-path: '.'
