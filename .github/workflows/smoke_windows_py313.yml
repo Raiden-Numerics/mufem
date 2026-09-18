@@ -13,18 +13,28 @@ on:
 
 # Windows smoke test on a GitHub-hosted windows-latest runner (free for this
 # public repo). Installs the published Windows wheel from PyPI and runs the
-# bundled thermal smoke case — a real solve on actual Windows (stronger than the
-# Wine import check in mufem-dev CI).
+# repo's thermal (Cameron) and magnetic (Team1b) cases — real solves on actual
+# Windows (stronger than the Wine import check in mufem-dev CI).
 #
 # The Windows wheel is a single self-contained package (engine linked statically
 # into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
-# only with --pre. The bundled case uses a prebuilt mesh (geometry.nm2), so no
-# gmsh is needed.
+# only with --pre. Both cases ship a prebuilt mesh, so no gmsh is needed, and are
+# launched with plain `python` (serial, single rank): pymufem is only the Linux
+# MPI launcher, which a smoke test does not need.
+#
+# NOTE: the magnetic (H(curl)/AMS) path still crashes on the alpha Windows wheel
+# (0xC0000374 STATUS_HEAP_CORRUPTION at magnetostatic init) — a cross-DLL
+# heap-corruption bug on the mingw/UCRT build that glibc/Wine tolerate. Team1b is
+# therefore commented out and only the thermal case gates; re-enable it once a
+# wheel-side fix lands.
 jobs:
   smoke:
     runs-on: windows-latest
     if: github.event.pull_request.draft == false
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -37,12 +47,18 @@ jobs:
           PIP_IS_CI: '1'
         run: pip install --pre --force-reinstall --no-cache-dir mufem
 
-      - name: Import + solve smoke
+      - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          # The wheel ships a thermal smoke case (case.py + geometry.nm2) next to
-          # the extension; run it from a scratch dir for a real end-to-end solve.
-          pkg=$(python -c "import os, mufem; print(os.path.dirname(mufem.__file__))")
-          mkdir smoke && cp "$pkg/case.py" "$pkg/geometry.nm2" smoke/
-          cd smoke && python case.py
+          cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
+          python case.py
+
+      # Team1b (magnetic) is disabled on Windows: it still crashes on the alpha
+      # wheel (0xC0000374 heap corruption at magnetostatic init). Re-enable once
+      # the wheel-side fix lands.
+      # - name: Run the Team1b case (serial; no MPI/pymufem)
+      #   shell: bash
+      #   run: |
+      #     cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+      #     python case.py
