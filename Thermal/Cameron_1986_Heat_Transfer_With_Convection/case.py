@@ -21,7 +21,7 @@ from mufem_test import MufemTest
 
 class Cameron1986(MufemTest):
     name = "Cameron 1986: Heat Transfer With Convection"
-    tags = {"thermal"}
+    tags = {"moderate"}
     requires = set()
 
     def build(self):
