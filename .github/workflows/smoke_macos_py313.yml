@@ -22,13 +22,6 @@ on:
 # so it installs only with --pre. Both cases ship a prebuilt mesh, so no gmsh is
 # needed, and they are launched with plain `python` (serial, single rank):
 # pymufem is only the Linux MPI launcher, which a smoke test does not need.
-#
-# KNOWN ISSUE (Team1b is continue-on-error): the magnetic path's libCEED fast
-# integrator hardcodes the x86-only "/cpu/self/avx/blocked" backend
-# (Core/Weakforms/FastIntegrators/Facade.cpp ensureInitialized), so on Apple
-# Silicon (arm64) libCEED aborts ("Backend not currently compiled"). Fix is an
-# arch guard selecting "/cpu/self/opt/blocked" (or /ref) on non-x86; until the
-# wheel ships it, Team1b is expected to fail here while the thermal case passes.
 jobs:
   smoke:
     runs-on: macos-14
@@ -55,47 +48,7 @@ jobs:
           cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
           python case.py
 
-      # Team1b is disabled until the engine picks a non-AVX libCEED backend on
-      # arm64 (see the KNOWN ISSUE note above): its magnetic solve aborts on
-      # Apple Silicon. Re-enable once a wheel with the arch-guarded (or
-      # MUFEM_CEED_BACKEND-overridable) backend selection ships.
-      # - name: Run the Team1b case (serial; no MPI/pymufem)
-      #   run: |
-      #     cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-      #     python case.py
-
-      # On a crash (SIGSEGV on import) pinpoint the faulting library/frame.
-      - name: Diagnose crash
-        if: failure()
-        shell: bash
+      - name: Run the Team1b case (serial; no MPI/pymufem)
         run: |
-          # Locate the package WITHOUT importing it (import segfaults): find_spec
-          # does not execute the module.
-          pkg=$(python -c "import importlib.util as u; print(u.find_spec('mufem').submodule_search_locations[0])")
-          libdir="$pkg/../libmufem/lib"
-          echo "pkg=$pkg"
-          echo "=== layout ==="; ls -la "$pkg"; echo "--- libmufem/lib ---"; ls -la "$libdir"
-          echo "=== otool -L mufem.so ==="; otool -L "$pkg/mufem.so"
-          echo "=== mufem.so LC_RPATH ==="; otool -l "$pkg/mufem.so" | grep -A2 LC_RPATH | grep "path "
-
-          # Load each bundled dylib in isolation (fresh interpreter) to find which
-          # one's static initializer faults — CDLL runs its constructors.
-          echo "=== per-dylib ctypes load probe ==="
-          for lib in "$libdir"/*.dylib; do
-            name=$(basename "$lib")
-            if python -c "import ctypes,sys; ctypes.CDLL(sys.argv[1])" "$lib" >/dev/null 2>&1; then
-              echo "OK    $name"
-            else
-              echo "CRASH $name"
-            fi
-          done
-
-          echo "=== faulthandler traceback ==="
-          python -X faulthandler -c "import mufem" 2>&1 | tail -40 || true
-          echo "=== lldb native backtrace (stop at the crash, not exec) ==="
-          lldb --batch \
-            -o "settings set target.process.stop-on-exec false" \
-            -o "run" \
-            -k "thread backtrace all" \
-            -k "quit" \
-            -- python -c "import mufem" 2>&1 | tail -100 || true
+          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
+          python case.py
