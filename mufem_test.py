@@ -56,16 +56,26 @@ class MufemTest:
         """Post-run correctness checks. Raise on failure. Runs on all ranks."""
 
     def visualize(self, sim: "mufem.Simulation") -> None:
-        """Plots / field exports. Main process only. Optional."""
+        """Plots / field exports. Optional.
+
+        Runs on ALL ranks: probe/report evaluation and field export are
+        collective MPI operations, so every rank must reach them together.
+        Guard purely rank-local output (matplotlib file writes, prints) with
+        `self.is_main(sim)`.
+        """
 
     def run(self) -> None:
         sim = self.build()
         sim.run()
         self.validate(sim)
-        if sim.get_machine().is_main_process():
-            self.visualize(sim)
+        self.visualize(sim)
 
     # --- helpers ------------------------------------------------------------
+    @staticmethod
+    def is_main(sim: "mufem.Simulation") -> bool:
+        """True on the main MPI rank; use to guard non-collective output."""
+        return sim.get_machine().is_main_process()
+
     @property
     def dir_path(self) -> Path:
         """Directory of the concrete case file (for meshes / reference data)."""

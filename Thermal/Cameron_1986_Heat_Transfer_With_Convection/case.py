@@ -82,7 +82,8 @@ class Cameron1986(MufemTest):
         self.expect(Tprobe, 291.45, rel_tol=1e-2, label="probe temperature [K]")
 
     def visualize(self, sim):
-        # Temperature profile along y = 0.5 -------------------------------------------
+        # Temperature profile along y = 0.5. evaluate() is collective, so the
+        # loop runs on all ranks; only the matplotlib write is main-rank-local.
         x_vals = numpy.linspace(0, 0.6, 23, endpoint=True)
         T_vals = []
         for x in x_vals:
@@ -95,12 +96,13 @@ class Cameron1986(MufemTest):
             )
             T_vals.append(report.evaluate())
 
-        plt.plot(x_vals, T_vals, color="red")
-        plt.xlabel("Position [m]")
-        plt.ylabel("Temperature [K]")
-        plt.savefig("results/Temperature.png", bbox_inches="tight")
+        if self.is_main(sim):
+            plt.plot(x_vals, T_vals, color="red")
+            plt.xlabel("Position [m]")
+            plt.ylabel("Temperature [K]")
+            plt.savefig("results/Temperature.png", bbox_inches="tight")
 
-        # ParaView export -------------------------------------------------------------
+        # ParaView export (collective) ------------------------------------------------
         vis = sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.save()
