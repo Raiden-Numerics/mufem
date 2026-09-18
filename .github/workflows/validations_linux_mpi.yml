@@ -18,3 +18,4 @@ jobs:
     with:
       python-version: '3.12'
       case-path: '.'
+      run-on-draft: true

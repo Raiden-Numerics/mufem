@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+
 import gmsh
 
 from mufem import (
@@ -96,104 +101,109 @@ def create_geometry(xshift, mesh_file="geometry.msh"):
     gmsh.finalize()
 
 
-sim = Simulation.New(name="Ren_2014_MEMS_Comb_Drive")
-
-runner = SteadyRunner(total_iterations=2)
-sim.set_runner(runner)
+from mufem_test import MufemTest
 
 
-# Mesh ---------------------------------------------------------------------------------
-xshifts = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
+class Ren2014MemsCombDrive(MufemTest):
+    tags = {"long"}
 
-if sim.get_machine().is_main_process():
-    create_geometry(xshifts[0])
+    def run(self):
+        sim = Simulation.New(name="Ren_2014_MEMS_Comb_Drive")
 
-sim.get_domain().load_mesh("geometry.msh")
-sim.get_domain().get_mesh().scale(1e-6)
+        runner = SteadyRunner(total_iterations=2)
+        sim.set_runner(runner)
 
-refinement_model = RefinementModel()
-sim.get_model_manager().add_model(refinement_model)
-
-
-# Model --------------------------------------------------------------------------------
-model = ElectrostaticsModel(order=2)
-sim.get_model_manager().add_model(model)
-
-mesh_refiner = model.get_mesh_refiner()
-mesh_refiner.set_refinement_fraction(0.3)
-
-
-# Materials ----------------------------------------------------------------------------
-material = ElectrostaticMaterial("Air", Everywhere @ Vol, electric_permittivity=1.0)
-model.add_material(material)
-
-
-# Boundary conditions ------------------------------------------------------------------
-voltage = 1  # [V]
-
-condition_comb1 = ElectricPotentialCondition(
-    name="Comb1", marker="Comb1" @ Bnd, electric_potential=0.0
-)
-
-condition_comb2 = ElectricPotentialCondition(
-    name="Comb2", marker="Comb2" @ Bnd, electric_potential=voltage
-)
-
-condition_ground = ElectricPotentialCondition(
-    name="Ground", marker="Ground" @ Bnd, electric_potential=0.0
-)
-
-model.add_conditions([condition_comb1, condition_comb2, condition_ground])
-
-
-# Reports ------------------------------------------------------------------------------
-report = VolumeIntegralReport(
-    name="Electric Energy Density Report",
-    cff_name="Electric Energy Density",
-)
-sim.get_report_manager().add_report(report)
-
-
-# Run the simulation -------------------------------------------------------------------
-max_iterations = 10  # maximum number of iterations for each mesh file
-
-max_ncells = 1e5  # maximum number of cells
-
-with open("results/Capacitance.csv", "w") as fp:
-    fp.write("# xshift [um], ncells, capacitance [F]\n")
-
-vis = sim.get_field_exporter()
-vis.add_field_output("Electric Potential")
-
-for xshift in xshifts:
-    if sim.get_machine().is_main_process():
-        create_geometry(xshift)
-
-    sim.get_domain().load_mesh("geometry.msh")
-    sim.get_domain().get_mesh().scale(1e-6)
-
-    for i in range(max_iterations):
-        runner.advance(2)
-
-        if i == 0:
-            vis.save(order=2)
-
-        ncells = sim.get_domain().get_mesh().get_total_number_cells()
-        energy = report.evaluate()
-        capacitance = 2 * energy / voltage**2  # [F]
+        # Mesh ---------------------------------------------------------------------------------
+        xshifts = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
 
         if sim.get_machine().is_main_process():
-            with open("results/Capacitance.csv", "a") as fp:
-                fp.write(f"{xshift:.1f}, {ncells}, {capacitance}\n")
+            create_geometry(xshifts[0])
 
-        if ncells >= max_ncells:
-            break
-        else:
-            refinement_model.refine_mesh()
+        sim.get_domain().load_mesh("geometry.msh")
+        sim.get_domain().get_mesh().scale(1e-6)
 
-    else:
-        raise RuntimeError(
-            "Maximum number of iterations reached without reaching max_ncells."
+        refinement_model = RefinementModel()
+        sim.get_model_manager().add_model(refinement_model)
+
+        # Model --------------------------------------------------------------------------------
+        model = ElectrostaticsModel(order=2)
+        sim.get_model_manager().add_model(model)
+
+        mesh_refiner = model.get_mesh_refiner()
+        mesh_refiner.set_refinement_fraction(0.3)
+
+        # Materials ----------------------------------------------------------------------------
+        material = ElectrostaticMaterial("Air", Everywhere @ Vol, electric_permittivity=1.0)
+        model.add_material(material)
+
+        # Boundary conditions ------------------------------------------------------------------
+        voltage = 1  # [V]
+
+        condition_comb1 = ElectricPotentialCondition(
+            name="Comb1", marker="Comb1" @ Bnd, electric_potential=0.0
         )
 
-    vis.save(order=2)
+        condition_comb2 = ElectricPotentialCondition(
+            name="Comb2", marker="Comb2" @ Bnd, electric_potential=voltage
+        )
+
+        condition_ground = ElectricPotentialCondition(
+            name="Ground", marker="Ground" @ Bnd, electric_potential=0.0
+        )
+
+        model.add_conditions([condition_comb1, condition_comb2, condition_ground])
+
+        # Reports ------------------------------------------------------------------------------
+        report = VolumeIntegralReport(
+            name="Electric Energy Density Report",
+            cff_name="Electric Energy Density",
+        )
+        sim.get_report_manager().add_report(report)
+
+        # Run the simulation -------------------------------------------------------------------
+        max_iterations = 10  # maximum number of iterations for each mesh file
+
+        max_ncells = 1e5  # maximum number of cells
+
+        with open("results/Capacitance.csv", "w") as fp:
+            fp.write("# xshift [um], ncells, capacitance [F]\n")
+
+        vis = sim.get_field_exporter()
+        vis.add_field_output("Electric Potential")
+
+        for xshift in xshifts:
+            if sim.get_machine().is_main_process():
+                create_geometry(xshift)
+
+            sim.get_domain().load_mesh("geometry.msh")
+            sim.get_domain().get_mesh().scale(1e-6)
+
+            for i in range(max_iterations):
+                runner.advance(2)
+
+                if i == 0:
+                    vis.save(order=2)
+
+                ncells = sim.get_domain().get_mesh().get_total_number_cells()
+                energy = report.evaluate()
+                capacitance = 2 * energy / voltage**2  # [F]
+
+                if sim.get_machine().is_main_process():
+                    with open("results/Capacitance.csv", "a") as fp:
+                        fp.write(f"{xshift:.1f}, {ncells}, {capacitance}\n")
+
+                if ncells >= max_ncells:
+                    break
+                else:
+                    refinement_model.refine_mesh()
+
+            else:
+                raise RuntimeError(
+                    "Maximum number of iterations reached without reaching max_ncells."
+                )
+
+            vis.save(order=2)
+
+
+if __name__ == "__main__":
+    Ren2014MemsCombDrive().run()
