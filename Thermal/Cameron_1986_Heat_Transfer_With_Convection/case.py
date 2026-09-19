@@ -22,7 +22,6 @@ from validation_case import ValidationCase
 class Cameron1986(ValidationCase):
     name = "Cameron 1986: Heat Transfer With Convection"
     tags = {"moderate"}
-    requires = set()
 
     def build(self):
         sim = mufem.Simulation.New(

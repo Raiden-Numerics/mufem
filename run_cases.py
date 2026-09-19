@@ -16,7 +16,7 @@ def load_app_class(case_path: str) -> Optional[type]:
 
     Importing runs the module's top-level code but NOT the solve — that lives in
     ValidationCase.run(), guarded by `if __name__ == "__main__"`. So this is cheap and
-    lets us read tags/requires before deciding whether to run the case.
+    lets us read tags before deciding whether to run the case.
     Returns None for legacy cases that don't define a ValidationCase subclass yet.
 
     sys.argv is isolated during the import so a case that parses arguments at
@@ -45,7 +45,6 @@ def run_cases(
     base_directory: str,
     launcher: str,
     exclude_tags: Set[str],
-    available: Set[str],
 ) -> None:
 
     failed_cases: List[str] = []
@@ -61,8 +60,7 @@ def run_cases(
         # requested. Importing runs the module's top level; for migrated
         # (class-based) cases that is side-effect-free, but a legacy script
         # would solve at import — so filtering presumes migrated cases.
-        filtering = bool(exclude_tags) or bool(available)
-        if filtering:
+        if exclude_tags:
             app = load_app_class(case_path)
             if app is None:
                 # Metadata unavailable (legacy case, or its imports don't resolve
@@ -71,12 +69,8 @@ def run_cases(
                 print(f"Skipping (no readable metadata): {case_path}")
                 continue
             skip = set(app.tags) & exclude_tags
-            missing = set(app.requires) - available
             if skip:
                 print(f"Skipping (tag {sorted(skip)}): {case_path}")
-                continue
-            if missing:
-                print(f"Skipping (requires {sorted(missing)}): {case_path}")
                 continue
 
         print(f"Running case: {case_path}")
@@ -114,8 +108,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run mufem example / validation cases")
     parser.add_argument("base_directory", nargs="?", default=".", help="directory to walk for case.py")
     parser.add_argument("--launcher", default="pymufem", help="launch command per case (default: pymufem; use 'python' for serial)")
-    parser.add_argument("--exclude-tag", action="append", default=[], metavar="TAG", help="skip cases carrying this tag (repeatable), e.g. --exclude-tag long")
-    parser.add_argument("--have", action="append", default=[], metavar="FEATURE", help="engine feature available in this build (repeatable); cases requiring an absent feature are skipped, e.g. --have mumps")
+    parser.add_argument("--exclude-tag", action="append", default=[], metavar="TAG", help="skip cases carrying this tag (repeatable), e.g. --exclude-tag long --exclude-tag mumps")
     args = parser.parse_args()
 
     print(f"Running cases in directory: {args.base_directory}")
@@ -123,5 +116,4 @@ if __name__ == "__main__":
         base_directory=args.base_directory,
         launcher=args.launcher,
         exclude_tags=set(args.exclude_tag),
-        available=set(args.have),
     )

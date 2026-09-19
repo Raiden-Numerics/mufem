@@ -4,8 +4,8 @@ A case subclasses `ValidationCase`, sets its metadata attributes, and implements
 `build()` (and optionally `validate()` / `visualize()`). Because the metadata
 lives as class attributes, a runner can import a case and read its tags without
 executing the solve — the solve only happens inside `run()`. That is what lets
-CI select a subset (e.g. skip `long` cases or ones that `require` a backend the
-current wheel lacks) before spending runner minutes.
+CI select a subset (e.g. skip `long` cases, or `mumps` cases on a build without a
+direct solver) before spending runner minutes: workflows pass `--exclude-tag`.
 
 Typical case file:
 
@@ -13,8 +13,9 @@ Typical case file:
 
     class Cameron1986(ValidationCase):
         name = "Cameron 1986: Heat Transfer With Convection"
-        tags = {"thermal"}          # free-form labels; {"long"} marks a slow case
-        requires = set()            # engine features needed, e.g. {"mumps"}
+        # one runtime tier (moderate/long/eternal) plus any capability the case
+        # needs, e.g. {"long", "mumps"}. CI excludes tags it can't run.
+        tags = {"moderate"}
 
         def build(self):
             sim = mufem.Simulation.New(...)
@@ -42,10 +43,9 @@ if TYPE_CHECKING:
 class ValidationCase:
     # --- metadata (override per case; read by the runner without solving) ---
     name: str = ""
-    #: free-form labels, e.g. {"long"} to mark a slow case
+    #: labels, e.g. {"long"} for a slow case or {"mumps"} for a direct-solver
+    #: case. CI excludes tags it can't run via --exclude-tag.
     tags: Set[str] = set()
-    #: engine features the case needs, e.g. {"mumps"}; skipped when unavailable
-    requires: Set[str] = set()
 
     # --- lifecycle (override build; validate/visualize are optional) --------
     def build(self) -> "mufem.Simulation":

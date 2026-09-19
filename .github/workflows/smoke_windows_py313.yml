@@ -52,4 +52,4 @@ jobs:
           MPLBACKEND: Agg  # headless: no GUI backend
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          python run_cases.py . --launcher python --exclude-tag eternal
+          python run_cases.py . --launcher python --exclude-tag eternal --exclude-tag mumps

@@ -21,9 +21,8 @@ on:
 # third-party dylibs bundled and resolved via @rpath) and is published as alpha,
 # so it installs only with --pre. The cases are launched serially with plain
 # `python` (pymufem is only the Linux MPI launcher). run_cases.py reads each
-# case's MufemTest.tags and skips the `long`/`eternal` tiers; because we do not
-# pass --have to declare optional backends, cases that `require` one (e.g. MUMPS)
-# are skipped too.
+# case's ValidationCase.tags and we --exclude-tag the tiers/capabilities this
+# runner can't do: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 jobs:
   smoke:
     runs-on: macos-14
@@ -50,4 +49,4 @@ jobs:
           MPLBACKEND: Agg  # headless: no macOS GUI backend
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal
+          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps
