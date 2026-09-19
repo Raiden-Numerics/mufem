@@ -30,7 +30,6 @@ on:
 jobs:
   smoke:
     runs-on: windows-latest
-    if: github.event.pull_request.draft == false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
