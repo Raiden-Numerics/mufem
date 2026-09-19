@@ -12,21 +12,19 @@ on:
       - main
 
 # Windows smoke test on a GitHub-hosted windows-latest runner (free for this
-# public repo). Installs the published Windows wheel from PyPI and runs the
-# repo's thermal (Cameron) and magnetic (Team1b) cases — real solves on actual
-# Windows (stronger than the Wine import check in mufem-dev CI).
+# public repo). Installs the published Windows wheel from PyPI and runs every
+# validation case except the `eternal` tier — real solves on actual Windows
+# (stronger than the Wine import check in mufem-dev CI).
 #
 # The Windows wheel is a single self-contained package (engine linked statically
 # into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
-# only with --pre. Both cases ship a prebuilt mesh, so no gmsh is needed, and are
-# launched with plain `python` (serial, single rank): pymufem is only the Linux
-# MPI launcher, which a smoke test does not need.
+# only with --pre. Cases are launched serially with plain `python` (pymufem is
+# only the Linux MPI launcher). gmsh is installed so the one case that builds its
+# mesh at runtime (Ren) can run too.
 #
-# NOTE: the magnetic (H(curl)/AMS) path still crashes on the alpha Windows wheel
-# (0xC0000374 STATUS_HEAP_CORRUPTION at magnetostatic init) — a cross-DLL
-# heap-corruption bug on the mingw/UCRT build that glibc/Wine tolerate. Team1b is
-# therefore commented out and only the thermal case gates; re-enable it once a
-# wheel-side fix lands.
+# NOTE: the magnetic (H(curl)/AMS) path historically crashed on the alpha Windows
+# wheel (0xC0000374 STATUS_HEAP_CORRUPTION at magnetostatic init). These cases are
+# gating, so if that regression is still present the job (and badge) go red.
 jobs:
   smoke:
     runs-on: windows-latest
@@ -46,20 +44,12 @@ jobs:
           PIP_IS_CI: '1'
         run: |
           pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -r requirements.txt  # matplotlib/numpy: no longer mufem deps
+          pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
 
-      - name: Run a thermal case (serial; no MPI/pymufem)
+      - name: Run all validation cases except eternal (serial; no MPI/pymufem)
         shell: bash
+        env:
+          MPLBACKEND: Agg  # headless: no GUI backend
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
-          python case.py
-
-      # Team1b (magnetic) is disabled on Windows: it still crashes on the alpha
-      # wheel (0xC0000374 heap corruption at magnetostatic init). Re-enable once
-      # the wheel-side fix lands.
-      # - name: Run the Team1b case (serial; no MPI/pymufem)
-      #   shell: bash
-      #   run: |
-      #     cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-      #     python case.py
+          python run_cases.py . --launcher python --exclude-tag eternal

@@ -21,6 +21,7 @@ from validation_case import ValidationCase
 
 class MontejoGarai1995CavityFilter(ValidationCase):
     tags = {"moderate"}
+    requires = {"mumps"}  # TimeHarmonicMaxwell needs a direct solver
 
     def run(self):
         # **************************************************************************************

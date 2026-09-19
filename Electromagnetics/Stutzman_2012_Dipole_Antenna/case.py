@@ -24,6 +24,7 @@ from validation_case import ValidationCase
 
 class Stutzman2012DipoleAntenna(ValidationCase):
     tags = {"moderate"}
+    requires = {"mumps"}  # TimeHarmonicMaxwell needs a direct solver
 
     def run(self):
         sim = mufem.Simulation.New(
