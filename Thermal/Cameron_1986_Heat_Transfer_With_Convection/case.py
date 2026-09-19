@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import matplotlib.pyplot as plt
 import numpy
@@ -16,10 +16,10 @@ from mufem.thermal import (
     TemperatureCondition,
 )
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Cameron1986(MufemTest):
+class Cameron1986(ValidationCase):
     name = "Cameron 1986: Heat Transfer With Convection"
     tags = {"moderate"}
     requires = set()

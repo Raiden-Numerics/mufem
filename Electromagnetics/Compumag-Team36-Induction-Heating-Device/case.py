@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 import matplotlib.pyplot as plt
 import numpy
 
@@ -34,10 +34,10 @@ def load_csv(file_name):
     return numpy.loadtxt(f"data/{file_name}", delimiter=",", comments="#")
 
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Team36InductionHeating(MufemTest):
+class Team36InductionHeating(ValidationCase):
     tags = {"long"}
 
     def run(self):

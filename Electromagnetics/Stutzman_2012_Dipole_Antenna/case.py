@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy as np
 
@@ -19,10 +19,10 @@ from mufem.electromagnetics.timeharmonicmaxwell import (
 # **************************************************************************************
 # Problem setup
 # **************************************************************************************
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Stutzman2012DipoleAntenna(MufemTest):
+class Stutzman2012DipoleAntenna(ValidationCase):
     tags = {"moderate"}
 
     def run(self):

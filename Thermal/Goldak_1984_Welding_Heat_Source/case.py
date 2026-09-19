@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import math
 
@@ -57,10 +57,10 @@ def make_goldak_double_ellipsoid(
 
 
 # Problem setup ------------------------------------------------------------------------
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Goldak1984WeldingHeatSource(MufemTest):
+class Goldak1984WeldingHeatSource(ValidationCase):
     tags = {"long"}
 
     def run(self):

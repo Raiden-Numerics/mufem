@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 
@@ -24,10 +24,10 @@ import matplotlib.pyplot as plt
 dir_path = Path(__file__).resolve().parent
 
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Team13NonLinearMagnetostatic(MufemTest):
+class Team13NonLinearMagnetostatic(ValidationCase):
     tags = {"moderate"}
 
     def run(self):

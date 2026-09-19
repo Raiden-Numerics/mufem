@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy as np
 import math
@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import mufem
 import mufem.electromagnetics.electrostatics as estat
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class David2019ChargeDensity(MufemTest):
+class David2019ChargeDensity(ValidationCase):
     tags = {"moderate"}
 
     def run(self):

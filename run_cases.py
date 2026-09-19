@@ -8,16 +8,16 @@ import time
 
 from typing import List, Optional, Set, Tuple
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
 def load_app_class(case_path: str) -> Optional[type]:
-    """Import a case module and return its MufemTest subclass (metadata only).
+    """Import a case module and return its ValidationCase subclass (metadata only).
 
     Importing runs the module's top-level code but NOT the solve — that lives in
-    MufemTest.run(), guarded by `if __name__ == "__main__"`. So this is cheap and
+    ValidationCase.run(), guarded by `if __name__ == "__main__"`. So this is cheap and
     lets us read tags/requires before deciding whether to run the case.
-    Returns None for legacy cases that don't define a MufemTest subclass yet.
+    Returns None for legacy cases that don't define a ValidationCase subclass yet.
 
     sys.argv is isolated during the import so a case that parses arguments at
     module level sees only its own name (not the runner's flags), and we catch
@@ -36,7 +36,7 @@ def load_app_class(case_path: str) -> Optional[type]:
         sys.argv = saved_argv
 
     for _, obj in inspect.getmembers(module, inspect.isclass):
-        if issubclass(obj, MufemTest) and obj is not MufemTest:
+        if issubclass(obj, ValidationCase) and obj is not ValidationCase:
             return obj
     return None
 

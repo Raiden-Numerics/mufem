@@ -1,6 +1,6 @@
 """Base class for mufem validation / example cases.
 
-A case subclasses `MufemTest`, sets its metadata attributes, and implements
+A case subclasses `ValidationCase`, sets its metadata attributes, and implements
 `build()` (and optionally `validate()` / `visualize()`). Because the metadata
 lives as class attributes, a runner can import a case and read its tags without
 executing the solve — the solve only happens inside `run()`. That is what lets
@@ -9,9 +9,9 @@ current wheel lacks) before spending runner minutes.
 
 Typical case file:
 
-    from mufem_test import MufemTest
+    from validation_case import ValidationCase
 
-    class Cameron1986(MufemTest):
+    class Cameron1986(ValidationCase):
         name = "Cameron 1986: Heat Transfer With Convection"
         tags = {"thermal"}          # free-form labels; {"long"} marks a slow case
         requires = set()            # engine features needed, e.g. {"mumps"}
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     import mufem
 
 
-class MufemTest:
+class ValidationCase:
     # --- metadata (override per case; read by the runner without solving) ---
     name: str = ""
     #: free-form labels, e.g. {"long"} to mark a slow case

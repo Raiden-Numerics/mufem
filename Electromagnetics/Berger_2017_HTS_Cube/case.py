@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import matplotlib.pyplot as plt
 import numpy
@@ -23,10 +23,10 @@ from pathlib import Path
 dir_path = Path(__file__).resolve().parent
 
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Berger2017HtsCube(MufemTest):
+class Berger2017HtsCube(ValidationCase):
     tags = {"moderate"}
 
     def run(self):

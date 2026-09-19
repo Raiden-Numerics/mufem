@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: mufem_test
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -50,10 +50,10 @@ def create_report_and_monitor(sim, report, report_name: str, *args):
 
 dir_path = Path(__file__).resolve().parent
 
-from mufem_test import MufemTest
+from validation_case import ValidationCase
 
 
-class Lubin2015EddyCurrentBrake(MufemTest):
+class Lubin2015EddyCurrentBrake(ValidationCase):
     tags = {"eternal"}
 
     def run(self):
