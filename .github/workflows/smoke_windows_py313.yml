@@ -44,7 +44,9 @@ jobs:
         env:
           CI: '1'
           PIP_IS_CI: '1'
-        run: pip install --pre --force-reinstall --no-cache-dir mufem
+        run: |
+          pip install --pre --force-reinstall --no-cache-dir mufem
+          pip install -r requirements.txt  # matplotlib/numpy: no longer mufem deps
 
       - name: Run a thermal case (serial; no MPI/pymufem)
         shell: bash
