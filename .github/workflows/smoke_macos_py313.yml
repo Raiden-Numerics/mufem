@@ -26,6 +26,7 @@ on:
 jobs:
   smoke:
     runs-on: macos-14
+    if: github.event.pull_request.draft == false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
