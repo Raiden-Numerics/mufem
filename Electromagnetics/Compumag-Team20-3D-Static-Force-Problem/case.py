@@ -3,8 +3,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
-import matplotlib.pyplot as plt
 import numpy
+
+from plots import Curve, reference_curve, xy_plot
 
 from mufem import Bnd, Vol, SteadyRunner, CffConstantScalar, Simulation
 from mufem.electromagnetics.coil import (
@@ -128,38 +129,29 @@ class Team20StaticForce(ValidationCase):
 
         # Plot the results
 
-        plt.clf()
-
         symmetry_factor = 4.0
 
-        calculated = numpy.array(center_piece_force_list)
-
-        reference = numpy.loadtxt(
-            f"{dir_path}/data/ReferenceForce.csv", delimiter=",", comments="#"
+        xy_plot(
+            [
+                reference_curve(
+                    f"{dir_path}/data/ReferenceForce.csv", fmt="o", color="k"
+                ),
+                Curve(
+                    center_piece_force_list,
+                    yscale=symmetry_factor,
+                    fmt="o-",
+                    color="r",
+                    linewidth=2.5,
+                    markersize=5.0,
+                    style={"markerfacecolor": "none", "markeredgecolor": "r"},
+                ),
+            ],
+            xlabel="Coil Current [A]",
+            ylabel="Pole Force [N]",
+            xlim=(0.0, 5.4),
+            ylim=(0, 90),
+            path=f"{dir_path}/results/Force_vs_Current.png",
         )
-
-        plt.plot(reference[:, 0], reference[:, 1], "ko", label="Reference")
-
-        plt.plot(
-            calculated[:, 0],
-            symmetry_factor * calculated[:, 1],
-            "ro-",
-            linewidth=2.5,
-            markersize=5.0,
-            label="$\\mu$fem",
-            markerfacecolor="none",
-            markeredgecolor="r",
-        )
-
-        plt.xlabel("Coil Current [A]")
-        plt.ylabel("Pole Force [N]")
-
-        plt.legend(loc="best").draw_frame(False)
-
-        plt.xlim(0.0, 5.4)
-        plt.ylim(0, 90)
-
-        plt.savefig(f"{dir_path}/results/Force_vs_Current.png", bbox_inches="tight")
 
 
         # Finally, we save a few fields so we can visualize with paraview
