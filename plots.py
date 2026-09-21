@@ -24,13 +24,18 @@ from typing import Iterable, Optional, Sequence, Tuple
 
 import numpy
 
-MUFEM_LABEL = r"$\mu$fem"
+MUFEM_LABEL = "mufem"
 
 #: fixed colors so all cases render identically
 MUFEM_COLOR = "r"
 REFERENCE_COLOR = "k"
 
 _MARKERSIZE = 6.5
+
+#: font sizes (kept larger than the matplotlib defaults for readability)
+_LABEL_FONTSIZE = 15
+_TICK_FONTSIZE = 13
+_LEGEND_FONTSIZE = 13
 
 
 class PlotStyle(Enum):
@@ -100,10 +105,10 @@ def xy_plot(
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(scaled, style, MUFEM_COLOR, label, linewidth=2.0)
 
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
+    plt.ylabel(ylabel, fontsize=_LABEL_FONTSIZE)
     if title:
-        plt.title(title)
+        plt.title(title, fontsize=_LABEL_FONTSIZE)
     if xlim:
         plt.xlim(*xlim)
     if ylim:
@@ -112,7 +117,8 @@ def xy_plot(
         plt.xticks(xticks)
     if yticks is not None:
         plt.yticks(yticks)
+    plt.tick_params(labelsize=_TICK_FONTSIZE)
 
-    plt.legend(loc="best", frameon=False)
+    plt.legend(loc="best", frameon=False, fontsize=_LEGEND_FONTSIZE)
     plt.savefig(path, bbox_inches="tight", metadata={"Software": None})
     plt.close()

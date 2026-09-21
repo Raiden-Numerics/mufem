@@ -129,11 +129,13 @@ class Team20StaticForce(ValidationCase):
 
         # Plot the results
 
+        # 1/4 symmetry; the pole force is attractive (measured along -z), so
+        # negate to plot its magnitude against the (positive) reference.
         symmetry_factor = 4.0
 
         xy_plot(
             values=center_piece_force_list,
-            yscale=symmetry_factor,
+            yscale=-symmetry_factor,
             style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/ReferenceForce.csv",
             reference_style=PlotStyle.POINTS,
