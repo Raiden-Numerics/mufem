@@ -120,7 +120,7 @@ class Bruce2012ElectronicDesign(ValidationCase):
 
             xy_plot(
                 values=evolution,
-                style=PlotStyle.LINE,
+                style=PlotStyle.LINE_AND_POINTS,
                 reference_values=list(zip(ref_t, ref_T - 273.15)),
                 reference_style=PlotStyle.POINTS,
                 reference_label="Li (2020)",

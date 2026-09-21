@@ -78,7 +78,7 @@ class Team1bFelixCylinder(ValidationCase):
 
         xy_plot(
             values=ohmic_heating_monitor.get_values(),
-            style=PlotStyle.LINE,
+            style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/PowerLoss.csv",
             reference_style=PlotStyle.POINTS,
             reference_label="Davey (1988)",

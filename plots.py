@@ -15,10 +15,10 @@ CSV reference — is a single call:
         path=f"{dir_path}/results/Force_vs_Current.png",
     )
 
-Styling is fixed for consistency across cases: the computed curve is mufem red
-with solid square markers and is drawn first; the reference is black with (larger)
-circle markers, drawn on top. Line/marker rendering is chosen with the `PlotStyle`
-enum (LINE, POINTS, LINE_AND_POINTS). All arguments are keyword-only.
+Styling is fixed for consistency across cases: the reference (black) is drawn
+first as a thicker line/points underneath, then the mufem curve (red) on top as a
+dot-line. Line/marker rendering is chosen with the `PlotStyle` enum
+(LINE, POINTS, LINE_AND_POINTS). All arguments are keyword-only.
 """
 
 from enum import Enum
@@ -30,7 +30,7 @@ MUFEM_LABEL = "mufem"
 
 #: fixed colors / markers so all cases render identically
 MUFEM_COLOR = "r"
-MUFEM_MARKER = "s"  # square
+MUFEM_MARKER = "."  # dot
 REFERENCE_COLOR = "k"
 REFERENCE_MARKER = "o"  # circle
 
@@ -86,7 +86,7 @@ def xy_plot(
     xlabel: str,
     ylabel: str,
     path: str,
-    # computed curve (always mufem red squares)
+    # computed curve (always mufem red, dot-line)
     style: PlotStyle = PlotStyle.LINE_AND_POINTS,
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
@@ -132,7 +132,7 @@ def xy_plot(
             linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,
         )
 
-    # ... then the computed mufem curve on top (red squares).
+    # ... then the computed mufem curve on top (red dot-line).
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(
         scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,

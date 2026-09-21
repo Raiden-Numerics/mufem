@@ -98,7 +98,7 @@ class Cameron1986(ValidationCase):
         if self.is_main(sim):
             xy_plot(
                 values=list(zip(x_vals, T_vals)),
-                style=PlotStyle.LINE,
+                style=PlotStyle.LINE_AND_POINTS,
                 xlabel="Position [m]",
                 ylabel="Temperature [K]",
                 path="results/Temperature.png",

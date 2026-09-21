@@ -131,7 +131,7 @@ class Berger2017HtsCube(ValidationCase):
             values=ohmic_heating_monitor.get_values(),
             xscale=1.0e3,   # s -> ms
             yscale=8.0e3,   # octant W -> full-cube mW (x8, x1e3)
-            style=PlotStyle.LINE,
+            style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/AC_Losses_B20mT.csv",
             reference_style=PlotStyle.POINTS,
             reference_label="Berger et al. (2017)",

@@ -91,7 +91,7 @@ class David2019ChargeDensity(ValidationCase):
 
         xy_plot(
             values=list(zip(r, E_mufem / 1e9)),
-            style=PlotStyle.LINE,
+            style=PlotStyle.LINE_AND_POINTS,
             reference_values=list(zip(r, E_theory / 1e9)),
             reference_style=PlotStyle.LINE,
             reference_label="Theory",

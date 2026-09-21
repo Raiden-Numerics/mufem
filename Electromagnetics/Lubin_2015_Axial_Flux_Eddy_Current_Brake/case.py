@@ -208,7 +208,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         xy_plot(
             values=[(t, T.z) for t, T in time_torque],
-            style=PlotStyle.LINE,
+            style=PlotStyle.LINE_AND_POINTS,
             xlabel="Time [s]",
             ylabel="Torque [Nm]",
             xlim=(0, max([t for t, T in time_torque])),
@@ -224,7 +224,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         xy_plot(
             values=torque_vs_rpm,
-            style=PlotStyle.POINTS,
+            style=PlotStyle.LINE_AND_POINTS,
             reference_values=ref,
             reference_style=PlotStyle.LINE,
             reference_label="Lubin & Rezzoug (2015)",
