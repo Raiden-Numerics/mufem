@@ -139,10 +139,12 @@ class Team20StaticForce(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/ReferenceForce.csv",
             reference_style=PlotStyle.POINTS,
+            reference_label="Takahashi & Nakata (1994)",
             xlabel="Coil Current [A]",
             ylabel="Pole Force [N]",
             xlim=(0.0, 5.4),
             ylim=(0, 90),
+            yticks=[0, 20, 40, 60, 80],
             path=f"{dir_path}/results/Force_vs_Current.png",
         )
 

@@ -9,14 +9,16 @@ CSV reference — is a single call:
     xy_plot(
         values=center_piece_force_list,
         reference_file=f"{dir_path}/data/ReferenceForce.csv",
+        reference_label="Takahashi & Nakata (1994)",
         xlabel="Coil Current [A]",
         ylabel="Pole Force [N]",
         path=f"{dir_path}/results/Force_vs_Current.png",
     )
 
-Colors are fixed for consistency across cases: the computed curve is always
-`$\\mu$fem` red, the reference always black. Line/marker rendering is chosen with
-the `PlotStyle` enum (LINE, POINTS, LINE_POINTS). All arguments are keyword-only.
+Styling is fixed for consistency across cases: the computed curve is mufem red
+with solid square markers and is drawn first; the reference is black with (larger)
+circle markers, drawn on top. Line/marker rendering is chosen with the `PlotStyle`
+enum (LINE, POINTS, LINE_AND_POINTS). All arguments are keyword-only.
 """
 
 from enum import Enum
@@ -26,11 +28,14 @@ import numpy
 
 MUFEM_LABEL = "mufem"
 
-#: fixed colors so all cases render identically
+#: fixed colors / markers so all cases render identically
 MUFEM_COLOR = "r"
+MUFEM_MARKER = "s"  # square
 REFERENCE_COLOR = "k"
+REFERENCE_MARKER = "o"  # circle
 
 _MARKERSIZE = 6.5
+_REFERENCE_MARKERSIZE = 9.0
 
 #: font sizes (kept larger than the matplotlib defaults for readability)
 _LABEL_FONTSIZE = 15
@@ -41,22 +46,31 @@ _LEGEND_FONTSIZE = 13
 class PlotStyle(Enum):
     """How a curve is drawn: a line, discrete points, or both."""
 
-    LINE = "-"
-    POINTS = "o"
-    LINE_AND_POINTS = "o-"
+    LINE = "line"
+    POINTS = "points"
+    LINE_AND_POINTS = "line_and_points"
+
+    @property
+    def has_line(self) -> bool:
+        return self in (PlotStyle.LINE, PlotStyle.LINE_AND_POINTS)
+
+    @property
+    def has_markers(self) -> bool:
+        return self in (PlotStyle.POINTS, PlotStyle.LINE_AND_POINTS)
 
 
-def _draw(values, style: PlotStyle, color, label, linewidth):
+def _draw(values, style, color, label, marker, *, linewidth, markersize):
     import matplotlib.pyplot as plt
 
     plt.plot(
         [x for x, _ in values],
         [y for _, y in values],
-        style.value,
         color=color,
         label=label,
+        linestyle="-" if style.has_line else "None",
+        marker=marker if style.has_markers else "None",
         linewidth=linewidth,
-        markersize=_MARKERSIZE,
+        markersize=markersize,
     )
 
 
@@ -66,14 +80,14 @@ def xy_plot(
     xlabel: str,
     ylabel: str,
     path: str,
-    # computed curve (always MUFEM_COLOR)
+    # computed curve (always mufem red squares)
     style: PlotStyle = PlotStyle.LINE_AND_POINTS,
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
     yscale: float = 1.0,
     # reference curve loaded from a CSV (delimiter ',', '#' comments; always black)
     reference_file: Optional[str] = None,
-    reference_style: PlotStyle = PlotStyle.LINE,
+    reference_style: PlotStyle = PlotStyle.POINTS,
     reference_x_column: int = 0,
     reference_y_column: int = 1,
     reference_label: str = "Reference",
@@ -92,6 +106,14 @@ def xy_plot(
 
     plt.clf()
 
+    # computed curve first (mufem red squares) ...
+    scaled = [(xscale * x, yscale * y) for x, y in values]
+    _draw(
+        scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
+        linewidth=2.0, markersize=_MARKERSIZE,
+    )
+
+    # ... reference on top, with larger circle markers so it reads clearly.
     if reference_file is not None:
         data = numpy.loadtxt(reference_file, delimiter=",", comments="#")
         ref = list(
@@ -100,10 +122,10 @@ def xy_plot(
                 reference_yscale * data[:, reference_y_column],
             )
         )
-        _draw(ref, reference_style, REFERENCE_COLOR, reference_label, linewidth=3.0)
-
-    scaled = [(xscale * x, yscale * y) for x, y in values]
-    _draw(scaled, style, MUFEM_COLOR, label, linewidth=2.0)
+        _draw(
+            ref, reference_style, REFERENCE_COLOR, reference_label, REFERENCE_MARKER,
+            linewidth=3.0, markersize=_REFERENCE_MARKERSIZE,
+        )
 
     plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
     plt.ylabel(ylabel, fontsize=_LABEL_FONTSIZE)
