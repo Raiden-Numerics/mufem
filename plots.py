@@ -34,13 +34,19 @@ MUFEM_MARKER = "s"  # square
 REFERENCE_COLOR = "k"
 REFERENCE_MARKER = "o"  # circle
 
-_MARKERSIZE = 6.5
-_REFERENCE_MARKERSIZE = 9.0
+_MARKERSIZE = 8.5
+_REFERENCE_MARKERSIZE = 10.0
+_LINEWIDTH = 3.0
+_REFERENCE_LINEWIDTH = 4.0
+
+#: 16:10 figure at 1600x1000 px (8x5 inches * 200 dpi)
+_FIGSIZE = (8.0, 5.0)
+_DPI = 200
 
 #: font sizes (kept larger than the matplotlib defaults for readability)
 _LABEL_FONTSIZE = 15
 _TICK_FONTSIZE = 13
-_LEGEND_FONTSIZE = 13
+_LEGEND_FONTSIZE = 15
 
 
 class PlotStyle(Enum):
@@ -104,13 +110,13 @@ def xy_plot(
     consistent style (best-loc legend, no frame)."""
     import matplotlib.pyplot as plt
 
-    plt.clf()
+    fig = plt.figure(figsize=_FIGSIZE, layout="constrained")
 
     # computed curve first (mufem red squares) ...
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(
         scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
-        linewidth=2.0, markersize=_MARKERSIZE,
+        linewidth=_LINEWIDTH, markersize=_MARKERSIZE,
     )
 
     # ... reference on top, with larger circle markers so it reads clearly.
@@ -124,7 +130,7 @@ def xy_plot(
         )
         _draw(
             ref, reference_style, REFERENCE_COLOR, reference_label, REFERENCE_MARKER,
-            linewidth=3.0, markersize=_REFERENCE_MARKERSIZE,
+            linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,
         )
 
     plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
@@ -142,5 +148,5 @@ def xy_plot(
     plt.tick_params(labelsize=_TICK_FONTSIZE)
 
     plt.legend(loc="best", frameon=False, fontsize=_LEGEND_FONTSIZE)
-    plt.savefig(path, bbox_inches="tight", metadata={"Software": None})
-    plt.close()
+    fig.savefig(path, dpi=_DPI, metadata={"Software": None})
+    plt.close(fig)
