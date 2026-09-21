@@ -37,7 +37,7 @@ REFERENCE_MARKER = "o"  # circle
 _MARKERSIZE = 10.0
 _REFERENCE_MARKERSIZE = 10.0
 _LINEWIDTH = 3.0
-_REFERENCE_LINEWIDTH = 4.0
+_REFERENCE_LINEWIDTH = 5.0  # 25% thicker than the computed line
 
 #: 16:10 figure at 1600x1000 px (8x5 inches * 200 dpi)
 _FIGSIZE = (8.0, 5.0)
@@ -114,14 +114,7 @@ def xy_plot(
 
     fig = plt.figure(figsize=_FIGSIZE, layout="constrained")
 
-    # computed curve first (mufem red squares) ...
-    scaled = [(xscale * x, yscale * y) for x, y in values]
-    _draw(
-        scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
-        linewidth=_LINEWIDTH, markersize=_MARKERSIZE,
-    )
-
-    # ... reference on top, with larger circle markers so it reads clearly.
+    # reference first, drawn as a thicker line/marker underneath ...
     ref = None
     if reference_file is not None:
         data = numpy.loadtxt(reference_file, delimiter=",", comments="#")
@@ -138,6 +131,13 @@ def xy_plot(
             ref, reference_style, REFERENCE_COLOR, reference_label, REFERENCE_MARKER,
             linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,
         )
+
+    # ... then the computed mufem curve on top (red squares).
+    scaled = [(xscale * x, yscale * y) for x, y in values]
+    _draw(
+        scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
+        linewidth=_LINEWIDTH, markersize=_MARKERSIZE,
+    )
 
     plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
     plt.ylabel(ylabel, fontsize=_LABEL_FONTSIZE)
