@@ -227,7 +227,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             style=PlotStyle.POINTS,
             reference_values=ref,
             reference_style=PlotStyle.LINE,
-            reference_label="Reference",
+            reference_label="Lubin & Rezzoug (2015)",
             xlabel="Slip Speed [rpm]",
             ylabel="Torque [Nm]",
             xlim=(0, 3000),
@@ -248,7 +248,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                     f"{dir_path}/data/Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
                 )
 
-                plt.plot(ref[:, 0], ref[:, 1], "k-", label="Reference", linewidth=3.0)
+                plt.plot(ref[:, 0], ref[:, 1], "k-", label="Lubin & Rezzoug (2015)", linewidth=3.0)
                 plt.plot(*zip(*torque_vs_rpm), "ro", label="$\\mu$fem", markersize=10.0)
 
                 plt.xlabel("Slip Speed [rpm]", fontsize=16)
