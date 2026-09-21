@@ -19,7 +19,7 @@ from mufem.electromagnetics.timedomainmagnetic import (
 )
 
 from pathlib import Path
-import matplotlib.pyplot as plt
+from plots import xy_plot, PlotStyle
 
 dir_path = Path(__file__).resolve().parent
 
@@ -111,30 +111,20 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
         xy_values = [(p.x, v.mag) for p, v in probe_report.evaluate_all()]
 
-        res = numpy.array(xy_values)
-        ref = numpy.loadtxt(
-            f"{dir_path}/data/Table7_FluxDensity.csv", delimiter=",", comments="#"
-        )
-
-
-        T_to_mT = 1000.0
-        m_to_mm = 1000.0
-
-
-        plt.plot(ref[:, 0] * m_to_mm, ref[:, 1] * T_to_mT, "k-", label="Reference")
-        plt.plot(res[:, 0] * m_to_mm, res[:, 1] * T_to_mT, "ro-", label="$\\mu$fem")
-
-
-        plt.xlabel("x [mm]")
-        plt.ylabel("B [mT]")
-
-        plt.xlim((0, 120))
-
-        plt.legend(loc="best", frameon=False)
-
-        plt.savefig(
-            f"{dir_path}/results/Magnetic_Flux_Density_Line_Air.png",
-            bbox_inches="tight",
+        xy_plot(
+            values=xy_values,
+            xscale=1000.0,  # m -> mm
+            yscale=1000.0,  # T -> mT
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_file=f"{dir_path}/data/Table7_FluxDensity.csv",
+            reference_xscale=1000.0,
+            reference_yscale=1000.0,
+            reference_style=PlotStyle.LINE,
+            reference_label="Reference",
+            xlabel="x [mm]",
+            ylabel="B [mT]",
+            xlim=(0.0, 120.0),
+            path=f"{dir_path}/results/Magnetic_Flux_Density_Line_Air.png",
         )
 
 

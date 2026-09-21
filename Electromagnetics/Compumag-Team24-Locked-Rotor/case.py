@@ -2,11 +2,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
-import matplotlib.pyplot as plt
 import numpy
 from pathlib import Path
 
 import mufem
+
+from plots import xy_plot, PlotStyle
 
 from mufem import Bnd, Vol
 from mufem.electromagnetics.coil import (
@@ -188,31 +189,6 @@ class Team24LockedRotor(ValidationCase):
         symmetry_factor = 2.0
 
 
-        def xy_plot(values, reference, xlabel, ylabel, xlim, ylim, xticks, filename):
-
-            # flake8: noqa: FKA100
-
-            plt.clf()
-            plt.plot(reference[:, 0], reference[:, 1], "ko", label="Reference")
-            plt.plot(
-                *zip(*values),
-                "r-",
-                linewidth=2.5,
-                markersize=5.0,
-                label="$\\mu$fem",
-                markerfacecolor="none",
-                markeredgecolor="r",
-            )
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.xlim(xlim)
-            plt.ylim(ylim)
-            plt.xticks(xticks)
-
-            plt.legend(loc="best").draw_frame(False)
-            plt.savefig(filename, bbox_inches="tight")
-
-
         coil_current_ref = numpy.loadtxt(
             f"{dir_path}/data/tables/Table_3_Coil_Current.csv", delimiter=",", skiprows=1
         )
@@ -236,48 +212,60 @@ class Team24LockedRotor(ValidationCase):
 
                 xy_plot(
                     values=current_values[: i + 1],
-                    reference=coil_current_ref,
+                    style=PlotStyle.LINE_AND_POINTS,
+                    reference_values=coil_current_ref,
+                    reference_style=PlotStyle.POINTS,
+                    reference_label="Reference",
                     xlabel="Time [s]",
                     ylabel="Coil Current [A]",
-                    xlim=(0, 0.15),
+                    xlim=(0.0, 0.15),
                     ylim=(0.0, 8.0),
                     xticks=[0.0, 0.05, 0.1, 0.15],
-                    filename=f"{dir_path}/vis/Coil_Current_vs_Time_{i:03d}.png",
+                    path=f"{dir_path}/vis/Coil_Current_vs_Time_{i:03d}.png",
                 )
 
                 xy_plot(
                     values=torque_values[: i + 1],
-                    reference=torque_ref,
+                    style=PlotStyle.LINE_AND_POINTS,
+                    reference_values=torque_ref,
+                    reference_style=PlotStyle.POINTS,
+                    reference_label="Reference",
                     xlabel="Time [s]",
                     ylabel="Rotor Torque [Nm]",
-                    xlim=(0, 0.15),
+                    xlim=(0.0, 0.15),
                     ylim=(0.0, 3.5),
                     xticks=[0.0, 0.05, 0.1, 0.15],
-                    filename=f"{dir_path}/vis/Rotor_Torque_vs_Time_{i:03d}.png",
+                    path=f"{dir_path}/vis/Rotor_Torque_vs_Time_{i:03d}.png",
                 )
 
 
         xy_plot(
             values=current_values,
-            reference=coil_current_ref,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=coil_current_ref,
+            reference_style=PlotStyle.POINTS,
+            reference_label="Reference",
             xlabel="Time [s]",
             ylabel="Coil Current [A]",
-            xlim=(0, 0.15),
+            xlim=(0.0, 0.15),
             ylim=(0.0, 8.0),
             xticks=[0.0, 0.05, 0.1, 0.15],
-            filename=f"{dir_path}/results/Coil_Current_vs_Time.png",
+            path=f"{dir_path}/results/Coil_Current_vs_Time.png",
         )
 
 
         xy_plot(
             values=torque_values,
-            reference=torque_ref,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=torque_ref,
+            reference_style=PlotStyle.POINTS,
+            reference_label="Reference",
             xlabel="Time [s]",
             ylabel="Rotor Torque [Nm]",
-            xlim=(0, 0.15),
+            xlim=(0.0, 0.15),
             ylim=(0.0, 3.5),
             xticks=[0.0, 0.05, 0.1, 0.15],
-            filename=f"{dir_path}/results/Rotor_Torque_vs_Time.png",
+            path=f"{dir_path}/results/Rotor_Torque_vs_Time.png",
         )
 
 

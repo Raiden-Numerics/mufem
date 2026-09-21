@@ -3,7 +3,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
@@ -17,6 +16,7 @@ from mufem.thermal import (
 
 # Problem setup ------------------------------------------------------------------------
 from validation_case import ValidationCase
+from plots import xy_plot, PlotStyle
 
 
 class Bruce2012ElectronicDesign(ValidationCase):
@@ -118,21 +118,17 @@ class Bruce2012ElectronicDesign(ValidationCase):
             evolution = [(t, T - 273.15) for t, T in monitor.get_values()]  # K -> °C
             ref_t, ref_T = numpy.loadtxt(reference_file, delimiter=",", unpack=True)
 
-            plt.clf()
-            plt.plot(ref_t, ref_T - 273.15, "k-", label="Li (2020)", linewidth=2.5)
-            plt.plot(
-                *zip(*evolution),
-                color="r",
-                marker=".",
-                linestyle="-",
-                label="mufem",
-                markersize=6,
+            xy_plot(
+                values=evolution,
+                style=PlotStyle.LINE,
+                reference_values=list(zip(ref_t, ref_T - 273.15)),
+                reference_style=PlotStyle.LINE,
+                reference_label="Li (2020)",
+                xlabel="Time [s]",
+                ylabel=ylabel,
+                xlim=(0.0, 10.0),
+                path=output,
             )
-            plt.xlabel("Time [s]")
-            plt.ylabel(ylabel)
-            plt.xlim(0, 10)
-            plt.legend(loc="best").set_frame_on(False)
-            plt.savefig(output, bbox_inches="tight")
 
 
         plot_evolution(

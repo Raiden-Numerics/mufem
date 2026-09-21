@@ -3,12 +3,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
 
 from mufem import Bnd, Vol
+from plots import xy_plot, PlotStyle
 from mufem.electromagnetics.module.superconductor import SuperconductorMagneticMaterial
 from mufem.electromagnetics.timedomainmagnetic import (
     LineSearchStrategy,
@@ -127,45 +127,20 @@ class Berger2017HtsCube(ValidationCase):
         # The octant model integrates 1/8 of the cube; multiply by 8 to recover the
         # full-cube instantaneous loss. Convert time to ms and loss to mW.
 
-        plt.clf()
-
-        ref_time_ms, ref_loss_mw = numpy.loadtxt(
-            f"{dir_path}/data/AC_Losses_B20mT.csv", delimiter=",", unpack=True
+        xy_plot(
+            values=ohmic_heating_monitor.get_values(),
+            xscale=1.0e3,   # s -> ms
+            yscale=8.0e3,   # octant W -> full-cube mW (x8, x1e3)
+            style=PlotStyle.LINE,
+            reference_file=f"{dir_path}/data/AC_Losses_B20mT.csv",
+            reference_style=PlotStyle.LINE,
+            reference_label="Berger (2017)",
+            xlabel="Time [ms]",
+            ylabel="Ohmic Heating [mW]",
+            xlim=(0.0, 1.0e3 * period),
+            ylim=(0.0, None),
+            path=f"{dir_path}/results/Ohmic_Heating.png",
         )
-
-        plt.plot(  # noqa: FKA100 - false positive, wants x=, y= but not available
-            ref_time_ms,
-            ref_loss_mw,
-            color="k",
-            linestyle="-",
-            label="Berger (2017)",
-            linewidth=2.5,
-            markersize=6.5,
-        )
-
-        monitor_values = ohmic_heating_monitor.get_values()
-        times_s, losses_w = zip(*monitor_values)
-        times_ms = numpy.asarray(times_s) * 1.0e3
-        losses_mw = numpy.asarray(losses_w) * 8.0e3
-
-        plt.plot(
-            times_ms,
-            losses_mw,
-            color="r",
-            linestyle="-",
-            marker=".",
-            label="$\\mu$fem",
-            markersize=6.5,
-            linewidth=2.0,
-        )
-
-        plt.xlabel("Time [ms]")
-        plt.ylabel("Ohmic Heating [mW]")
-        plt.xlim(left=0, right=1.0e3 * period)
-        plt.ylim(bottom=0)
-        plt.legend(loc="best").set_frame_on(False)
-
-        plt.savefig(f"{dir_path}/results/Ohmic_Heating.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":

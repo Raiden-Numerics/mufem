@@ -23,6 +23,8 @@ import mufem
 from pathlib import Path
 import matplotlib.pyplot as plt
 
+from plots import xy_plot, PlotStyle
+
 
 import argparse
 
@@ -204,46 +206,34 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         # Show Torque vs Time
 
-        plt.clf()
-        plt.plot([t for t, T in time_torque], [T.z for t, T in time_torque])
-        plt.xlabel("Time [s]")
-        plt.ylabel("Torque [Nm]")
-
-        plt.xlim((0, max([t for t, T in time_torque])))
-        plt.ylim((0, 35))
-
-        plt.savefig(f"{dir_path}/results/Torque_vs_Time.png", bbox_inches="tight")
+        xy_plot(
+            values=[(t, T.z) for t, T in time_torque],
+            style=PlotStyle.LINE,
+            xlabel="Time [s]",
+            ylabel="Torque [Nm]",
+            xlim=(0, max([t for t, T in time_torque])),
+            ylim=(0, 35),
+            path=f"{dir_path}/results/Torque_vs_Time.png",
+        )
 
         # Show Torque vs Slip Speed
-
-        plt.clf()
 
         ref = numpy.loadtxt(
             f"{dir_path}/data/Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
         )
 
-        plt.plot(ref[:, 0], ref[:, 1], "k-", label="Reference", linewidth=3.0)
-        plt.plot(*zip(*torque_vs_rpm), "ro", label="$\\mu$fem", markersize=10.0)
-
-        plt.xlabel("Slip Speed [rpm]", fontsize=16)
-        plt.ylabel("Torque [Nm]", fontsize=16)
-
-        plt.xlim((0, 3000))
-        plt.ylim((0, 35))
-
-        ax = plt.gca()
-
-        ax.tick_params(axis="both", labelsize=14)
-
-        leg = ax.legend(
-            loc="best",
-            fontsize=16,
+        xy_plot(
+            values=torque_vs_rpm,
+            style=PlotStyle.POINTS,
+            reference_values=ref,
+            reference_style=PlotStyle.LINE,
+            reference_label="Reference",
+            xlabel="Slip Speed [rpm]",
+            ylabel="Torque [Nm]",
+            xlim=(0, 3000),
+            ylim=(0, 35),
+            path=f"{dir_path}/results/Torque_vs_RPM.png",
         )
-        leg.get_frame().set_linewidth(2.0)
-
-        plt.gcf().set_size_inches(7.5, 5.5)  # larger canvas
-
-        plt.savefig(f"{dir_path}/results/Torque_vs_RPM.png", dpi=200)
 
         # For animation: show the torque vs slip speed with an arrow indicating the current rpm
 

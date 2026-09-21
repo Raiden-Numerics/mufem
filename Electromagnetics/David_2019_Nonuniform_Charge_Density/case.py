@@ -5,12 +5,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: valid
 
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 import mufem
 import mufem.electromagnetics.electrostatics as estat
 
 from validation_case import ValidationCase
+from plots import xy_plot, PlotStyle
 
 
 class David2019ChargeDensity(ValidationCase):
@@ -89,13 +89,16 @@ class David2019ChargeDensity(ValidationCase):
 
             E_theory[i] = theory(r[i])
 
-        plt.figure(constrained_layout=True)
-        plt.plot(r, E_theory / 1e9, "k-", label="Theory")
-        plt.plot(r, E_mufem / 1e9, label="$\\mu$fem")
-        plt.legend(loc="best", frameon=False)
-        plt.xlabel("Distance $r$ [m]")
-        plt.ylabel("Electric field $E$ [GV/m]")
-        plt.savefig("results/Electric_Field.png")
+        xy_plot(
+            values=list(zip(r, E_mufem / 1e9)),
+            style=PlotStyle.LINE,
+            reference_values=list(zip(r, E_theory / 1e9)),
+            reference_style=PlotStyle.LINE,
+            reference_label="Theory",
+            xlabel="Distance $r$ [m]",
+            ylabel="Electric field $E$ [GV/m]",
+            path="results/Electric_Field.png",
+        )
 
         # Export the electric field data to a VTK file:
         vis = sim.get_field_exporter()

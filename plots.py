@@ -91,8 +91,10 @@ def xy_plot(
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
     yscale: float = 1.0,
-    # reference curve loaded from a CSV (delimiter ',', '#' comments; always black)
+    # reference curve, from a CSV (delimiter ',', '#' comments) or inline
+    # (x, y) values; always black. Give at most one of the two.
     reference_file: Optional[str] = None,
+    reference_values: Optional[Iterable[Tuple[float, float]]] = None,
     reference_style: PlotStyle = PlotStyle.POINTS,
     reference_x_column: int = 0,
     reference_y_column: int = 1,
@@ -120,6 +122,7 @@ def xy_plot(
     )
 
     # ... reference on top, with larger circle markers so it reads clearly.
+    ref = None
     if reference_file is not None:
         data = numpy.loadtxt(reference_file, delimiter=",", comments="#")
         ref = list(
@@ -128,6 +131,9 @@ def xy_plot(
                 reference_yscale * data[:, reference_y_column],
             )
         )
+    elif reference_values is not None:
+        ref = [(reference_xscale * x, reference_yscale * y) for x, y in reference_values]
+    if ref is not None:
         _draw(
             ref, reference_style, REFERENCE_COLOR, reference_label, REFERENCE_MARKER,
             linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,

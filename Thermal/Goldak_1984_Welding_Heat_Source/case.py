@@ -5,10 +5,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: valid
 
 import math
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
+from plots import xy_plot, PlotStyle
 from mufem import Vol
 from mufem.methods import TemperatureTable
 from mufem.thermal import (
@@ -170,20 +170,16 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             "data/Temperature_vs_Position.csv", delimiter=",", unpack=True
         )
 
-        plt.clf()
-        plt.plot(ref_x * 1e3, ref_T, "k-", label="Goldak (1984)", linewidth=2.5)
-        plt.plot(
-            *zip(*[(x * 1e3, T) for x, T in temperature]),
-            color="r",
-            marker=".",
-            linestyle="-",
-            label="mufem",
-            markersize=6,
+        xy_plot(
+            values=[(x * 1e3, T) for x, T in temperature],
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=list(zip(ref_x * 1e3, ref_T)),
+            reference_style=PlotStyle.LINE,
+            reference_label="Goldak (1984)",
+            xlabel="Position [mm]",
+            ylabel="Temperature [°C]",
+            path="results/Temperature_vs_Position.png",
         )
-        plt.xlabel("Position [mm]")
-        plt.ylabel("Temperature [°C]")
-        plt.legend(loc="best").set_frame_on(False)
-        plt.savefig("results/Temperature_vs_Position.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":

@@ -2,10 +2,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
+from plots import xy_plot, PlotStyle
 import mufem.methods as method
 from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
@@ -223,20 +223,17 @@ class Team36InductionHeating(ValidationCase):
         ohmic = ohmic_heating_monitor.get_values()
         ref_t, ref_p = load_csv("Fig6a_Ohmic_Heating_Power.csv").T
 
-        plt.clf()
-        plt.plot(ref_t, ref_p * 1e-3, "ko", label="Di Barba (2017)")
-        plt.plot(
-            *zip(*[(t, p * symmetry_factor * 1e-3) for t, p in ohmic]),
-            color="r",
-            marker=".",
-            linestyle="-",
-            label="mufem",
+        xy_plot(
+            values=[(t, p * symmetry_factor * 1e-3) for t, p in ohmic],
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=list(zip(ref_t, ref_p * 1e-3)),
+            reference_style=PlotStyle.POINTS,
+            reference_label="Di Barba (2017)",
+            xlabel="Time t [s]",
+            ylabel="Ohmic Heating [kW]",
+            xlim=(0, 80),
+            path="results/Ohmic_Heating.png",
         )
-        plt.xlabel("Time t [s]")
-        plt.ylabel("Ohmic Heating [kW]")
-        plt.xlim(0, 80)
-        plt.legend(loc="best").set_frame_on(False)
-        plt.savefig("results/Ohmic_Heating.png", bbox_inches="tight")
 
         # Temperature evolution at centre and surface ------------------------------------------
         for probe_name, reference_file, output in [
@@ -247,20 +244,17 @@ class Team36InductionHeating(ValidationCase):
             temperature = [(t, T - 273.15) for t, T in values]
             ref_t, ref_T = load_csv(reference_file).T
 
-            plt.clf()
-            plt.plot(ref_t, ref_T, "ko", label="Di Barba (2018)")
-            plt.plot(
-                *zip(*temperature),
-                color="r",
-                marker=".",
-                linestyle="-",
-                label="mufem",
+            xy_plot(
+                values=temperature,
+                style=PlotStyle.LINE_AND_POINTS,
+                reference_values=list(zip(ref_t, ref_T)),
+                reference_style=PlotStyle.POINTS,
+                reference_label="Di Barba (2018)",
+                xlabel="Time [s]",
+                ylabel="Temperature [°C]",
+                xlim=(0, 100),
+                path=output,
             )
-            plt.xlabel("Time [s]")
-            plt.ylabel("Temperature [°C]")
-            plt.xlim(0, 100)
-            plt.legend(loc="best").set_frame_on(False)
-            plt.savefig(output, bbox_inches="tight")
 
 
 if __name__ == "__main__":

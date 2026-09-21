@@ -3,7 +3,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
@@ -17,6 +16,7 @@ from mufem.thermal import (
 )
 
 from validation_case import ValidationCase
+from plots import xy_plot, PlotStyle
 
 
 class Cameron1986(ValidationCase):
@@ -96,10 +96,13 @@ class Cameron1986(ValidationCase):
             T_vals.append(report.evaluate())
 
         if self.is_main(sim):
-            plt.plot(x_vals, T_vals, color="red")
-            plt.xlabel("Position [m]")
-            plt.ylabel("Temperature [K]")
-            plt.savefig("results/Temperature.png", bbox_inches="tight")
+            xy_plot(
+                values=list(zip(x_vals, T_vals)),
+                style=PlotStyle.LINE,
+                xlabel="Position [m]",
+                ylabel="Temperature [K]",
+                path="results/Temperature.png",
+            )
 
         # ParaView export (collective) ------------------------------------------------
         vis = sim.get_field_exporter()

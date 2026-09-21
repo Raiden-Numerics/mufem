@@ -3,10 +3,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
+
+from plots import xy_plot, PlotStyle
 from mufem import Vol
 from mufem.structural import (
     FixedDisplacementBoundaryCondition,
@@ -75,21 +76,18 @@ class Slaughter2002CantileverBeam(ValidationCase):
             "data/Displacement_vs_Position.csv", delimiter=",", unpack=True
         )
 
-        plt.clf()
-        plt.plot(ref_disp_x, ref_disp_y * 1e3, "k-", label="Slaughter (2002)", linewidth=2.5)
-        plt.plot(
-            *zip(*[(x, d * 1e3) for x, d in displacement]),
-            color="r",
-            marker=".",
-            linestyle="none",
-            label="mufem",
-            markersize=8,
+        xy_plot(
+            values=displacement,
+            yscale=1e3,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=list(zip(ref_disp_x, ref_disp_y * 1e3)),
+            reference_style=PlotStyle.LINE,
+            reference_label="Slaughter (2002)",
+            xlabel="Position [m]",
+            ylabel="Displacement [mm]",
+            xlim=(0.0, 1.0),
+            path="results/Displacement_vs_Position.png",
         )
-        plt.xlabel("Position [m]")
-        plt.ylabel("Displacement [mm]")
-        plt.xlim(0, 1.0)
-        plt.legend(loc="best").set_frame_on(False)
-        plt.savefig("results/Displacement_vs_Position.png", bbox_inches="tight")
 
         # Von Mises stress along the beam ------------------------------------------------------
         vm_stress_report = mufem.ProbeReport.Line(
@@ -105,21 +103,18 @@ class Slaughter2002CantileverBeam(ValidationCase):
             "data/Von_Mises_Stress_vs_Position.csv", delimiter=",", unpack=True
         )
 
-        plt.clf()
-        plt.plot(ref_vm_x, ref_vm_y * 1e-3, "k-", label="Slaughter (2002)", linewidth=2.5)
-        plt.plot(
-            *zip(*[(x, s * 1e-3) for x, s in vm_stress]),
-            color="r",
-            marker=".",
-            linestyle="none",
-            label="mufem",
-            markersize=8,
+        xy_plot(
+            values=vm_stress,
+            yscale=1e-3,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=list(zip(ref_vm_x, ref_vm_y * 1e-3)),
+            reference_style=PlotStyle.LINE,
+            reference_label="Slaughter (2002)",
+            xlabel="Position [m]",
+            ylabel="Stress [kPa]",
+            xlim=(0.0, 1.0),
+            path="results/Von_Mises_Stress_vs_Position.png",
         )
-        plt.xlabel("Position [m]")
-        plt.ylabel("Stress [kPa]")
-        plt.xlim(0, 1.0)
-        plt.legend(loc="best").set_frame_on(False)
-        plt.savefig("results/Von_Mises_Stress_vs_Position.png", bbox_inches="tight")
 
         # Export ParaView data -----------------------------------------------------------------
         vis = sim.get_field_exporter()
