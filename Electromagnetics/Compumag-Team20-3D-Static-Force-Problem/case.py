@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: valid
 
 import numpy
 
-from plots import Curve, reference_curve, xy_plot
+from plots import xy_plot
 
 from mufem import Bnd, Vol, SteadyRunner, CffConstantScalar, Simulation
 from mufem.electromagnetics.coil import (
@@ -132,20 +132,16 @@ class Team20StaticForce(ValidationCase):
         symmetry_factor = 4.0
 
         xy_plot(
-            [
-                reference_curve(
-                    f"{dir_path}/data/ReferenceForce.csv", fmt="o", color="k"
-                ),
-                Curve(
-                    center_piece_force_list,
-                    yscale=symmetry_factor,
-                    fmt="o-",
-                    color="r",
-                    linewidth=2.5,
-                    markersize=5.0,
-                    style={"markerfacecolor": "none", "markeredgecolor": "r"},
-                ),
-            ],
+            center_piece_force_list,
+            yscale=symmetry_factor,
+            fmt="o-",
+            color="r",
+            linewidth=2.5,
+            markersize=5.0,
+            style={"markerfacecolor": "none", "markeredgecolor": "r"},
+            reference_file=f"{dir_path}/data/ReferenceForce.csv",
+            reference_fmt="o",
+            reference_color="k",
             xlabel="Coil Current [A]",
             ylabel="Pole Force [N]",
             xlim=(0.0, 5.4),

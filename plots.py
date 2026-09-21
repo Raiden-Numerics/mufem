@@ -1,20 +1,20 @@
-"""Shared plotting helpers for validation cases.
+"""Shared plotting helper for validation cases.
 
 A lean release-repo analogue of mufem-dev's Testing/plots.py (without the
-baseline/TestContext machinery): a case builds a list of curves — its computed
-result plus one or more references — and calls `xy_plot(...)` to render a
-consistent computed-vs-reference comparison.
+baseline/TestContext machinery). The common case — one computed curve versus one
+CSV reference — is a single call:
 
-    from plots import Curve, reference_curve, xy_plot
+    from plots import xy_plot
 
     xy_plot(
-        [
-            reference_curve(f"{dir_path}/data/Reference.csv", fmt="o", color="k"),
-            Curve(xy_values, fmt="o-", color="r"),
-        ],
-        xlabel="x [m]", ylabel="B [T]",
-        path=f"{dir_path}/results/B.png",
+        center_piece_force_list,
+        reference_file=f"{dir_path}/data/ReferenceForce.csv",
+        xlabel="Coil Current [A]",
+        ylabel="Pole Force [N]",
+        path=f"{dir_path}/results/Force_vs_Current.png",
     )
+
+For extra series, pass `additional_curves=[Curve(...), ...]`.
 
 Note: `fmt` is the marker/line style only — do NOT embed a color in it (matplotlib
 rejects a color in both `fmt` and the `color` kwarg); pass the color via `color`.
@@ -30,13 +30,13 @@ MUFEM_LABEL = r"$\mu$fem"
 
 @dataclass
 class Curve:
-    """A 2D curve to plot. `style` carries extra matplotlib kwargs (e.g.
-    markerfacecolor). `fmt` must not embed a color — use `color`."""
+    """An extra 2D series for `xy_plot(additional_curves=...)`. `style` carries
+    extra matplotlib kwargs (e.g. markerfacecolor); `fmt` must not embed a color."""
 
     values: Iterable[Tuple[float, float]]
-    label: str = MUFEM_LABEL
-    fmt: str = ".-"
-    color: str = "r"
+    label: str = ""
+    fmt: str = "-"
+    color: str = "C0"
     xscale: float = 1.0
     yscale: float = 1.0
     linewidth: float = 2.0
@@ -60,52 +60,69 @@ class Curve:
         )
 
 
-def reference_curve(
-    path: str,
-    *,
-    x_column: int = 0,
-    y_column: int = 1,
-    label: str = "Reference",
-    fmt: str = "-",
-    color: str = "k",
-    xscale: float = 1.0,
-    yscale: float = 1.0,
-    linewidth: float = 3.0,
-    **style: object,
-) -> Curve:
-    """A reference `Curve` loaded from a CSV (delimiter ',', '#' comments)."""
-    data = numpy.loadtxt(path, delimiter=",", comments="#")
-    values = list(zip(data[:, x_column], data[:, y_column]))
-    return Curve(
-        values,
-        label=label,
-        fmt=fmt,
-        color=color,
-        xscale=xscale,
-        yscale=yscale,
-        linewidth=linewidth,
-        style=dict(style),
-    )
-
-
 def xy_plot(
-    curves: Sequence[Curve],
+    xy_values: Iterable[Tuple[float, float]],
     *,
     xlabel: str,
     ylabel: str,
     path: str,
+    # computed-curve styling
+    label: str = MUFEM_LABEL,
+    fmt: str = "o-",
+    color: str = "r",
+    xscale: float = 1.0,
+    yscale: float = 1.0,
+    linewidth: float = 2.0,
+    markersize: float = 6.5,
+    style: Optional[Dict] = None,
+    # reference curve loaded from a CSV (delimiter ',', '#' comments)
+    reference_file: Optional[str] = None,
+    reference_x_column: int = 0,
+    reference_y_column: int = 1,
+    reference_label: str = "Reference",
+    reference_fmt: str = "-",
+    reference_color: str = "k",
+    reference_xscale: float = 1.0,
+    reference_yscale: float = 1.0,
+    # axes
     xlim: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[float, float]] = None,
     xticks: Optional[Sequence[float]] = None,
     yticks: Optional[Sequence[float]] = None,
     title: Optional[str] = None,
+    additional_curves: Optional[Sequence[Curve]] = None,
 ) -> None:
-    """Render `curves` to `path` with a consistent style (best-loc legend, no frame)."""
+    """Plot `xy_values` (and an optional `reference_file`) to `path`, with a
+    consistent style (best-loc legend, no frame)."""
     import matplotlib.pyplot as plt
 
     plt.clf()
-    for curve in curves:
+
+    if reference_file is not None:
+        data = numpy.loadtxt(reference_file, delimiter=",", comments="#")
+        plt.plot(
+            reference_xscale * data[:, reference_x_column],
+            reference_yscale * data[:, reference_y_column],
+            reference_fmt,
+            color=reference_color,
+            label=reference_label,
+            linewidth=3.0,
+            markersize=6.5,
+        )
+
+    for curve in additional_curves or []:
         curve.plot()
+
+    plt.plot(
+        [xscale * x for x, _ in xy_values],
+        [yscale * y for _, y in xy_values],
+        fmt,
+        color=color,
+        label=label,
+        linewidth=linewidth,
+        markersize=markersize,
+        **(style or {}),
+    )
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
