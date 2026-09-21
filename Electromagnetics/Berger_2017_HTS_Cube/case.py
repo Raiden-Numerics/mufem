@@ -134,7 +134,7 @@ class Berger2017HtsCube(ValidationCase):
             style=PlotStyle.LINE,
             reference_file=f"{dir_path}/data/AC_Losses_B20mT.csv",
             reference_style=PlotStyle.LINE,
-            reference_label="Berger (2017)",
+            reference_label="Berger et al. (2017)",
             xlabel="Time [ms]",
             ylabel="Ohmic Heating [mW]",
             xlim=(0.0, 1.0e3 * period),

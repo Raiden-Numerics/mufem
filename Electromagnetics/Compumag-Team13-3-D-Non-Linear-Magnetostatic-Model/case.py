@@ -120,7 +120,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
             reference_xscale=1000.0,
             reference_yscale=1000.0,
             reference_style=PlotStyle.LINE,
-            reference_label="Nakata (1992)",
+            reference_label="Nakata & Fujiwara (1992)",
             xlabel="x [mm]",
             ylabel="B [mT]",
             xlim=(0.0, 120.0),

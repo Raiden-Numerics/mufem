@@ -139,7 +139,7 @@ class Team20StaticForce(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/ReferenceForce.csv",
             reference_style=PlotStyle.POINTS,
-            reference_label="Takahashi & Nakata (1994)",
+            reference_label="Takahashi et al. (1994)",
             xlabel="Coil Current [A]",
             ylabel="Pole Force [N]",
             xlim=(0.0, 5.4),

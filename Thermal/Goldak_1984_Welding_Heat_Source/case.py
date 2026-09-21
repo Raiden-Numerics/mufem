@@ -175,7 +175,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_values=list(zip(ref_x * 1e3, ref_T)),
             reference_style=PlotStyle.LINE,
-            reference_label="Goldak (1984)",
+            reference_label="Goldak et al. (1984)",
             xlabel="Position [mm]",
             ylabel="Temperature [°C]",
             path="results/Temperature_vs_Position.png",
