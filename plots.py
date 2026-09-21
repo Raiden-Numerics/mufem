@@ -38,7 +38,7 @@ class PlotStyle(Enum):
 
     LINE = "-"
     POINTS = "o"
-    LINEPOINTS = "o-"
+    LINE_AND_POINTS = "o-"
 
 
 def _draw(values, style: PlotStyle, color, label, linewidth):
@@ -62,7 +62,7 @@ def xy_plot(
     ylabel: str,
     path: str,
     # computed curve (always MUFEM_COLOR)
-    style: PlotStyle = PlotStyle.LINEPOINTS,
+    style: PlotStyle = PlotStyle.LINE_AND_POINTS,
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
     yscale: float = 1.0,

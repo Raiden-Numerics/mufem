@@ -134,7 +134,7 @@ class Team20StaticForce(ValidationCase):
         xy_plot(
             values=center_piece_force_list,
             yscale=symmetry_factor,
-            style=PlotStyle.LINEPOINTS,
+            style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/ReferenceForce.csv",
             reference_style=PlotStyle.POINTS,
             xlabel="Coil Current [A]",
