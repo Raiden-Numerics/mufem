@@ -17,7 +17,7 @@ CSV reference — is a single call:
 
 Styling is fixed for consistency across cases: the reference (black) is drawn
 first as a thicker line/points underneath, then the mufem curve (red) on top as a
-dot-line. Line/marker rendering is chosen with the `PlotStyle` enum
+line with square markers. Line/marker rendering is chosen with the `PlotStyle` enum
 (LINE, POINTS, LINE_AND_POINTS). All arguments are keyword-only.
 """
 
@@ -30,7 +30,7 @@ MUFEM_LABEL = "mufem"
 
 #: fixed colors / markers so all cases render identically
 MUFEM_COLOR = "r"
-MUFEM_MARKER = "."  # dot
+MUFEM_MARKER = "s"  # square
 REFERENCE_COLOR = "k"
 REFERENCE_MARKER = "o"  # circle
 
@@ -86,7 +86,7 @@ def xy_plot(
     xlabel: str,
     ylabel: str,
     path: str,
-    # computed curve (always mufem red, dot-line)
+    # computed curve (always mufem red, line + square markers)
     style: PlotStyle = PlotStyle.LINE_AND_POINTS,
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
@@ -132,7 +132,7 @@ def xy_plot(
             linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,
         )
 
-    # ... then the computed mufem curve on top (red dot-line).
+    # ... then the computed mufem curve on top (red line + square markers).
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(
         scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
