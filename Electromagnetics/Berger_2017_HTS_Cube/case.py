@@ -133,7 +133,7 @@ class Berger2017HtsCube(ValidationCase):
             yscale=8.0e3,   # octant W -> full-cube mW (x8, x1e3)
             style=PlotStyle.LINE,
             reference_file=f"{dir_path}/data/AC_Losses_B20mT.csv",
-            reference_style=PlotStyle.LINE,
+            reference_style=PlotStyle.POINTS,
             reference_label="Berger et al. (2017)",
             xlabel="Time [ms]",
             ylabel="Ohmic Heating [mW]",

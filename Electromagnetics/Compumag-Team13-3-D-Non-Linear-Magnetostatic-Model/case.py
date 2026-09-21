@@ -119,7 +119,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
             reference_file=f"{dir_path}/data/Table7_FluxDensity.csv",
             reference_xscale=1000.0,
             reference_yscale=1000.0,
-            reference_style=PlotStyle.LINE,
+            reference_style=PlotStyle.POINTS,
             reference_label="Nakata & Fujiwara (1992)",
             xlabel="x [mm]",
             ylabel="B [mT]",

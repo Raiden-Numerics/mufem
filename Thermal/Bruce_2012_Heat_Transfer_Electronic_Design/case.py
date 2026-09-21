@@ -122,7 +122,7 @@ class Bruce2012ElectronicDesign(ValidationCase):
                 values=evolution,
                 style=PlotStyle.LINE,
                 reference_values=list(zip(ref_t, ref_T - 273.15)),
-                reference_style=PlotStyle.LINE,
+                reference_style=PlotStyle.POINTS,
                 reference_label="Li (2020)",
                 xlabel="Time [s]",
                 ylabel=ylabel,
