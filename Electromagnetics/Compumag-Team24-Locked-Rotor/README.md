@@ -188,8 +188,10 @@ To generate the animation, ensure `output_for_animation = True` is set in `case.
 
 ## References
 
-[1] Allen N., Rodger D., "Description of TEAM Workshop Problem 24: Nonlinear
-    Time-Transient Rotational Test Rig",
+[1] Rodger D., Allen N., Lai H.C. and Leonard P.J., 1994. Calculation of transient
+    3D eddy currents in nonlinear media - verification using a rotational test rig.
+    *IEEE Transactions on Magnetics*, 30(5), pp. 2988-2991.
+    Problem description and reference data:
     https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
 
 [2] Rüberg, T., Kielhorn, L. and Zechner, J., 2021. Electromagnetic devices with moving parts — simulation with FEM/BEM coupling. *Mathematics*, 9(15), p.1804.
