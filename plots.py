@@ -7,7 +7,7 @@ CSV reference — is a single call:
     from plots import xy_plot, PlotStyle
 
     xy_plot(
-        center_piece_force_list,
+        values=center_piece_force_list,
         reference_file=f"{dir_path}/data/ReferenceForce.csv",
         xlabel="Coil Current [A]",
         ylabel="Pole Force [N]",
@@ -16,13 +16,11 @@ CSV reference — is a single call:
 
 Colors are fixed for consistency across cases: the computed curve is always
 `$\\mu$fem` red, the reference always black. Line/marker rendering is chosen with
-the `PlotStyle` enum (LINE, POINTS, LINE_POINTS). For extra series, pass
-`additional_curves=[Curve(...), ...]`.
+the `PlotStyle` enum (LINE, POINTS, LINE_POINTS). All arguments are keyword-only.
 """
 
-from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Iterable, Optional, Sequence, Tuple
+from typing import Iterable, Optional, Sequence, Tuple
 
 import numpy
 
@@ -32,7 +30,6 @@ MUFEM_LABEL = r"$\mu$fem"
 MUFEM_COLOR = "r"
 REFERENCE_COLOR = "k"
 
-_LINEWIDTH = 2.0
 _MARKERSIZE = 6.5
 
 
@@ -41,10 +38,10 @@ class PlotStyle(Enum):
 
     LINE = "-"
     POINTS = "o"
-    LINE_POINTS = "o-"
+    LINEPOINTS = "o-"
 
 
-def _draw(values, style: PlotStyle, color, label, *, linewidth=_LINEWIDTH, extra=None):
+def _draw(values, style: PlotStyle, color, label, linewidth):
     import matplotlib.pyplot as plt
 
     plt.plot(
@@ -55,37 +52,17 @@ def _draw(values, style: PlotStyle, color, label, *, linewidth=_LINEWIDTH, extra
         label=label,
         linewidth=linewidth,
         markersize=_MARKERSIZE,
-        **(extra or {}),
     )
 
 
-@dataclass
-class Curve:
-    """An extra 2D series for `xy_plot(additional_curves=...)`. Unlike the main
-    computed/reference curves it takes an explicit `color` (extra series are
-    case-specific). `style_kwargs` carries extra matplotlib kwargs."""
-
-    values: Iterable[Tuple[float, float]]
-    label: str = ""
-    style: PlotStyle = PlotStyle.LINE
-    color: str = "C0"
-    xscale: float = 1.0
-    yscale: float = 1.0
-    style_kwargs: Dict = field(default_factory=dict)
-
-    def plot(self) -> None:
-        scaled = [(self.xscale * x, self.yscale * y) for x, y in self.values]
-        _draw(scaled, self.style, self.color, self.label, extra=self.style_kwargs)
-
-
 def xy_plot(
-    xy_values: Iterable[Tuple[float, float]],
     *,
+    values: Iterable[Tuple[float, float]],
     xlabel: str,
     ylabel: str,
     path: str,
     # computed curve (always MUFEM_COLOR)
-    style: PlotStyle = PlotStyle.LINE_POINTS,
+    style: PlotStyle = PlotStyle.LINEPOINTS,
     label: str = MUFEM_LABEL,
     xscale: float = 1.0,
     yscale: float = 1.0,
@@ -103,9 +80,8 @@ def xy_plot(
     xticks: Optional[Sequence[float]] = None,
     yticks: Optional[Sequence[float]] = None,
     title: Optional[str] = None,
-    additional_curves: Optional[Sequence[Curve]] = None,
 ) -> None:
-    """Plot `xy_values` (and an optional `reference_file`) to `path`, with a
+    """Plot `values` (and an optional `reference_file`) to `path`, with a
     consistent style (best-loc legend, no frame)."""
     import matplotlib.pyplot as plt
 
@@ -121,11 +97,8 @@ def xy_plot(
         )
         _draw(ref, reference_style, REFERENCE_COLOR, reference_label, linewidth=3.0)
 
-    for curve in additional_curves or []:
-        curve.plot()
-
-    scaled = [(xscale * x, yscale * y) for x, y in xy_values]
-    _draw(scaled, style, MUFEM_COLOR, label)
+    scaled = [(xscale * x, yscale * y) for x, y in values]
+    _draw(scaled, style, MUFEM_COLOR, label, linewidth=2.0)
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
