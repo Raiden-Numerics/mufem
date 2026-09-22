@@ -36,6 +36,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Safety net: the gzip-compressed meshes are marked binary in
+      # .gitattributes, but if the runner's checkout still LF->CRLF-mangled any
+      # (git can misdetect a gzip stream without an early NUL as text), the
+      # gzip/MFEM read fails ("dsize != sizeof(double)" / "invalid mesh file").
+      # Re-materialise every mesh from the index with conversion off so they are
+      # byte-exact regardless of how the checkout handled them.
+      - name: Repair CRLF-mangled binary meshes
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git ls-files -z -- '*.mesh' '*.msh' | xargs -0 -r git checkout --force --
+          echo "verifying mesh integrity:"
+          for m in $(git ls-files -- '*.mesh'); do
+            gzip -t "$m" 2>/dev/null && echo "  OK   $m" || echo "  PLAIN/na $m"
+          done
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
