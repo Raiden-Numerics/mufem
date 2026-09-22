@@ -44,42 +44,37 @@ jobs:
           pip install --pre --force-reinstall --no-cache-dir mufem
           pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
 
-      # ===== TEMPORARY DEBUG: reproduce case.py's EXACT mesh_path. Loading via a
-      # forward-slash repo-root-relative path works for all meshes, but case.py
-      # runs from the case dir and passes f"{dir_path}/geometry.mesh" where
-      # dir_path = Path(__file__).resolve().parent (backslash absolute, mixed
-      # separator on Windows). Team1b/Team7 fail there; Team13 (same pattern)
-      # passes. Test path-format variants per case to isolate the trigger. =====
-      - name: DEBUG - mesh_path format variants (from each case dir)
+      # ===== TEMPORARY DEBUG: every mesh loads when mufem is imported alone, but
+      # case.py imports matplotlib+numpy BEFORE mufem. Hypothesis: numpy's OpenBLAS
+      # loaded first clashes with mufem's on Windows (heap corruption), surfacing
+      # on the two LARGEST meshes (Team1b 1.65MB, Team7 1.74MB decompressed) as
+      # "invalid mesh file", while smaller Team13 (0.94MB) survives. Test import
+      # order in FRESH subprocesses to avoid the multi-instance confound. =====
+      - name: DEBUG - import-order test (fresh subprocess each)
         shell: bash
         env:
           MPLBACKEND: Agg
         run: |
           python - <<'PY'
-          import os, mufem
-          from pathlib import Path
-          print("mufem", getattr(mufem, "__version__", "?"))
-          root = os.getcwd()
-          cases = {
-              "Team1b(FAIL)": "Electromagnetics/Compumag-Team1b-Felix-Cylinder",
-              "Team7(FAIL)":  "Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole",
-              "Team13(pass)": "Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model",
+          import subprocess, sys
+          meshes = {
+              "Team1b": r"Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh",
+              "Team7":  r"Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh",
+              "Team13": r"Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/geometry.mesh",
           }
-          for tag, d in cases.items():
-              os.chdir(os.path.join(root, d))
-              dir_path = Path("case.py").resolve().parent  # == Path(__file__).resolve().parent
-              variants = {
-                  "case.py f-string": f"{dir_path}/geometry.mesh",
-                  "native str":       str(dir_path / "geometry.mesh"),
-                  "as_posix":         (dir_path / "geometry.mesh").as_posix(),
-                  "relative":         "geometry.mesh",
-              }
-              print(f"=== {tag}  cwd={os.getcwd()} ===")
-              for name, p in variants.items():
-                  try:
-                      mufem.Simulation.New(name=tag, mesh_path=p)
-                      print(f"  OK    {name:16} -> {p}")
-                  except Exception as e:
-                      print(f"  FAIL  {name:16} -> {p} : {e}")
-              os.chdir(root)
+          orders = {
+              "mufem-only":       "import mufem",
+              "numpy-then-mufem": "import numpy; import mufem",
+              "mpl+numpy-then-mufem (like case.py)": "import matplotlib.pyplot; import numpy; import mufem",
+              "mufem-then-numpy": "import mufem; import numpy",
+          }
+          for tag, mesh in meshes.items():
+              print(f"=== {tag} ===")
+              for label, imp in orders.items():
+                  code = f"{imp}\nmufem.Simulation.New(name='t', mesh_path=r'{mesh}')\nprint('OK')"
+                  r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+                  ok = "OK" if r.returncode == 0 and "OK" in r.stdout else "FAIL"
+                  tail = (r.stdout + r.stderr).strip().splitlines()
+                  msg = next((l for l in tail if "invalid mesh" in l or "Verification" in l or "Error" in l), tail[-1] if tail else "")
+                  print(f"  {ok:4} {label:38} (exit {r.returncode})  {msg[:70]}")
           PY
