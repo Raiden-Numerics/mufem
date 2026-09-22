@@ -36,42 +36,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ===== TEMPORARY DEBUG: only Team1b + Team7 (which fail at mesh load on
-      # Windows), with byte-level mesh diagnostics. Team13 (same MFEM v1.3 format,
-      # but passes) is inspected for comparison. Revert to the full smoke once the
-      # cause is found. =====
-      - name: DEBUG - inspect meshes as checked out (raw)
-        shell: bash
-        run: |
-          inspect() {
-            local m="$1"
-            echo "=== $m ==="
-            echo "  worktree bytes : $(wc -c < "$m")"
-            echo "  git blob bytes : $(git cat-file -s "HEAD:$m")"
-            echo "  attrs          : $(git check-attr text eol -- "$m" | tr '\n' ' ')"
-            echo "  first 16 bytes : $(od -An -tx1 -N16 "$m" | tr -s ' ')"
-            if gzip -t "$m" 2>/dev/null; then
-              echo "  gzip           : VALID"
-              echo "  decompressed head:"; gzip -dc "$m" 2>/dev/null | head -c 48 | od -c | sed 's/^/    /'
-            else
-              echo "  gzip           : CORRUPT -> $(gzip -t "$m" 2>&1 | head -1)"
-            fi
-          }
-          inspect Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh
-          inspect Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh
-          inspect Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/geometry.mesh
-
-      - name: DEBUG - repair meshes from index (autocrlf off), then re-inspect
-        shell: bash
-        run: |
-          git config core.autocrlf false
-          git ls-files -z -- '*.mesh' '*.msh' | xargs -0 -r git checkout --force --
-          for m in \
-            Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh \
-            Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh ; do
-            echo "$m: worktree=$(wc -c < "$m") blob=$(git cat-file -s "HEAD:$m") gzip=$(gzip -t "$m" 2>/dev/null && echo VALID || echo CORRUPT)"
-          done
-
+      # ===== TEMPORARY DEBUG: Team1b/Team7 fail at Simulation.New with
+      # "invalid mesh file", but the mesh on disk is byte-identical to the git
+      # blob and decompresses cleanly. So this is NOT checkout corruption — the
+      # Windows wheel's MFEM fails to parse a valid gzip mesh (while Team13, same
+      # MFEM v1.3 format, parses fine). Key test: does an UNCOMPRESSED copy of the
+      # same mesh load? That isolates a gzip-decompression bug from a parser bug.
+      # Revert to the full smoke once diagnosed. =====
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -84,15 +55,39 @@ jobs:
           PIP_IS_CI: '1'
         run: |
           pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
+          pip install -r requirements.txt
 
-      - name: DEBUG - run only Team1b and Team7
+      - name: DEBUG - load gzip vs uncompressed mesh via mufem
         shell: bash
-        env:
-          MPLBACKEND: Agg  # headless: no GUI backend
         run: |
-          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          echo "### Team1b ###"
-          ( cd Electromagnetics/Compumag-Team1b-Felix-Cylinder && python case.py ) || echo "Team1b FAILED (exit $?)"
-          echo "### Team7 ###"
-          ( cd Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole && python case.py ) || echo "Team7 FAILED (exit $?)"
+          python - <<'PY'
+          import gzip, shutil, traceback, mufem
+          print("mufem", getattr(mufem, "__version__", "?"))
+
+          cases = {
+              "Team1b": "Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh",
+              "Team7":  "Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh",
+              "Team13": "Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/geometry.mesh",
+          }
+
+          def try_load(tag, path):
+              try:
+                  mufem.Simulation.New(name=tag, mesh_path=path)
+                  print(f"  [{tag}] LOAD OK  ({path})")
+              except Exception as e:
+                  print(f"  [{tag}] LOAD FAILED ({path}): {e!r}")
+
+          for tag, gz in cases.items():
+              print(f"=== {tag} ===")
+              with open(gz, "rb") as f:
+                  head = f.read(16)
+              print(f"  gzip file: {len(open(gz,'rb').read())} bytes, first16={head.hex()}")
+              # decompress to an uncompressed sibling
+              plain = gz.replace("geometry.mesh", "geometry_plain.mesh")
+              with gzip.open(gz, "rb") as fi, open(plain, "wb") as fo:
+                  shutil.copyfileobj(fi, fo)
+              dec = open(plain, "rb").read()
+              print(f"  decompressed: {len(dec)} bytes, head={dec[:40]!r}")
+              try_load(f"{tag}-gzip", gz)
+              try_load(f"{tag}-plain", plain)
+          PY
