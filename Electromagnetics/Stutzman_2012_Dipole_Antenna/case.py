@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy as np
 
@@ -34,7 +36,6 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         runner = mufem.SteadyRunner(total_iterations=1)
         sim.set_runner(runner)
 
-
         # **************************************************************************************
         # Model
         # **************************************************************************************
@@ -44,7 +45,6 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         )
         sim.get_model_manager().add_model(model)
 
-
         # **************************************************************************************
         # Materials
         # **************************************************************************************
@@ -53,7 +53,6 @@ class Stutzman2012DipoleAntenna(ValidationCase):
             marker="Domain" @ Vol,
         )
         model.add_material(material)
-
 
         # **************************************************************************************
         # Boundary conditions
@@ -81,7 +80,6 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
         model.add_conditions([condition_outer, condition_arms, condition_port])
 
-
         # **************************************************************************************
         # Run the simulation
         # **************************************************************************************
@@ -94,7 +92,6 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         vis.add_field_output("Magnetic Field-Real")
         vis.add_field_output("Magnetic Field-Imag")
         vis.save(order=2)
-
 
         # **************************************************************************************
         # Export 3D far-field radiation pattern

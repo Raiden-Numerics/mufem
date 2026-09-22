@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy
 
@@ -47,7 +49,9 @@ class Berger2017HtsCube(ValidationCase):
             total_inner_iterations=10,
         )
 
-        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=False)
+        magnetic_model = TimeDomainMagneticModel(
+            order=1, magnetostatic_initialization=False
+        )
         sim.get_model_manager().add_model(magnetic_model)
 
         # Line search stabilises Newton's iteration on the n=25 power-law nonlinearity.
@@ -115,7 +119,6 @@ class Berger2017HtsCube(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(ohmic_heating_monitor)
 
-
         sim.run()
 
         vis = sim.get_field_exporter()
@@ -129,8 +132,8 @@ class Berger2017HtsCube(ValidationCase):
 
         xy_plot(
             values=ohmic_heating_monitor.get_values(),
-            xscale=1.0e3,   # s -> ms
-            yscale=8.0e3,   # octant W -> full-cube mW (x8, x1e3)
+            xscale=1.0e3,  # s -> ms
+            yscale=8.0e3,  # octant W -> full-cube mW (x8, x1e3)
             style=PlotStyle.LINE_AND_POINTS,
             reference_file=f"{dir_path}/data/AC_Losses_B20mT.csv",
             reference_style=PlotStyle.POINTS,

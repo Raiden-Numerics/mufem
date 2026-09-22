@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import gmsh
 
@@ -133,7 +135,9 @@ class Ren2014MemsCombDrive(ValidationCase):
         mesh_refiner.set_refinement_fraction(0.3)
 
         # Materials ----------------------------------------------------------------------------
-        material = ElectrostaticMaterial("Air", Everywhere @ Vol, electric_permittivity=1.0)
+        material = ElectrostaticMaterial(
+            "Air", Everywhere @ Vol, electric_permittivity=1.0
+        )
         model.add_material(material)
 
         # Boundary conditions ------------------------------------------------------------------

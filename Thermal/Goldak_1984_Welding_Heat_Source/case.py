@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import math
 
@@ -143,10 +145,14 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             name="Convective Loss",
             marker="Piece::Top" @ mufem.Bnd,
             normal_heat_flux="-24.1e-4 * 0.9 * max({Temperature} - 293.15, 0.0)^1.61",
-            normal_heat_flux_linearization="-24.1e-4 * 0.9 * 1.61 * max({Temperature} - 293.15, 0.0)^0.61",
+            normal_heat_flux_linearization=(
+                "-24.1e-4 * 0.9 * 1.61 * max({Temperature} - 293.15, 0.0)^0.61"
+            ),
         )
 
-        model.add_conditions([heat_source_condition, mushy_zone_condition, heat_flux_condition])
+        model.add_conditions(
+            [heat_source_condition, mushy_zone_condition, heat_flux_condition]
+        )
 
         # Run the simulation -------------------------------------------------------------------
         vis = sim.get_field_exporter()
@@ -164,7 +170,9 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             end=(0.03, 0.0, 0.15),
             number_points=101,
         )
-        temperature = [(p.x, T - 273.15) for p, T in probe_report.evaluate_all()]  # K -> °C
+        temperature = [
+            (p.x, T - 273.15) for p, T in probe_report.evaluate_all()
+        ]  # K -> °C
 
         ref_x, ref_T = numpy.loadtxt(
             "data/Temperature_vs_Position.csv", delimiter=",", unpack=True

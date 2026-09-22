@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 import numpy
 from pathlib import Path
 
@@ -42,17 +44,17 @@ class Team24LockedRotor(ValidationCase):
     tags = {"moderate"}
 
     def run(self):
-        sim = mufem.Simulation.New(name="Team-24", mesh_path=f"{dir_path}/geometry.mesh")
+        sim = mufem.Simulation.New(
+            name="Team-24", mesh_path=f"{dir_path}/geometry.mesh"
+        )
 
         unsteady_runner = mufem.UnsteadyRunner(
             total_time=0.15, time_step_size=0.005, total_inner_iterations=6
         )
         sim.set_runner(unsteady_runner)
 
-
         magnetic_model = TimeDomainMagneticModel(order=1)
         sim.get_model_manager().add_model(magnetic_model)
-
 
         # Define the materials
         air_material = TimeDomainMagneticGeneralMaterial(
@@ -70,7 +72,6 @@ class Team24LockedRotor(ValidationCase):
         bh = numpy.loadtxt(
             f"{dir_path}/data/tables/Updated_BH_curve.csv", delimiter=",", comments="#"
         )
-
 
         iron_material = TimeDomainMagneticGeneralMaterial(
             name="Iron",
@@ -107,7 +108,7 @@ class Team24LockedRotor(ValidationCase):
                 in_marker=f"{coil} Coil::In" @ Bnd, out_marker=f"{coil} Coil::Out" @ Bnd
             )
 
-            # 0.25 factor as we have two coils to which the voltage is applied and we have a symmetry plane
+            # 0.25 factor: two coils share the applied voltage, plus a symmetry plane
             symmetry = 0.25
 
             coil_type = CoilTypeStranded(number_of_turns=350)
@@ -126,7 +127,9 @@ class Team24LockedRotor(ValidationCase):
             coil_model.add_coil_specification(coil)
 
         # Setup Reports
-        magnetic_torque_report = MagneticTorqueReport(name="Rotor Torque", marker="Rotor" @ Vol)
+        magnetic_torque_report = MagneticTorqueReport(
+            name="Rotor Torque", marker="Rotor" @ Vol
+        )
         sim.get_report_manager().add_report(magnetic_torque_report)
 
         magnetic_torque_monitor = mufem.ReportMonitor(
@@ -134,15 +137,15 @@ class Team24LockedRotor(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(magnetic_torque_monitor)
 
-
-        coil_current_report = ExcitationCoilCurrentReport(name="Coil Current", coil_index=0)
+        coil_current_report = ExcitationCoilCurrentReport(
+            name="Coil Current", coil_index=0
+        )
         sim.get_report_manager().add_report(coil_current_report)
 
         coil_current_monitor = mufem.ReportMonitor(
             name="Coil Current Monitor", report_name="Coil Current"
         )
         sim.get_monitor_manager().add_monitor(coil_current_monitor)
-
 
         # Run the simulation
 
@@ -155,7 +158,6 @@ class Team24LockedRotor(ValidationCase):
         coil_resistance_report = ResistanceReport(name="Coil Resistance", coil_index=0)
 
         print("Coil Resistance Value:", coil_resistance_report.evaluate())
-
 
         if output_for_animation:
 
@@ -182,15 +184,14 @@ class Team24LockedRotor(ValidationCase):
 
             sim.run()
 
-
         # Plot the results
-
 
         symmetry_factor = 2.0
 
-
         coil_current_ref = numpy.loadtxt(
-            f"{dir_path}/data/tables/Table_3_Coil_Current.csv", delimiter=",", skiprows=1
+            f"{dir_path}/data/tables/Table_3_Coil_Current.csv",
+            delimiter=",",
+            skiprows=1,
         )
 
         current_values = coil_current_monitor.get_values()
@@ -200,7 +201,9 @@ class Team24LockedRotor(ValidationCase):
         # Current monitor values
         monitor_values = magnetic_torque_monitor.get_values()
 
-        torque_values = [(value[0], symmetry_factor * value[1].z) for value in monitor_values]
+        torque_values = [
+            (value[0], symmetry_factor * value[1].z) for value in monitor_values
+        ]
 
         torque_ref = numpy.loadtxt(
             f"{dir_path}/data/tables/Table_4_Torque.csv", delimiter=",", skiprows=1
@@ -238,7 +241,6 @@ class Team24LockedRotor(ValidationCase):
                     path=f"{dir_path}/vis/Rotor_Torque_vs_Time_{i:03d}.png",
                 )
 
-
         xy_plot(
             values=current_values,
             style=PlotStyle.LINE_AND_POINTS,
@@ -252,7 +254,6 @@ class Team24LockedRotor(ValidationCase):
             xticks=[0.0, 0.05, 0.1, 0.15],
             path=f"{dir_path}/results/Coil_Current_vs_Time.png",
         )
-
 
         xy_plot(
             values=torque_values,

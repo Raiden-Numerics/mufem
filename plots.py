@@ -125,18 +125,30 @@ def xy_plot(
             )
         )
     elif reference_values is not None:
-        ref = [(reference_xscale * x, reference_yscale * y) for x, y in reference_values]
+        ref = [
+            (reference_xscale * x, reference_yscale * y) for x, y in reference_values
+        ]
     if ref is not None:
         _draw(
-            ref, reference_style, REFERENCE_COLOR, reference_label, REFERENCE_MARKER,
-            linewidth=_REFERENCE_LINEWIDTH, markersize=_REFERENCE_MARKERSIZE,
+            ref,
+            reference_style,
+            REFERENCE_COLOR,
+            reference_label,
+            REFERENCE_MARKER,
+            linewidth=_REFERENCE_LINEWIDTH,
+            markersize=_REFERENCE_MARKERSIZE,
         )
 
     # ... then the computed mufem curve on top (red line + square markers).
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(
-        scaled, style, MUFEM_COLOR, label, MUFEM_MARKER,
-        linewidth=_LINEWIDTH, markersize=_MARKERSIZE,
+        scaled,
+        style,
+        MUFEM_COLOR,
+        label,
+        MUFEM_MARKER,
+        linewidth=_LINEWIDTH,
+        markersize=_MARKERSIZE,
     )
 
     plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)

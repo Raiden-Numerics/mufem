@@ -79,7 +79,9 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
-            subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
+            subprocess.run(
+                args=f"{launcher} case.py", shell=True, check=True, text=True
+            )
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
             print(f"Error running {case_path}: {e}")
@@ -106,9 +108,21 @@ def run_cases(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run mufem example / validation cases")
-    parser.add_argument("base_directory", nargs="?", default=".", help="directory to walk for case.py")
-    parser.add_argument("--launcher", default="pymufem", help="launch command per case (default: pymufem; use 'python' for serial)")
-    parser.add_argument("--exclude-tag", action="append", default=[], metavar="TAG", help="skip cases carrying this tag (repeatable), e.g. --exclude-tag long --exclude-tag mumps")
+    parser.add_argument(
+        "base_directory", nargs="?", default=".", help="directory to walk for case.py"
+    )
+    parser.add_argument(
+        "--launcher",
+        default="pymufem",
+        help="launch command per case (default: pymufem; use 'python' for serial)",
+    )
+    parser.add_argument(
+        "--exclude-tag",
+        action="append",
+        default=[],
+        metavar="TAG",
+        help="skip cases carrying this tag (repeatable), e.g. --exclude-tag long",
+    )
     args = parser.parse_args()
 
     print(f"Running cases in directory: {args.base_directory}")

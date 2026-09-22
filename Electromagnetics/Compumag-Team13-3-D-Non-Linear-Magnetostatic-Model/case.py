@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy
 
@@ -31,8 +33,9 @@ class Team13NonLinearMagnetostatic(ValidationCase):
     tags = {"moderate"}
 
     def run(self):
-        sim = mufem.Simulation.New(name="Team-13", mesh_path=f"{dir_path}/geometry.mesh")
-
+        sim = mufem.Simulation.New(
+            name="Team-13", mesh_path=f"{dir_path}/geometry.mesh"
+        )
 
         is_main_process = sim.get_machine().is_main_process()
 
@@ -48,7 +51,9 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         line_search.set_iteration_window(min_iter=0, max_iter=6)
 
         # Materials
-        air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ mufem.Vol)
+        air_material = TimeDomainMagneticGeneralMaterial(
+            name="Air", marker="Air" @ mufem.Vol
+        )
 
         copper_material = TimeDomainMagneticGeneralMaterial(
             name="Cu",
@@ -58,7 +63,6 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         )
 
         bh = numpy.loadtxt(f"{dir_path}/data/bh_table.csv", delimiter=",", comments="#")
-
 
         iron_material = TimeDomainMagneticGeneralMaterial(
             name="Iron",
@@ -72,7 +76,9 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        coil_topology = CoilTopologyClosed(x=0.09, y=0.0, z=0.001, dx=0.0, dy=1.0, dz=0.0)
+        coil_topology = CoilTopologyClosed(
+            x=0.09, y=0.0, z=0.001, dx=0.0, dy=1.0, dz=0.0
+        )
         coil_type = CoilTypeStranded(number_of_turns=500)
 
         coil_excitation = CoilExcitationCurrent(current=3.0)
@@ -87,7 +93,6 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
         coil_model.add_coil_specification(coil)
 
-
         sim.run()
 
         vis = sim.get_field_exporter()
@@ -96,10 +101,8 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
         vis.save(order=2)
 
-
         # Plot Results
         # flake8: noqa: FKA100
-
 
         probe_report = mufem.ProbeReport.Line(
             "B",

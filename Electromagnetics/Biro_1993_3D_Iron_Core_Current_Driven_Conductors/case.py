@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy
 
@@ -41,7 +43,6 @@ class Biro1993IronCore(ValidationCase):
             name="Biro 1993: 3D Iron Core Current Driven Conductors",
             mesh_path=f"{dir_path}/geometry.mesh",
         )
-
 
         is_main_process = sim.get_machine().is_main_process()
 
@@ -110,9 +111,7 @@ class Biro1993IronCore(ValidationCase):
             )
             coil_model.add_coil_specification(coil)
 
-
         sim.run()
-
 
         vis = sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density-Real")
@@ -122,10 +121,11 @@ class Biro1993IronCore(ValidationCase):
 
         vis.save(order=2)
 
-
         # Compare with reference
 
-        reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True)
+        reference = numpy.loadtxt(
+            f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True
+        )
 
         for n in range(25):
 

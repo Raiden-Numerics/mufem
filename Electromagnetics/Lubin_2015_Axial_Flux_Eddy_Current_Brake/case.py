@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -71,7 +73,9 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         )
 
         sim.set_runner(unsteady_runner)
-        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
+        magnetic_model = TimeDomainMagneticModel(
+            order=1, magnetostatic_initialization=True
+        )
         sim.get_model_manager().add_model(magnetic_model)
 
         # Material
@@ -97,7 +101,8 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         # on the soft-magnetic yoke
         magnet_material_ns = TimeDomainMagneticGeneralMaterial(
             name="NdFeB N40",
-            marker=["Magnet::0", "Magnet::2", "Magnet::4", "Magnet::6", "Magnet::8"] @ Vol,
+            marker=["Magnet::0", "Magnet::2", "Magnet::4", "Magnet::6", "Magnet::8"]
+            @ Vol,
             magnetic_permeability=1.0,
             remanent_flux_density=[0.0, 0.0, 1.25],
             has_eddy_currents=False,
@@ -105,7 +110,8 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         magnet_material_sn = TimeDomainMagneticGeneralMaterial(
             name="NdFeB N40",
-            marker=["Magnet::1", "Magnet::3", "Magnet::5", "Magnet::7", "Magnet::9"] @ Vol,
+            marker=["Magnet::1", "Magnet::3", "Magnet::5", "Magnet::7", "Magnet::9"]
+            @ Vol,
             magnetic_permeability=1.0,
             remanent_flux_density=[0.0, 0.0, -1.25],
             has_eddy_currents=False,
@@ -245,10 +251,18 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                 plt.clf()
 
                 ref = numpy.loadtxt(
-                    f"{dir_path}/data/Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
+                    f"{dir_path}/data/Torque_Vs_Slip_speed.csv",
+                    delimiter=",",
+                    skiprows=1,
                 )
 
-                plt.plot(ref[:, 0], ref[:, 1], "k-", label="Lubin & Rezzoug (2015)", linewidth=3.0)
+                plt.plot(
+                    ref[:, 0],
+                    ref[:, 1],
+                    "k-",
+                    label="Lubin & Rezzoug (2015)",
+                    linewidth=3.0,
+                )
                 plt.plot(*zip(*torque_vs_rpm), "ro", label="$\\mu$fem", markersize=10.0)
 
                 plt.xlabel("Slip Speed [rpm]", fontsize=16)

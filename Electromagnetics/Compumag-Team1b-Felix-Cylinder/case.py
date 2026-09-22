@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 import mufem
 
 from mufem import Bnd, Vol
@@ -25,13 +27,18 @@ class Team1bFelixCylinder(ValidationCase):
 
     def run(self):
         sim = mufem.Simulation.New(
-            name="Compumag Team1b: Felix Cylinder", mesh_path=f"{dir_path}/geometry.mesh"
+            name="Compumag Team1b: Felix Cylinder",
+            mesh_path=f"{dir_path}/geometry.mesh",
         )
 
         # Setup Problem
-        mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
+        mufem.UnsteadyRunner(
+            total_time=0.02, time_step_size=0.001, total_inner_iterations=3
+        )
 
-        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
+        magnetic_model = TimeDomainMagneticModel(
+            order=1, magnetostatic_initialization=True
+        )
         sim.get_model_manager().add_model(magnetic_model)
 
         # Setup Materials
@@ -60,12 +67,10 @@ class Team1bFelixCylinder(ValidationCase):
         )
         sim.get_report_manager().add_report(ohmic_heating_report)
 
-
         ohmic_heating_monitor = mufem.ReportMonitor(
             name="Ohmic Heating Monitor", report_name="Ohmic Heating"
         )
         sim.get_monitor_manager().add_monitor(ohmic_heating_monitor)
-
 
         sim.run()
 

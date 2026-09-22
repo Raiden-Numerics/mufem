@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 import numpy
 
 import mufem
@@ -119,9 +121,15 @@ class Team36InductionHeating(ValidationCase):
                 f"Coil::{n}::In" @ mufem.Bnd, f"Coil::{n}::Out" @ mufem.Bnd
             )
             coil_type = CoilTypeStranded(1)
-            coil_excitation = CoilExcitationCurrent(current=3500.0 * numpy.sqrt(2))  # RMS
+            coil_excitation = CoilExcitationCurrent(
+                current=3500.0 * numpy.sqrt(2)
+            )  # RMS
             coil = CoilSpecification(
-                "Coil", f"Coil::{n}" @ mufem.Vol, coil_topology, coil_type, coil_excitation
+                "Coil",
+                f"Coil::{n}" @ mufem.Vol,
+                coil_topology,
+                coil_type,
+                coil_excitation,
             )
             coil_model.add_coil_specification(coil)
 
@@ -139,7 +147,9 @@ class Team36InductionHeating(ValidationCase):
             thermal_conductivity=method.TemperatureTable(
                 lambda_T[:, 0] + 273.15, lambda_T[:, 1]
             ),
-            specific_heat_capacity=method.TemperatureTable(cp_T[:, 0] + 273.15, cp_T[:, 1]),
+            specific_heat_capacity=method.TemperatureTable(
+                cp_T[:, 0] + 273.15, cp_T[:, 1]
+            ),
             density=7800,
         )
         thermal_model.add_materials([thermal_billet_material])
@@ -149,10 +159,16 @@ class Team36InductionHeating(ValidationCase):
         thermal_model.add_conditions(
             [
                 ConvectionBoundaryCondition(
-                    "Lateral Surface Convection", lateral_surface_marker, 7.0, 273.0 + 70.0
+                    "Lateral Surface Convection",
+                    lateral_surface_marker,
+                    7.0,
+                    273.0 + 70.0,
                 ),
                 RadiationBoundaryCondition(
-                    "Lateral Surface Radiation", lateral_surface_marker, 0.8, 273.0 + 70.0
+                    "Lateral Surface Radiation",
+                    lateral_surface_marker,
+                    0.8,
+                    273.0 + 70.0,
                 ),
             ]
         )
@@ -185,7 +201,10 @@ class Team36InductionHeating(ValidationCase):
         sim.get_monitor_manager().add_monitor(ohmic_heating_monitor)
 
         eps = 1.0e-6
-        for name, point in [("Center", (eps, eps, 0.0)), ("Surface", (0.03 - eps, eps, 0.0))]:
+        for name, point in [
+            ("Center", (eps, eps, 0.0)),
+            ("Surface", (0.03 - eps, eps, 0.0)),
+        ]:
             probe = mufem.ProbeReport.SinglePoint(
                 name=name, cff_name="Temperature", x=point[0], y=point[1], z=point[2]
             )
@@ -237,8 +256,16 @@ class Team36InductionHeating(ValidationCase):
 
         # Temperature evolution at centre and surface ------------------------------------------
         for probe_name, reference_file, output in [
-            ("Center", "Fig8a_Temperature_vs_Time_0cm.csv", "results/Temperature_Center.png"),
-            ("Surface", "Fig8a_Temperature_vs_Time_3cm.csv", "results/Temperature_Surface.png"),
+            (
+                "Center",
+                "Fig8a_Temperature_vs_Time_0cm.csv",
+                "results/Temperature_Center.png",
+            ),
+            (
+                "Surface",
+                "Fig8a_Temperature_vs_Time_3cm.csv",
+                "results/Temperature_Surface.png",
+            ),
         ]:
             values = sim.get_monitor_manager().get_monitor(probe_name).get_values()
             temperature = [(t, T - 273.15) for t, T in values]

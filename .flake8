@@ -1,4 +1,6 @@
 [flake8]
 max-line-length = 99
 kwargs-max-positional-arguments = 1
-exclude = .git,__pycache__
+exclude = .git,__pycache__,tmp,*/VisualizationOutput/*
+per-file-ignores =
+    */case.py:E402

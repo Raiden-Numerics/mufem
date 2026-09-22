@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[2])
+)  # repo root: validation_case
 
 import numpy
 
@@ -43,7 +45,6 @@ class Team20StaticForce(ValidationCase):
             mesh_path=f"{dir_path}/geometry.mesh",
         )
 
-
         # Setup Problem
         steady_runner = SteadyRunner(total_iterations=0)
 
@@ -56,7 +57,9 @@ class Team20StaticForce(ValidationCase):
             name="Copper", marker="Coil" @ Vol, electric_conductivity=1.0e7
         )
 
-        bh = numpy.loadtxt(f"{dir_path}/data/Table_1_BH_Curve.csv", delimiter=",", comments="#")
+        bh = numpy.loadtxt(
+            f"{dir_path}/data/Table_1_BH_Curve.csv", delimiter=",", comments="#"
+        )
 
         iron_material = TimeDomainMagneticGeneralMaterial(
             name="Iron",
@@ -102,7 +105,9 @@ class Team20StaticForce(ValidationCase):
         )
         coil_model.add_coil_specification(coil)
 
-        magnetic_force_report_1 = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
+        magnetic_force_report_1 = MagneticForceReport(
+            name="Pole Force", marker="Pole" @ Vol
+        )
         sim.get_report_manager().add_report(magnetic_force_report_1)
 
         inductance_report = MagneticInductanceReport(name="Coil Inductance")
@@ -110,7 +115,6 @@ class Team20StaticForce(ValidationCase):
 
         coil_resistance_report = ResistanceReport(name="Coil Resistance", coil_index=0)
         sim.get_report_manager().add_report(coil_resistance_report)
-
 
         # Run the scan
 
@@ -125,7 +129,6 @@ class Team20StaticForce(ValidationCase):
             force_z = magnetic_force_report_1.evaluate().z
 
             center_piece_force_list.append((coil_current, force_z))
-
 
         # Plot the results
 
@@ -147,7 +150,6 @@ class Team20StaticForce(ValidationCase):
             yticks=[0, 20, 40, 60, 80],
             path=f"{dir_path}/results/Force_vs_Current.png",
         )
-
 
         # Finally, we save a few fields so we can visualize with paraview
         vis = sim.get_field_exporter()
