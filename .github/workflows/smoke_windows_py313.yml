@@ -44,10 +44,42 @@ jobs:
           pip install --pre --force-reinstall --no-cache-dir mufem
           pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
 
-      - name: Run the moderate validation tier (serial; no MPI/pymufem)
+      # ===== TEMPORARY DEBUG: reproduce case.py's EXACT mesh_path. Loading via a
+      # forward-slash repo-root-relative path works for all meshes, but case.py
+      # runs from the case dir and passes f"{dir_path}/geometry.mesh" where
+      # dir_path = Path(__file__).resolve().parent (backslash absolute, mixed
+      # separator on Windows). Team1b/Team7 fail there; Team13 (same pattern)
+      # passes. Test path-format variants per case to isolate the trigger. =====
+      - name: DEBUG - mesh_path format variants (from each case dir)
         shell: bash
         env:
-          MPLBACKEND: Agg  # headless: no GUI backend
+          MPLBACKEND: Agg
         run: |
-          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps
+          python - <<'PY'
+          import os, mufem
+          from pathlib import Path
+          print("mufem", getattr(mufem, "__version__", "?"))
+          root = os.getcwd()
+          cases = {
+              "Team1b(FAIL)": "Electromagnetics/Compumag-Team1b-Felix-Cylinder",
+              "Team7(FAIL)":  "Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole",
+              "Team13(pass)": "Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model",
+          }
+          for tag, d in cases.items():
+              os.chdir(os.path.join(root, d))
+              dir_path = Path("case.py").resolve().parent  # == Path(__file__).resolve().parent
+              variants = {
+                  "case.py f-string": f"{dir_path}/geometry.mesh",
+                  "native str":       str(dir_path / "geometry.mesh"),
+                  "as_posix":         (dir_path / "geometry.mesh").as_posix(),
+                  "relative":         "geometry.mesh",
+              }
+              print(f"=== {tag}  cwd={os.getcwd()} ===")
+              for name, p in variants.items():
+                  try:
+                      mufem.Simulation.New(name=tag, mesh_path=p)
+                      print(f"  OK    {name:16} -> {p}")
+                  except Exception as e:
+                      print(f"  FAIL  {name:16} -> {p} : {e}")
+              os.chdir(root)
+          PY
