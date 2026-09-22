@@ -21,7 +21,7 @@ from validation_case import ValidationCase
 
 
 class Team1bFelixCylinder(ValidationCase):
-    tags = {"moderate", "windows-crash"}  # H(curl)/AMS path heap-corrupts on the Windows wheel
+    tags = {"moderate"}
 
     def run(self):
         sim = mufem.Simulation.New(
