@@ -12,9 +12,7 @@ def create_scene(data_original, phase, screenshot_file):
 
     data = pvs.Calculator(Input=data_original)
     data.ResultArrayName = f"{field_name}"
-    data.Function = (
-        f'"{field_name_real}" * cos({phase}) - "{field_name_imag}" * sin({phase})'
-    )
+    data.Function = f'"{field_name_real}" * cos({phase}) - "{field_name_imag}" * sin({phase})'
 
     # Slice plane at z=0 ---------------------------------------------------------------
     data = pvs.Slice(Input=data)
@@ -97,7 +95,7 @@ for i in range(len(phases)):
 
     create_scene(data_original, phase, screenshot_file)
 
-    print(f"phase {i+1} of {len(phases)}")
+    print(f"phase {i + 1} of {len(phases)}")
 
 
 # **************************************************************************************
@@ -106,10 +104,7 @@ for i in range(len(phases)):
 #    - creating mp4 first and then converting to gif results in better gif quality
 # 3) Remove unnecessary files
 commands = [
-    (
-        f"ffmpeg -i {wdir}/%d.png "
-        f"-framerate 24 -c:v libx264 -pix_fmt yuv420p {wdir}/out.mp4 -y"
-    ),
+    (f"ffmpeg -i {wdir}/%d.png -framerate 24 -c:v libx264 -pix_fmt yuv420p {wdir}/out.mp4 -y"),
     (
         f"ffmpeg -i {wdir}/out.mp4 "
         "-vf 'fps=5,scale=800:-1:flags=lanczos' "

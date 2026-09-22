@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 import numpy
 from pathlib import Path
 
@@ -44,9 +42,7 @@ class Team24LockedRotor(ValidationCase):
     tags = {"moderate"}
 
     def run(self):
-        sim = mufem.Simulation.New(
-            name="Team-24", mesh_path=f"{dir_path}/geometry.mesh"
-        )
+        sim = mufem.Simulation.New(name="Team-24", mesh_path=f"{dir_path}/geometry.mesh")
 
         unsteady_runner = mufem.UnsteadyRunner(
             total_time=0.15, time_step_size=0.005, total_inner_iterations=6
@@ -103,7 +99,6 @@ class Team24LockedRotor(ValidationCase):
         sim.get_model_manager().add_model(coil_model)
 
         for coil in ["Upper", "Lower"]:
-
             coil_topology = CoilTopologyOpen(
                 in_marker=f"{coil} Coil::In" @ Bnd, out_marker=f"{coil} Coil::Out" @ Bnd
             )
@@ -127,9 +122,7 @@ class Team24LockedRotor(ValidationCase):
             coil_model.add_coil_specification(coil)
 
         # Setup Reports
-        magnetic_torque_report = MagneticTorqueReport(
-            name="Rotor Torque", marker="Rotor" @ Vol
-        )
+        magnetic_torque_report = MagneticTorqueReport(name="Rotor Torque", marker="Rotor" @ Vol)
         sim.get_report_manager().add_report(magnetic_torque_report)
 
         magnetic_torque_monitor = mufem.ReportMonitor(
@@ -137,9 +130,7 @@ class Team24LockedRotor(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(magnetic_torque_monitor)
 
-        coil_current_report = ExcitationCoilCurrentReport(
-            name="Coil Current", coil_index=0
-        )
+        coil_current_report = ExcitationCoilCurrentReport(name="Coil Current", coil_index=0)
         sim.get_report_manager().add_report(coil_current_report)
 
         coil_current_monitor = mufem.ReportMonitor(
@@ -160,7 +151,6 @@ class Team24LockedRotor(ValidationCase):
         print("Coil Resistance Value:", coil_resistance_report.evaluate())
 
         if output_for_animation:
-
             refinement_model = mufem.RefinementModel()
             sim.get_model_manager().add_model(refinement_model)
 
@@ -181,7 +171,6 @@ class Team24LockedRotor(ValidationCase):
                 field_exporter.save()
 
         else:
-
             sim.run()
 
         # Plot the results
@@ -201,18 +190,14 @@ class Team24LockedRotor(ValidationCase):
         # Current monitor values
         monitor_values = magnetic_torque_monitor.get_values()
 
-        torque_values = [
-            (value[0], symmetry_factor * value[1].z) for value in monitor_values
-        ]
+        torque_values = [(value[0], symmetry_factor * value[1].z) for value in monitor_values]
 
         torque_ref = numpy.loadtxt(
             f"{dir_path}/data/tables/Table_4_Torque.csv", delimiter=",", skiprows=1
         )
 
         if output_for_animation:
-
             for i in range(31):
-
                 xy_plot(
                     values=current_values[: i + 1],
                     style=PlotStyle.LINE_AND_POINTS,

@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 
@@ -57,9 +55,7 @@ class Team20StaticForce(ValidationCase):
             name="Copper", marker="Coil" @ Vol, electric_conductivity=1.0e7
         )
 
-        bh = numpy.loadtxt(
-            f"{dir_path}/data/Table_1_BH_Curve.csv", delimiter=",", comments="#"
-        )
+        bh = numpy.loadtxt(f"{dir_path}/data/Table_1_BH_Curve.csv", delimiter=",", comments="#")
 
         iron_material = TimeDomainMagneticGeneralMaterial(
             name="Iron",
@@ -88,9 +84,7 @@ class Team20StaticForce(ValidationCase):
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        coil_topology = CoilTopologyOpen(
-            in_marker="Coil::In" @ Bnd, out_marker="Coil::Out" @ Bnd
-        )
+        coil_topology = CoilTopologyOpen(in_marker="Coil::In" @ Bnd, out_marker="Coil::Out" @ Bnd)
         coil_type = CoilTypeStranded(number_of_turns=1000)
 
         coil_drive_current = CffConstantScalar(1.0)
@@ -105,9 +99,7 @@ class Team20StaticForce(ValidationCase):
         )
         coil_model.add_coil_specification(coil)
 
-        magnetic_force_report_1 = MagneticForceReport(
-            name="Pole Force", marker="Pole" @ Vol
-        )
+        magnetic_force_report_1 = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
         sim.get_report_manager().add_report(magnetic_force_report_1)
 
         inductance_report = MagneticInductanceReport(name="Coil Inductance")
@@ -121,7 +113,6 @@ class Team20StaticForce(ValidationCase):
         center_piece_force_list: List[float] = []
 
         for coil_current in numpy.linspace(0.0, 5.0, 11):
-
             coil_drive_current.set_value(coil_current)
 
             steady_runner.advance(5)

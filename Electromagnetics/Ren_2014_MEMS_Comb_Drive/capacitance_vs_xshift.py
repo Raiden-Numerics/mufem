@@ -27,7 +27,7 @@ dCdx = a  # [F/m] derivative of the capacitance
 F = 1 / 2 * dCdx * V**2  # [N] comb drive force
 
 print(f"Force F = {F} [N]")
-print(f"Force F = {F/1e-9} [nN]")
+print(f"Force F = {F / 1e-9} [nN]")
 
 plt.figure(constrained_layout=True)
 plt.plot(x / 1e-6, C / 1e-15, "o", label="mufem")

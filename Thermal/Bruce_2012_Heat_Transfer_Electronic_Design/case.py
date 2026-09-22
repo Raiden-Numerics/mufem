@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 
@@ -94,18 +92,14 @@ class Bruce2012ElectronicDesign(ValidationCase):
             name="DieTemperatureReport", cff_name="Temperature", x=0.0, y=0.25e-3, z=0.0
         )
         sim.get_report_manager().add_report(report_die)
-        monitor_die = mufem.ReportMonitor(
-            "Die Temperature Monitor", "DieTemperatureReport"
-        )
+        monitor_die = mufem.ReportMonitor("Die Temperature Monitor", "DieTemperatureReport")
         sim.get_monitor_manager().add_monitor(monitor_die)
 
         report_lid = mufem.ProbeReport.SinglePoint(
             name="LidTemperatureReport", cff_name="Temperature", x=0.0, y=0.85e-3, z=0.0
         )
         sim.get_report_manager().add_report(report_lid)
-        monitor_lid = mufem.ReportMonitor(
-            "Lid Temperature Monitor", "LidTemperatureReport"
-        )
+        monitor_lid = mufem.ReportMonitor("Lid Temperature Monitor", "LidTemperatureReport")
         sim.get_monitor_manager().add_monitor(monitor_lid)
 
         # Run the simulation -------------------------------------------------------------------

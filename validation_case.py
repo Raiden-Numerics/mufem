@@ -95,8 +95,6 @@ class ValidationCase:
         tol = max(abs_tol, rel_tol * abs(expected))
         ok = abs(actual - expected) <= tol
         status = "OK" if ok else "FAIL"
-        print(
-            f"[check {status}] {label}: got {actual}, expected {expected} (tol {tol})"
-        )
+        print(f"[check {status}] {label}: got {actual}, expected {expected} (tol {tol})")
         if not ok:
             raise AssertionError(f"{label}: {actual} != {expected} within tol {tol}")

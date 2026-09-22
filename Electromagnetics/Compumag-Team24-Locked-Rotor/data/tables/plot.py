@@ -79,9 +79,7 @@ bh_combined = pylab.concatenate((lower_bh[:-1, :], bh[1:, :]))
 pylab.clf()
 
 pylab.plot(bh[:, 0], bh[:, 1], "o-", label="Original BH curve", linewidth=2.5)
-pylab.plot(
-    bh_combined[:, 0], bh_combined[:, 1], "s-", label="Updated BH curve", linewidth=2.5
-)
+pylab.plot(bh_combined[:, 0], bh_combined[:, 1], "s-", label="Updated BH curve", linewidth=2.5)
 pylab.xlabel("H [A/m]")
 pylab.ylabel("B [T]")
 

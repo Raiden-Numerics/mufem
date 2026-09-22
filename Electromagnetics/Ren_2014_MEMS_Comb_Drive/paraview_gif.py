@@ -79,7 +79,7 @@ def create_scene(data_file, screenshot_file, show=False):
 if __name__ == "__main__":
     # Create the scene images with a siple name pattern:
     for i in range(17):
-        data_file = f"VisualizationOutput/Output_{2*i+1}.vtpc"
+        data_file = f"VisualizationOutput/Output_{2 * i + 1}.vtpc"
         screenshot_file = f"results/{i}.png"
 
         create_scene(data_file, screenshot_file)

@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import matplotlib.pyplot as plt
 import numpy
@@ -75,9 +73,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
             marker="OutputPort" @ Bnd,
         )
 
-        model.add_conditions(
-            [condition_pec, condition_input_port, condition_output_port]
-        )
+        model.add_conditions([condition_pec, condition_input_port, condition_output_port])
 
         # **************************************************************************************
         # Reports
@@ -92,9 +88,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         # **************************************************************************************
         # Run the simulation
         # **************************************************************************************
-        PRECALCULATE = (
-            False  # Set to True to regenerate the full transmission spectrum.
-        )
+        PRECALCULATE = False  # Set to True to regenerate the full transmission spectrum.
 
         if PRECALCULATE:
             Nf = 251  # number of frequencies to scan
@@ -111,7 +105,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
         for i, frequency in enumerate(frequencies):
             if is_main_process:
-                print(f"\nFrequency {i+1}/{Nf}: {frequency/1e9:.3f}GHz")
+                print(f"\nFrequency {i + 1}/{Nf}: {frequency / 1e9:.3f}GHz")
 
             model.set_frequency(frequency)
             runner.advance(1)

@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 import mufem
 
 from mufem import Bnd, Vol
@@ -32,13 +30,9 @@ class Team1bFelixCylinder(ValidationCase):
         )
 
         # Setup Problem
-        mufem.UnsteadyRunner(
-            total_time=0.02, time_step_size=0.001, total_inner_iterations=3
-        )
+        mufem.UnsteadyRunner(total_time=0.02, time_step_size=0.001, total_inner_iterations=3)
 
-        magnetic_model = TimeDomainMagneticModel(
-            order=1, magnetostatic_initialization=True
-        )
+        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
         sim.get_model_manager().add_model(magnetic_model)
 
         # Setup Materials

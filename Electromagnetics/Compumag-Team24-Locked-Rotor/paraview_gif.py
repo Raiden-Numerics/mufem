@@ -1,6 +1,7 @@
 import paraview.simple as pvs
 
 import subprocess
+from PIL import Image
 
 
 def create_scene(index: int, show: bool = False):
@@ -76,9 +77,6 @@ def create_scene(index: int, show: bool = False):
     )
 
 
-from PIL import Image
-
-
 def combine_images(large_path, small1_path, small2_path, output_path):
     large = Image.open(large_path)
     small1 = Image.open(small1_path)
@@ -108,7 +106,6 @@ def combine_images(large_path, small1_path, small2_path, output_path):
 if __name__ == "__main__":
     # Create the scene images with a siple name pattern:
     for i in range(31):
-
         create_scene(i)
 
         combine_images(

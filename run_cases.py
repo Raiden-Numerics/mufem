@@ -79,9 +79,7 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
-            subprocess.run(
-                args=f"{launcher} case.py", shell=True, check=True, text=True
-            )
+            subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
             print(f"Error running {case_path}: {e}")

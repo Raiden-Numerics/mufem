@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -66,16 +64,12 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             mesh_path=f"{dir_path}/geometry.mesh",
         )
 
-        is_main_process = sim.get_machine().is_main_process()
-
         unsteady_runner = UnsteadyRunner(
             total_time=0.005, time_step_size=5.0e-4, total_inner_iterations=2
         )
 
         sim.set_runner(unsteady_runner)
-        magnetic_model = TimeDomainMagneticModel(
-            order=1, magnetostatic_initialization=True
-        )
+        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
         sim.get_model_manager().add_model(magnetic_model)
 
         # Material
@@ -101,8 +95,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         # on the soft-magnetic yoke
         magnet_material_ns = TimeDomainMagneticGeneralMaterial(
             name="NdFeB N40",
-            marker=["Magnet::0", "Magnet::2", "Magnet::4", "Magnet::6", "Magnet::8"]
-            @ Vol,
+            marker=["Magnet::0", "Magnet::2", "Magnet::4", "Magnet::6", "Magnet::8"] @ Vol,
             magnetic_permeability=1.0,
             remanent_flux_density=[0.0, 0.0, 1.25],
             has_eddy_currents=False,
@@ -110,8 +103,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         magnet_material_sn = TimeDomainMagneticGeneralMaterial(
             name="NdFeB N40",
-            marker=["Magnet::1", "Magnet::3", "Magnet::5", "Magnet::7", "Magnet::9"]
-            @ Vol,
+            marker=["Magnet::1", "Magnet::3", "Magnet::5", "Magnet::7", "Magnet::9"] @ Vol,
             magnetic_permeability=1.0,
             remanent_flux_density=[0.0, 0.0, -1.25],
             has_eddy_currents=False,
@@ -136,7 +128,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         rotate_copper_plate = False
 
         if rotate_copper_plate:
-
             motion = RotatingMotion(
                 name="Rotation",
                 marker=["Copper Plate", "Back Iron::Copper Side"] @ Vol,
@@ -145,7 +136,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                 rotation_rate=0,
             )
         else:
-
             motion = RotatingMotion(
                 name="Rotation",
                 marker=[
@@ -182,7 +172,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         torque_vs_rpm_step = []
 
         if output_for_animation:
-
             # We save a few fields so we can visualize with focus-viewer/paraview
             field_exporter = sim.get_field_exporter()
             field_exporter.add_field_output("Electric Current Density")
@@ -191,7 +180,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         sim.initialize()
 
         for rpm in [500, 1000, 2000]:
-
             motion.set_rotation_rate(rpm / 60.0)  # Convert RPM to Hz
 
             if output_for_animation:
@@ -203,7 +191,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                     torque_vs_rpm_step.append((rpm, plate_torque_report.evaluate().z))
 
             else:
-
                 unsteady_runner.advance(20)
 
             torque_vs_rpm.append((rpm, plate_torque_report.evaluate().z))
@@ -224,9 +211,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         # Show Torque vs Slip Speed
 
-        ref = numpy.loadtxt(
-            f"{dir_path}/data/Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
-        )
+        ref = numpy.loadtxt(f"{dir_path}/data/Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1)
 
         xy_plot(
             values=torque_vs_rpm,
@@ -247,7 +232,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             # flake8: noqa: FKA100
 
             for n, (rpm, torque) in enumerate(torque_vs_rpm_step):
-
                 plt.clf()
 
                 ref = numpy.loadtxt(
@@ -282,7 +266,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                 leg.get_frame().set_linewidth(2.0)
 
                 arrow_height = 6.0
-                text_offset = 1.0
 
                 ax.annotate(
                     "",

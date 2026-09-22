@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 
@@ -49,9 +47,7 @@ class Berger2017HtsCube(ValidationCase):
             total_inner_iterations=10,
         )
 
-        magnetic_model = TimeDomainMagneticModel(
-            order=1, magnetostatic_initialization=False
-        )
+        magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=False)
         sim.get_model_manager().add_model(magnetic_model)
 
         # Line search stabilises Newton's iteration on the n=25 power-law nonlinearity.

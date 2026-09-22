@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 import numpy
 
 import mufem
@@ -94,9 +92,7 @@ class Team36InductionHeating(ValidationCase):
             "Billet",
             billet_marker,
             permeability_method,
-            electric_conductivity=method.TemperatureTable(
-                rho_T[:, 0] + 273.15, 1.0 / rho_T[:, 1]
-            ),
+            electric_conductivity=method.TemperatureTable(rho_T[:, 0] + 273.15, 1.0 / rho_T[:, 1]),
             has_eddy_currents=True,
         )
 
@@ -121,9 +117,7 @@ class Team36InductionHeating(ValidationCase):
                 f"Coil::{n}::In" @ mufem.Bnd, f"Coil::{n}::Out" @ mufem.Bnd
             )
             coil_type = CoilTypeStranded(1)
-            coil_excitation = CoilExcitationCurrent(
-                current=3500.0 * numpy.sqrt(2)
-            )  # RMS
+            coil_excitation = CoilExcitationCurrent(current=3500.0 * numpy.sqrt(2))  # RMS
             coil = CoilSpecification(
                 "Coil",
                 f"Coil::{n}" @ mufem.Vol,
@@ -144,12 +138,8 @@ class Team36InductionHeating(ValidationCase):
         thermal_billet_material = SolidTemperatureMaterial(
             name="Billet",
             marker=billet_marker,
-            thermal_conductivity=method.TemperatureTable(
-                lambda_T[:, 0] + 273.15, lambda_T[:, 1]
-            ),
-            specific_heat_capacity=method.TemperatureTable(
-                cp_T[:, 0] + 273.15, cp_T[:, 1]
-            ),
+            thermal_conductivity=method.TemperatureTable(lambda_T[:, 0] + 273.15, lambda_T[:, 1]),
+            specific_heat_capacity=method.TemperatureTable(cp_T[:, 0] + 273.15, cp_T[:, 1]),
             density=7800,
         )
         thermal_model.add_materials([thermal_billet_material])
@@ -195,9 +185,7 @@ class Team36InductionHeating(ValidationCase):
             name="OhmicHeatingReport", marker=billet_marker, cff_name="Ohmic Heating"
         )
         sim.get_report_manager().add_report(ohmic_heating_report)
-        ohmic_heating_monitor = mufem.ReportMonitor(
-            "Ohmic Heating Monitor", "OhmicHeatingReport"
-        )
+        ohmic_heating_monitor = mufem.ReportMonitor("Ohmic Heating Monitor", "OhmicHeatingReport")
         sim.get_monitor_manager().add_monitor(ohmic_heating_monitor)
 
         eps = 1.0e-6

@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 
 import numpy
 
@@ -93,7 +91,6 @@ class Biro1993IronCore(ValidationCase):
         sim.get_model_manager().add_model(coil_model)
 
         for n in range(25):
-
             coil_topology = CoilTopologyOpen(
                 f"Coil {n + 1}::Back" @ Bnd, f"Coil {n + 1}::Front" @ Bnd
             )
@@ -123,12 +120,9 @@ class Biro1993IronCore(ValidationCase):
 
         # Compare with reference
 
-        reference = numpy.loadtxt(
-            f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True
-        )
+        reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True)
 
         for n in range(25):
-
             report = mufem.VolumeIntegralReport(
                 "Ohmic Heating", f"Coil {n + 1}" @ Vol, "Ohmic Heating"
             )

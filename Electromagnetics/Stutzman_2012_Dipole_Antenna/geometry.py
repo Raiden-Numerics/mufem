@@ -21,9 +21,7 @@ outer_boundary = kernel.addSphere(0, 0, 0, outer_boundary_radius)
 top_arm = kernel.addCylinder(0, 0, gap_size / 2, 0, 0, arm_length, arm_radius)
 bot_arm = kernel.addCylinder(0, 0, -gap_size / 2, 0, 0, -arm_length, arm_radius)
 
-gap_rectangle = kernel.addRectangle(
-    -arm_radius, -gap_size / 2, 0, 2 * arm_radius, gap_size
-)
+gap_rectangle = kernel.addRectangle(-arm_radius, -gap_size / 2, 0, 2 * arm_radius, gap_size)
 kernel.rotate([(2, gap_rectangle)], 0, 0, 0, 1, 0, 0, np.pi / 2)
 
 kernel.cut([(3, outer_boundary)], [(3, top_arm), (3, bot_arm)])
@@ -51,9 +49,7 @@ gmsh.model.addPhysicalGroup(
 gmsh.model.addPhysicalGroup(
     2, [dimTag[1] for dimTag in boundary_bot_arm], name="BoundaryBotArm", tag=2
 )
-gmsh.model.addPhysicalGroup(
-    2, [dimTag[1] for dimTag in boundary_port], name="Port", tag=3
-)
+gmsh.model.addPhysicalGroup(2, [dimTag[1] for dimTag in boundary_port], name="Port", tag=3)
 gmsh.model.addPhysicalGroup(
     2, [dimTag[1] for dimTag in boundary_outer], name="BoundaryOuter", tag=4
 )

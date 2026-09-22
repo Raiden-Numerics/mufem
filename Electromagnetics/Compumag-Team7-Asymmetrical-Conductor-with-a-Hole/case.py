@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, str(Path(__file__).resolve().parents[2])
-)  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
 import mufem
 from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
@@ -65,9 +63,7 @@ class Team7AsymmetricalConductor(ValidationCase):
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        coil_topology = CoilTopologyClosed(
-            x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0
-        )
+        coil_topology = CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0)
         coil_type = CoilTypeStranded(number_of_turns=2742)
         coil_excitation = CoilExcitationCurrent(current=(1.0, 0))
 
@@ -98,11 +94,9 @@ class Team7AsymmetricalConductor(ValidationCase):
         x_values = numpy.linspace(start=0.0, stop=0.288, num=128)
 
         for probe in probe_reports:
-
             b_values = []
 
             for x in x_values:
-
                 magnetic_flux_density_real_report = mufem.ProbeReport.SinglePoint(
                     name="MagneticFluxDensityRealReport",
                     cff_name="Magnetic Flux Density-Real",
@@ -131,9 +125,7 @@ class Team7AsymmetricalConductor(ValidationCase):
 
             plt.clf()
 
-            ref = numpy.loadtxt(
-                f"{dir_path}/data/Bz_{probe[0]}.csv", delimiter=",", comments="#"
-            )
+            ref = numpy.loadtxt(f"{dir_path}/data/Bz_{probe[0]}.csv", delimiter=",", comments="#")
 
             plt.plot(
                 ref[:, 1],
@@ -154,7 +146,7 @@ class Team7AsymmetricalConductor(ValidationCase):
             plt.plot(
                 [x_value for x_value, _ in b_values],
                 [numpy.real(b_value) for _, b_value in b_values],
-                label=f"$\\mu$fem (Real)",
+                label="$\\mu$fem (Real)",
                 color="r",
                 linewidth=3.0,
             )
@@ -162,7 +154,7 @@ class Team7AsymmetricalConductor(ValidationCase):
             plt.plot(
                 [x_value for x_value, _ in b_values],
                 [numpy.imag(b_value) for _, b_value in b_values],
-                label=f"$\\mu$fem (Imag)",
+                label="$\\mu$fem (Imag)",
                 color="b",
                 linewidth=3.0,
             )

@@ -39,9 +39,7 @@ INLINE_ALLOWED_RE = re.compile(r"(?<!\\)\$`(.+?)`(?<!\\)\$", re.DOTALL)
 # Things to forbid
 LEGACY_INLINE_DOLLAR_RE = re.compile(r"(?<!\\)\$(?!\$)(.+?)(?<!\\)\$", re.DOTALL)
 DISPLAY_DOLLAR_RE = re.compile(r"(?<!\\)\$\$(.+?)(?<!\\)\$\$", re.DOTALL)
-PAREN_MATH_RE = re.compile(
-    r"(?<!\\)\\\(|(?<!\\)\\\)|(?<!\\)\\\[|(?<!\\)\\\]", re.DOTALL
-)
+PAREN_MATH_RE = re.compile(r"(?<!\\)\\\(|(?<!\\)\\\)|(?<!\\)\\\[|(?<!\\)\\\]", re.DOTALL)
 
 INLINE_CODE_SPAN_RE = re.compile(r"`([^`]|``)*`")  # simple masking
 
@@ -166,9 +164,7 @@ def lint_file(path: str, raw: str) -> list[Issue]:
     scan_text, _, _ = build_masks(raw)
 
     # Mask allowed inline $`...`$ first
-    allowed_ranges = [
-        (m.start(), m.end()) for m in INLINE_ALLOWED_RE.finditer(scan_text)
-    ]
+    allowed_ranges = [(m.start(), m.end()) for m in INLINE_ALLOWED_RE.finditer(scan_text)]
     tmp = mask_ranges(scan_text, allowed_ranges, fill=" ")
 
     # Mask inline code spans (outside allowed math)
@@ -183,18 +179,14 @@ def lint_file(path: str, raw: str) -> list[Issue]:
             if "\n" in raw[m.start() : m.end()]
             else raw[m.start() : m.end()]
         )
-        issues.append(
-            Issue(path, line, col, "forbidden_display_dollars", excerpt.strip())
-        )
+        issues.append(Issue(path, line, col, "forbidden_display_dollars", excerpt.strip()))
 
     # 2) Forbid legacy single-dollar inline math ($...$) not part of allowed $`...`$
     for m in LEGACY_INLINE_DOLLAR_RE.finditer(tmp2):
         line, col = compute_line_col(raw, m.start())
         excerpt = raw[m.start() : m.end()]
         excerpt = excerpt.splitlines()[0] + " …" if "\n" in excerpt else excerpt
-        issues.append(
-            Issue(path, line, col, "forbidden_inline_dollar", excerpt.strip())
-        )
+        issues.append(Issue(path, line, col, "forbidden_inline_dollar", excerpt.strip()))
 
     # 3) Forbid \( \) and \[ \]
     for m in PAREN_MATH_RE.finditer(tmp2):
@@ -224,16 +216,12 @@ def lint_file(path: str, raw: str) -> list[Issue]:
         for pos in open_positions:
             line, col = compute_line_col(raw, pos)
             issues.append(
-                Issue(
-                    path, line, col, "unmatched_inline_math_opener", raw[pos : pos + 2]
-                )
+                Issue(path, line, col, "unmatched_inline_math_opener", raw[pos : pos + 2])
             )
         for pos in close_positions:
             line, col = compute_line_col(raw, pos)
             issues.append(
-                Issue(
-                    path, line, col, "unmatched_inline_math_closer", raw[pos : pos + 2]
-                )
+                Issue(path, line, col, "unmatched_inline_math_closer", raw[pos : pos + 2])
             )
 
     return issues

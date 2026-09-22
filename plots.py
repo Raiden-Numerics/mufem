@@ -125,9 +125,7 @@ def xy_plot(
             )
         )
     elif reference_values is not None:
-        ref = [
-            (reference_xscale * x, reference_yscale * y) for x, y in reference_values
-        ]
+        ref = [(reference_xscale * x, reference_yscale * y) for x, y in reference_values]
     if ref is not None:
         _draw(
             ref,
