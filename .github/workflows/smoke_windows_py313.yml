@@ -22,12 +22,6 @@ on:
 # only the Linux MPI launcher), so we --exclude-tag long/eternal (those tiers run
 # for hours single-threaded here) and `mumps` (direct-solver cases). gmsh is
 # still installed for any moderate case that builds its mesh at runtime.
-#
-# NOTE: the magnetic H(curl)/AMS path heap-corrupts on the alpha Windows wheel
-# (0xC0000374 STATUS_HEAP_CORRUPTION at magnetostatic init) — Team1b and Team7
-# crash instantly. Nothing is excluded for this: the whole moderate tier is
-# gating, so those crashes turn the job (and badge) red until the wheel-side heap
-# bug is fixed. A red Windows badge is the intended signal here.
 jobs:
   smoke:
     runs-on: windows-latest
@@ -36,13 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ===== TEMPORARY DEBUG: Team1b/Team7 fail at Simulation.New with
-      # "invalid mesh file", but the mesh on disk is byte-identical to the git
-      # blob and decompresses cleanly. So this is NOT checkout corruption — the
-      # Windows wheel's MFEM fails to parse a valid gzip mesh (while Team13, same
-      # MFEM v1.3 format, parses fine). Key test: does an UNCOMPRESSED copy of the
-      # same mesh load? That isolates a gzip-decompression bug from a parser bug.
-      # Revert to the full smoke once diagnosed. =====
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -55,39 +42,12 @@ jobs:
           PIP_IS_CI: '1'
         run: |
           pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -r requirements.txt
+          pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
 
-      - name: DEBUG - load gzip vs uncompressed mesh via mufem
+      - name: Run the moderate validation tier (serial; no MPI/pymufem)
         shell: bash
+        env:
+          MPLBACKEND: Agg  # headless: no GUI backend
         run: |
-          python - <<'PY'
-          import gzip, shutil, traceback, mufem
-          print("mufem", getattr(mufem, "__version__", "?"))
-
-          cases = {
-              "Team1b": "Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh",
-              "Team7":  "Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh",
-              "Team13": "Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/geometry.mesh",
-          }
-
-          def try_load(tag, path):
-              try:
-                  mufem.Simulation.New(name=tag, mesh_path=path)
-                  print(f"  [{tag}] LOAD OK  ({path})")
-              except Exception as e:
-                  print(f"  [{tag}] LOAD FAILED ({path}): {e!r}")
-
-          for tag, gz in cases.items():
-              print(f"=== {tag} ===")
-              with open(gz, "rb") as f:
-                  head = f.read(16)
-              print(f"  gzip file: {len(open(gz,'rb').read())} bytes, first16={head.hex()}")
-              # decompress to an uncompressed sibling
-              plain = gz.replace("geometry.mesh", "geometry_plain.mesh")
-              with gzip.open(gz, "rb") as fi, open(plain, "wb") as fo:
-                  shutil.copyfileobj(fi, fo)
-              dec = open(plain, "rb").read()
-              print(f"  decompressed: {len(dec)} bytes, head={dec[:40]!r}")
-              try_load(f"{tag}-gzip", gz)
-              try_load(f"{tag}-plain", plain)
-          PY
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps
