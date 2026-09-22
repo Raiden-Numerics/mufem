@@ -376,7 +376,7 @@ def theory(r):
     eps0 = 8.8541878188e-12  # [F/m] vacuum permittivity
     factor = Q / (4 * np.pi * eps0 * r**2)
     term1 = np.sqrt(np.pi / 2) * a**3 * math.erf(r / (np.sqrt(2) * a))
-    term2 = a**2 * r * np.exp(-r**2 / (2 * a**2))
+    term2 = a**2 * r * np.exp(-(r**2) / (2 * a**2))
     return factor * (term1 - term2)
 ```
 
@@ -414,7 +414,11 @@ Similarly, we update the `E_theory` array by calling the previously defined
 ```python
 for i in range(Nr):
     report = mufem.ProbeReport.SinglePoint(
-        name="Electric Field Report", cff_name="Electric Field", x=r[i], y=0, z=0,
+        name="Electric Field Report",
+        cff_name="Electric Field",
+        x=r[i],
+        y=0,
+        z=0,
     )
     E = report.evaluate()
     E_mufem[i] = E.x

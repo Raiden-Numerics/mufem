@@ -95,8 +95,12 @@ coil_model = ExcitationCoilModel()
 sim.get_model_manager().add_model(coil_model)
 
 coil_topology = CoilTopologyClosed(
-    x=0.2, y=0.01, z=0.07,
-    dx=1.0, dy=0.0, dz=0.0,
+    x=0.2,
+    y=0.01,
+    z=0.07,
+    dx=1.0,
+    dy=0.0,
+    dz=0.0,
 )
 
 coil_type = CoilTypeStranded(number_of_turns=2742)

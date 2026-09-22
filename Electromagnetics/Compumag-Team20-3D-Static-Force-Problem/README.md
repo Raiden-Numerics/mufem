@@ -132,7 +132,6 @@ Stopping criterion reached!
 Note that in [case.py](case.py), we have a loop over an increasing value of the coil current:
 ```python
 for coil_current in numpy.linspace(0.0, 5.0, 11):
-
     coil_drive_current.set_value(coil_current)
     steady_runner.advance(5)
 

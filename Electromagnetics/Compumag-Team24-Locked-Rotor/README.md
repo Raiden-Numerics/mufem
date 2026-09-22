@@ -40,7 +40,6 @@ We specify a stranded coil by using the [Stranded Coil](https://raiden-numerics.
 
 ```python
 for coil in ["Upper", "Lower"]:
-
     coil_topology = CoilTopologyOpen(
         in_marker=f"{coil} Coil::In" @ Bnd, out_marker=f"{coil} Coil::Out" @ Bnd
     )
