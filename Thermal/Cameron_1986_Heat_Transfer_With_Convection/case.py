@@ -1,4 +1,8 @@
-import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+
 import numpy
 
 import mufem
@@ -11,93 +15,100 @@ from mufem.thermal import (
     TemperatureCondition,
 )
 
-# Problem setup ------------------------------------------------------------------------
-sim = mufem.Simulation.New(
-    name="Cameron 1986: Heat Transfer With Convection",
-    mesh_path="geometry.mesh",
-)
+from validation_case import ValidationCase
+from plots import xy_plot, PlotStyle
 
-runner = mufem.SteadyRunner(total_iterations=3)
-sim.set_runner(runner)
 
-is_main_process = sim.get_machine().is_main_process()
+class Cameron1986(ValidationCase):
+    name = "Cameron 1986: Heat Transfer With Convection"
+    tags = {"moderate"}
 
-# Model --------------------------------------------------------------------------------
-model = SolidTemperatureModel(marker="Plate" @ Vol)
-sim.get_model_manager().add_model(model)
+    def build(self):
+        sim = mufem.Simulation.New(
+            name=self.name,
+            mesh_path=f"{self.dir_path}/geometry.mesh",
+        )
 
-# Materials ----------------------------------------------------------------------------
-material = SolidTemperatureMaterial(
-    name="Material",
-    marker="Plate" @ Vol,
-    thermal_conductivity=52.0,
-    specific_heat_capacity=1.0,
-    density=1.0,
-)
-model.add_material(material)
+        runner = mufem.SteadyRunner(total_iterations=3)
+        sim.set_runner(runner)
 
-# Boundary conditions ------------------------------------------------------------------
-bc_Adiabatic = AdiabaticBoundaryCondition(
-    name="Insulated",
-    marker="Plate::Insulated" @ Bnd,
-)
+        # Model ------------------------------------------------------------------------
+        model = SolidTemperatureModel(marker="Plate" @ Vol)
+        sim.get_model_manager().add_model(model)
 
-bc_TAmbient = ConvectionBoundaryCondition(
-    name="Natural Convection",
-    marker="Plate::AmbientTemperature" @ Bnd,
-    convection_efficiency=750.0,
-    temperature_medium=273.15,
-)
+        # Materials --------------------------------------------------------------------
+        material = SolidTemperatureMaterial(
+            name="Material",
+            marker="Plate" @ Vol,
+            thermal_conductivity=52.0,
+            specific_heat_capacity=1.0,
+            density=1.0,
+        )
+        model.add_material(material)
 
-bc_TFixed = TemperatureCondition(
-    name="Fixed Temperature",
-    marker="Plate::FixedTemperature" @ Bnd,
-    temperature=373.15,
-)
+        # Boundary conditions ----------------------------------------------------------
+        bc_Adiabatic = AdiabaticBoundaryCondition(
+            name="Insulated",
+            marker="Plate::Insulated" @ Bnd,
+        )
 
-model.add_conditions([bc_TFixed, bc_TAmbient, bc_Adiabatic])
+        bc_TAmbient = ConvectionBoundaryCondition(
+            name="Natural Convection",
+            marker="Plate::AmbientTemperature" @ Bnd,
+            convection_efficiency=750.0,
+            temperature_medium=273.15,
+        )
 
-# Run the simulation -------------------------------------------------------------------
-sim.run()
+        bc_TFixed = TemperatureCondition(
+            name="Fixed Temperature",
+            marker="Plate::FixedTemperature" @ Bnd,
+            temperature=373.15,
+        )
 
-# Test the temperature -----------------------------------------------------------------
-report = mufem.ProbeReport.SinglePoint(
-    name="TemperatureReport",
-    cff_name="Temperature",
-    x=0.6,
-    y=0.2,
-    z=0.005,
-)
-Tprobe = report.evaluate()
+        model.add_conditions([bc_TFixed, bc_TAmbient, bc_Adiabatic])
 
-Texpected = 291.45
+        return sim
 
-if is_main_process:
-    print()
-    print(f"Expected temperature T = {Texpected} K")
-    print(f"   Probe Temperature T = {Tprobe} K")
-    print()
+    def validate(self, sim):
+        report = mufem.ProbeReport.SinglePoint(
+            name="TemperatureReport",
+            cff_name="Temperature",
+            x=0.6,
+            y=0.2,
+            z=0.005,
+        )
+        Tprobe = report.evaluate()
+        self.expect(Tprobe, 291.45, rel_tol=1e-2, label="probe temperature [K]")
 
-# Plot the temperature -----------------------------------------------------------------
-x_vals = numpy.linspace(0, 0.6, 23, endpoint=True)
-T_vals = []
+    def visualize(self, sim):
+        # Temperature profile along y = 0.5. evaluate() is collective, so the
+        # loop runs on all ranks; only the matplotlib write is main-rank-local.
+        x_vals = numpy.linspace(0, 0.6, 23, endpoint=True)
+        T_vals = []
+        for x in x_vals:
+            report = mufem.ProbeReport.SinglePoint(
+                name="Probe Report",
+                cff_name="Temperature",
+                x=x,
+                y=0.5,
+                z=0.005,
+            )
+            T_vals.append(report.evaluate())
 
-for x in x_vals:
-    report = mufem.ProbeReport.SinglePoint(
-        name="Probe Report",
-        cff_name="Temperature",
-        x=x,
-        y=0.5,
-        z=0.005,
-    )
-    T_vals.append(report.evaluate())
+        if self.is_main(sim):
+            xy_plot(
+                values=list(zip(x_vals, T_vals)),
+                style=PlotStyle.LINE_AND_POINTS,
+                xlabel="Position [m]",
+                ylabel="Temperature [K]",
+                path="results/Temperature.png",
+            )
 
-plt.plot(x_vals, T_vals, color="red")
-plt.xlabel("Position [m]")
-plt.ylabel("Temperature [K]")
-plt.savefig("results/Temperature.png", bbox_inches="tight")
+        # ParaView export (collective) ------------------------------------------------
+        vis = sim.get_field_exporter()
+        vis.add_field_output("Temperature")
+        vis.save()
 
-# Export ParaView data -----------------------------------------------------------------
-vis = sim.get_field_exporter()
-vis.add_field_output("Temperature")
-vis.save()
+
+if __name__ == "__main__":
+    Cameron1986().run()

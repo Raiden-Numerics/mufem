@@ -71,7 +71,8 @@ We also assume that the computational domain is filled with air, which we model 
 To calculate the energy $`W`$ we use the Volume Integral Report, which integrates the Electric Energy Density over the computational domain:
 ```py
 report = VolumeIntegralReport(
-    name="Electric Energy Density Report", cff_name="Electric Energy Density",
+    name="Electric Energy Density Report",
+    cff_name="Electric Energy Density",
 )
 ```
 
@@ -111,9 +112,7 @@ for xshift in xshifts:
             refinement_model.refine_mesh()
 
     else:
-        raise RuntimeError(
-            "Maximum number of iterations reached without reaching max_ncells."
-        )
+        raise RuntimeError("Maximum number of iterations reached without reaching max_ncells.")
 
     vis.save(order=2)
 ```

@@ -23,16 +23,14 @@ Reference [1] derives a closed-form 3-D analytical model for the braking torque 
 The rotational motion can be applied either to the copper plate or to the magnetic plate using the `RigidBodyMotionModel`:
 
 ```python
-rbm_model = RigidBodyMotionModel(
-    mesh_motion_strategy=MeshMotionPartialRemeshing("Air" @ Vol)
-)
+rbm_model = RigidBodyMotionModel(mesh_motion_strategy=MeshMotionPartialRemeshing("Air" @ Vol))
 
 motion = RotatingMotion(
-        name="Rotation",
-        marker=["Copper Plate", "Back Iron::Copper Side"] @ Vol,
-        origin=[0.0, 0.0, 0.0],
-        axis=[0.0, 0.0, 1.0],
-        rotation_rate=0,
+    name="Rotation",
+    marker=["Copper Plate", "Back Iron::Copper Side"] @ Vol,
+    origin=[0.0, 0.0, 0.0],
+    axis=[0.0, 0.0, 1.0],
+    rotation_rate=0,
 )
 
 rbm_model.add_motion(motion)

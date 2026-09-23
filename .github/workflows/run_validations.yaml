@@ -14,13 +14,19 @@ on:
         description: Path passed to run_cases.py (a directory or '.' for all cases)
         required: true
         type: string
+      run-on-draft:
+        description: Whether to run when the PR is a draft (each caller decides)
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   run-examples:
     runs-on: self-hosted
     container:
       image: ubuntu:24.04
-    if: github.event.pull_request.draft == false
+    # Run on push/non-PR events, on non-draft PRs, or when the caller opts in to drafts.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false || inputs.run-on-draft
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}

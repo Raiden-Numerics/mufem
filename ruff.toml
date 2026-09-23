@@ -1,0 +1,14 @@
+# Ruff config — replaces flake8 (+ its plugins) and black.
+# `ruff check` = lint (pycodestyle E/W + pyflakes F, matching the old flake8 set)
+# `ruff format` = black-compatible formatter
+line-length = 99
+extend-exclude = ["tmp", "**/VisualizationOutput/**"]
+
+[lint]
+select = ["E", "W", "F"]
+
+[lint.per-file-ignores]
+# Example cases prepend the repo root to sys.path before importing the shared
+# validation_case / plots helpers, so their imports intentionally follow a
+# statement (E402).
+"**/case.py" = ["E402"]

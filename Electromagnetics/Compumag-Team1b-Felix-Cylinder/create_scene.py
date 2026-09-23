@@ -26,9 +26,7 @@ outputvtpcseries = pvs.XMLPartitionedDatasetCollectionReader(
     FileName=[f"{script_dir}/VisualizationOutput/Output.vtpc.series"],
 )
 
-glyph1 = pvs.Glyph(
-    registrationName="Current Density", Input=outputvtpcseries, GlyphType="Arrow"
-)
+glyph1 = pvs.Glyph(registrationName="Current Density", Input=outputvtpcseries, GlyphType="Arrow")
 
 glyph1.Set(
     OrientationArray=["POINTS", "Electric Current Density"],
@@ -39,9 +37,7 @@ glyph1.Set(
 
 
 # show data from outputvtpcseries
-outputvtpcseriesDisplay = pvs.Show(
-    outputvtpcseries, renderView1, "UnstructuredGridRepresentation"
-)
+outputvtpcseriesDisplay = pvs.Show(outputvtpcseries, renderView1, "UnstructuredGridRepresentation")
 
 # trace defaults for the display properties.
 outputvtpcseriesDisplay.Set(

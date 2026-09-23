@@ -13,15 +13,16 @@ on:
 
 # macOS smoke test on a GitHub-hosted macos-14 runner (Apple Silicon, free for
 # this public repo). Installs the published macOS wheel from PyPI and runs the
-# repo's thermal (Cameron) and magnetic (Team1b) cases — real solves on genuine
-# Apple Silicon (there is no arm64 Mach-O emulator, so this is the only place the
-# macOS wheel can actually be exercised).
+# `moderate` validation cases (each < ~100s in the Linux MPI suite) — real solves
+# on genuine Apple Silicon (there is no arm64 Mach-O emulator, so this is the only
+# place the macOS wheel can actually be exercised).
 #
 # The macOS wheel is a single self-contained package (engine static in mufem.so;
 # third-party dylibs bundled and resolved via @rpath) and is published as alpha,
-# so it installs only with --pre. Both cases ship a prebuilt mesh, so no gmsh is
-# needed, and they are launched with plain `python` (serial, single rank):
-# pymufem is only the Linux MPI launcher, which a smoke test does not need.
+# so it installs only with --pre. The cases are launched serially with plain
+# `python` (pymufem is only the Linux MPI launcher). run_cases.py reads each
+# case's ValidationCase.tags and we --exclude-tag the tiers/capabilities this
+# runner can't do: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 jobs:
   smoke:
     runs-on: macos-14
@@ -40,15 +41,13 @@ jobs:
         env:
           CI: '1'
           PIP_IS_CI: '1'
-        run: pip install --pre --force-reinstall --no-cache-dir mufem
+        run: |
+          pip install --pre --force-reinstall --no-cache-dir mufem
+          pip install -r requirements.txt
 
-      - name: Run a thermal case (serial; no MPI/pymufem)
+      - name: Run the moderate validation cases (serial; skip long/eternal)
+        env:
+          MPLBACKEND: Agg  # headless: no macOS GUI backend
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          cd Thermal/Cameron_1986_Heat_Transfer_With_Convection
-          python case.py
-
-      - name: Run the Team1b case (serial; no MPI/pymufem)
-        run: |
-          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python case.py
+          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps

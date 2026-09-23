@@ -85,9 +85,7 @@ ov = gmsh.model.getEntitiesInBoundingBox(
 )
 output_port = ov[0]
 
-walls = [
-    ov for ov in gmsh.model.getEntities(dim=2) if ov not in [input_port, output_port]
-]
+walls = [ov for ov in gmsh.model.getEntities(dim=2) if ov not in [input_port, output_port]]
 
 ov = gmsh.model.getEntities(3)
 domain = ov[0]

@@ -163,9 +163,7 @@ def visualize_and_save(state, phase: float, index: int, outdir: Path):
     )
 
 
-def combine_images(
-    large_path: Path, small1_path: Path, small2_path: Path, output_path: Path
-):
+def combine_images(large_path: Path, small1_path: Path, small2_path: Path, output_path: Path):
     large = Image.open(str(large_path))
     small1 = Image.open(str(small1_path))
     small2 = Image.open(str(small2_path))
@@ -310,22 +308,18 @@ def main():
     dt = period_length / args.frames
 
     for index in range(args.frames):
-
         time = index * dt
         phase = 2.0 * math.pi * args.freq * time
 
         phase_deg = phase * 180.0 / math.pi
 
-        print(
-            f"Creating plot for step {index:03d} at {phase_deg:.3f}deg / {time*1e3:.3f}ms"
-        )
+        print(f"Creating plot for step {index:03d} at {phase_deg:.3f}deg / {time * 1e3:.3f}ms")
 
         create_magnetic_flux_density_plot(index, phase)
         visualize_and_save(state, phase, index, outdir)
         create_plot(time, index, args.frames, outdir, args.freq)
 
     for i in range(args.frames):
-
         combine_images(
             large_path=outdir / f"Scene_Electric_Current_Density_{i:03d}.png",
             small1_path=outdir / f"Coil_Current_{i:03d}.png",

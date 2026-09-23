@@ -1,2 +1,9 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.mufem filter=lfs diff=lfs merge=lfs -text
+
+# Mesh files are binary (gzip-compressed Gmsh). Without this, Windows checkouts
+# with core.autocrlf=true LF->CRLF-mangle them, corrupting the gzip stream
+# (MFEM then aborts: "Gmsh file : dsize != sizeof(double)").
+*.mesh binary
+*.msh binary
+*.nm2 binary

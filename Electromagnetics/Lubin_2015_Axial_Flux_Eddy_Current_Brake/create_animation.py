@@ -71,9 +71,7 @@ def create_scene(index: int, rpm: int):
     viewer.save_screenshot(f"vis/Scene_Electric_Current_Density_{index:03d}.png")
 
 
-def combine_images(
-    large_path, small1_path, output_path, small_scale=0.9, right_padding=80
-):
+def combine_images(large_path, small1_path, output_path, small_scale=0.9, right_padding=80):
     large = Image.open(large_path)
     small1 = Image.open(small1_path)
 
@@ -103,10 +101,8 @@ def combine_images(
 
 
 if __name__ == "__main__":
-
     # 90 is currently hard-coded to three rotation rates each for 30 time steps
     for i in range(90):
-
         rpm = [500, 1000, 2000][i // 30]
 
         create_scene(i, rpm)
