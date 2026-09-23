@@ -50,31 +50,41 @@ jobs:
       # on the two LARGEST meshes (Team1b 1.65MB, Team7 1.74MB decompressed) as
       # "invalid mesh file", while smaller Team13 (0.94MB) survives. Test import
       # order in FRESH subprocesses to avoid the multi-instance confound. =====
-      - name: DEBUG - import-order test (fresh subprocess each)
+      - name: DEBUG - reproduce with case.py import graph + test fixes
         shell: bash
         env:
           MPLBACKEND: Agg
         run: |
-          python - <<'PY'
+          M="Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh"
+          python - "$M" <<'PY'
           import subprocess, sys
-          meshes = {
-              "Team1b": r"Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh",
-              "Team7":  r"Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/geometry.mesh",
-              "Team13": r"Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/geometry.mesh",
+          mesh = sys.argv[1]
+          load = f"\nmufem.Simulation.New(name='t', mesh_path=r'{mesh}')\nprint('LOADED OK')\n"
+          variants = {
+            "A minimal (mpl,numpy,mufem)":
+              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem",
+            "B + tdm submodule (case.py order)":
+              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem\n"
+              "from mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel",
+            "C submodule BEFORE numpy":
+              "import mufem\nfrom mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel\n"
+              "import matplotlib.pyplot as plt\nimport numpy",
+            "D + plots (full case.py imports)":
+              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem\n"
+              "from mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel\n"
+              "import sys; sys.path.insert(0,'.'); import plots",
           }
-          orders = {
-              "mufem-only":       "import mufem",
-              "numpy-then-mufem": "import numpy; import mufem",
-              "mpl+numpy-then-mufem (like case.py)": "import matplotlib.pyplot; import numpy; import mufem",
-              "mufem-then-numpy": "import mufem; import numpy",
-          }
-          for tag, mesh in meshes.items():
-              print(f"=== {tag} ===")
-              for label, imp in orders.items():
-                  code = f"{imp}\nmufem.Simulation.New(name='t', mesh_path=r'{mesh}')\nprint('OK')"
-                  r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
-                  ok = "OK" if r.returncode == 0 and "OK" in r.stdout else "FAIL"
-                  tail = (r.stdout + r.stderr).strip().splitlines()
-                  msg = next((l for l in tail if "invalid mesh" in l or "Verification" in l or "Error" in l), tail[-1] if tail else "")
-                  print(f"  {ok:4} {label:38} (exit {r.returncode})  {msg[:70]}")
+          for name, imp in variants.items():
+              r = subprocess.run([sys.executable, "-c", imp + load], capture_output=True, text=True)
+              ok = "OK  " if "LOADED OK" in r.stdout else "FAIL"
+              tail = (r.stdout + r.stderr).strip().splitlines()
+              msg = next((l for l in tail if "mesh" in l.lower() or "Verification" in l or "Error" in l), tail[-1] if tail else "")
+              print(f"  {ok} {name:36} {msg[:66]}")
           PY
+
+          echo "=== actual case.py runs (baseline + env-var fixes) ==="
+          run() { ( cd Electromagnetics/Compumag-Team1b-Felix-Cylinder && python case.py >o.txt 2>&1; echo "  exit $?  $(grep -iE 'invalid mesh|Verification|Unknown input|Ohmic|Finishing' o.txt | tail -1)"; ) ; }
+          echo "-- baseline";                          run
+          echo "-- OPENBLAS_NUM_THREADS=1";  OPENBLAS_NUM_THREADS=1 run
+          echo "-- OMP_NUM_THREADS=1";       OMP_NUM_THREADS=1 run
+          echo "-- KMP_DUPLICATE_LIB_OK";    KMP_DUPLICATE_LIB_OK=TRUE run
