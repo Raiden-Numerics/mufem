@@ -83,8 +83,11 @@ jobs:
           PY
 
           echo "=== actual case.py runs (baseline + env-var fixes) ==="
-          run() { ( cd Electromagnetics/Compumag-Team1b-Felix-Cylinder && python case.py >o.txt 2>&1; echo "  exit $?  $(grep -iE 'invalid mesh|Verification|Unknown input|Ohmic|Finishing' o.txt | tail -1)"; ) ; }
-          echo "-- baseline";                          run
-          echo "-- OPENBLAS_NUM_THREADS=1";  OPENBLAS_NUM_THREADS=1 run
-          echo "-- OMP_NUM_THREADS=1";       OMP_NUM_THREADS=1 run
-          echo "-- KMP_DUPLICATE_LIB_OK";    KMP_DUPLICATE_LIB_OK=TRUE run
+          set +e  # do NOT abort on case.py failures - we want to see every result
+          run() ( cd Electromagnetics/Compumag-Team1b-Felix-Cylinder && python case.py >o.txt 2>&1; ec=$?; echo "  exit $ec  $(grep -iE 'invalid mesh|Verification|Unknown input|Ohmic|Finishing' o.txt | tail -1)"; )
+          echo "-- baseline";                                     run
+          echo "-- OPENBLAS_NUM_THREADS=1"; OPENBLAS_NUM_THREADS=1 run
+          echo "-- OMP_NUM_THREADS=1";      OMP_NUM_THREADS=1      run
+          echo "-- KMP_DUPLICATE_LIB_OK";   KMP_DUPLICATE_LIB_OK=TRUE run
+          echo "-- OPENBLAS_MAIN_FREE=1";   OPENBLAS_MAIN_FREE=1   run
+          echo "=== end ==="; true
