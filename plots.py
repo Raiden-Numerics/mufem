@@ -24,7 +24,11 @@ line with square markers. Line/marker rendering is chosen with the `PlotStyle` e
 from enum import Enum
 from typing import Iterable, Optional, Sequence, Tuple
 
-import numpy
+# NOTE: numpy is imported lazily inside the functions below, NOT at module top.
+# On the Windows wheel, importing numpy (its OpenBLAS) *after* mufem corrupts
+# mufem's mesh read. Cases do `from plots import ...` after `import mufem`, so a
+# top-level numpy import here would load numpy after mufem and break mesh loading.
+# Keeping it lazy means numpy only loads when a plot is actually drawn (post-solve).
 
 MUFEM_LABEL = "mufem"
 
@@ -111,6 +115,7 @@ def xy_plot(
     """Plot `values` (and an optional `reference_file`) to `path`, with a
     consistent style (best-loc legend, no frame)."""
     import matplotlib.pyplot as plt
+    import numpy
 
     fig = plt.figure(figsize=_FIGSIZE, layout="constrained")
 

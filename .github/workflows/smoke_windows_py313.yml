@@ -22,6 +22,11 @@ on:
 # only the Linux MPI launcher), so we --exclude-tag long/eternal (those tiers run
 # for hours single-threaded here) and `mumps` (direct-solver cases). gmsh is
 # still installed for any moderate case that builds its mesh at runtime.
+#
+# NOTE: on the Windows wheel, importing numpy's OpenBLAS *after* mufem corrupts
+# mufem's mesh read (Simulation.New fails with "invalid mesh file"). Cases must
+# therefore import numpy/matplotlib BEFORE mufem; plots.py imports numpy lazily
+# for the same reason. See the import-order note in plots.py.
 jobs:
   smoke:
     runs-on: windows-latest
@@ -44,87 +49,10 @@ jobs:
           pip install --pre --force-reinstall --no-cache-dir mufem
           pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
 
-      # ===== TEMPORARY DEBUG: every mesh loads when mufem is imported alone, but
-      # case.py imports matplotlib+numpy BEFORE mufem. Hypothesis: numpy's OpenBLAS
-      # loaded first clashes with mufem's on Windows (heap corruption), surfacing
-      # on the two LARGEST meshes (Team1b 1.65MB, Team7 1.74MB decompressed) as
-      # "invalid mesh file", while smaller Team13 (0.94MB) survives. Test import
-      # order in FRESH subprocesses to avoid the multi-instance confound. =====
-      - name: DEBUG - exact case.py context, gzip vs uncompressed mesh
+      - name: Run the moderate validation tier (serial; no MPI/pymufem)
         shell: bash
         env:
-          MPLBACKEND: Agg
+          MPLBACKEND: Agg  # headless: no GUI backend
         run: |
-          set +e
-          ROOT=$(git rev-parse --show-toplevel)
-          cd Electromagnetics/Compumag-Team1b-Felix-Cylinder
-          python -c "import gzip,shutil; shutil.copyfileobj(gzip.open('geometry.mesh','rb'), open('geometry_plain.mesh','wb'))"
-          cat > _repro.py <<'PY'
-          import os, sys
-          sys.path.insert(0, os.environ["ROOT"])
-          import matplotlib.pyplot as plt      # noqa
-          import numpy                          # noqa
-          import mufem
-          from mufem import Bnd, Vol            # noqa
-          from mufem.electromagnetics.timedomainmagnetic import (   # noqa
-              TangentialMagneticFieldBoundaryCondition,
-              TimeDomainMagneticGeneralMaterial,
-              TimeDomainMagneticModel,
-          )
-          from validation_case import ValidationCase   # noqa
-          from plots import xy_plot, PlotStyle          # noqa
-          from pathlib import Path
-          dir_path = Path("case.py").resolve().parent
-          mesh = f"{dir_path}/" + sys.argv[1]
-          try:
-              mufem.Simulation.New(name="Compumag Team1b: Felix Cylinder", mesh_path=mesh)
-              print("  LOAD OK ->", sys.argv[1])
-          except Exception as e:
-              print("  LOAD FAILED ->", sys.argv[1], ":", e)
-          PY
-          echo "### full case.py imports + f-string dir_path path ###"
-          ROOT=$ROOT python _repro.py geometry.mesh
-          ROOT=$ROOT python _repro.py geometry_plain.mesh
-          cd "$ROOT"
-
-      - name: DEBUG - reproduce with case.py import graph + test fixes
-        shell: bash
-        env:
-          MPLBACKEND: Agg
-        run: |
-          M="Electromagnetics/Compumag-Team1b-Felix-Cylinder/geometry.mesh"
-          python - "$M" <<'PY'
-          import subprocess, sys
-          mesh = sys.argv[1]
-          load = f"\nmufem.Simulation.New(name='t', mesh_path=r'{mesh}')\nprint('LOADED OK')\n"
-          variants = {
-            "A minimal (mpl,numpy,mufem)":
-              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem",
-            "B + tdm submodule (case.py order)":
-              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem\n"
-              "from mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel",
-            "C submodule BEFORE numpy":
-              "import mufem\nfrom mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel\n"
-              "import matplotlib.pyplot as plt\nimport numpy",
-            "D + plots (full case.py imports)":
-              "import matplotlib.pyplot as plt\nimport numpy\nimport mufem\n"
-              "from mufem.electromagnetics.timedomainmagnetic import TimeDomainMagneticModel\n"
-              "import sys; sys.path.insert(0,'.'); import plots",
-          }
-          for name, imp in variants.items():
-              r = subprocess.run([sys.executable, "-c", imp + load], capture_output=True, text=True)
-              ok = "OK  " if "LOADED OK" in r.stdout else "FAIL"
-              tail = (r.stdout + r.stderr).strip().splitlines()
-              msg = next((l for l in tail if "mesh" in l.lower() or "Verification" in l or "Error" in l), tail[-1] if tail else "")
-              print(f"  {ok} {name:36} {msg[:66]}")
-          PY
-
-          echo "=== actual case.py runs (baseline + env-var fixes) ==="
-          set +e  # do NOT abort on case.py failures - we want to see every result
-          run() ( cd Electromagnetics/Compumag-Team1b-Felix-Cylinder && python case.py >o.txt 2>&1; ec=$?; echo "  exit $ec  $(grep -iE 'invalid mesh|Verification|Unknown input|Ohmic|Finishing' o.txt | tail -1)"; )
-          echo "-- baseline";                                     run
-          echo "-- OPENBLAS_NUM_THREADS=1"; OPENBLAS_NUM_THREADS=1 run
-          echo "-- OMP_NUM_THREADS=1";      OMP_NUM_THREADS=1      run
-          echo "-- KMP_DUPLICATE_LIB_OK";   KMP_DUPLICATE_LIB_OK=TRUE run
-          echo "-- OPENBLAS_MAIN_FREE=1";   OPENBLAS_MAIN_FREE=1   run
-          echo "=== end ==="; true
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps

@@ -2,6 +2,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+
+# numpy MUST be imported before mufem: on the Windows wheel, loading numpy's
+# OpenBLAS after mufem corrupts mufem's mesh read (Simulation.New).
+import matplotlib.pyplot as plt
+import numpy
+
 import mufem
 from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
@@ -16,9 +22,6 @@ from mufem.electromagnetics.timeharmonicmagnetic import (
 )
 
 from mufem import Vol
-
-import matplotlib.pyplot as plt
-import numpy
 from pathlib import Path
 
 dir_path = Path(__file__).resolve().parent
