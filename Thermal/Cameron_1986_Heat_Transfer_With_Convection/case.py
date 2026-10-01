@@ -1,5 +1,3 @@
-import numpy
-
 import mufem
 from mufem import Bnd, Vol
 from mufem.thermal import (
@@ -65,6 +63,7 @@ class Cameron1986(ValidationCase):
         return sim
 
     def validate(self, sim):
+        # NAFEMS T4 reference temperature on the right edge, 0.2 m above the bottom.
         report = mufem.ProbeReport.SinglePoint(
             name="TemperatureReport",
             cff_name="Temperature",
@@ -72,27 +71,28 @@ class Cameron1986(ValidationCase):
             y=0.2,
             z=0.005,
         )
-        Tprobe = report.evaluate()
-        self.expect(Tprobe, 291.45, rel_tol=1e-2, label="probe temperature [K]")
+        self.expect(report.evaluate(), 291.45, rel_tol=1e-3, label="probe temperature [K]")
+
+        # Temperature profile along y = 0.5, checked against the stored baseline.
+        profile = mufem.ProbeReport.Line(
+            name="Probe Report",
+            cff_name="Temperature",
+            start=(0.0, 0.5, 0.005),
+            end=(0.6, 0.5, 0.005),
+            number_points=23,
+        )
+        self.temperature_profile = [(p.x, T) for p, T in profile.evaluate_all()]
+        self.expect_baseline(
+            sim,
+            "Temperature",
+            self.temperature_profile,
+            header="Position [m], Temperature [K]",
+        )
 
     def visualize(self, sim):
-        # Temperature profile along y = 0.5. evaluate() is collective, so the
-        # loop runs on all ranks; only the matplotlib write is main-rank-local.
-        x_vals = numpy.linspace(0, 0.6, 23, endpoint=True)
-        T_vals = []
-        for x in x_vals:
-            report = mufem.ProbeReport.SinglePoint(
-                name="Probe Report",
-                cff_name="Temperature",
-                x=x,
-                y=0.5,
-                z=0.005,
-            )
-            T_vals.append(report.evaluate())
-
         if self.is_main(sim):
             xy_plot(
-                values=list(zip(x_vals, T_vals)),
+                values=self.temperature_profile,
                 style=PlotStyle.LINE_AND_POINTS,
                 xlabel="Position [m]",
                 ylabel="Temperature [K]",
