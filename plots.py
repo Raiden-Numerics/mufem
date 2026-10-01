@@ -1,8 +1,6 @@
 """Shared plotting helper for validation cases.
 
-A lean release-repo analogue of mufem-dev's Testing/plots.py (without the
-baseline/TestContext machinery). The common case — one computed curve versus one
-CSV reference — is a single call:
+The common case — one computed curve versus one CSV reference — is a single call:
 
     from plots import xy_plot, PlotStyle
 
