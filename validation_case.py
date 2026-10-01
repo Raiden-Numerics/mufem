@@ -65,6 +65,8 @@ class ValidationCase:
         """
 
     def run(self) -> None:
+        self.results_path.mkdir(exist_ok=True)
+
         sim = self.build()
         sim.run()
         self.validate(sim)
@@ -81,6 +83,11 @@ class ValidationCase:
         """Directory of the concrete case file (for meshes / reference data)."""
         module_file = sys.modules[type(self).__module__].__file__
         return Path(module_file).resolve().parent
+
+    @property
+    def results_path(self) -> Path:
+        """Output directory for plots / tables; created by `run()`."""
+        return self.dir_path / "results"
 
     def expect(
         self,

@@ -101,7 +101,7 @@ class Cameron1986(ValidationCase):
                 style=PlotStyle.LINE_AND_POINTS,
                 xlabel="Position [m]",
                 ylabel="Temperature [K]",
-                path="results/Temperature.png",
+                path=f"{self.results_path}/Temperature.png",
             )
 
         # ParaView export (collective) ------------------------------------------------
