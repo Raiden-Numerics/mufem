@@ -156,7 +156,12 @@ See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting
 for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
 for tutorials and API reference.
 
-That is all you need to run the [validation cases](#validation-cases) below directly.
+To run the [validation cases](#validation-cases) below, also install their dependencies and
+shared helpers from the repository root:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Validation cases
 

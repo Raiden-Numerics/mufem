@@ -5,3 +5,5 @@ VisualizationOutput/
 __pycache__
 .mypy_cache/
 .claude/
+*.egg-info/
+build/

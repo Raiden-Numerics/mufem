@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: meshing
-
 from netgen.occ import Box, Glue, X, Y
 
 from meshing import mesh_and_save, name_body, nice_green
