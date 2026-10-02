@@ -34,19 +34,26 @@ def hex_to_float(hex: str) -> Color:
 
 nice_green = hex_to_float("00af7f")
 color_aluminum = hex_to_float("848789")
+color_iron = hex_to_float("a19d94")
 
 
-def name_body(body, name: str, color: Optional[Color] = None) -> None:
-    """Name a body and give each face a unique default name `<name>::<index>::Boundary`.
+def name_body(
+    body, name: str, color: Optional[Color] = None, individual_names: bool = True
+) -> None:
+    """Name a body and give each face a default name `<name>::<index>::Boundary`.
 
-    Faces that carry a boundary condition are renamed afterwards, e.g.
+    With `individual_names=False` all faces share the name `<name>::Boundary`. Faces
+    that carry a boundary condition are renamed afterwards, e.g.
     `body.faces.Min(X).name = f"{name}::Insulated"`.
     """
     body.mat(name)
     body.name = name
 
-    for index, face in enumerate(body.faces):
-        face.name = f"{name}::{index}::Boundary"
+    if individual_names:
+        for index, face in enumerate(body.faces):
+            face.name = f"{name}::{index}::Boundary"
+    else:
+        body.faces.name = f"{name}::Boundary"
 
     if color is not None:
         body.faces.col = color
