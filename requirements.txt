@@ -1,4 +1,4 @@
 matplotlib
 numpy
 gmsh
--e .
+-e ./validation_tools
