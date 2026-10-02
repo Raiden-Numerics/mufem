@@ -20,6 +20,7 @@ regenerate a mesh; the cases themselves load the committed geometry.mesh.
 """
 
 import gzip
+import tempfile
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -44,6 +45,7 @@ def hex_to_float(hex: str, transparency: Optional[float] = None) -> Color:
 nice_green = hex_to_float("00af7f")
 color_air = hex_to_float("a6e7ff", transparency=0.6)
 color_aluminum = hex_to_float("848789")
+color_copper = hex_to_float("B87333")
 color_hts = hex_to_float("4c9173")
 color_iron = hex_to_float("a19d94")
 
@@ -74,20 +76,25 @@ def mesh_and_save(
     step_path: Union[str, Path],
     basesize: float,
     path: Union[str, Path] = "geometry.mesh",
+    second_order: bool = False,
     **kwargs,
 ):
-    """Mesh the STEP file `step_path` with netgen and write a gzipped MFEM v1.3 mesh.
+    """Mesh the STEP file `step_path` with netgen and write it gzipped.
 
     Body and face names written by `WriteStep` are read back and become the mesh's
-    attribute set names.
+    attribute set names. A first-order mesh is written as MFEM v1.3; a second-order
+    (curved) mesh as Gmsh 2.2, since the MFEM v1.3 format has no curved elements.
     """
     # The STEP file holds the bodies as separate solids; glue them again so that
     # touching bodies share their interface faces and the mesh is conforming.
     shape = OCCGeometry(str(step_path)).shape
     mesh = OCCGeometry(Glue(shape.solids)).GenerateMesh(maxh=basesize, **kwargs)
 
+    if second_order:
+        mesh.SecondOrder()
+
     with gzip.open(path, "wt") as file:
-        file.write(_mfem_v13(mesh))
+        file.write(_gmsh22(mesh) if second_order else _mfem_v13(mesh))
 
     print(f"Wrote {path} with {mesh.ne} cells.")
 
@@ -178,3 +185,35 @@ vertices
 
 mfem_mesh_end
 """
+
+
+def _gmsh22(mesh) -> str:
+    """Gmsh 2.2 export of netgen with the body and face names as physical names.
+
+    netgen tags volume elements with 100000 + domain index and boundary elements with
+    the surface number; the names are added as a $PhysicalNames section.
+    """
+    with tempfile.TemporaryDirectory() as directory:
+        file_path = Path(directory) / "geometry.msh"
+        mesh.Export(str(file_path), "Gmsh2 Format")
+        lines = file_path.read_text().splitlines(keepends=True)
+
+    names = [
+        (2, face.surfnr, face.bcname or f"Boundary::{face.surfnr}")
+        for face in mesh.FaceDescriptors()
+    ]
+    names += [
+        (3, 100000 + n, mesh.GetMaterial(n) or f"Body::{n}")
+        for n in range(1, mesh.GetNDomains() + 1)
+    ]
+
+    physical_names = (
+        ["$PhysicalNames\n", f"{len(names)}\n"]
+        + [f'{dim} {tag} "{name}"\n' for dim, tag, name in names]
+        + ["$EndPhysicalNames\n"]
+    )
+
+    # netgen writes "$MeshFormat", its version line and "$EndMeshFormat" first.
+    header = ["$MeshFormat\n", "2.2 0 8\n", "$EndMeshFormat\n"]
+
+    return "".join(header + physical_names + lines[3:])
