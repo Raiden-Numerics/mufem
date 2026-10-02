@@ -16,9 +16,7 @@ that cases refer to as markers ("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
     mesh_and_save("geometry.step", basesize=0.02)
 
 Requires netgen (`pip install netgen-mesher`), which is only needed to
-regenerate a mesh; the cases themselves load the committed geometry.mesh. The mesh
-depends on the netgen/OCC version, so a regenerated mesh may differ from the
-committed one, and so may the results computed on it.
+regenerate a mesh; the cases themselves load the committed geometry.mesh.
 """
 
 import gzip
@@ -35,6 +33,7 @@ def hex_to_float(hex: str) -> Color:
 
 
 nice_green = hex_to_float("00af7f")
+color_aluminum = hex_to_float("848789")
 
 
 def name_body(body, name: str, color: Optional[Color] = None) -> None:
