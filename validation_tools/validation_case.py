@@ -3,10 +3,10 @@
 `ValidationCase.run()` fixes the workflow; a case implements the steps:
 
     [build_geometry -> generate_mesh]  only when the mesh is rebuilt
-    set_up -> solve -> validate -> visualize
+    setup_case -> solve -> validate -> postprocess
 
-A case must implement `set_up()` and `validate()`. `solve()` defaults to running
-the simulation, `visualize()` to doing nothing. `build_geometry()` and
+A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
+the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
 with `REBUILD_MESH=1 python case.py`. netgen must then be imported before mufem
 (libmufem bundles its own netgen core libraries), so a case that meshes with netgen
@@ -44,7 +44,7 @@ Typical case file:
             from validation_tools.meshing import mesh_and_save
             mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 
-        def set_up(self):
+        def setup_case(self):
             sim = mufem.Simulation.New(name=self.name, mesh_path=f"{self.mesh_path}")
             ...
             return sim
@@ -76,7 +76,7 @@ class ValidationCase(ABC):
     #: case. CI excludes tags it can't run via --exclude-tag.
     tags: Set[str] = set()
 
-    #: the Simulation returned by `set_up()`; available to all later steps
+    #: the Simulation returned by `setup_case()`; available to all later steps
     sim: "mufem.Simulation"
 
     # --- workflow -------------------------------------------------------------
@@ -94,10 +94,10 @@ class ValidationCase(ABC):
             self.build_geometry()
             self.generate_mesh()
 
-        self.sim = self.set_up()
+        self.sim = self.setup_case()
         self.solve()
         self.validate()
-        self.visualize()
+        self.postprocess()
 
     # --- steps ----------------------------------------------------------------
     def build_geometry(self) -> None:
@@ -111,7 +111,7 @@ class ValidationCase(ABC):
         raise NotImplementedError(f"{type(self).__name__} cannot rebuild its mesh")
 
     @abstractmethod
-    def set_up(self) -> "mufem.Simulation":
+    def setup_case(self) -> "mufem.Simulation":
         """Construct and return the fully configured Simulation."""
 
     def solve(self) -> None:
@@ -121,7 +121,7 @@ class ValidationCase(ABC):
     def validate(self) -> None:
         """Post-run correctness checks. Raise on failure. Runs on all ranks."""
 
-    def visualize(self) -> None:
+    def postprocess(self) -> None:
         """Plots / field exports. Optional.
 
         Runs on ALL ranks: probe/report evaluation and field export are

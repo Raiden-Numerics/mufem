@@ -44,7 +44,7 @@ class Cameron1986(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 
-    def set_up(self):
+    def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,
             mesh_path=f"{self.mesh_path}",
@@ -119,7 +119,7 @@ class Cameron1986(ValidationCase):
             label="profile temperature [K]",
         )
 
-    def visualize(self):
+    def postprocess(self):
         if self.is_main():
             xy_plot(
                 values=self.temperature_profile,
