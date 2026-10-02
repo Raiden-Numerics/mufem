@@ -16,7 +16,7 @@ MFEM v1.3 mesh whose attribute sets carry the names that cases refer to as marke
 Requires netgen (`pip install netgen-mesher`), which is only needed to
 regenerate a mesh; the cases themselves load the committed geometry.mesh. The mesh
 depends on the netgen/OCC version, so a regenerated mesh may differ from the
-committed one (and from the baselines computed on it).
+committed one, and so may the results computed on it.
 """
 
 import gzip

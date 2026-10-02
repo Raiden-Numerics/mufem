@@ -52,9 +52,6 @@ Typical case file:
             T = self.probe_temperature()
             self.expect(T, 291.45, rel_tol=1e-3, label="probe temperature")
 
-            # regression check against baselines/Temperature.csv
-            self.expect_baseline("Temperature", self.temperature_profile())
-
     if __name__ == "__main__":
         Cameron1986().run()
 """
@@ -65,7 +62,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Set
+from typing import TYPE_CHECKING, Any, Optional, Set
 
 if TYPE_CHECKING:
     import mufem
@@ -165,62 +162,3 @@ class ValidationCase(ABC):
         print(f"[check {status}] {label}: got {actual}, expected {expected} (tol {tol})")
         if not ok:
             raise AssertionError(f"{label}: {actual} != {expected} within tol {tol}")
-
-    def expect_baseline(
-        self,
-        name: str,
-        rows: Iterable[Sequence[float]],
-        *,
-        rel_tol: float = 1e-3,
-        abs_tol: float = 0.0,
-        header: str = "",
-    ) -> None:
-        """Assert `rows` match the stored `baselines/<name>.csv` within tolerance.
-
-        A baseline is a regression reference: a previously computed result of this
-        case, not an analytical or published value. Run with UPDATE_BASELINES=1 to
-        (re)write the file from `rows` instead of comparing; `header` is written as
-        its comment line, e.g. "Position [m], Temperature [K]".
-        """
-        path = self.dir_path / "baselines" / f"{name}.csv"
-        rows = [[float(v) for v in row] for row in rows]
-
-        if os.environ.get("UPDATE_BASELINES") == "1":
-            if self.is_main():
-                path.parent.mkdir(exist_ok=True)
-                with open(path, "w") as file:
-                    if header:
-                        file.write(f"# {header}\n")
-                    file.writelines(",".join(f"{v:.15e}" for v in row) + "\n" for row in rows)
-                print(f"[baseline updated] {name}: {path}")
-            return
-
-        with open(path) as file:
-            baseline = [
-                [float(v) for v in line.split(",")]
-                for line in file
-                if line.strip() and not line.startswith("#")
-            ]
-
-        if [len(row) for row in rows] != [len(row) for row in baseline]:
-            raise AssertionError(
-                f"baseline {name}: shape mismatch, got {len(rows)} rows, "
-                f"expected {len(baseline)} rows in {path}"
-            )
-
-        failures = []
-        max_deviation = 0.0
-        for i, (row, expected_row) in enumerate(zip(rows, baseline)):
-            for j, (actual, expected) in enumerate(zip(row, expected_row)):
-                tol = max(abs_tol, rel_tol * abs(expected))
-                max_deviation = max(max_deviation, abs(actual - expected) / max(tol, 1e-300))
-                if abs(actual - expected) > tol:
-                    failures.append(f"  [{i}, {j}]: got {actual}, expected {expected} (tol {tol})")
-
-        status = "FAIL" if failures else "OK"
-        print(
-            f"[check {status}] baseline {name}: {len(rows)} rows, "
-            f"max deviation {max_deviation:.3g} x tol"
-        )
-        if failures:
-            raise AssertionError(f"baseline {name} mismatch:\n" + "\n".join(failures))
