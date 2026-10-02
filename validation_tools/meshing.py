@@ -48,6 +48,7 @@ color_aluminum = hex_to_float("848789")
 color_copper = hex_to_float("B87333")
 color_hts = hex_to_float("4c9173")
 color_iron = hex_to_float("a19d94")
+color_steel = hex_to_float("71797E")
 
 
 def name_body(
