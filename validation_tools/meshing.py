@@ -89,7 +89,15 @@ def mesh_and_save(
     # The STEP file holds the bodies as separate solids; glue them again so that
     # touching bodies share their interface faces and the mesh is conforming.
     shape = OCCGeometry(str(step_path)).shape
-    mesh = OCCGeometry(Glue(shape.solids)).GenerateMesh(maxh=basesize, **kwargs)
+    geometry = Glue(shape.solids)
+
+    unnamed = [face.center for face in geometry.faces if not face.name]
+    if unnamed:
+        print(
+            f"Warning: {len(unnamed)} face(s) without a name in {step_path}, e.g. at {unnamed[0]}"
+        )
+
+    mesh = OCCGeometry(geometry).GenerateMesh(maxh=basesize, **kwargs)
 
     if second_order:
         mesh.SecondOrder()
