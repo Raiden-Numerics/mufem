@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 import numpy
 
 import mufem
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 import mufem.methods as method
 from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
@@ -32,9 +32,6 @@ from mufem.thermal import (
 
 def load_csv(file_name):
     return numpy.loadtxt(f"data/{file_name}", delimiter=",", comments="#")
-
-
-from validation_case import ValidationCase
 
 
 class Team36InductionHeating(ValidationCase):

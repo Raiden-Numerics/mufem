@@ -5,7 +5,7 @@ MFEM v1.3 mesh whose attribute sets carry the names that cases refer to as marke
 ("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
 
     from netgen.occ import Box, Glue, X
-    from meshing import name_body, mesh_and_save, nice_green
+    from validation_tools.meshing import name_body, mesh_and_save, nice_green
 
     plate = Box((0, 0, 0), (0.6, 1.0, 0.01))
     name_body(plate, "Plate", color=nice_green)

@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 
 import numpy
 
 import mufem
 
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 from mufem import Vol
 from mufem.structural import (
     FixedDisplacementBoundaryCondition,
@@ -17,7 +17,6 @@ from mufem.structural import (
 )
 
 # Problem setup ------------------------------------------------------------------------
-from validation_case import ValidationCase
 
 
 class Slaughter2002CantileverBeam(ValidationCase):

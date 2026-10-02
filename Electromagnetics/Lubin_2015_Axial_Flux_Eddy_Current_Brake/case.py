@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 
 import numpy
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -23,7 +23,7 @@ import mufem
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 
 
 import argparse
@@ -51,8 +51,6 @@ def create_report_and_monitor(sim, report, report_name: str, *args):
 
 
 dir_path = Path(__file__).resolve().parent
-
-from validation_case import ValidationCase
 
 
 class Lubin2015EddyCurrentBrake(ValidationCase):

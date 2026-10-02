@@ -8,8 +8,7 @@ from mufem.thermal import (
     TemperatureCondition,
 )
 
-from validation_case import ValidationCase
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 
 
 class Cameron1986(ValidationCase):

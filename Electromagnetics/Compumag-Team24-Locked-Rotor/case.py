@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 import numpy
 from pathlib import Path
 
 import mufem
 
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 
 from mufem import Bnd, Vol
 from mufem.electromagnetics.coil import (
@@ -33,9 +33,6 @@ output_for_animation = False
 
 
 dir_path = Path(__file__).resolve().parent
-
-
-from validation_case import ValidationCase
 
 
 class Team24LockedRotor(ValidationCase):

@@ -9,7 +9,7 @@ direct solver) before spending runner minutes: workflows pass `--exclude-tag`.
 
 Typical case file:
 
-    from validation_case import ValidationCase
+    from validation_tools import ValidationCase
 
     class Cameron1986(ValidationCase):
         name = "Cameron 1986: Heat Transfer With Convection"

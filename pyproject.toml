@@ -3,10 +3,10 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mufem-cases"
+name = "mufem-validation-tools"
 version = "0.0.0"
 description = "Shared helpers for the mufem validation cases"
 requires-python = ">=3.10"
 
 [tool.setuptools]
-py-modules = ["validation_case", "plots", "meshing"]
+packages = ["validation_tools"]

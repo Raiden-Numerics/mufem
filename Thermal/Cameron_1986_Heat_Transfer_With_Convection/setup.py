@@ -1,6 +1,6 @@
 from netgen.occ import Box, Glue, X, Y
 
-from meshing import mesh_and_save, name_body, nice_green
+from validation_tools.meshing import mesh_and_save, name_body, nice_green
 
 
 def create_geometry():

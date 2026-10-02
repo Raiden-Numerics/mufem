@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 import mufem
 
 from mufem import Bnd, Vol
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 from mufem.electromagnetics.timedomainmagnetic import (
     TangentialMagneticFieldBoundaryCondition,
     TimeDomainMagneticGeneralMaterial,
@@ -15,9 +15,6 @@ from mufem.electromagnetics.timedomainmagnetic import (
 from pathlib import Path
 
 dir_path = Path(__file__).resolve().parent
-
-
-from validation_case import ValidationCase
 
 
 class Team1bFelixCylinder(ValidationCase):
