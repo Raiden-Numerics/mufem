@@ -58,19 +58,28 @@ jobs:
         python-version: ${{ inputs.python-version }}
         allow-prereleases: true
 
+    # In a container on a GitHub-hosted runner, setup-python puts the *host* path
+    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container
+    # (there the interpreter is mounted under $pythonLocation, /__t/...), and the
+    # pip/console scripts carry that host path in their shebang. Put the real
+    # location on PATH and run pip as `python -m pip`; pymufem (#!/bin/bash) is
+    # unaffected. Harmless on the self-hosted runner.
+    - name: Put the setup-python interpreter on PATH
+      run: echo "$pythonLocation/bin" >> "$GITHUB_PATH"
+
     - name: Install Python dependencies
       env:
         CI: '1'
         PIP_IS_CI: '1'
       run: |
         # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11).
-        pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
-        pip install -r requirements.txt
-        pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
+        python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
+        python -m pip install -r requirements.txt
+        python -m pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
     - name: Verify install
       run: |
-        python3 - <<'EOF'
+        python - <<'EOF'
         import importlib.util as u, os, sys
         s = u.find_spec("mufem")
         if s is None or not s.origin:
@@ -90,4 +99,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python3 ./run_cases.py ${{ inputs.case-path }}
+        python ./run_cases.py ${{ inputs.case-path }}
