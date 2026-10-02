@@ -1,8 +1,8 @@
-"""Mesh generation helpers for the case `setup.py` scripts.
+"""Mesh generation helpers for the cases' `build_geometry()` / `generate_mesh()`.
 
-Name the bodies and faces of a netgen OCC geometry, mesh it and write a gzipped
-MFEM v1.3 mesh whose attribute sets carry the names that cases refer to as markers
-("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
+Name the bodies and faces of a netgen OCC geometry, write it as STEP, then mesh the
+STEP file and write a gzipped MFEM v1.3 mesh whose attribute sets carry the names
+that cases refer to as markers ("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
 
     from netgen.occ import Box, Glue, X
     from validation_tools.meshing import name_body, mesh_and_save, nice_green
@@ -11,7 +11,9 @@ MFEM v1.3 mesh whose attribute sets carry the names that cases refer to as marke
     name_body(plate, "Plate", color=nice_green)
     plate.faces.Min(X).name = "Plate::Insulated"
 
-    mesh_and_save(Glue([plate]), basesize=0.02)
+    Glue([plate]).WriteStep("geometry.step")
+
+    mesh_and_save("geometry.step", basesize=0.02)
 
 Requires netgen (`pip install netgen-mesher`), which is only needed to
 regenerate a mesh; the cases themselves load the committed geometry.mesh. The mesh
@@ -51,9 +53,18 @@ def name_body(body, name: str, color: Optional[Color] = None) -> None:
         body.faces.col = color
 
 
-def mesh_and_save(geometry, basesize: float, path: Union[str, Path] = "geometry.mesh", **kwargs):
-    """Mesh `geometry` with netgen and write it as a gzipped MFEM v1.3 mesh."""
-    mesh = OCCGeometry(geometry).GenerateMesh(maxh=basesize, **kwargs)
+def mesh_and_save(
+    step_path: Union[str, Path],
+    basesize: float,
+    path: Union[str, Path] = "geometry.mesh",
+    **kwargs,
+):
+    """Mesh the STEP file `step_path` with netgen and write a gzipped MFEM v1.3 mesh.
+
+    Body and face names written by `WriteStep` are read back and become the mesh's
+    attribute set names.
+    """
+    mesh = OCCGeometry(str(step_path)).GenerateMesh(maxh=basesize, **kwargs)
 
     with gzip.open(path, "wt") as file:
         file.write(_mfem_v13(mesh))

@@ -37,14 +37,12 @@ class Cameron1986(ValidationCase):
 
         geometry = Glue([plate_body])
 
-        geometry.WriteStep(f"{self.dir_path}/geometry.step")
+        geometry.WriteStep(f"{self.step_path}")
 
-        return geometry
-
-    def generate_mesh(self, geometry):
+    def generate_mesh(self):
         from validation_tools.meshing import mesh_and_save
 
-        mesh_and_save(geometry, basesize=0.02, path=self.mesh_path)
+        mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 
     def set_up(self):
         sim = mufem.Simulation.New(

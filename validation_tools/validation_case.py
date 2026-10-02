@@ -38,10 +38,11 @@ Typical case file:
         def build_geometry(self):
             from netgen.occ import Box
             ...
+            geometry.WriteStep(f"{self.step_path}")
 
-        def generate_mesh(self, geometry):
+        def generate_mesh(self):
             from validation_tools.meshing import mesh_and_save
-            mesh_and_save(geometry, basesize=0.02, path=self.mesh_path)
+            mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 
         def set_up(self):
             sim = mufem.Simulation.New(name=self.name, mesh_path=f"{self.mesh_path}")
@@ -62,7 +63,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 if TYPE_CHECKING:
     import mufem
@@ -90,7 +91,8 @@ class ValidationCase(ABC):
         self.results_path.mkdir(exist_ok=True)
 
         if rebuild_mesh:
-            self.generate_mesh(self.build_geometry())
+            self.build_geometry()
+            self.generate_mesh()
 
         self.sim = self.set_up()
         self.solve()
@@ -98,12 +100,14 @@ class ValidationCase(ABC):
         self.visualize()
 
     # --- steps ----------------------------------------------------------------
-    def build_geometry(self) -> Any:
-        """Create and return the geometry; also export geometry.step if useful."""
-        raise NotImplementedError(f"{type(self).__name__} cannot rebuild its geometry")
+    def build_geometry(self) -> None:
+        """Create the geometry and write it to `self.step_path`.
 
-    def generate_mesh(self, geometry: Any) -> None:
-        """Mesh `geometry` and write it to `self.mesh_path`."""
+        Optional: by default the committed geometry.step is meshed as is.
+        """
+
+    def generate_mesh(self) -> None:
+        """Mesh `self.step_path` and write it to `self.mesh_path`."""
         raise NotImplementedError(f"{type(self).__name__} cannot rebuild its mesh")
 
     @abstractmethod
@@ -136,6 +140,10 @@ class ValidationCase(ABC):
         """Directory of the concrete case file (for meshes / reference data)."""
         module_file = sys.modules[type(self).__module__].__file__
         return Path(module_file).resolve().parent
+
+    @property
+    def step_path(self) -> Path:
+        return self.dir_path / "geometry.step"
 
     @property
     def mesh_path(self) -> Path:
