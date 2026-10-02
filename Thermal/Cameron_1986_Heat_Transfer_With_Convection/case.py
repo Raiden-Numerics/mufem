@@ -1,7 +1,4 @@
-import os
-
-if os.environ.get("REBUILD_MESH") == "1":
-    import netgen.occ  # noqa: F401  must precede mufem
+from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
 
 import mufem
 from mufem import Bnd, Vol
@@ -12,8 +9,6 @@ from mufem.thermal import (
     SolidTemperatureModel,
     TemperatureCondition,
 )
-
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
 
 
 class Cameron1986(ValidationCase):

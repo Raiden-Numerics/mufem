@@ -8,18 +8,10 @@
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
-with `REBUILD_MESH=1 python case.py`. netgen must then be imported before mufem
-(libmufem bundles its own netgen core libraries), so a case that meshes with netgen
-starts with
-
-    import os
-
-    if os.environ.get("REBUILD_MESH") == "1":
-        import netgen.occ  # noqa: F401  must precede mufem
-
-Normal runs never load netgen: CI does not install it, and an MPI-enabled netgen
-would clash with mufem's MPI. Rebuilding does not work under pymufem, which puts
-libmufem's libraries first on LD_LIBRARY_PATH.
+with `REBUILD_MESH=1 python case.py` (not pymufem, which puts libmufem's libraries
+first on LD_LIBRARY_PATH). netgen is imported inside those methods, as normal runs
+do not have it; a case imports `validation_tools` before mufem so that netgen is
+loaded first (see `validation_tools/__init__.py`).
 
 Because the metadata lives as class attributes, a runner can read the tags without
 running the case. That is what lets CI select a subset (e.g. skip `long` cases, or
@@ -28,6 +20,8 @@ running the case. That is what lets CI select a subset (e.g. skip `long` cases, 
 Typical case file:
 
     from validation_tools import ValidationCase, expect
+
+    import mufem
 
     class Cameron1986(ValidationCase):
         name = "Cameron 1986: Heat Transfer With Convection"
@@ -63,7 +57,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, Set
 
 if TYPE_CHECKING:
     import mufem
@@ -97,17 +91,14 @@ class ValidationCase(ABC):
     sim: "mufem.Simulation"
 
     # --- workflow -------------------------------------------------------------
-    def run(self, rebuild_mesh: Optional[bool] = None) -> None:
+    def run(self) -> None:
         """Run the case; raises on a failed check, so the process exits non-zero.
 
-        `rebuild_mesh` defaults to the REBUILD_MESH=1 environment variable.
+        With REBUILD_MESH=1 the geometry and mesh are regenerated first.
         """
-        if rebuild_mesh is None:
-            rebuild_mesh = os.environ.get("REBUILD_MESH") == "1"
-
         self.results_path.mkdir(exist_ok=True)
 
-        if rebuild_mesh:
+        if os.environ.get("REBUILD_MESH") == "1":
             self.build_geometry()
             self.generate_mesh()
 
