@@ -25,7 +25,7 @@ import gzip
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
-from netgen.occ import OCCGeometry
+from netgen.occ import Glue, OCCGeometry
 
 Color = Tuple[float, ...]
 
@@ -64,7 +64,10 @@ def mesh_and_save(
     Body and face names written by `WriteStep` are read back and become the mesh's
     attribute set names.
     """
-    mesh = OCCGeometry(str(step_path)).GenerateMesh(maxh=basesize, **kwargs)
+    # The STEP file holds the bodies as separate solids; glue them again so that
+    # touching bodies share their interface faces and the mesh is conforming.
+    shape = OCCGeometry(str(step_path)).shape
+    mesh = OCCGeometry(Glue(shape.solids)).GenerateMesh(maxh=basesize, **kwargs)
 
     with gzip.open(path, "wt") as file:
         file.write(_mfem_v13(mesh))
