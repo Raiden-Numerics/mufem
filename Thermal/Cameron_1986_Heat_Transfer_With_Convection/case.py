@@ -1,3 +1,8 @@
+import os
+
+if os.environ.get("REBUILD_MESH") == "1":
+    import netgen.occ  # noqa: F401  must precede mufem
+
 import mufem
 from mufem import Bnd, Vol
 from mufem.thermal import (
@@ -15,10 +20,36 @@ class Cameron1986(ValidationCase):
     name = "Cameron 1986: Heat Transfer With Convection"
     tags = {"moderate"}
 
-    def build(self):
+    def build_geometry(self):
+        from netgen.occ import Box, Glue, X, Y
+
+        from validation_tools.meshing import name_body, nice_green
+
+        plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
+
+        name_body(plate_body, "Plate", color=nice_green)
+
+        plate_body.faces.Min(X).name = "Plate::Insulated"
+        plate_body.faces.Max(X).name = "Plate::AmbientTemperature"
+
+        plate_body.faces.Min(Y).name = "Plate::FixedTemperature"
+        plate_body.faces.Max(Y).name = "Plate::AmbientTemperature"
+
+        geometry = Glue([plate_body])
+
+        geometry.WriteStep(f"{self.dir_path}/geometry.step")
+
+        return geometry
+
+    def generate_mesh(self, geometry):
+        from validation_tools.meshing import mesh_and_save
+
+        mesh_and_save(geometry, basesize=0.02, path=self.mesh_path)
+
+    def set_up(self):
         sim = mufem.Simulation.New(
             name=self.name,
-            mesh_path=f"{self.dir_path}/geometry.mesh",
+            mesh_path=f"{self.mesh_path}",
         )
 
         runner = mufem.SteadyRunner(total_iterations=3)
@@ -61,7 +92,7 @@ class Cameron1986(ValidationCase):
 
         return sim
 
-    def validate(self, sim):
+    def validate(self):
         # NAFEMS T4 reference temperature on the right edge, 0.2 m above the bottom.
         report = mufem.ProbeReport.SinglePoint(
             name="TemperatureReport",
@@ -82,14 +113,13 @@ class Cameron1986(ValidationCase):
         )
         self.temperature_profile = [(p.x, T) for p, T in profile.evaluate_all()]
         self.expect_baseline(
-            sim,
             "Temperature",
             self.temperature_profile,
             header="Position [m], Temperature [K]",
         )
 
-    def visualize(self, sim):
-        if self.is_main(sim):
+    def visualize(self):
+        if self.is_main():
             xy_plot(
                 values=self.temperature_profile,
                 style=PlotStyle.LINE_AND_POINTS,
@@ -99,7 +129,7 @@ class Cameron1986(ValidationCase):
             )
 
         # ParaView export (collective) ------------------------------------------------
-        vis = sim.get_field_exporter()
+        vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.save()
 
