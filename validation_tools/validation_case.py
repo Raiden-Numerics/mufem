@@ -27,7 +27,7 @@ running the case. That is what lets CI select a subset (e.g. skip `long` cases, 
 
 Typical case file:
 
-    from validation_tools import ValidationCase
+    from validation_tools import ValidationCase, expect
 
     class Cameron1986(ValidationCase):
         name = "Cameron 1986: Heat Transfer With Convection"
@@ -51,7 +51,7 @@ Typical case file:
 
         def validate(self):
             T = self.probe_temperature()
-            self.expect(T, 291.45, rel_tol=1e-3, label="probe temperature")
+            expect(T, 291.45, rel_tol=1e-3, label="probe temperature")
 
     if __name__ == "__main__":
         Cameron1986().run()
@@ -67,6 +67,23 @@ from typing import TYPE_CHECKING, Optional, Set
 
 if TYPE_CHECKING:
     import mufem
+
+
+def expect(
+    actual: float,
+    expected: float,
+    *,
+    rel_tol: float = 1e-2,
+    abs_tol: float = 0.0,
+    label: str = "value",
+) -> None:
+    """Assert `actual` matches `expected` within tolerance."""
+    tol = max(abs_tol, rel_tol * abs(expected))
+    ok = abs(actual - expected) <= tol
+    status = "OK" if ok else "FAIL"
+    print(f"[check {status}] {label}: got {actual}, expected {expected} (tol {tol})")
+    if not ok:
+        raise AssertionError(f"{label}: {actual} != {expected} within tol {tol}")
 
 
 class ValidationCase(ABC):
@@ -153,20 +170,3 @@ class ValidationCase(ABC):
     def results_path(self) -> Path:
         """Output directory for plots / tables; created by `run()`."""
         return self.dir_path / "results"
-
-    def expect(
-        self,
-        actual: float,
-        expected: float,
-        *,
-        rel_tol: float = 1e-2,
-        abs_tol: float = 0.0,
-        label: str = "value",
-    ) -> None:
-        """Assert `actual` matches `expected` within tolerance."""
-        tol = max(abs_tol, rel_tol * abs(expected))
-        ok = abs(actual - expected) <= tol
-        status = "OK" if ok else "FAIL"
-        print(f"[check {status}] {label}: got {actual}, expected {expected} (tol {tol})")
-        if not ok:
-            raise AssertionError(f"{label}: {actual} != {expected} within tol {tol}")

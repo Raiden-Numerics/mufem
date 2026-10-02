@@ -13,7 +13,7 @@ from mufem.thermal import (
     TemperatureCondition,
 )
 
-from validation_tools import PlotStyle, ValidationCase, xy_plot
+from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
 
 
 class Cameron1986(ValidationCase):
@@ -99,7 +99,7 @@ class Cameron1986(ValidationCase):
             y=0.2,
             z=0.005,
         )
-        self.expect(report.evaluate(), 291.45, rel_tol=1e-3, label="probe temperature [K]")
+        expect(report.evaluate(), 291.45, rel_tol=1e-3, label="probe temperature [K]")
 
         # Temperature profile along y = 0.5; check its midpoint (x = 0.3) to confirm
         # the case produced results.
@@ -111,7 +111,7 @@ class Cameron1986(ValidationCase):
             number_points=23,
         )
         self.temperature_profile = [(p.x, T) for p, T in profile.evaluate_all()]
-        self.expect(
+        expect(
             self.temperature_profile[11][1],
             301.4685,
             rel_tol=0.0,

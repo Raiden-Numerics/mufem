@@ -4,6 +4,6 @@
 """
 
 from validation_tools.plots import PlotStyle, xy_plot
-from validation_tools.validation_case import ValidationCase
+from validation_tools.validation_case import ValidationCase, expect
 
-__all__ = ["PlotStyle", "ValidationCase", "xy_plot"]
+__all__ = ["PlotStyle", "ValidationCase", "expect", "xy_plot"]
