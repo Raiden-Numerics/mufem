@@ -156,7 +156,12 @@ See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting
 for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
 for tutorials and API reference.
 
-That is all you need to run the [validation cases](#validation-cases) below directly.
+To run the [validation cases](#validation-cases) below, also install their dependencies and
+shared helpers from the repository root:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Validation cases
 
@@ -167,6 +172,18 @@ run a specific case with:
 ```bash
 (mufem-venv) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
+
+Each case loads its committed mesh (`geometry.mesh`). Cases that define their geometry can
+regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org/):
+
+```bash
+(mufem-venv) pip install netgen-mesher
+(mufem-venv) REBUILD_MESH=1 python Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py
+```
+
+Use `python` rather than `pymufem` for this step. The committed meshes were generated with
+netgen-mesher 6.2.2608; other versions produce slightly different meshes, but the results
+should still pass the case's checks.
 
 ### Electromagnetics
 

@@ -1,10 +1,8 @@
 """Shared plotting helper for validation cases.
 
-A lean release-repo analogue of mufem-dev's Testing/plots.py (without the
-baseline/TestContext machinery). The common case — one computed curve versus one
-CSV reference — is a single call:
+The common case — one computed curve versus one CSV reference — is a single call:
 
-    from plots import xy_plot, PlotStyle
+    from validation_tools import PlotStyle, xy_plot
 
     xy_plot(
         values=center_piece_force_list,
@@ -26,7 +24,7 @@ from typing import Iterable, Optional, Sequence, Tuple
 
 # NOTE: numpy is imported lazily inside the functions below, NOT at module top.
 # On the Windows wheel, importing numpy (its OpenBLAS) *after* mufem corrupts
-# mufem's mesh read. Cases do `from plots import ...` after `import mufem`, so a
+# mufem's mesh read. Cases import the plotting helpers after `import mufem`, so a
 # top-level numpy import here would load numpy after mufem and break mesh loading.
 # Keeping it lazy means numpy only loads when a plot is actually drawn (post-solve).
 

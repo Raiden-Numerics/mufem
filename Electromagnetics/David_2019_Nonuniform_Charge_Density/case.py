@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
 
 import numpy as np
 import math
@@ -9,8 +9,7 @@ import math
 import mufem
 import mufem.electromagnetics.electrostatics as estat
 
-from validation_case import ValidationCase
-from plots import xy_plot, PlotStyle
+from validation_tools import PlotStyle, ValidationCase, xy_plot
 
 
 class David2019ChargeDensity(ValidationCase):

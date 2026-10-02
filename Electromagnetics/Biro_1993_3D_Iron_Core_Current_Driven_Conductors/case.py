@@ -1,54 +1,115 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
-
-import numpy
+from validation_tools import ValidationCase, expect
 
 import mufem
-
-
-from mufem.electromagnetics.timeharmonicmagnetic import (
-    TimeHarmonicMagneticGeneralMaterial,
-    TimeHarmonicMagneticModel,
-    TangentialMagneticFluxBoundaryCondition,
-)
-
+from mufem import Bnd, Vol
 from mufem.electromagnetics.coil import (
+    CoilExcitationCurrent,
     CoilSpecification,
     CoilTopologyOpen,
-    ExcitationCoilModel,
-    CoilExcitationCurrent,
     CoilTypeSolid,
+    ExcitationCoilModel,
+)
+from mufem.electromagnetics.timeharmonicmagnetic import (
+    TangentialMagneticFluxBoundaryCondition,
+    TimeHarmonicMagneticGeneralMaterial,
+    TimeHarmonicMagneticModel,
 )
 
-from mufem import Vol, Bnd
+NUMBER_OF_COILS = 25
 
 
-from pathlib import Path
+def create_hollow_cylinder(r_inner, r_outer, axis, height, offset=0):
+    from netgen.occ import Cylinder, Vec
 
-dir_path = Path(__file__).resolve().parent
+    outer = Cylinder((0.0, 0.0, 0.0), axis, r=r_outer, h=height)
+    inner = Cylinder((0.0, 0.0, 0.0), axis, r=r_inner, h=height)
+    hollow_cylinder = outer - inner
 
-
-from validation_case import ValidationCase
+    return hollow_cylinder.Move(Vec(axis.x, axis.y, axis.z * offset))
 
 
 class Biro1993IronCore(ValidationCase):
+    name = "Biro 1993: 3D Iron Core Current Driven Conductors"
     tags = {"eternal"}
 
-    def run(self):
-        sim = mufem.Simulation.New(
-            name="Biro 1993: 3D Iron Core Current Driven Conductors",
-            mesh_path=f"{dir_path}/geometry.mesh",
+    def build_geometry(self):
+        from netgen.occ import Box, Cylinder, Glue, X, Y, Z
+
+        from validation_tools.meshing import color_air, color_copper, color_iron, name_body
+
+        # Core -------------------------------------------------------------------------
+        box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))
+        box_2 = Box((0, 0, 0.0), (0.012, 0.01, 0.001))
+
+        hollow_cylinder = create_hollow_cylinder(
+            r_inner=0.0118, r_outer=0.019, axis=Z, height=0.012
         )
 
-        is_main_process = sim.get_machine().is_main_process()
+        core = box_1 - box_2 - hollow_cylinder
+        name_body(core, "Core", color=color_iron, individual_names=False)
 
-        # Setup Problem
-        steady_runner = mufem.SteadyRunner(total_iterations=1)
-        sim.set_runner(steady_runner)
+        core.faces.Min(Y).name = "Core::Front"
+        core.faces.Min(X).name = "Core::Back"
+        core.faces.Min(Z).name = "Core::Symmetry"
 
-        # Magnetic Model
+        octant = Box((0, 0, 0), (0.05, 0.05, 0.05))
+
+        # Air --------------------------------------------------------------------------
+        air = Cylinder((0.0, 0.0, 0.0), Z, r=0.04, h=0.035) * octant
+        name_body(air, "Air", color=color_air, individual_names=False)
+        air.faces.name = "Air::TangentialFlux"
+        air.faces.Min(Z).name = "Air::Symmetry"
+
+        air = air - core
+
+        # Coils: 5 x 5 conductors of 1 mm x 2 mm with a 0.1 mm gap ---------------------
+        coils = []
+
+        for i in range(NUMBER_OF_COILS):
+            gap = 0.0001
+
+            row = i % 5
+            col = 4 - i // 5
+
+            r_inner = 0.012 + row * 0.001 + gap
+            r_outer = r_inner + 0.001 - gap
+
+            height = 0.002 - gap
+            offset_y = col * 0.002 + gap
+
+            hollow_cylinder = create_hollow_cylinder(
+                r_inner=r_inner, r_outer=r_outer, axis=Z, height=height, offset=offset_y
+            )
+
+            coil = hollow_cylinder * octant
+            name_body(coil, f"Coil {i + 1}", color=color_copper, individual_names=False)
+
+            coil.faces.Min(Y).name = f"Coil {i + 1}::Front"
+            coil.faces.Min(X).name = f"Coil {i + 1}::Back"
+
+            coil.maxh = 0.00035
+
+            coils.append(coil)
+
+        geometry = Glue([core, *coils, air])
+
+        geometry.WriteStep(f"{self.step_path}")
+
+    def generate_mesh(self):
+        from validation_tools.meshing import mesh_and_save
+
+        mesh_and_save(self.step_path, basesize=0.05, path=self.mesh_path, second_order=True)
+
+    def setup_case(self):
+        sim = mufem.Simulation.New(
+            name=self.name,
+            mesh_path=f"{self.mesh_path}",
+        )
+
+        runner = mufem.SteadyRunner(total_iterations=1)
+        sim.set_runner(runner)
+
+        # Model ------------------------------------------------------------------------
         magnetic_model = TimeHarmonicMagneticModel(frequency=5000, order=2)
         sim.get_model_manager().add_model(magnetic_model)
 
@@ -56,8 +117,7 @@ class Biro1993IronCore(ValidationCase):
         magnetic_solver.set_verbose(True)
         magnetic_solver.set_iteration_number(150)
 
-        # Material
-
+        # Materials --------------------------------------------------------------------
         air_material = TimeHarmonicMagneticGeneralMaterial(
             "Air", "Air" @ Vol, has_eddy_currents=False
         )
@@ -78,7 +138,7 @@ class Biro1993IronCore(ValidationCase):
 
         magnetic_model.add_materials([air_material, core_material, copper_material])
 
-        # Boundaries
+        # Boundary conditions ----------------------------------------------------------
         tangential_magnetic_flux_bc = TangentialMagneticFluxBoundaryCondition(
             "Tangential Flux",
             Bnd(".*Front") + Bnd(".*Back") + "Air::TangentialFlux" @ Bnd,
@@ -86,11 +146,11 @@ class Biro1993IronCore(ValidationCase):
 
         magnetic_model.add_condition(tangential_magnetic_flux_bc)
 
-        # Coil
+        # Coils ------------------------------------------------------------------------
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        for n in range(25):
+        for n in range(NUMBER_OF_COILS):
             coil_topology = CoilTopologyOpen(
                 f"Coil {n + 1}::Back" @ Bnd, f"Coil {n + 1}::Front" @ Bnd
             )
@@ -108,34 +168,33 @@ class Biro1993IronCore(ValidationCase):
             )
             coil_model.add_coil_specification(coil)
 
-        sim.run()
+        return sim
 
-        vis = sim.get_field_exporter()
+    def validate(self):
+        # Ohmic loss per conductor; the model covers a quarter of the device.
+        ohmic_losses = []
+        for n in range(NUMBER_OF_COILS):
+            report = mufem.VolumeIntegralReport(
+                "Ohmic Heating", f"Coil {n + 1}" @ Vol, "Ohmic Heating"
+            )
+            ohmic_losses.append(4.0 * report.evaluate())
+
+        if self.is_main():
+            for n, loss in enumerate(ohmic_losses):
+                print(f"Coil {n + 1}: Ohmic Heating = {loss:.5f} W")
+
+        # Conductor 21 sits next to the core and carries the largest loss.
+        expect(ohmic_losses[20], 7.2703, rel_tol=5e-2, label="ohmic loss coil 21 [W]")
+        expect(sum(ohmic_losses), 19.349, rel_tol=5e-2, label="total ohmic loss [W]")
+
+    def postprocess(self):
+        # ParaView export (collective) ------------------------------------------------
+        vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density-Real")
         vis.add_field_output("Magnetic Flux Density-Imag")
         vis.add_field_output("Electric Current Density-Real")
         vis.add_field_output("Electric Current Density-Imag")
-
         vis.save(order=2)
-
-        # Compare with reference
-
-        reference = numpy.loadtxt(f"{dir_path}/data/Ohmic_Loss.csv", delimiter=",", unpack=True)
-
-        for n in range(25):
-            report = mufem.VolumeIntegralReport(
-                "Ohmic Heating", f"Coil {n + 1}" @ Vol, "Ohmic Heating"
-            )
-
-            report_value = report.evaluate() * 4  # due to symmetry
-
-            reference_value = reference[2, n]  # 0-based index, column 3 in file
-
-            if is_main_process:
-                print(
-                    f"Coil {n + 1}: Ohmic Heating = {report_value:.4f} W, "
-                    f"Reference = {reference_value:.4f} W"
-                )
 
 
 if __name__ == "__main__":
