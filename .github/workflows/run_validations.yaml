@@ -19,10 +19,15 @@ on:
         required: false
         type: boolean
         default: false
+      runner:
+        description: Runner label (self-hosted for the full suite; GitHub-hosted ubuntu for smoke tests)
+        required: false
+        type: string
+        default: self-hosted
 
 jobs:
   run-examples:
-    runs-on: self-hosted
+    runs-on: ${{ inputs.runner }}
     container:
       image: ubuntu:24.04
     # Run on push/non-PR events, on non-draft PRs, or when the caller opts in to drafts.
@@ -38,8 +43,8 @@ jobs:
     - name: Install dependencies
       run: |
         apt-get update
-        # libmufem is self-contained (bundles its own libs, needs only glibc +
-        # libstdc++ which ship in ubuntu:24.04). libgomp1 is for the gmsh -nox
+        # The mufem wheel is self-contained (bundles the engine and its libs, needs
+        # only glibc + libstdc++ which ship in ubuntu:24.04). libgomp1 is for the gmsh -nox
         # build, which is compiled with OpenMP and links libgomp.so.1.
         apt-get install -y libgomp1
 
@@ -53,25 +58,37 @@ jobs:
         python-version: ${{ inputs.python-version }}
         allow-prereleases: true
 
+    # In a container on a GitHub-hosted runner, setup-python puts the *host* path
+    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container
+    # (there the interpreter is mounted under $pythonLocation, /__t/...), and the
+    # pip/console scripts carry that host path in their shebang. Put the real
+    # location on PATH and run pip as `python -m pip`; pymufem (#!/bin/bash) is
+    # unaffected. Harmless on the self-hosted runner.
+    - name: Put the setup-python interpreter on PATH
+      run: echo "$pythonLocation/bin" >> "$GITHUB_PATH"
+
     - name: Install Python dependencies
       env:
         CI: '1'
         PIP_IS_CI: '1'
       run: |
-        pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION libmufem==$MUFEM_VERSION
-        pip install -r requirements.txt
-        pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
+        # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11).
+        python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
+        python -m pip install -r requirements.txt
+        python -m pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
-    - name: Verify native engine install
+    - name: Verify install
       run: |
-        python3 - <<'EOF'
-        import importlib.util as u, sys
-        s = u.find_spec("libmufem")
+        python - <<'EOF'
+        import importlib.util as u, os, sys
+        s = u.find_spec("mufem")
         if s is None or not s.origin:
-            sys.exit(f"libmufem is a namespace/partial install (origin={s and s.origin}); the package contents are missing")
-        print("libmufem OK:", s.origin)
-        import libmufem, mufem
-        print("mufem import OK")
+            sys.exit(f"mufem is a namespace/partial install (origin={s and s.origin}); the package contents are missing")
+        engine = os.path.join(os.path.dirname(s.origin), "libmufem.so")
+        if not os.path.isfile(engine):
+            sys.exit(f"engine missing from the mufem package: {engine}")
+        import mufem
+        print("mufem import OK:", getattr(mufem, "__version__", "?"))
         EOF
 
     - name: Run the examples
@@ -82,4 +99,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python3 ./run_cases.py ${{ inputs.case-path }}
+        python ./run_cases.py ${{ inputs.case-path }}

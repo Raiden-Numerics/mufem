@@ -1,4 +1,4 @@
-name: Smoke (macOS arm64, Python 3.13)
+name: Smoke (macOS arm64, Python 3.14)
 
 on:
   pull_request:
@@ -11,12 +11,12 @@ on:
     branches:
       - main
 
-# Smoke test on Python 3.13: runs a single representative case (Team1b) to confirm
+# Smoke test on Python 3.14: runs a single representative case (Team1b) to confirm
 # the release imports and runs on this Python version. See run_validations_macos_windows.yaml.
 jobs:
   smoke:
     uses: ./.github/workflows/run_validations_macos_windows.yaml
     with:
       runner: macos-14
-      python-version: '3.13'
+      python-version: '3.14'
       case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'

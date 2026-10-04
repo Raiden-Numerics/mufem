@@ -12,10 +12,12 @@ on:
       - main
 
 # Smoke test on Python 3.13: runs a single representative case (Team1b) to confirm
-# the release imports and runs on this Python version.
+# the release imports and runs on this Python version. Runs on a GitHub-hosted
+# runner (free for this public repo); the full suite stays on the self-hosted one.
 jobs:
   smoke:
     uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.13'
       case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+      runner: ubuntu-24.04

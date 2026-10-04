@@ -11,48 +11,12 @@ on:
     branches:
       - main
 
-# Windows smoke test on a GitHub-hosted windows-latest runner (free for this
-# public repo). Installs the published Windows wheel from PyPI and runs the
-# `moderate` validation tier — real solves on actual Windows (stronger than the
-# Wine import check in mufem-dev CI).
-#
-# The Windows wheel is a single self-contained package (engine linked statically
-# into mufem.pyd; no separate libmufem) and is published as alpha, so it installs
-# only with --pre. Cases are launched serially with plain `python` (pymufem is
-# only the Linux MPI launcher), so we --exclude-tag long/eternal (those tiers run
-# for hours single-threaded here) and `mumps` (direct-solver cases). gmsh is
-# still installed for any moderate case that builds its mesh at runtime.
-#
-# NOTE: on the Windows wheel, importing numpy's OpenBLAS *after* mufem corrupts
-# mufem's mesh read (Simulation.New fails with "invalid mesh file"). Cases must
-# therefore import numpy/matplotlib BEFORE mufem; plots.py imports numpy lazily
-# for the same reason. See the import-order note in plots.py.
+# Smoke test on Python 3.13: runs a single representative case (Team1b) to confirm
+# the release imports and runs on this Python version. See run_validations_macos_windows.yaml.
 jobs:
   smoke:
-    runs-on: windows-latest
-    if: github.event.pull_request.draft == false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          allow-prereleases: true
-
-      - name: Install mufem (alpha Windows wheel)
-        env:
-          CI: '1'
-          PIP_IS_CI: '1'
-        run: |
-          pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
-
-      - name: Run the moderate validation tier (serial; no MPI/pymufem)
-        shell: bash
-        env:
-          MPLBACKEND: Agg  # headless: no GUI backend
-        run: |
-          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          python run_cases.py . --launcher python --exclude-tag long --exclude-tag eternal --exclude-tag mumps
+    uses: ./.github/workflows/run_validations_macos_windows.yaml
+    with:
+      runner: windows-latest
+      python-version: '3.13'
+      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'

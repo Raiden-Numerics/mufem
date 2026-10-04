@@ -1,0 +1,23 @@
+name: Validations (Windows x86-64, Python 3.12)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# The `moderate` validation tier on a GitHub-hosted windows-latest runner (serial; the
+# long/eternal tiers and mumps cases are skipped). See run_validations_macos_windows.yaml.
+jobs:
+  validations:
+    uses: ./.github/workflows/run_validations_macos_windows.yaml
+    with:
+      runner: windows-latest
+      python-version: '3.12'
+      case-path: '.'
+      run-cases-args: '--exclude-tag long --exclude-tag eternal --exclude-tag mumps'
