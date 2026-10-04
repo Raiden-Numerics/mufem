@@ -32,9 +32,25 @@ tutorials and the full API reference see the
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/fact_check.svg" width="20" align="absmiddle"> <strong>Validated</strong><br>continuously tested against established benchmark suites and published experimental, analytical, and reference results.</td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.svg" width="20" align="absmiddle"> <strong>Free</strong><br>the community version is free for academic and commercial use, with no license fees, covering most workflows.</td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.svg" width="20" align="absmiddle"> <strong>Free</strong><br>the community version is free for academic and commercial use, with no license fees, covering most workflows on a single workstation. See <a href="https://mufem.raiden-numerics.com/#pricing">pricing</a> for paid tiers.</td>
 </tr>
 </table>
+
+### Licensing
+
+mufem is **free for academic and commercial use**. The Community version needs no license key, includes
+most physics models, and uses all the cores of your workstation, so you can run real projects and client
+work without paying anything.
+
+When your models outgrow a single machine, a paid license lets mufem grow with them:
+
+- **Bigger models, faster answers**: spread a simulation across a compute cluster or run it on GPUs, for much
+  shorter run times, making large parametric studies practical.
+- **Specialized physics models** for advanced applications that go beyond the Community version.
+- **Direct support** from the developers by email, instead of community support via GitHub Issues.
+- **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
+
+See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
 
 ### Quick example
 
