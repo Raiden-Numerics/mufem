@@ -48,12 +48,9 @@ When your models outgrow a single machine, a paid license lets mufem grow with t
   shorter run times, making large parametric studies practical.
 - **Specialized physics models** for advanced applications that go beyond the Community version.
 - **Direct support** from the developers by email, instead of community support via GitHub Issues.
-- **Enterprise options**: multi-seat and on-premises licensing, integration and validation services,
-  and invoicing with POs or MSAs.
+- **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
 
-Individual licenses come with a 14-day free trial and can be canceled anytime. See
-[mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing, or contact
-[mufem@raiden-numerics.com](mailto:mufem@raiden-numerics.com).
+See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
 
 ### Quick example
 
