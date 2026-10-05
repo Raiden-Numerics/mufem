@@ -5,10 +5,10 @@ STEP file and write a gzipped MFEM v1.3 mesh whose attribute sets carry the name
 that cases refer to as markers ("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
 
     from netgen.occ import Box, Glue, X
-    from casekit.meshing import name_body, mesh_and_save, nice_green
+    from casekit.meshing import color_nice_green, mesh_and_save, name_body
 
     plate = Box((0, 0, 0), (0.6, 1.0, 0.01))
-    name_body(plate, "Plate", color=nice_green)
+    name_body(plate, "Plate", color=color_nice_green)
     plate.faces.Min(X).name = "Plate::Insulated"
 
     Glue([plate]).WriteStep("geometry.step")
@@ -42,13 +42,13 @@ def hex_to_float(hex: str, transparency: Optional[float] = None) -> Color:
     return rgb + (1.0 - transparency,)
 
 
-nice_green = hex_to_float("00af7f")
 color_air = hex_to_float("a6e7ff", transparency=0.6)
 color_aluminum = hex_to_float("848789")
 color_copper = hex_to_float("B87333")
 color_hts = hex_to_float("4c9173")
 color_iron = hex_to_float("a19d94")
 color_nice_blue = hex_to_float("00a2e8")
+color_nice_green = hex_to_float("00af7f")
 color_nice_red = hex_to_float("ed1c24")
 color_steel = hex_to_float("71797E")
 

@@ -18,11 +18,11 @@ class Cameron1986(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.meshing import name_body, nice_green
+        from casekit.meshing import color_nice_green, name_body
 
         plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
 
-        name_body(plate_body, "Plate", color=nice_green)
+        name_body(plate_body, "Plate", color=color_nice_green)
 
         plate_body.faces.Min(X).name = "Plate::Insulated"
         plate_body.faces.Max(X).name = "Plate::AmbientTemperature"
