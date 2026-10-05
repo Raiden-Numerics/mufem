@@ -27,7 +27,7 @@ class Team7AsymmetricalConductor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axes, Box, Glue, Pnt, WorkPlane, X, Y, Z
 
-        from casekit.meshing import color_air, color_aluminum, color_copper, name_body
+        from casekit.netgen_geometry import color_air, color_aluminum, color_copper, name_body
 
         # Plate with an off-center hole --------------------------------------------------
         wp_plate = WorkPlane(Axes((0, 0, 0), Z, X))
@@ -64,7 +64,7 @@ class Team7AsymmetricalConductor(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path, second_order=True)
 

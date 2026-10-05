@@ -26,8 +26,13 @@ class Biro1993IronCore(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
 
-        from casekit.geometry_helpers import hollow_cylinder
-        from casekit.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.netgen_geometry import (
+            color_air,
+            color_copper,
+            color_iron,
+            hollow_cylinder,
+            name_body,
+        )
 
         # Core -------------------------------------------------------------------------
         box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))
@@ -86,7 +91,7 @@ class Biro1993IronCore(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.05, path=self.mesh_path, second_order=True)
 

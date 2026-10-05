@@ -1,9 +1,24 @@
-"""Reusable netgen OCC building blocks for the cases' `build_geometry()`.
+"""netgen OCC geometry helpers for the cases' `build_geometry()`.
 
-Import from `build_geometry()` like `casekit.meshing`, since it needs netgen.
+Name the bodies and faces of a geometry (the names become the mesh markers, e.g.
+"Plate" @ Vol, "Plate::Insulated" @ Bnd), color them, and build common shapes:
+
+    def build_geometry(self):
+        from netgen.occ import Box, Glue, X
+
+        from casekit.netgen_geometry import color_nice_green, name_body
+
+        plate = Box((0, 0, 0), (0.6, 1.0, 0.01))
+        name_body(plate, "Plate", color=color_nice_green)
+        plate.faces.Min(X).name = "Plate::Insulated"
+
+        Glue([plate]).WriteStep(f"{self.step_path}")
+
+Import it inside `build_geometry()`, since it needs netgen.
 """
 
 import math
+from typing import Optional, Tuple
 
 from netgen.occ import (
     ArcOfCircle,
@@ -19,6 +34,55 @@ from netgen.occ import (
     Y,
     Z,
 )
+
+
+Color = Tuple[float, ...]
+
+
+def hex_to_float(hex: str, transparency: Optional[float] = None) -> Color:
+    """RGB color from "rrggbb"; with `transparency` in [0, 1] an RGBA color."""
+    rgb = tuple(int(hex[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+
+    if transparency is None:
+        return rgb
+
+    if not 0.0 <= transparency <= 1.0:
+        raise ValueError("Transparency must be between 0.0 and 1.0")
+
+    return rgb + (1.0 - transparency,)
+
+
+color_air = hex_to_float("a6e7ff", transparency=0.6)
+color_aluminum = hex_to_float("848789")
+color_copper = hex_to_float("B87333")
+color_hts = hex_to_float("4c9173")
+color_iron = hex_to_float("a19d94")
+color_nice_blue = hex_to_float("00a2e8")
+color_nice_green = hex_to_float("00af7f")
+color_nice_red = hex_to_float("ed1c24")
+color_steel = hex_to_float("71797E")
+
+
+def name_body(
+    body, name: str, color: Optional[Color] = None, individual_names: bool = True
+) -> None:
+    """Name a body and give each face a default name `<name>::<index>::Boundary`.
+
+    With `individual_names=False` all faces share the name `<name>::Boundary`. Faces
+    that carry a boundary condition are renamed afterwards, e.g.
+    `body.faces.Min(X).name = f"{name}::Insulated"`.
+    """
+    body.mat(name)
+    body.name = name
+
+    if individual_names:
+        for index, face in enumerate(body.faces):
+            face.name = f"{name}::{index}::Boundary"
+    else:
+        body.faces.name = f"{name}::Boundary"
+
+    if color is not None:
+        body.faces.col = color
 
 
 def polygon_face(points):

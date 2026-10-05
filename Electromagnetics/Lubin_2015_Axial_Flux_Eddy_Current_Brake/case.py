@@ -26,8 +26,8 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Cylinder, Glue, Pnt, Vec, Z
 
-        from casekit.geometry_helpers import annular_sector
-        from casekit.meshing import (
+        from casekit.netgen_geometry import (
+            annular_sector,
             color_air,
             color_copper,
             color_iron,
@@ -118,7 +118,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5e-3, path=self.mesh_path)
 

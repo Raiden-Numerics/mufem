@@ -35,8 +35,15 @@ class Team36InductionHeating(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Cylinder, Glue, Vec, X, Y, Z
 
-        from casekit.geometry_helpers import polygon_face, revolve_rotate_cut, triangle_sector
-        from casekit.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.netgen_geometry import (
+            color_air,
+            color_copper,
+            color_iron,
+            name_body,
+            polygon_face,
+            revolve_rotate_cut,
+            triangle_sector,
+        )
 
         billet_axial_length = 1.0
         billet_external_radius = 0.03
@@ -115,7 +122,7 @@ class Team36InductionHeating(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.015, path=self.mesh_path)
 

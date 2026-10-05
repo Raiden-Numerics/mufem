@@ -16,7 +16,7 @@ class Team1bFelixCylinder(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, Pnt, Z, gp_Ax2
 
-        from casekit.meshing import color_air, color_copper, name_body
+        from casekit.netgen_geometry import color_air, color_copper, name_body
 
         cylinder_length = 0.20
         cylinder_inner_radius = 0.05715
@@ -51,7 +51,7 @@ class Team1bFelixCylinder(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 

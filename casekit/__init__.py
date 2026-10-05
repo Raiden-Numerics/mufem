@@ -1,6 +1,7 @@
 """Shared helpers for the mufem validation cases.
 
-`meshing` is not re-exported: it needs netgen, which only `generate_mesh()` uses.
+`netgen_geometry`, `netgen_meshing` and `gmsh_meshing` are not re-exported: they need
+netgen or gmsh, which only `build_geometry()` and `generate_mesh()` use.
 """
 
 from casekit.plots import PlotStyle, xy_plot

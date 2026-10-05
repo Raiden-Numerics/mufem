@@ -24,8 +24,13 @@ class Team13NonLinearMagnetostatic(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Box, Glue, Pnt, Vec, X, Y, Z
 
-        from casekit.geometry_helpers import racetrack_face
-        from casekit.meshing import color_air, color_copper, color_steel, name_body
+        from casekit.netgen_geometry import (
+            color_air,
+            color_copper,
+            color_steel,
+            name_body,
+            racetrack_face,
+        )
 
         # The plates use a 5 mm face mesh size: coarser elements at the plate edges
         # under-resolve B in the air gap along the measurement line.
@@ -87,7 +92,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=2.5e-1, path=self.mesh_path, second_order=True)
 

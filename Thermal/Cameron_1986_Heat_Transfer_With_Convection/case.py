@@ -18,7 +18,7 @@ class Cameron1986(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.meshing import color_nice_green, name_body
+        from casekit.netgen_geometry import color_nice_green, name_body
 
         plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
 
@@ -35,7 +35,7 @@ class Cameron1986(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 

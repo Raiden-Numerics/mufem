@@ -130,7 +130,7 @@ to the sphere and, with `individual_names=False`, the name "Domain::Boundary" to
 all of its faces, which for a sphere is its single surface:
 
 ```python
-from casekit.meshing import name_body
+from casekit.netgen_geometry import name_body
 
 name_body(domain, "Domain", individual_names=False)
 ```
@@ -140,7 +140,7 @@ maximum element size of 0.5 m.
 The mesh is written in the MFEM format, which keeps the name attributes:
 
 ```python
-from casekit.meshing import mesh_and_save
+from casekit.netgen_meshing import mesh_and_save
 
 Glue([domain]).WriteStep("geometry.step")
 

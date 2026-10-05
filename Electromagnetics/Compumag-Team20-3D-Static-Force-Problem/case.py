@@ -26,8 +26,13 @@ class Team20StaticForce(ValidationCase):
     def build_geometry(self):
         from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
 
-        from casekit.geometry_helpers import polygon_face
-        from casekit.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.netgen_geometry import (
+            color_air,
+            color_copper,
+            color_iron,
+            name_body,
+            polygon_face,
+        )
 
         # Quarter model: X = 0 and Y = 0 are symmetry planes.
 
@@ -117,7 +122,7 @@ class Team20StaticForce(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from casekit.meshing import mesh_and_save
+        from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 
