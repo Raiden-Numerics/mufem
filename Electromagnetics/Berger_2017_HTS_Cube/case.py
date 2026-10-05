@@ -13,9 +13,6 @@ from mufem.electromagnetics.timedomainmagnetic import (
     TimeDomainMagneticModel,
 )
 
-FREQUENCY = 50.0  # [Hz]
-PERIOD = 1.0 / FREQUENCY
-
 
 class Berger2017HtsCube(ValidationCase):
     name = "Berger (2017): High-Temperature Superconductor Cube"
@@ -70,9 +67,13 @@ class Berger2017HtsCube(ValidationCase):
             mesh_path=f"{self.mesh_path}",
         )
 
+        # One period of the 50 Hz applied field.
+        frequency = 50.0
+        self.period = 1.0 / frequency
+
         runner = mufem.UnsteadyRunner(
-            total_time=PERIOD,
-            time_step_size=PERIOD / 50.0,
+            total_time=self.period,
+            time_step_size=self.period / 50.0,
             total_inner_iterations=10,
         )
         sim.set_runner(runner)
@@ -112,7 +113,7 @@ class Berger2017HtsCube(ValidationCase):
         h_max = b_max / (4.0e-7 * math.pi)
 
         cff_applied_field = mufem.CffExpressionVector(
-            f"[0, {h_max}*sin(2*pi*{FREQUENCY}*{{Time}}), 0]"
+            f"[0, {h_max}*sin(2*pi*{frequency}*{{Time}}), 0]"
         )
 
         applied_field_bc = TangentialMagneticFieldBoundaryCondition(
@@ -165,7 +166,7 @@ class Berger2017HtsCube(ValidationCase):
                 reference_label="Berger et al. (2017)",
                 xlabel="Time [ms]",
                 ylabel="Ohmic Heating [mW]",
-                xlim=(0.0, 1.0e3 * PERIOD),
+                xlim=(0.0, 1.0e3 * self.period),
                 ylim=(0.0, None),
                 path=f"{self.results_path / 'Ohmic_Heating.png'}",
             )

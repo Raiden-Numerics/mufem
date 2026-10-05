@@ -15,8 +15,6 @@ from mufem.electromagnetics.timeharmonicmagnetic import (
     TimeHarmonicMagneticModel,
 )
 
-NUMBER_OF_COILS = 25
-
 
 def create_hollow_cylinder(r_inner, r_outer, axis, height, offset=0):
     from netgen.occ import Cylinder, Vec
@@ -31,6 +29,9 @@ def create_hollow_cylinder(r_inner, r_outer, axis, height, offset=0):
 class Biro1993IronCore(ValidationCase):
     name = "Biro 1993: 3D Iron Core Current Driven Conductors"
     tags = {"eternal"}
+
+    #: 5 x 5 conductors
+    number_of_coils = 25
 
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
@@ -65,7 +66,7 @@ class Biro1993IronCore(ValidationCase):
         # Coils: 5 x 5 conductors of 1 mm x 2 mm with a 0.1 mm gap ---------------------
         coils = []
 
-        for i in range(NUMBER_OF_COILS):
+        for i in range(self.number_of_coils):
             gap = 0.0001
 
             row = i % 5
@@ -150,7 +151,7 @@ class Biro1993IronCore(ValidationCase):
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        for n in range(NUMBER_OF_COILS):
+        for n in range(self.number_of_coils):
             coil_topology = CoilTopologyOpen(
                 f"Coil {n + 1}::Back" @ Bnd, f"Coil {n + 1}::Front" @ Bnd
             )
@@ -173,7 +174,7 @@ class Biro1993IronCore(ValidationCase):
     def validate(self):
         # Ohmic loss per conductor; the model covers a quarter of the device.
         ohmic_losses = []
-        for n in range(NUMBER_OF_COILS):
+        for n in range(self.number_of_coils):
             report = mufem.VolumeIntegralReport(
                 "Ohmic Heating", f"Coil {n + 1}" @ Vol, "Ohmic Heating"
             )
