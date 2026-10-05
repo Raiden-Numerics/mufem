@@ -62,7 +62,7 @@ jobs:
           PIP_IS_CI: '1'
         run: |
           pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -e ./validation_tools  # matplotlib/numpy/gmsh/netgen: not mufem deps
+          pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
       - name: Run the cases (serial; no MPI/pymufem)
         shell: bash

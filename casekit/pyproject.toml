@@ -3,7 +3,7 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mufem-validation-tools"
+name = "mufem-casekit"
 version = "0.0.0"
 description = "Shared helpers for the mufem validation cases"
 requires-python = ">=3.10"
@@ -11,5 +11,5 @@ requires-python = ">=3.10"
 dependencies = ["matplotlib", "numpy", "gmsh", "netgen-mesher"]
 
 [tool.setuptools]
-packages = ["validation_tools"]
-package-dir = {"validation_tools" = "."}
+packages = ["casekit"]
+package-dir = {"casekit" = "."}

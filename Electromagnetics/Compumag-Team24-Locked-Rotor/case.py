@@ -1,4 +1,4 @@
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
 import numpy
 
@@ -30,7 +30,7 @@ class Team24LockedRotor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z, gp_Ax1, gp_Ax2, gp_Dir, gp_Pnt
 
-        from validation_tools.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         # Half model: Z = 0 is a symmetry plane.
         axis_length = 0.0254 / 2.0
@@ -119,7 +119,7 @@ class Team24LockedRotor(ValidationCase):
     def generate_mesh(self):
         from netgen.meshing import BoundaryLayerParameters
 
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         # Prism boundary layers resolve the eddy currents at the iron surfaces.
         boundary_layers = [

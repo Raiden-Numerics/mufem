@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: casekit
 
 import numpy
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -23,7 +23,7 @@ import mufem
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from validation_tools import PlotStyle, ValidationCase, xy_plot
+from casekit import PlotStyle, ValidationCase, xy_plot
 
 
 import argparse

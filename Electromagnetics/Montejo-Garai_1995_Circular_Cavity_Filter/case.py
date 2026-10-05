@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: casekit
 
 import matplotlib.pyplot as plt
 import numpy
@@ -16,7 +16,7 @@ from mufem.electromagnetics.timeharmonicmaxwell import (
     WaveguideOutputPortCondition,
 )
 
-from validation_tools import ValidationCase
+from casekit import ValidationCase
 
 
 class MontejoGarai1995CavityFilter(ValidationCase):

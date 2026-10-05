@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: casekit
 
 import gmsh
 
@@ -93,7 +93,7 @@ def create_geometry(xshift, mesh_file="geometry.msh"):
     gmsh.finalize()
 
 
-from validation_tools import ValidationCase
+from casekit import ValidationCase
 
 
 class Ren2014MemsCombDrive(ValidationCase):

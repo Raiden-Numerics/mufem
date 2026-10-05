@@ -1,4 +1,4 @@
-from validation_tools import ValidationCase, expect
+from casekit import ValidationCase, expect
 
 # numpy MUST be imported before mufem: on the Windows wheel, loading numpy's
 # OpenBLAS after mufem corrupts mufem's mesh read (Simulation.New).
@@ -27,7 +27,7 @@ class Team7AsymmetricalConductor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axes, Box, Glue, Pnt, WorkPlane, X, Y, Z
 
-        from validation_tools.meshing import color_air, color_aluminum, color_copper, name_body
+        from casekit.meshing import color_air, color_aluminum, color_copper, name_body
 
         # Plate with an off-center hole --------------------------------------------------
         wp_plate = WorkPlane(Axes((0, 0, 0), Z, X))
@@ -64,7 +64,7 @@ class Team7AsymmetricalConductor(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path, second_order=True)
 

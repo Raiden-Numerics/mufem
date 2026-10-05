@@ -74,7 +74,7 @@ jobs:
       run: |
         # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11).
         python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
-        python -m pip install -e ./validation_tools
+        python -m pip install -e ./casekit
         python -m pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
     - name: Verify install

@@ -1,4 +1,4 @@
-from validation_tools import ValidationCase, expect
+from casekit import ValidationCase, expect
 
 import mufem
 from mufem import Bnd, Vol
@@ -35,7 +35,7 @@ class Biro1993IronCore(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
 
-        from validation_tools.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         # Core -------------------------------------------------------------------------
         box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))
@@ -96,7 +96,7 @@ class Biro1993IronCore(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.05, path=self.mesh_path, second_order=True)
 

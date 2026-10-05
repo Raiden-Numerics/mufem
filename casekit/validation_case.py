@@ -17,7 +17,7 @@ running the case. That is what lets CI select a subset (e.g. skip `long` cases, 
 
 Typical case file:
 
-    from validation_tools import ValidationCase, expect
+    from casekit import ValidationCase, expect
 
     import mufem
 
@@ -33,7 +33,7 @@ Typical case file:
             geometry.WriteStep(f"{self.step_path}")
 
         def generate_mesh(self):
-            from validation_tools.meshing import mesh_and_save
+            from casekit.meshing import mesh_and_save
             mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
 
         def setup_case(self):

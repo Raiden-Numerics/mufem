@@ -8,7 +8,7 @@ import time
 
 from typing import List, Optional, Set, Tuple
 
-from validation_tools import ValidationCase
+from casekit import ValidationCase
 
 
 def load_app_class(case_path: str) -> Optional[type]:

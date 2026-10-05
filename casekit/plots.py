@@ -2,7 +2,7 @@
 
 The common case — one computed curve versus one CSV reference — is a single call:
 
-    from validation_tools import PlotStyle, xy_plot
+    from casekit import PlotStyle, xy_plot
 
     xy_plot(
         values=center_piece_force_list,

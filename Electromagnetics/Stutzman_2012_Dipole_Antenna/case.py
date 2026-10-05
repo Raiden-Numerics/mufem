@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_tools
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: casekit
 
 import numpy as np
 
@@ -19,7 +19,7 @@ from mufem.electromagnetics.timeharmonicmaxwell import (
 # **************************************************************************************
 # Problem setup
 # **************************************************************************************
-from validation_tools import ValidationCase
+from casekit import ValidationCase
 
 
 class Stutzman2012DipoleAntenna(ValidationCase):

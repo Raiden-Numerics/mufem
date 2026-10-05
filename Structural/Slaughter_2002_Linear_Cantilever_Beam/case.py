@@ -1,4 +1,4 @@
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
 import numpy
 
@@ -19,7 +19,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X
 
-        from validation_tools.meshing import color_iron, name_body
+        from casekit.meshing import color_iron, name_body
 
         # Length 1.0 m, height 0.1 m, width 0.2 m.
         beam_body = Box((0.0, -0.05, -0.1), (1.0, 0.05, 0.10))
@@ -34,7 +34,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 

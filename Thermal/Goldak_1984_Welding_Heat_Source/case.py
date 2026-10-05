@@ -1,4 +1,4 @@
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
 import math
 
@@ -59,7 +59,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from validation_tools.meshing import color_aluminum, name_body
+        from casekit.meshing import color_aluminum, name_body
 
         # Half of the plate, using the symmetry at x = 0.
         width = 0.3
@@ -77,7 +77,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0e-2, path=self.mesh_path)
 

@@ -1,4 +1,4 @@
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
 import numpy
 
@@ -34,7 +34,7 @@ class Team20StaticForce(ValidationCase):
     def build_geometry(self):
         from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
 
-        from validation_tools.meshing import color_air, color_copper, color_iron, name_body
+        from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         # Quarter model: X = 0 and Y = 0 are symmetry planes.
 
@@ -124,7 +124,7 @@ class Team20StaticForce(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 

@@ -176,7 +176,7 @@ To run the [validation cases](#validation-cases) below, also install their share
 dependencies from the repository root:
 
 ```bash
-pip install -e ./validation_tools
+pip install -e ./casekit
 ```
 
 ## Validation cases

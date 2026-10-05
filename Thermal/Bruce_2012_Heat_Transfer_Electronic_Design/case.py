@@ -1,4 +1,4 @@
-from validation_tools import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
 import numpy
 
@@ -19,7 +19,7 @@ class Bruce2012ElectronicDesign(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, Y
 
-        from validation_tools.meshing import hex_to_float, name_body
+        from casekit.meshing import hex_to_float, name_body
 
         # Name, thickness [mm], color
         parts = [
@@ -55,7 +55,7 @@ class Bruce2012ElectronicDesign(ValidationCase):
         geometry.WriteStep(f"{self.step_path}")
 
     def generate_mesh(self):
-        from validation_tools.meshing import mesh_and_save
+        from casekit.meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path)
 
