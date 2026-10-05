@@ -37,8 +37,19 @@ def mesh_and_save(
     """
     gmsh.initialize()
 
-    gmsh.model.occ.importShapes(str(step_path))
+    gmsh.model.occ.importShapes(str(step_path), highestDimOnly=False)
     gmsh.model.occ.synchronize()
+
+    # A face inside a solid (e.g. a lumped port) is lost in a STEP file, so it is written
+    # as a separate face and embedded here again.
+    free_faces = [
+        (2, tag)
+        for _, tag in gmsh.model.getEntities(2)
+        if len(gmsh.model.getAdjacencies(2, tag)[0]) == 0
+    ]
+    if free_faces:
+        gmsh.model.occ.fragment(gmsh.model.getEntities(3), free_faces)
+        gmsh.model.occ.synchronize()
 
     next_tag = defaultdict(lambda: 1)
     for name, (dim, tags) in physical_groups.items():

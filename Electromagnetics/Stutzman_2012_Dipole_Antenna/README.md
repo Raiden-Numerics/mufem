@@ -46,22 +46,28 @@ An
 [Absorbing Boundary Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/absorbing.html)
 is applied to the sphere's boundary to simulate an infinite domain.
 
-The problem geometry and corresponding mesh are generated in the
-[geometry.py](geometry.py) file using the [Gmsh](https://gmsh.info/) mesh
-generator.
+The problem geometry and corresponding mesh are generated with the
+[Gmsh](https://gmsh.info/) mesh generator.
+The geometry is built in the `build_geometry` method of [case.py](case.py) and
+meshed in `generate_mesh`; both run only when the mesh is regenerated with
+`REBUILD_MESH=1 pymufem 1 case.py`.
 To achieve higher precision, we set the maximum size of the mesh elements to
-one-fifth of the radiation wavelength $`\lambda`$:
-
-```py
-gmsh.option.setNumber("Mesh.MeshSizeMax", wavelength / 5)
-```
+one-fifth of the radiation wavelength $`\lambda`$.
 Additionally, we employ second-order mesh elements to ensure at least 12
 elements per $`2\pi`$ radians of the mesh curvature:
 
 ```py
-gmsh.option.setNumber("Mesh.ElementOrder", 2)
-gmsh.option.setNumber("Mesh.HighOrderOptimize", 2)
-gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 12)
+mesh_and_save(
+    self.step_path,
+    self.physical_groups,
+    path=self.mesh_path,
+    options={
+        "Mesh.MeshSizeMax": self.wavelength / 5,
+        "Mesh.MeshSizeFromCurvature": 12,
+        "Mesh.ElementOrder": 2,
+        "Mesh.HighOrderOptimize": 1,
+    },
+)
 ```
 
 This approach results in a smoother mesh around the cylindrical arms of the
@@ -168,10 +174,10 @@ cross-sections to the analytical solution for a radiating elementary dipole
 ```
 
 where $`\theta`$ is the polar angle and $`\phi`$ is the azimuthal angle.
-The corresponding script can be found in the
-[radiation_pattern_cross_sections.py](radiation_pattern_cross_sections.py) file.
+The cross-sections are plotted in the `postprocess` method of [case.py](case.py).
 As depicted in Fig. 5., the simulated radiation pattern closely matches the
-analytical result.
+analytical result; towards the arms it lies a few percent below it, since the
+arms of the simulated antenna are not infinitely thin.
 
 <div align="center">
     <img src="results/Far_Field_E-plane.png" alt="drawing" width="49%">
