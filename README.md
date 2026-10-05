@@ -156,11 +156,11 @@ See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting
 for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
 for tutorials and API reference.
 
-To run the [validation cases](#validation-cases) below, also install their dependencies and
-shared helpers from the repository root:
+To run the [validation cases](#validation-cases) below, also install their shared helpers and
+dependencies from the repository root:
 
 ```bash
-pip install -r requirements.txt
+pip install -e ./validation_tools
 ```
 
 ## Validation cases
@@ -174,10 +174,10 @@ run a specific case with:
 ```
 
 Each case loads its committed mesh (`geometry.mesh`). Cases that define their geometry can
-regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org/):
+regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org/) (installed
+with the shared helpers):
 
 ```bash
-(mufem-venv) pip install netgen-mesher
 (mufem-venv) REBUILD_MESH=1 python Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py
 ```
 

@@ -47,7 +47,7 @@ jobs:
           PIP_IS_CI: '1'
         run: |
           pip install --pre --force-reinstall --no-cache-dir mufem
-          pip install -r requirements.txt  # matplotlib/numpy/gmsh: no longer mufem deps
+          pip install -e ./validation_tools  # with matplotlib/numpy/gmsh: no longer mufem deps
 
       - name: Run the moderate validation tier (serial; no MPI/pymufem)
         shell: bash

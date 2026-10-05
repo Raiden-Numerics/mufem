@@ -1,4 +1,0 @@
-matplotlib
-numpy
-gmsh
--e ./validation_tools

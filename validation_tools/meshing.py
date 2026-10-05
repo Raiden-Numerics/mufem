@@ -15,7 +15,7 @@ that cases refer to as markers ("Plate" @ Vol, "Plate::Insulated" @ Bnd, ...).
 
     mesh_and_save("geometry.step", basesize=0.02)
 
-Requires netgen (`pip install netgen-mesher`), which is only needed to
+Requires netgen (netgen-mesher, a dependency of this package), which is only needed to
 regenerate a mesh; the cases themselves load the committed geometry.mesh.
 """
 

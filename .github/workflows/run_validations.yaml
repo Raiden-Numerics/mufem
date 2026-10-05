@@ -59,7 +59,7 @@ jobs:
         PIP_IS_CI: '1'
       run: |
         pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION libmufem==$MUFEM_VERSION
-        pip install -r requirements.txt
+        pip install -e ./validation_tools
         pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
 
     - name: Verify native engine install
