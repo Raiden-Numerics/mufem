@@ -48,6 +48,8 @@ color_aluminum = hex_to_float("848789")
 color_copper = hex_to_float("B87333")
 color_hts = hex_to_float("4c9173")
 color_iron = hex_to_float("a19d94")
+color_nice_blue = hex_to_float("00a2e8")
+color_nice_red = hex_to_float("ed1c24")
 color_steel = hex_to_float("71797E")
 
 

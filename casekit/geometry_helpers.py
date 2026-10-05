@@ -8,6 +8,7 @@ import math
 from netgen.occ import (
     ArcOfCircle,
     Axis,
+    Box,
     Cylinder,
     Face,
     Pnt,
@@ -16,6 +17,7 @@ from netgen.occ import (
     Vec,
     Wire,
     Y,
+    Z,
 )
 
 
@@ -58,6 +60,21 @@ def hollow_cylinder(r_inner, r_outer, axis, height, offset=0):
     inner = Cylinder((0.0, 0.0, 0.0), axis, r=r_inner, h=height)
 
     return (outer - inner).Move(Vec(axis.x, axis.y, axis.z * offset))
+
+
+def annular_sector(r_in, r_out, h, angle_deg):
+    """Sector of `angle_deg` of an annulus along Z from z = 0 to h, centered on +X."""
+    ring = Cylinder(Pnt(0, 0, 0), Z, r=r_out, h=h) - Cylinder(Pnt(0, 0, 0), Z, r=r_in, h=h)
+
+    cut = 3 * r_out
+    upper = Box(Pnt(-cut, 0, -cut), Pnt(cut, cut, h + cut)).Rotate(
+        Axis(Pnt(0, 0, 0), Z), +angle_deg / 2
+    )
+    lower = Box(Pnt(-cut, -cut, -cut), Pnt(cut, 0, h + cut)).Rotate(
+        Axis(Pnt(0, 0, 0), Z), -angle_deg / 2
+    )
+
+    return ring - upper - lower
 
 
 def triangle_sector(radius=1.0, degrees=30, extrude_length=2.0):
