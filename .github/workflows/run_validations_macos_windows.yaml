@@ -1,0 +1,73 @@
+name: run-cases macOS/Windows (reusable)
+
+# Reusable workflow for the GitHub-hosted macOS and Windows runners (free for this
+# public repo): installs the published wheel from PyPI and runs the example cases
+# under a given Python version and case path. Called by validations_{macos,windows}_py312.yml
+# (moderate tier) and smoke_{macos,windows}_py3xx.yml (Team1b only).
+#
+# The macOS and Windows wheels are published as alpha, so they install only with
+# --pre. Cases are launched serially with plain `python` (pymufem is only the Linux
+# MPI launcher); callers --exclude-tag what such a runner can't do in reasonable
+# time: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
+#
+# macOS: macos-14 is Apple Silicon — real solves on genuine arm64 (there is no
+# arm64 Mach-O emulator, so this is the only place the macOS wheel is exercised).
+# Windows: real solves on actual Windows (stronger than the Wine check in
+# mufem-dev CI). NOTE: on the Windows wheel, importing numpy's OpenBLAS *after*
+# mufem corrupts mufem's mesh read (Simulation.New fails with "invalid mesh file").
+# Cases must therefore import numpy/matplotlib BEFORE mufem; plots.py imports numpy
+# lazily for the same reason. See the import-order note in plots.py.
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: GitHub-hosted runner (macos-14 | windows-latest)
+        required: true
+        type: string
+      python-version:
+        description: Python version to test against
+        required: true
+        type: string
+      case-path:
+        description: Path passed to run_cases.py (a directory or '.' for all cases)
+        required: true
+        type: string
+      run-cases-args:
+        description: Extra arguments for run_cases.py (e.g. --exclude-tag long)
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  run-examples:
+    runs-on: ${{ inputs.runner }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
+      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          allow-prereleases: true
+
+      - name: Install mufem (alpha wheel)
+        env:
+          CI: '1'
+          PIP_IS_CI: '1'
+        run: |
+          pip install --pre --force-reinstall --no-cache-dir mufem
+          pip install -e ./validation_tools  # matplotlib/numpy/gmsh/netgen: not mufem deps
+
+      - name: Run the cases (serial; no MPI/pymufem)
+        shell: bash
+        env:
+          MPLBACKEND: Agg  # headless: no GUI backend
+        run: |
+          python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
+          python run_cases.py ${{ inputs.case-path }} --launcher python ${{ inputs.run-cases-args }}
