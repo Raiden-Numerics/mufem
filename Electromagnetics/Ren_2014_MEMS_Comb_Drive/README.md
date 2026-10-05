@@ -38,7 +38,7 @@ To simulate the entire system, we enclose the comb drive within a rectangular bo
 
 During the mesh generation process, we assign named attributes to the surfaces of each comb ("Comb1" and "Comb2"), to the boundary of the computational domain representing the ground plate ("Ground"), and to the entire computational domain itself ("Domain").
 
-To investigate the change in capacitance as the distance between the combs increases, we prepare a function `create_geometry` which generates the mesh for a given shift of the combs relative to each other and then writes it to a file. We begin with a zero shift, corresponding to an initial distance of 1 μm between the combs. Subsequently, we increase the inter-comb distance from this initial value by shifting the combs in increments of 0.5 μm, up to a final shift of 8 μm, at which point the combs no longer interlock.
+To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. We begin with a zero shift, corresponding to an initial distance of 1 μm between the combs. Subsequently, we increase the inter-comb distance from this initial value by shifting the combs in increments of 0.5 μm, up to a final shift of 8 μm, at which point the combs no longer interlock. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `REBUILD_MESH=1 pymufem 1 case.py`.
 
 
 ### Model
@@ -58,7 +58,7 @@ drive as [[3]](#Wikipedia)
     C = \frac{2 W}{V^2}.
 ```
 
-The potentials on the two comb electrodes are set to 0 V for the four-tooth electrode and 1 V for the
+The potentials on the two comb electrodes are set to 1 V for the four-tooth electrode and 0 V for the
 three-tooth electrode, while the ground plate is maintained at 0 V. In order to implement these voltages
 we use the [Electric Potential Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/conditions/electric_potential.html).
 
@@ -78,49 +78,47 @@ report = VolumeIntegralReport(
 
 ## Running the case
 
-To initiate the simulation, we use the [case.py](case.py) file with the following terminal command:
+Since every shift needs its own mesh for the adaptive mesh refinement, the meshes
+(about 22 MB) are not shipped with the case and have to be built first. The following
+command builds them on a single process and then runs the case:
+```bash
+REBUILD_MESH=1 pymufem 1 case.py
+```
+Once the meshes exist, the simulation is started with the [case.py](case.py) file
+using the following terminal command:
 ```bash
 pymufem case.py
 ```
 
-Inside the [case.py](case.py) file we have the following double loop:
+Inside the `solve` method of [case.py](case.py) we have the following double loop:
 ```py
-for xshift in xshifts:
-    if sim.get_machine().is_main_process():
-        create_geometry(xshift)
+for xshift in self.xshifts:
+    self.sim.get_domain().load_mesh(f"{self.mesh_path_for(xshift)}")
+    self.sim.get_domain().get_mesh().scale(1e-6)
 
-    sim.get_domain().load_mesh("geometry.msh")
-    sim.get_domain().get_mesh().scale(1e-6)
-
-    for i in range(max_iterations):
-        runner.advance(2)
+    for i in range(max_refinements):
+        self.runner.advance(2)
 
         if i == 0:
             vis.save(order=2)
 
-        ncells = sim.get_domain().get_mesh().get_total_number_cells()
-        energy = report.evaluate()
-        capacitance = 2 * energy / voltage**2  # [F]
-
-        if sim.get_machine().is_main_process():
-            with open("results/Capacitance.csv", "a") as fp:
-                fp.write(f"{xshift:.1f}, {ncells}, {capacitance}\n")
+        ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
+        capacitance = 2 * self.report.evaluate() / self.voltage**2  # C = 2 W / V^2
+        self.capacitances.append((xshift, ncells, capacitance))
 
         if ncells >= max_ncells:
             break
-        else:
-            refinement_model.refine_mesh()
 
+        self.refinement_model.refine_mesh()
     else:
-        raise RuntimeError("Maximum number of iterations reached without reaching max_ncells.")
+        raise RuntimeError(f"No {max_ncells:.0e} cells after {max_refinements} refinements.")
 
     vis.save(order=2)
 ```
-The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we generate
- the corresponding geometry by invoking `create_geometry(xshift)`, which writes the associated mesh to a
-  file. Meanwhile, the internal `for` loop refines the mesh according to the established mesh refinement 
-  algorithm. This loop continues until the number of mesh elements surpasses the empirically determined 
-  limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential 
+The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
+the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
+established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
+empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential 
   obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for 
   subsequent visualization using [ParaView](https://www.paraview.org/).
 
@@ -159,7 +157,8 @@ becomes denser near the edges of the combs, where the electric potential changes
 
 
 With each refinement cycle, the number of degrees of freedom increases. Figure 4 illustrates how the 
-calculated capacitance value changes as the number of degrees of freedom grows. It is clear that the 
+calculated capacitance value changes as the number of degrees of freedom grows. For the zero shift, it is compared with the values of [[1]](#Ren2014), given there versus the number
+of degrees of freedom. It is clear that the 
 capacitance value at the initial mesh is overestimated; however, with each subsequent mesh refinement 
 cycle, it decreases. After a certain number of refinement cycles, the capacitance value stabilizes and 
 reaches its final value.
@@ -169,7 +168,7 @@ reaches its final value.
     <br/>
     <br/>
     Figure 4: The relationship between capacitance and the number of cells for various inter-comb shifts. 
-    The plot is obtained using <a href="capacitance_vs_ncells.py">capacitance_vs_ncells.py</a> file.
+    The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.
 </div>
 <br/>
 
@@ -206,16 +205,15 @@ the combs, and $`V`$ is the applied voltage.
 To calculate the derivative $`\partial C/\partial x`$ in Figure 6, we plot the capacitance against 
 the shift distance. As observed, the capacitance decreases linearly as the distance between the 
 combs increases.  By applying a linear fit, we can extract the value of $`\partial C/\partial x`$, 
-which in this case is equal to $`-2.78\times10^{-10}`$ F/m. Using this value in the formula provided 
-earlier, we can estimate that the comb drive generates a force $`F`$ with an amplitude of 0.139 nN.
+which in this case is equal to $`-2.84\times10^{-10}`$ F/m. Using this value in the formula provided 
+earlier, we can estimate that the comb drive generates a force $`F`$ with an amplitude of 0.142 nN.
 
 <div align="center">
     <img src="results/Capacitance_Vs_Xshift.png" width="600">
     <br/>
     <br/>
     Figure 6: Dependence of the comb drive capacitance on the distance between the combs, along with its 
-    linear fit. The plot is obtained using <a href="capacitance_vs_xshift.py">capacitance_vs_xshift.py</a> 
-    file.
+    linear fit. The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.
 </div>
 <br/>
 
