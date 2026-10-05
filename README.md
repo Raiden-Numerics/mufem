@@ -194,10 +194,10 @@ regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org
 with the shared helpers):
 
 ```bash
-(mufem-venv) REBUILD_MESH=1 python Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py
+(mufem-venv) REBUILD_MESH=1 pymufem 1 Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py
 ```
 
-Use `python` rather than `pymufem` for this step. The committed meshes were generated with
+Rebuild on a single process (`pymufem 1`). The committed meshes were generated with
 netgen-mesher 6.2.2608; other versions produce slightly different meshes, but the results
 should still pass the case's checks.
 

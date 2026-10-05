@@ -8,10 +8,8 @@
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
-with `REBUILD_MESH=1 python case.py` (not pymufem, which puts libmufem's libraries
-first on LD_LIBRARY_PATH). netgen is imported inside those methods, as normal runs
-do not have it; a case imports `validation_tools` before mufem so that netgen is
-loaded first (see `validation_tools/__init__.py`).
+on a single process with `REBUILD_MESH=1 pymufem 1 case.py`; netgen is imported
+inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
 running the case. That is what lets CI select a subset (e.g. skip `long` cases, or
@@ -99,6 +97,11 @@ class ValidationCase(ABC):
         self.results_path.mkdir(exist_ok=True)
 
         if os.environ.get("REBUILD_MESH") == "1":
+            # The Simulation (and with it is_main()) is only created in setup_case(), so
+            # every process would write geometry.step / geometry.mesh, and there is no
+            # barrier to make the others wait for the mesh: rebuild on a single process.
+            if not self._is_single_process():
+                raise RuntimeError("Rebuild the mesh on a single process: pymufem 1 case.py")
             self.build_geometry()
             self.generate_mesh()
 
@@ -139,6 +142,14 @@ class ValidationCase(ABC):
         """
 
     # --- helpers --------------------------------------------------------------
+    @staticmethod
+    def _is_single_process() -> bool:
+        """True unless an MPI launcher started more than one process."""
+        return all(
+            int(os.environ.get(size_variable, "1")) <= 1
+            for size_variable in ("OMPI_COMM_WORLD_SIZE", "PMI_SIZE")
+        )
+
     def is_main(self) -> bool:
         """True on the main MPI rank; use to guard non-collective output."""
         return self.sim.get_machine().is_main_process()
