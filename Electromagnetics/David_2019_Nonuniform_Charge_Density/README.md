@@ -105,101 +105,52 @@ electric field at any distance $`r`$ as
 
 In this section, we define the geometry of our problem and generate the
 corresponding mesh.
-For this example, we use the [Gmsh](https://gmsh.info/) mesh generator, although
+For this example, we use the [Netgen](https://ngsolve.org/) mesh generator through
+its [OpenCASCADE](https://dev.opencascade.org/) interface `netgen.occ`, although
 any software that produces a mesh in a format recognized by MFEM can be utilized
 ([supported mesh formats](https://mfem.org/mesh-formats/)).
 
-We leverage the Gmsh Python interface for our mesh generation.
-First, we import the Gmsh library:
+Our computational domain is a sphere placed at the center (0, 0, 0) with a radius
+`R` of 10 m, which is sufficiently large to simulate free space:
 
 ```python
-import gmsh
-```
+from netgen.occ import Glue, Pnt, Sphere
 
-Next, we initialize the Gmsh API.
-This function must be called before any other API functions:
-
-```python
-gmsh.initialize()
-```
-
-Now, we set up the geometry of our computational domain, which is represented by
-a sphere.
-We add the sphere using the [OpenCASCADE](https://dev.opencascade.org/) CAD
-representation, placing it at the center (0, 0, 0) and assigning it a radius `R`
-of 10 m, which is sufficiently large to simulate free space:
-
-```python
 R = 10.0  # [m] sphere radius
 
-tag_domain = gmsh.model.occ.add_sphere(xc=0, yc=0, zc=0, radius=R)
+domain = Sphere(Pnt(0, 0, 0), R)
 ```
 
-The `add_sphere` function returns a tag, an integer that uniquely identifies the
-created object.
-
-Next, we synchronize the OpenCASCADE CAD representation with the current Gmsh
-model:
-
-```python
-gmsh.model.occ.synchronize()
-```
-
-Without this synchronization, the entities in the OpenCASCADE CAD representation
-will not be accessible to functions outside the OpenCASCADE CAD kernel.
-
-We will now assign name attributes to the entities for reference in the mufem
+We will now assign name attributes to the geometry for reference in the mufem
 code.
 This will help us mark the computational domain and its boundary for applying
 boundary conditions.
-To find the boundaries of the sphere, we call the `get_boundary` function with
-the dimension and tag of the sphere:
+The `name_body` helper of the shared `casekit` package assigns the name "Domain"
+to the sphere and, with `individual_names=False`, the name "Domain::Boundary" to
+all of its faces, which for a sphere is its single surface:
 
 ```python
-boundary = gmsh.model.get_boundary(dimTags=[(3, tag_domain)])
-tag_outer = boundary[0][1]
+from casekit.meshing import name_body
+
+name_body(domain, "Domain", individual_names=False)
 ```
 
-This function returns a list of dimension-tag pairs, and since the sphere has
-only one boundary, we extract the tag of the first element.
-
-Next, we assign the name attribute "Domain" to the sphere and "Domain::Boundary"
-to its boundary using the Gmsh function `add_physical_group`:
+Finally, we save the geometry as a STEP file and generate the mesh from it with a
+maximum element size of 0.5 m.
+The mesh is written in the MFEM format, which keeps the name attributes:
 
 ```python
-gmsh.model.add_physical_group(dim=3, tags=[tag_domain], name="Domain", tag=1)
-gmsh.model.add_physical_group(dim=2, tags=[tag_outer], name="Domain::Boundary", tag=1)
+from casekit.meshing import mesh_and_save
+
+Glue([domain]).WriteStep("geometry.step")
+
+mesh_and_save("geometry.step", basesize=0.5, path="geometry.mesh")
 ```
 
-We also provide custom integer attributes using the `tag` keyword argument.
-Note that entities of different dimensions can share the same custom tags.
-
-To generate the mesh, we set the maximum size of the mesh elements to 0.5 m and
-call the Gmsh mesh generation function:
-
-```python
-gmsh.option.set_number(name="Mesh.MeshSizeMax", value=0.5)
-
-gmsh.model.mesh.generate(dim=3)
-```
-
-Finally, we write the generated mesh to an external file in a format specified
-by the `MshFileVersion` option:
-
-```python
-gmsh.option.set_number(name="Mesh.MshFileVersion", value=2.2)
-gmsh.write(fileName="geometry.msh")
-```
-
-As a best practice, when we are done using the Gmsh API, we finalize it by
-calling the `finalize` function:
-
-```python
-gmsh.finalize()
-```
-
-The complete code to generate the mesh for our problem can be found in the file
-[geometry.py](geometry.py).
+In [case.py](case.py), these steps are the `build_geometry` and `generate_mesh`
+methods of the case class.
+They run only when the mesh is regenerated with `REBUILD_MESH=1 pymufem 1 case.py`;
+a normal run loads the committed `geometry.mesh`.
 
 
 <!-- *********************************************************************** -->
@@ -223,7 +174,7 @@ simulation ("Nonuniform Charge Density") and the path to the mesh file:
 ```python
 sim = mufem.Simulation.New(
     name="Nonuniform Charge Density",
-    mesh_path="geometry.msh",
+    mesh_path="geometry.mesh",
 )
 ```
 
@@ -459,7 +410,11 @@ electrostatics model, ensuring consistency in our analysis.
 
 ### The Complete Code
 
-The complete code for the example can be found in the [case.py](case.py) file.
+The complete code for the example can be found in the [case.py](case.py) file,
+where the steps above are organized in a `ValidationCase` class: `build_geometry`
+and `generate_mesh` create the mesh, `setup_case` sets up the simulation, `validate`
+compares the electric field with the theory at two points, and `postprocess` plots
+the field along the x-axis and exports it.
 
 The resulting figure demonstrates that the electric field obtained from the mufem
 simulation closely matches the field calculated using the analytical formula:
