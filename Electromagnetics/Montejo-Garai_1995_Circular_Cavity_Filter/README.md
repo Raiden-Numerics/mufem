@@ -54,9 +54,10 @@ height of 3 mm, and a length of 1 mm.
 ### Mesh
 
 To generate the mesh we use [Gmsh](https://gmsh.info/) mesh generator (please
-note that [Gmsh](https://gmsh.info/) is not supplied with mufem and must be
-installed separately).
-The corresponding code can be found in the [geometry.py](geometry.py) file.
+note that [Gmsh](https://gmsh.info/) is not supplied with mufem; it is installed
+with the shared helpers of this repository).
+The corresponding code is the `generate_mesh` method in [case.py](case.py); it
+runs only when the mesh is regenerated with `REBUILD_MESH=1 pymufem 1 case.py`.
 To improve the accuracy of modeling, we use the mesh with second-order finite
 elements.
 By using such a mesh, we can avoid artifacts that arise when trying to
@@ -156,30 +157,25 @@ The spectrum is therefore supplied precalculated in
 [case.py](case.py) solves only the two frequencies 12 and 14 GHz at which we
 visualize the electric field:
 ```py
-PRECALCULATE = False
-
-if PRECALCULATE:
-    Nf = 251  # number of frequencies to scan
-    frequencies = numpy.linspace(10e9, 15e9, Nf)  # [Hz] frequencies to scan
+if self.precalculate:
+    self.frequencies = numpy.linspace(10e9, 15e9, 251)  # [Hz]
 else:
-    frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies at which to save
-    Nf = len(frequencies)
+    self.frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies to visualize
 ```
 
-Setting `PRECALCULATE` to `True` scans the whole frequency range instead and
-regenerates the precalculated spectrum, skipping the field export.
+Setting the class attribute `precalculate = True` scans the whole frequency range
+instead and regenerates the precalculated spectrum, skipping the field export.
 
 For either choice of the frequencies we then use the same loop:
 ```py
-for i, frequency in enumerate(frequencies):
-    model.set_frequency(frequency)
-    runner.advance(1)
+for i, frequency in enumerate(self.frequencies):
+    self.model.set_frequency(frequency)
+    self.runner.advance(1)
 
-    if not PRECALCULATE:
+    if not self.precalculate:
         vis.save(order=2)
 
-    report_data = report_s_parameters.evaluate().to_numpy()
-    S21[i] = report_data[0, 0]
+    self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
 ```
 
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
