@@ -81,11 +81,11 @@ def expect(
 class ValidationCase(ABC):
     # --- metadata (override per case; read by the runner without running) ----
     name: str = ""
-    #: labels, e.g. {"long"} for a slow case or {"mumps"} for a direct-solver
-    #: case. CI excludes tags it can't run via --exclude-tag.
+    # labels, e.g. {"long"} for a slow case or {"mumps"} for a direct-solver
+    # case. CI excludes tags it can't run via --exclude-tag.
     tags: Set[str] = set()
 
-    #: the Simulation returned by `setup_case()`; available to all later steps
+    # the Simulation returned by `setup_case()`; available to all later steps
     sim: "mufem.Simulation"
 
     # --- workflow -------------------------------------------------------------

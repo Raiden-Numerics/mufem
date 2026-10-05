@@ -30,7 +30,7 @@ from typing import Iterable, Optional, Sequence, Tuple
 
 MUFEM_LABEL = "mufem"
 
-#: fixed colors / markers so all cases render identically
+# fixed colors / markers so all cases render identically
 MUFEM_COLOR = "r"
 MUFEM_MARKER = "s"  # square
 REFERENCE_COLOR = "k"
@@ -41,11 +41,11 @@ _REFERENCE_MARKERSIZE = 8.0
 _LINEWIDTH = 3.0
 _REFERENCE_LINEWIDTH = 5.0  # 25% thicker than the computed line
 
-#: 16:10 figure at 1600x1000 px (8x5 inches * 200 dpi)
+# 16:10 figure at 1600x1000 px (8x5 inches * 200 dpi)
 _FIGSIZE = (8.0, 5.0)
 _DPI = 200
 
-#: font sizes (kept larger than the matplotlib defaults for readability)
+# font sizes (kept larger than the matplotlib defaults for readability)
 _LABEL_FONTSIZE = 15
 _TICK_FONTSIZE = 13
 _LEGEND_FONTSIZE = 15

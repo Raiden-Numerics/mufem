@@ -12,9 +12,9 @@ class David2019ChargeDensity(ValidationCase):
     name = "David 2019: Nonuniform Charge Density"
     tags = {"moderate"}
 
-    #: [m] radius of the spherical domain, large enough to approximate free space
+    # [m] radius of the spherical domain, large enough to approximate free space
     sphere_radius = 10.0
-    #: [C] total charge Q and [m] radius a of the Gaussian charge distribution
+    # [C] total charge Q and [m] radius a of the Gaussian charge distribution
     charge = 1.0
     charge_radius = 0.5
 

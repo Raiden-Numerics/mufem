@@ -20,7 +20,7 @@ class Biro1993IronCore(ValidationCase):
     name = "Biro 1993: 3D Iron Core Current Driven Conductors"
     tags = {"eternal"}
 
-    #: 5 x 5 conductors
+    # 5 x 5 conductors
     number_of_coils = 25
 
     def build_geometry(self):

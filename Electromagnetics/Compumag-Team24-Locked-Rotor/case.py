@@ -24,7 +24,7 @@ class Team24LockedRotor(ValidationCase):
     name = "Compumag Team 24: Locked Rotor"
     tags = {"moderate"}
 
-    #: write fields and plots for every time step to vis/ (see paraview_gif.py)
+    # write fields and plots for every time step to vis/ (see paraview_gif.py)
     output_for_animation = False
 
     def build_geometry(self):
