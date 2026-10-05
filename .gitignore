@@ -1,5 +1,4 @@
 *.npz
-*.msh
 vis/
 VisualizationOutput/
 __pycache__
