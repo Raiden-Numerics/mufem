@@ -1,6 +1,5 @@
 from casekit import PlotStyle, ValidationCase, expect, xy_plot
 
-import math
 
 import numpy
 
@@ -29,41 +28,14 @@ from mufem.thermal import (
 )
 
 
-def polygon_face(corners):
-    """Planar face from a closed loop of corner points, given in order."""
-    from netgen.occ import Face, Segment, Wire
-
-    n = len(corners)
-    return Face(Wire([Segment(corners[i], corners[(i + 1) % n]) for i in range(n)]))
-
-
-def triangle_sector(radius=1.0, degrees=30, extrude_length=2.0):
-    """Wedge of `degrees` (intersected with a cylinder) used to cut the periodic sector."""
-    from netgen.occ import Cylinder, Pnt, Y
-
-    angle = math.radians(degrees)
-    x = 2 * radius * math.cos(angle)
-    z = 2 * radius * math.sin(angle) / 2.0
-
-    wedge = polygon_face([Pnt(0, 0, 0), Pnt(x, 0, -z), Pnt(x, 0, z)])
-    return wedge.Extrude(extrude_length, Y) * Cylinder((0, 0, 0), Y, r=radius, h=extrude_length)
-
-
-def revolve_rotate_cut(face, cut, angle=90):
-    """Revolve a cross-section by 360 degrees, rotate it and keep the periodic sector."""
-    from netgen.occ import Axis, Pnt, Revolve, Vec
-
-    axis = Axis(Pnt(0, 0, 0), Vec(0, 1, 0))
-    return Revolve(face, axis, 360).Rotate(axis, angle) * cut
-
-
 class Team36InductionHeating(ValidationCase):
     name = "Compumag Team 36: Induction Heating Device"
     tags = {"long"}
 
     def build_geometry(self):
-        from netgen.occ import Cylinder, Glue, Pnt, Vec, X, Y, Z
+        from netgen.occ import Cylinder, Glue, Vec, X, Y, Z
 
+        from casekit.geometry_helpers import polygon_face, revolve_rotate_cut, triangle_sector
         from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         billet_axial_length = 1.0
@@ -79,10 +51,10 @@ class Team36InductionHeating(ValidationCase):
         # Billet: a rectangular cross-section revolved into the sector -------------------
         billet_face = polygon_face(
             [
-                Pnt(0, 0, 0),
-                Pnt(billet_external_radius, 0, 0),
-                Pnt(billet_external_radius, billet_axial_length / 2, 0),
-                Pnt(0, billet_axial_length / 2, 0),
+                (0, 0, 0),
+                (billet_external_radius, 0, 0),
+                (billet_external_radius, billet_axial_length / 2, 0),
+                (0, billet_axial_length / 2, 0),
             ]
         )
         billet = revolve_rotate_cut(billet_face, cut)
@@ -104,16 +76,16 @@ class Team36InductionHeating(ValidationCase):
         t = copper_thickness
 
         coil_outer = revolve_rotate_cut(
-            polygon_face([Pnt(r0, y0, 0), Pnt(r1, y0, 0), Pnt(r1, y1, 0), Pnt(r0, y1, 0)]),
+            polygon_face([(r0, y0, 0), (r1, y0, 0), (r1, y1, 0), (r0, y1, 0)]),
             cut,
         )
         coil_inner = revolve_rotate_cut(
             polygon_face(
                 [
-                    Pnt(r0 + t, y0 + t, 0),
-                    Pnt(r1 - t, y0 + t, 0),
-                    Pnt(r1 - t, y1 - t, 0),
-                    Pnt(r0 + t, y1 - t, 0),
+                    (r0 + t, y0 + t, 0),
+                    (r1 - t, y0 + t, 0),
+                    (r1 - t, y1 - t, 0),
+                    (r0 + t, y1 - t, 0),
                 ]
             ),
             cut,

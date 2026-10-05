@@ -17,35 +17,6 @@ from mufem.electromagnetics.timedomainmagnetic import (
 )
 
 
-def create_racetrack_face(x_min, x_max, y_min, y_max, radius):
-    """Planar racetrack (rectangle with rounded corners) in the z = 0 plane."""
-    from netgen.occ import ArcOfCircle, Face, Pnt, Segment, Vec, Wire
-
-    pnt0 = Pnt(x_max - radius, y_min, 0)
-    pnt1 = Pnt(x_max, y_min + radius, 0)
-    pnt2 = Pnt(x_max, y_max - radius, 0)
-    pnt3 = Pnt(x_max - radius, y_max, 0)
-    pnt4 = Pnt(x_min + radius, y_max, 0)
-    pnt5 = Pnt(x_min, y_max - radius, 0)
-    pnt6 = Pnt(x_min, y_min + radius, 0)
-    pnt7 = Pnt(x_min + radius, y_min, 0)
-
-    wire = Wire(
-        [
-            ArcOfCircle(pnt0, Vec(1, 0, 0), pnt1),
-            Segment(pnt1, pnt2),
-            ArcOfCircle(pnt2, Vec(0, 1, 0), pnt3),
-            Segment(pnt3, pnt4),
-            ArcOfCircle(pnt4, Vec(-1, 0, 0), pnt5),
-            Segment(pnt5, pnt6),
-            ArcOfCircle(pnt6, Vec(0, -1, 0), pnt7),
-            Segment(pnt7, pnt0),
-        ]
-    )
-
-    return Face(wire)
-
-
 class Team13NonLinearMagnetostatic(ValidationCase):
     name = "Compumag Team 13: 3-D Non-Linear Magnetostatic Model"
     tags = {"moderate"}
@@ -53,6 +24,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Box, Glue, Pnt, Vec, X, Y, Z
 
+        from casekit.geometry_helpers import racetrack_face
         from casekit.meshing import color_air, color_copper, color_steel, name_body
 
         # The plates use a 5 mm face mesh size: coarser elements at the plate edges
@@ -87,8 +59,8 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
         # Extrude both racetracks before subtracting: an extruded face shares its
         # underlying shape with the base face, and WriteStep keeps only one name.
-        outer_coil = create_racetrack_face(0.094, 0.294, 0.0, 0.2, r50).Extrude(Vec(0, 0, 0.05))
-        inner_coil = create_racetrack_face(0.094 + r25, 0.294 - r25, r25, 0.2 - r25, r25).Extrude(
+        outer_coil = racetrack_face(0.094, 0.294, 0.0, 0.2, r50).Extrude(Vec(0, 0, 0.05))
+        inner_coil = racetrack_face(0.094 + r25, 0.294 - r25, r25, 0.2 - r25, r25).Extrude(
             Vec(0, 0, 0.05)
         )
 

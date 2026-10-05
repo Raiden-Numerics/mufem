@@ -16,16 +16,6 @@ from mufem.electromagnetics.timeharmonicmagnetic import (
 )
 
 
-def create_hollow_cylinder(r_inner, r_outer, axis, height, offset=0):
-    from netgen.occ import Cylinder, Vec
-
-    outer = Cylinder((0.0, 0.0, 0.0), axis, r=r_outer, h=height)
-    inner = Cylinder((0.0, 0.0, 0.0), axis, r=r_inner, h=height)
-    hollow_cylinder = outer - inner
-
-    return hollow_cylinder.Move(Vec(axis.x, axis.y, axis.z * offset))
-
-
 class Biro1993IronCore(ValidationCase):
     name = "Biro 1993: 3D Iron Core Current Driven Conductors"
     tags = {"eternal"}
@@ -36,17 +26,16 @@ class Biro1993IronCore(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
 
+        from casekit.geometry_helpers import hollow_cylinder
         from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         # Core -------------------------------------------------------------------------
         box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))
         box_2 = Box((0, 0, 0.0), (0.012, 0.01, 0.001))
 
-        hollow_cylinder = create_hollow_cylinder(
-            r_inner=0.0118, r_outer=0.019, axis=Z, height=0.012
-        )
+        core_hole = hollow_cylinder(r_inner=0.0118, r_outer=0.019, axis=Z, height=0.012)
 
-        core = box_1 - box_2 - hollow_cylinder
+        core = box_1 - box_2 - core_hole
         name_body(core, "Core", color=color_iron, individual_names=False)
 
         core.faces.Min(Y).name = "Core::Front"
@@ -78,11 +67,11 @@ class Biro1993IronCore(ValidationCase):
             height = 0.002 - gap
             offset_y = col * 0.002 + gap
 
-            hollow_cylinder = create_hollow_cylinder(
+            coil = hollow_cylinder(
                 r_inner=r_inner, r_outer=r_outer, axis=Z, height=height, offset=offset_y
             )
 
-            coil = hollow_cylinder * octant
+            coil = coil * octant
             name_body(coil, f"Coil {i + 1}", color=color_copper, individual_names=False)
 
             coil.faces.Min(Y).name = f"Coil {i + 1}::Front"

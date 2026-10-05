@@ -19,14 +19,6 @@ from mufem.electromagnetics.timedomainmagnetic import (
 )
 
 
-def create_polygon_face(points):
-    """Planar face bounded by straight segments through `points` (closed)."""
-    from netgen.occ import Face, Pnt, Segment, Wire
-
-    pnts = [Pnt(*p) for p in points]
-    return Face(Wire([Segment(a, b) for a, b in zip(pnts, pnts[1:] + pnts[:1])]))
-
-
 class Team20StaticForce(ValidationCase):
     name = "Compumag Team 20: 3D Static Force Problem"
     tags = {"moderate"}
@@ -34,12 +26,13 @@ class Team20StaticForce(ValidationCase):
     def build_geometry(self):
         from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
 
+        from casekit.geometry_helpers import polygon_face
         from casekit.meshing import color_air, color_copper, color_iron, name_body
 
         # Quarter model: X = 0 and Y = 0 are symmetry planes.
 
         # Yoke -------------------------------------------------------------------------
-        yoke_face = create_polygon_face(
+        yoke_face = polygon_face(
             [
                 (0.0, 0.0, 0.0),
                 (0.0635, 0.0, 0.0),
@@ -59,7 +52,7 @@ class Team20StaticForce(ValidationCase):
 
         # Pole -------------------------------------------------------------------------
         z_pole = 0.025 + 0.0015
-        pole_face = create_polygon_face(
+        pole_face = polygon_face(
             [
                 (0.0, 0.0, z_pole),
                 (0.0125, 0.0, z_pole),
