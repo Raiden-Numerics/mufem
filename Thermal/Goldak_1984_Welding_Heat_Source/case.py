@@ -128,7 +128,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         # Conditions -------------------------------------------------------------------
         # Goldak source parameters from Table 2 of [1].
         cff_q = make_goldak_double_ellipsoid(
-            Q=36538.35,
+            Q=36538.35,  # 30 W below eta * V * I = 36568.35 W, with which the solve diverges
             v=5.0e-3,
             tau=0.0,
             a=0.02,

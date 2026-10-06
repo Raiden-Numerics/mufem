@@ -28,7 +28,7 @@ and becomes the dominant factor.
 | ![Electrical Conductivity](data/Steel_ElectricalConductivity.png) | ![Thermal Conductivity](data/Steel_ThermalConductivity.png) |
 | ![Heat Capacity](data/Steel_SpecificHeatCapacity.png) | ![BH Curve](data/Steel_BHCurve.png) |
 
-(Note: the electrical-conductivity data point at $`700\,^{\circ}\mathrm{C}`$ has been changed from
+(Note: the electrical-conductivity data point at $`700\,{}^{\circ}\mathrm{C}`$ has been changed from
 $`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print error in [3].)
 
 ## Setup
@@ -38,7 +38,7 @@ $`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print 
   conductivity, heat capacity) on the billet.
 * A stranded excitation coil (10 turns in the periodic sector) driven at $`3500\,\mathrm{A}`$ RMS.
 * Convection ($`h = 7\,\mathrm{W/m^2/K}`$) and radiation ($`\varepsilon = 0.8`$) on the billet surface,
-  with $`70\,^{\circ}\mathrm{C}`$ ambient on the lateral surface and $`25\,^{\circ}\mathrm{C}`$ on the end
+  with $`70\,{}^{\circ}\mathrm{C}`$ ambient on the lateral surface and $`25\,{}^{\circ}\mathrm{C}`$ on the end
   surface.
 * The mesh is refined once, at $`t = 45\,\mathrm{s}`$.
 
