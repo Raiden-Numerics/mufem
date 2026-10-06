@@ -129,9 +129,11 @@ class Team36InductionHeating(ValidationCase):
     def setup_case(self):
         sim = mufem.Simulation.New(name=self.name)
 
-        # Conforming: on a nonconforming mesh the time-harmonic magnetic solve crashes in
-        # HypreParMatrix::EliminateBC on some MPI process counts (HFEM-107).
-        sim.get_domain().load_mesh(f"{self.mesh_path}")
+        # De-refinement (used by the adaptive strategy) requires a nonconforming mesh.
+        nonconforming_options = mufem.NonConformingOption(
+            is_nonconforming=True, simplicies_nonconforming=True
+        )
+        sim.get_domain().load_mesh(f"{self.mesh_path}", nonconforming=nonconforming_options)
 
         billet_marker = "Billet" @ mufem.Vol
         air_marker = "Air" @ mufem.Vol

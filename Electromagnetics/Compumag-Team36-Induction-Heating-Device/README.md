@@ -40,7 +40,7 @@ $`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print 
 * Convection ($`h = 7\,\mathrm{W/m^2/K}`$) and radiation ($`\varepsilon = 0.8`$) on the billet surface,
   with $`70\,{}^{\circ}\mathrm{C}`$ ambient on the lateral surface and $`25\,{}^{\circ}\mathrm{C}`$ on the end
   surface.
-* The mesh is refined once, at $`t = 45\,\mathrm{s}`$.
+* The mesh is nonconforming to allow adaptive refinement/de-refinement of the heating front.
 
 ## Validation
 
