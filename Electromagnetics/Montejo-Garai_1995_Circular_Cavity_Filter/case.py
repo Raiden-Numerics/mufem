@@ -120,7 +120,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
                 "Mesh.MeshSizeFromCurvature": 10,
                 "Mesh.ElementOrder": 2,
                 # Optimize the curved elements without the elastic step (value 2): that
-                # step uses PETSc, which clashes with mufem's PETSc in the same process.
+                # step uses the PETSc built into gmsh, which clashes with mufem's MPI.
                 "Mesh.HighOrderOptimize": 1,
             },
         )
