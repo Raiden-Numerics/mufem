@@ -55,7 +55,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 if TYPE_CHECKING:
     import mufem
@@ -86,7 +86,7 @@ class ValidationCase(ABC):
     tags: Set[str] = set()
 
     # the Simulation returned by `setup_case()`; available to all later steps
-    sim: "mufem.Simulation"
+    sim: Optional["mufem.Simulation"] = None
 
     # --- workflow -------------------------------------------------------------
     def run(self) -> None:
@@ -152,6 +152,11 @@ class ValidationCase(ABC):
 
     def is_main(self) -> bool:
         """True on the main MPI rank; use to guard non-collective output."""
+        if self.sim is None:
+            raise RuntimeError(
+                "is_main() needs the Simulation, which exists only after setup_case() "
+                "has returned it; do not call is_main() before or inside setup_case()"
+            )
         return self.sim.get_machine().is_main_process()
 
     @property
