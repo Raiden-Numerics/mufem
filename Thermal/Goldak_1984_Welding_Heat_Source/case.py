@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import math
 
@@ -214,4 +214,4 @@ class Goldak1984WeldingHeatSource(ValidationCase):
 
 
 if __name__ == "__main__":
-    Goldak1984WeldingHeatSource().run()
+    run_case(Goldak1984WeldingHeatSource)

@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import mufem
 from mufem import Bnd, Vol
@@ -131,4 +131,4 @@ class Cameron1986(ValidationCase):
 
 
 if __name__ == "__main__":
-    Cameron1986().run()
+    run_case(Cameron1986)

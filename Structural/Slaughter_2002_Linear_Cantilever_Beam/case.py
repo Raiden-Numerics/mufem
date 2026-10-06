@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
@@ -162,4 +162,4 @@ class Slaughter2002CantileverBeam(ValidationCase):
 
 
 if __name__ == "__main__":
-    Slaughter2002CantileverBeam().run()
+    run_case(Slaughter2002CantileverBeam)

@@ -1,4 +1,4 @@
-from casekit import ValidationCase, expect
+from casekit import ValidationCase, expect, run_case
 
 # numpy must be imported before mufem (see casekit/plots.py).
 import matplotlib.pyplot as plt
@@ -256,4 +256,4 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
 
 if __name__ == "__main__":
-    MontejoGarai1995CavityFilter().run()
+    run_case(MontejoGarai1995CavityFilter)

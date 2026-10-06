@@ -149,7 +149,7 @@ mesh_and_save("geometry.step", basesize=0.5, path="geometry.mesh")
 
 In [case.py](case.py), these steps are the `build_geometry` and `generate_mesh`
 methods of the case class.
-They run only when the mesh is regenerated with `REBUILD_MESH=1 pymufem 1 case.py`;
+They run only when the mesh is regenerated with `pymufem 1 case.py --rebuild-mesh`;
 a normal run loads the committed `geometry.mesh`.
 
 

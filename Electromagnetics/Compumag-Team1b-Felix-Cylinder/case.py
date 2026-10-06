@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import mufem
 from mufem import Bnd, Vol
@@ -136,4 +136,4 @@ class Team1bFelixCylinder(ValidationCase):
 
 
 if __name__ == "__main__":
-    Team1bFelixCylinder().run()
+    run_case(Team1bFelixCylinder)

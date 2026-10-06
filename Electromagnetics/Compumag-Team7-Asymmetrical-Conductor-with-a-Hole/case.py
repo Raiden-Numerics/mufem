@@ -1,4 +1,4 @@
-from casekit import ValidationCase, expect
+from casekit import ValidationCase, expect, run_case
 
 # numpy MUST be imported before mufem: on the Windows wheel, loading numpy's
 # OpenBLAS after mufem corrupts mufem's mesh read (Simulation.New).
@@ -198,4 +198,4 @@ class Team7AsymmetricalConductor(ValidationCase):
 
 
 if __name__ == "__main__":
-    Team7AsymmetricalConductor().run()
+    run_case(Team7AsymmetricalConductor)

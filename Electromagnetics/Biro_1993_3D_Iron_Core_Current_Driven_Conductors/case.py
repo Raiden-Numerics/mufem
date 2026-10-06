@@ -1,4 +1,4 @@
-from casekit import ValidationCase, expect
+from casekit import ValidationCase, expect, run_case
 
 import mufem
 from mufem import Bnd, Vol
@@ -193,4 +193,4 @@ class Biro1993IronCore(ValidationCase):
 
 
 if __name__ == "__main__":
-    Biro1993IronCore().run()
+    run_case(Biro1993IronCore)

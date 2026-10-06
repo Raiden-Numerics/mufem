@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import math
 
@@ -131,4 +131,4 @@ class David2019ChargeDensity(ValidationCase):
 
 
 if __name__ == "__main__":
-    David2019ChargeDensity().run()
+    run_case(David2019ChargeDensity)

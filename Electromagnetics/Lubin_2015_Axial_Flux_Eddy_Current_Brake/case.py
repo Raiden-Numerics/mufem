@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import matplotlib.pyplot as plt
 import numpy
@@ -317,4 +317,4 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
 
 if __name__ == "__main__":
-    Lubin2015EddyCurrentBrake().run()
+    run_case(Lubin2015EddyCurrentBrake)

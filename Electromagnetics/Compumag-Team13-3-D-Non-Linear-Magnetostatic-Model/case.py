@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
@@ -200,4 +200,4 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
 
 if __name__ == "__main__":
-    Team13NonLinearMagnetostatic().run()
+    run_case(Team13NonLinearMagnetostatic)

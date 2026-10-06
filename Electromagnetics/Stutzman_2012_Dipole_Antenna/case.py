@@ -1,4 +1,4 @@
-from casekit import ValidationCase, expect
+from casekit import ValidationCase, expect, run_case
 
 # numpy must be imported before mufem (see casekit/plots.py).
 import matplotlib.pyplot as plt
@@ -239,4 +239,4 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
 
 if __name__ == "__main__":
-    Stutzman2012DipoleAntenna().run()
+    run_case(Stutzman2012DipoleAntenna)

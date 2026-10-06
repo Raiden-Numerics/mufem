@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 # numpy must be imported before mufem (see casekit/plots.py).
 import matplotlib.pyplot as plt
@@ -23,7 +23,7 @@ from mufem.electromagnetics.electrostatics import (
 class Ren2014MemsCombDrive(ValidationCase):
     name = "Ren 2014: MEMS Comb Drive"
     # The meshes of all shifts (about 22 MB) are not shipped: they must be built first
-    # with REBUILD_MESH=1.
+    # with --rebuild-mesh.
     tags = {"long", "rebuild_mesh"}
 
     # [um] shifts of the combs apart from each other, one mesh each
@@ -119,7 +119,7 @@ class Ren2014MemsCombDrive(ValidationCase):
         if missing:
             raise FileNotFoundError(
                 f"{missing[0].name} and {len(missing) - 1} more meshes are missing: build "
-                "them with REBUILD_MESH=1 pymufem 1 case.py"
+                "them with pymufem 1 case.py --rebuild-mesh"
             )
 
         sim = Simulation.New(name=self.name)
@@ -271,4 +271,4 @@ class Ren2014MemsCombDrive(ValidationCase):
 
 
 if __name__ == "__main__":
-    Ren2014MemsCombDrive().run()
+    run_case(Ren2014MemsCombDrive)

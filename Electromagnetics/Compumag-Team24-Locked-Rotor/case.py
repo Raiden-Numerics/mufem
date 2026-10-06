@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
@@ -316,4 +316,4 @@ class Team24LockedRotor(ValidationCase):
 
 
 if __name__ == "__main__":
-    Team24LockedRotor().run()
+    run_case(Team24LockedRotor)

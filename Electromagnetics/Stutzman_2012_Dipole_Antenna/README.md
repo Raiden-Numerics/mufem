@@ -50,7 +50,7 @@ The problem geometry and corresponding mesh are generated with the
 [Gmsh](https://gmsh.info/) mesh generator.
 The geometry is built in the `build_geometry` method of [case.py](case.py) and
 meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`REBUILD_MESH=1 pymufem 1 case.py`.
+`pymufem 1 case.py --rebuild-mesh`.
 To achieve higher precision, we set the maximum size of the mesh elements to
 one-fifth of the radiation wavelength $`\lambda`$.
 Additionally, we employ second-order mesh elements to ensure at least 12

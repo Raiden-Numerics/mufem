@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import math
 
@@ -179,4 +179,4 @@ class Berger2017HtsCube(ValidationCase):
 
 
 if __name__ == "__main__":
-    Berger2017HtsCube().run()
+    run_case(Berger2017HtsCube)

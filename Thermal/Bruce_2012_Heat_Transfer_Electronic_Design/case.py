@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
@@ -213,4 +213,4 @@ class Bruce2012ElectronicDesign(ValidationCase):
 
 
 if __name__ == "__main__":
-    Bruce2012ElectronicDesign().run()
+    run_case(Bruce2012ElectronicDesign)

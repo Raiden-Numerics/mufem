@@ -194,7 +194,7 @@ regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org
 with the shared helpers):
 
 ```bash
-(mufem-venv) REBUILD_MESH=1 pymufem 1 Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py
+(mufem-venv) pymufem 1 Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
 ```
 
 Rebuild on a single process (`pymufem 1`). The committed meshes were generated with

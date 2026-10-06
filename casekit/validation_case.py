@@ -8,7 +8,7 @@
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
-on a single process with `REBUILD_MESH=1 pymufem 1 case.py`; netgen is imported
+on a single process with `pymufem 1 case.py --rebuild-mesh`; netgen is imported
 inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
@@ -17,7 +17,7 @@ running the case. That is what lets CI select a subset (e.g. skip `long` cases, 
 
 Typical case file:
 
-    from casekit import ValidationCase, expect
+    from casekit import ValidationCase, expect, run_case
 
     import mufem
 
@@ -46,11 +46,12 @@ Typical case file:
             expect(T, 291.45, rel_tol=1e-3, label="probe temperature")
 
     if __name__ == "__main__":
-        Cameron1986().run()
+        run_case(Cameron1986)
 """
 
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 from abc import ABC, abstractmethod
@@ -89,19 +90,21 @@ class ValidationCase(ABC):
     sim: Optional["mufem.Simulation"] = None
 
     # --- workflow -------------------------------------------------------------
-    def run(self) -> None:
+    def run(self, rebuild_mesh: bool = False) -> None:
         """Run the case; raises on a failed check, so the process exits non-zero.
 
-        With REBUILD_MESH=1 the geometry and mesh are regenerated first.
+        With `rebuild_mesh` the geometry and mesh are regenerated first.
         """
         self.results_path.mkdir(exist_ok=True)
 
-        if os.environ.get("REBUILD_MESH") == "1":
+        if rebuild_mesh:
             # The Simulation (and with it is_main()) is only created in setup_case(), so
             # every process would write geometry.step / geometry.mesh, and there is no
             # barrier to make the others wait for the mesh: rebuild on a single process.
             if not self._is_single_process():
-                raise RuntimeError("Rebuild the mesh on a single process: pymufem 1 case.py")
+                raise RuntimeError(
+                    "Rebuild the mesh on a single process: pymufem 1 case.py --rebuild-mesh"
+                )
             self.build_geometry()
             self.generate_mesh()
 
@@ -177,3 +180,18 @@ class ValidationCase(ABC):
     def results_path(self) -> Path:
         """Output directory for plots / tables; created by `run()`."""
         return self.dir_path / "results"
+
+
+def run_case(case_class: type[ValidationCase]) -> None:
+    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh]`."""
+    parser = argparse.ArgumentParser(
+        description=case_class.name,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--rebuild-mesh",
+        action="store_true",
+        help="rebuild geometry and mesh before running (on a single process)",
+    )
+    args = parser.parse_args()
+    case_class().run(rebuild_mesh=args.rebuild_mesh)

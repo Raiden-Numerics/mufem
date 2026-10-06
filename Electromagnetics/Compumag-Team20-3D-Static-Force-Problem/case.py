@@ -1,4 +1,4 @@
-from casekit import PlotStyle, ValidationCase, expect, xy_plot
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
@@ -237,4 +237,4 @@ class Team20StaticForce(ValidationCase):
 
 
 if __name__ == "__main__":
-    Team20StaticForce().run()
+    run_case(Team20StaticForce)
