@@ -81,9 +81,8 @@ def run_cases(
         try:
             os.chdir(path=root)
             if rebuild_mesh:
-                # Meshing needs a single process; the case then runs with the launcher.
                 subprocess.run(
-                    args="python case.py --rebuild-mesh", shell=True, check=True, text=True
+                    args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
                 )
             subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
             print(f"Success: {case_path}")

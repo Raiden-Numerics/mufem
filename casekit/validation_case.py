@@ -8,8 +8,7 @@ A case implements the steps of two separate workflows:
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
-on a single process with `pymufem 1 case.py --rebuild-mesh` (or
-`python case.py --rebuild-mesh`) before the case is run with `pymufem case.py`;
+with `pymufem case.py --rebuild-mesh` before the case is run with `pymufem case.py`;
 netgen is imported inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
@@ -101,15 +100,11 @@ class ValidationCase(ABC):
         self.postprocess()
 
     def build_geometry_and_mesh(self) -> None:
-        """Rebuild the geometry and the mesh, on a single process."""
-        # Meshing does not use MPI: under mpirun every process would build the same
-        # geometry and mesh and write the same files at once (no is_main() before
-        # setup_case()), which is slower and can corrupt them.
-        if not self._is_single_process():
-            raise RuntimeError(
-                "Rebuild the mesh on a single process: pymufem 1 case.py --rebuild-mesh "
-                "or python case.py --rebuild-mesh"
-            )
+        """Rebuild the geometry and the mesh."""
+        # Meshing does not use MPI: every process would build the same geometry and mesh
+        # and write the same files at once, so the other processes just return.
+        if not self._is_launcher_main_process():
+            return
         self.build_geometry()
         self.generate_mesh()
 
@@ -146,12 +141,13 @@ class ValidationCase(ABC):
 
     # --- helpers --------------------------------------------------------------
     @staticmethod
-    def _is_single_process() -> bool:
-        """True unless an MPI launcher started more than one process."""
-        return all(
-            int(os.environ.get(size_variable, "1")) <= 1
-            for size_variable in ("OMPI_COMM_WORLD_SIZE", "PMI_SIZE")
-        )
+    def _is_launcher_main_process() -> bool:
+        """True on rank 0 or without an MPI launcher; read from the launcher's environment
+        because no Simulation exists yet."""
+        for key in ("OMPI_COMM_WORLD_RANK", "PMIX_RANK", "PMI_RANK"):
+            if (value := os.environ.get(key)) is not None:
+                return int(value) == 0
+        return True
 
     def is_main(self) -> bool:
         """True on the main MPI rank; use to guard non-collective output."""
@@ -191,7 +187,7 @@ def run_case(case_class: type[ValidationCase]) -> None:
     parser.add_argument(
         "--rebuild-mesh",
         action="store_true",
-        help="rebuild geometry and mesh instead of running the case (on a single process)",
+        help="rebuild geometry and mesh instead of running the case",
     )
     args = parser.parse_args()
 

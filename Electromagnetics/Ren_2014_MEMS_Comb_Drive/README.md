@@ -38,7 +38,7 @@ To simulate the entire system, we enclose the comb drive within a rectangular bo
 
 During the mesh generation process, we assign named attributes to the surfaces of each comb ("Comb1" and "Comb2"), to the boundary of the computational domain representing the ground plate ("Ground"), and to the entire computational domain itself ("Domain").
 
-To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. We begin with a zero shift, corresponding to an initial distance of 1 μm between the combs. Subsequently, we increase the inter-comb distance from this initial value by shifting the combs in increments of 0.5 μm, up to a final shift of 8 μm, at which point the combs no longer interlock. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem 1 case.py --rebuild-mesh` (or `python case.py --rebuild-mesh`).
+To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. We begin with a zero shift, corresponding to an initial distance of 1 μm between the combs. Subsequently, we increase the inter-comb distance from this initial value by shifting the combs in increments of 0.5 μm, up to a final shift of 8 μm, at which point the combs no longer interlock. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
 
 
 ### Model
@@ -80,10 +80,9 @@ report = VolumeIntegralReport(
 
 Since every shift needs its own mesh for the adaptive mesh refinement, the meshes
 (about 22 MB) are not shipped with the case and have to be built first. The following
-command builds them on a single process:
+command builds them:
 ```bash
-pymufem 1 case.py --rebuild-mesh
-python case.py --rebuild-mesh  # alternative
+pymufem case.py --rebuild-mesh
 ```
 Once the meshes exist, the simulation is started with the [case.py](case.py) file
 using the following terminal command:
