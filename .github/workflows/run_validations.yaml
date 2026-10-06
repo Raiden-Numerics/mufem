@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: self-hosted
+      run-cases-args:
+        description: Extra arguments for run_cases.py (e.g. --exclude-tag rebuild_mesh)
+        required: false
+        type: string
+        default: ''
 
 jobs:
   run-examples:
@@ -100,4 +105,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python ./run_cases.py ${{ inputs.case-path }}
+        python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }}

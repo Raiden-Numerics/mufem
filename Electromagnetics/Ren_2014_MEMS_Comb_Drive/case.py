@@ -119,7 +119,7 @@ class Ren2014MemsCombDrive(ValidationCase):
         if missing:
             raise FileNotFoundError(
                 f"{missing[0].name} and {len(missing) - 1} more meshes are missing: build "
-                "them with pymufem 1 case.py --rebuild-mesh"
+                "them with pymufem 1 case.py --rebuild-mesh or python case.py --rebuild-mesh"
             )
 
         sim = Simulation.New(name=self.name)

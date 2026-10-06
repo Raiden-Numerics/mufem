@@ -58,7 +58,7 @@ note that [Gmsh](https://gmsh.info/) is not supplied with mufem; it is installed
 with the shared helpers of this repository).
 The geometry is built in the `build_geometry` method of [case.py](case.py) and
 meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`pymufem 1 case.py --rebuild-mesh`.
+`pymufem 1 case.py --rebuild-mesh` (or `python case.py --rebuild-mesh`).
 To improve the accuracy of modeling, we use the mesh with second-order finite
 elements.
 By using such a mesh, we can avoid artifacts that arise when trying to

@@ -1,15 +1,16 @@
 """Base class for mufem validation / example cases.
 
-`ValidationCase.run()` fixes the workflow; a case implements the steps:
+A case implements the steps of two separate workflows:
 
-    [build_geometry -> generate_mesh]  only when the mesh is rebuilt
-    setup_case -> solve -> validate -> postprocess
+    build_geometry_and_mesh():  build_geometry -> generate_mesh    (--rebuild-mesh)
+    run():                      setup_case -> solve -> validate -> postprocess
 
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
 `generate_mesh()` are only needed to regenerate the committed mesh, which is done
-on a single process with `pymufem 1 case.py --rebuild-mesh`; netgen is imported
-inside those methods, so normal runs do not load it.
+on a single process with `pymufem 1 case.py --rebuild-mesh` (or
+`python case.py --rebuild-mesh`) before the case is run with `pymufem case.py`;
+netgen is imported inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
 running the case. That is what lets CI select a subset (e.g. skip `long` cases, or
@@ -90,28 +91,27 @@ class ValidationCase(ABC):
     sim: Optional["mufem.Simulation"] = None
 
     # --- workflow -------------------------------------------------------------
-    def run(self, rebuild_mesh: bool = False) -> None:
-        """Run the case; raises on a failed check, so the process exits non-zero.
-
-        With `rebuild_mesh` the geometry and mesh are regenerated first.
-        """
+    def run(self) -> None:
+        """Run the case; raises on a failed check, so the process exits non-zero."""
         self.results_path.mkdir(exist_ok=True)
-
-        if rebuild_mesh:
-            # The Simulation (and with it is_main()) is only created in setup_case(), so
-            # every process would write geometry.step / geometry.mesh, and there is no
-            # barrier to make the others wait for the mesh: rebuild on a single process.
-            if not self._is_single_process():
-                raise RuntimeError(
-                    "Rebuild the mesh on a single process: pymufem 1 case.py --rebuild-mesh"
-                )
-            self.build_geometry()
-            self.generate_mesh()
 
         self.sim = self.setup_case()
         self.solve()
         self.validate()
         self.postprocess()
+
+    def build_geometry_and_mesh(self) -> None:
+        """Rebuild the geometry and the mesh, on a single process."""
+        # Meshing does not use MPI: under mpirun every process would build the same
+        # geometry and mesh and write the same files at once (no is_main() before
+        # setup_case()), which is slower and can corrupt them.
+        if not self._is_single_process():
+            raise RuntimeError(
+                "Rebuild the mesh on a single process: pymufem 1 case.py --rebuild-mesh "
+                "or python case.py --rebuild-mesh"
+            )
+        self.build_geometry()
+        self.generate_mesh()
 
     # --- steps ----------------------------------------------------------------
     def build_geometry(self) -> None:
@@ -191,7 +191,12 @@ def run_case(case_class: type[ValidationCase]) -> None:
     parser.add_argument(
         "--rebuild-mesh",
         action="store_true",
-        help="rebuild geometry and mesh before running (on a single process)",
+        help="rebuild geometry and mesh instead of running the case (on a single process)",
     )
     args = parser.parse_args()
-    case_class().run(rebuild_mesh=args.rebuild_mesh)
+
+    case = case_class()
+    if args.rebuild_mesh:
+        case.build_geometry_and_mesh()
+    else:
+        case.run()
