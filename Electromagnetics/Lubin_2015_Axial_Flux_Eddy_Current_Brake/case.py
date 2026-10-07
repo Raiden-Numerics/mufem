@@ -282,6 +282,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         )
 
         if self.output_for_animation:
+            (self.dir_path / "vis").mkdir(exist_ok=True)
             for n, (rpm, _) in enumerate(self.torque_vs_rpm_step):
                 self.plot_animation_frame(reference, rpm, n)
 
