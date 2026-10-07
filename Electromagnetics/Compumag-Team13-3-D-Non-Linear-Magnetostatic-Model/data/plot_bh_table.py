@@ -11,7 +11,7 @@ B = data[:, 0]  # First column
 # Plot the BH curve
 plt.plot(H, B, marker="o")
 
-plt.xlabel("Magnetic Field Strength H [A$\\,$m$^2$]")
+plt.xlabel("Magnetic Field Strength H [A/m]")
 plt.ylabel("Magnetic Flux Density B [T]")
 
 plt.xlim((0, 10000))

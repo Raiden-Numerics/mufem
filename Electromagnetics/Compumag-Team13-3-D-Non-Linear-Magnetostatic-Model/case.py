@@ -41,13 +41,14 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         center_plate.faces.maxh = 0.005
 
         # Outer (L-shaped) plates --------------------------------------------------------
+        # Channel: 120 mm inside plus the 3.2 mm leg, from x = 2.1 to 125.3 mm.
         plate_1 = Box(
             Pnt(0.0021, 0.015, 0.1264 / 2.0),
-            Pnt(0.0021 + 0.12, 0.015 + 0.050, 0.1264 / 2.0 - 0.0032),
+            Pnt(0.0021 + 0.1232, 0.015 + 0.050, 0.1264 / 2.0 - 0.0032),
         )
         plate_2 = Box(
-            Pnt(0.0021 + 0.120 - 0.0032, 0.015, 0),
-            Pnt(0.0021 + 0.120, 0.015 + 0.05, 0.1264 / 2.0 - 0.0032),
+            Pnt(0.0021 + 0.120, 0.015, 0),
+            Pnt(0.0021 + 0.1232, 0.015 + 0.05, 0.1264 / 2.0 - 0.0032),
         )
 
         outer_plate_1 = plate_1 + plate_2
@@ -79,7 +80,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         air = Box(Pnt(0.225, -0.225, 0), Pnt(-0.225, 0.225, 0.2))
         name_body(air, "Air", color=color_air, individual_names=False)
 
-        air = air - center_plate - outer_plate_1 - coil
+        air = air - center_plate - outer_plate_1 - outer_plate_2 - coil
 
         air.faces.Max(Z).name = "Air::Tangential Flux"
         air.faces.Min(X).name = "Air::Tangential Flux"
@@ -163,15 +164,25 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         )
         self.flux_density = [(p.x, v.mag) for p, v in probe_report.evaluate_all()]
 
-        # Measured |B| at x = 50 mm (Nakata & Fujiwara, Table 7).
-        center_report = mufem.ProbeReport.SinglePoint(
-            "Center B", "Magnetic Flux Density", x=0.05, y=0.02, z=0.055
+        # Measured |B| at x = 10, 20, ..., 110 mm (Nakata & Fujiwara 1992, Table 7). The
+        # A-formulation codes of that workshop are also 10-20 % above the measurement in the
+        # air (their Fig. 9), so the mean ratio over the line is checked.
+        measured = numpy.loadtxt(
+            self.dir_path / "data" / "Table7_FluxDensity.csv", delimiter=",", comments="#"
         )
+        measured_report = mufem.ProbeReport.Line(
+            "B Measured Points",
+            "Magnetic Flux Density",
+            start=(0.01, 0.02, 0.055),
+            end=(0.11, 0.02, 0.055),
+            number_points=len(measured),
+        )
+        computed = numpy.array([v.mag for _, v in measured_report.evaluate_all()])
         expect(
-            center_report.evaluate().mag,
-            0.0283,
-            rel_tol=1e-1,
-            label="|B| at x = 50 mm [T]",
+            numpy.mean(computed / measured[:, 1]),
+            1.0,
+            rel_tol=0.15,
+            label="mean ratio of |B| to the measurement along the line",
         )
 
     def postprocess(self):
@@ -185,7 +196,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
                 reference_xscale=1000.0,
                 reference_yscale=1000.0,
                 reference_style=PlotStyle.POINTS,
-                reference_label="Nakata & Fujiwara (1992)",
+                reference_label="Nakata & Fujiwara (1992), measured",
                 xlabel="x [mm]",
                 ylabel="B [mT]",
                 xlim=(0.0, 120.0),
