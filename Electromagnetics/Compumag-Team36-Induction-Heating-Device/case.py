@@ -101,7 +101,7 @@ class Team36InductionHeating(ValidationCase):
 
         coils = []
         for n in range(10):
-            turn = coil.Move(Vec(0, n * (coil_axial_length + 2 * half_offset) + half_offset, 0))
+            turn = coil.Move(Vec(0, n * (coil_axial_length + 2 * half_offset), 0))
             name_body(turn, f"Coil::{n}", color=color_copper)
             turn.faces.Max(Z).name = f"Coil::{n}::In"
             turn.faces.Min(Z).name = f"Coil::{n}::Out"
@@ -300,7 +300,7 @@ class Team36InductionHeating(ValidationCase):
 
     def validate(self):
         # Temperatures at t = 100 s; Di Barba et al. (2018), Fig. 8a, interpolated.
-        # mufem stays 6-9% below the reference curves here.
+        # mufem stays about 2% below the reference curves here.
         temperature = {
             name: monitor.get_values()[-1][1] - 273.15
             for name, monitor in self.temperature_monitors.items()
