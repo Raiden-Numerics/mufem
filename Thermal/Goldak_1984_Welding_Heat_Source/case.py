@@ -9,6 +9,7 @@ from mufem import Bnd, Vol
 from mufem.methods import TemperatureTable
 from mufem.thermal import (
     HeatFluxBoundaryCondition,
+    LinearizationType,
     MushyZoneCondition,
     SolidTemperatureMaterial,
     SolidTemperatureModel,
@@ -97,6 +98,11 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         # Model ------------------------------------------------------------------------
         model = SolidTemperatureModel(order=2)
         sim.get_model_manager().add_model(model)
+
+        # The conductivity jumps to the liquid value of 120 W/(m K) at the melting point; the
+        # exact (unsymmetric) Newton tangent of the conductivity term keeps the solve convergent.
+        model.get_solver().set_linearization_type(LinearizationType.Unsymmetric)
+
         model.get_initial_condition().set_constant(293.15)
 
         # Materials (temperature-dependent) --------------------------------------------
@@ -128,7 +134,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         # Conditions -------------------------------------------------------------------
         # Goldak source parameters from Table 2 of [1].
         cff_q = make_goldak_double_ellipsoid(
-            Q=36538.35,  # 30 W below eta * V * I = 36568.35 W, with which the solve diverges
+            Q=0.95 * 32.9 * 1170.0,  # eta * V * I [W]
             v=5.0e-3,
             tau=0.0,
             a=0.02,
@@ -184,7 +190,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         # Peak temperature on the weld centerline (x = 0).
         expect(
             self.temperature[0][1],
-            1527.47,
+            1527.63,
             rel_tol=1e-2,
             label="centerline temperature [°C]",
         )

@@ -57,7 +57,7 @@ plane $`x = 0`$ (`Piece::Symmetry`, adiabatic) and the source on the top surface
 | Current | 1170 A |
 | Welding speed | 0.005 m/s |
 | Efficiency | 0.95 |
-| Heat input $`Q`$ | 36.54 kW (30 W below $`\eta V I = 36.57`$ kW, see below) |
+| Heat input $`Q = \eta V I`$ | 36.57 kW |
 | Ellipsoid semi-axes | $`a = b = 2.0`$ cm, $`c_f = 1.5`$ cm, $`c_r = 3.0`$ cm |
 | Power fractions | $`f_f = 0.6`$, $`f_r = 1.4`$ |
 
@@ -71,9 +71,8 @@ stirring in the weld pool, as in [1]) are tabulated in
 [Volumetric_Heat_Capacity.csv](data/Volumetric_Heat_Capacity.csv); the density is
 $`\rho = 7850\,\mathrm{kg/m^3}`$.
 
-The heat input is 30 W (0.08 %) below the nominal $`\eta V I`$: with the exact value the nonlinear
-temperature solve diverges, so the case stays at the value that converges until the solver
-robustness is improved.
+Because the conductivity rises steeply at the melting point, the temperature-dependent conduction
+term is linearized with the exact (unsymmetric) Newton tangent.
 
 **Phase change** is captured with a *mushy-zone* enthalpy formulation between the solidus
 $`T_s = 1430\,{}^{\circ}\mathrm{C}`$ and the liquidus $`T_l = 1530\,{}^{\circ}\mathrm{C}`$ (around the melting
@@ -113,7 +112,7 @@ includes a heat of transformation of $`5.5 \cdot 10^7\,\mathrm{J/m^3}`$; the muf
 and does not model the transformation.
 
 The case checks the temperature on the weld centerline ($`x = 0`$) against
-$`1527.5\,{}^{\circ}\mathrm{C}`$ (1 % tolerance).
+$`1527.6\,{}^{\circ}\mathrm{C}`$ (1 % tolerance).
 
 ## Scenes
 
