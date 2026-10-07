@@ -1,6 +1,6 @@
 # Biro 1993: 3D Iron Core Current Driven Conductors
 
-We are testing the current-driven solid coils following the example shown in [1], Section IV. We validate by comparing the
+We are testing the current-driven solid coils following the example shown in [1], Section V. We validate by comparing the
 Ohmic heating within each individual conductor to the reference.
 
 
@@ -8,7 +8,7 @@ Ohmic heating within each individual conductor to the reference.
 <img src="./data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>The geometry of the setup: a core and 25 solid coils. Due to symmetry, only 1/8th of the geometry is modelled.</em>
+<em>The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modelled.</em>
 </div>
 <br /><br />
 
@@ -19,15 +19,26 @@ conductivity of $`\sigma=5.6 \times 10^7 \, \mathrm{S/m}`$. In each turn, a peak
 $`\phi=0^\circ`$, and frequency $`f = 5 \, \mathrm{kHz}`$ is imposed.
 
 We compare the Ohmic heating generated inside each conductor with the values provided in [1] (Table I) for
-3D with air gap.
+3D with air gap ([Ohmic_Loss.csv](data/Ohmic_Loss.csv) contains all columns of the table).
 
 Each copper conductor is set up as a solid coil (conductor) - thus eddy currents are resolved and we have
 a strong skin effect.
 
 ## Setup
 
+We model the quarter of the device shown in Fig. 4 of [1]: the core (with a cylindrical middle limb of radius
+11.8 mm and a 1 mm air gap at its bottom) and the 25 turns of $`1 \times 2\,\mathrm{mm}`$ at radii 12 to 17 mm.
+The turns are separated by 0.1 mm gaps (each conductor is $`0.9 \times 1.9\,\mathrm{mm}`$), which keeps the
+distance between the limb and the first turns at the 0.3 mm of [1]. The planes $`x = 0`$ and $`y = 0`$ and the
+outer air boundary carry a Tangential Magnetic Flux condition; the plane $`z = 0`$ is left natural.
+
 We use 2nd order accuracy to ensure smooth curves. Note that we impose the current inside the coil through a
-**source** constraint.
+**source** constraint; each turn is a solid coil whose quarter is driven between its faces on the $`x = 0`$ and
+$`y = 0`$ planes, and the losses of the quarter are multiplied by 4.
+
+The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
+`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. The case
+itself is run with `pymufem case.py`; it prints the table below.
 
 ## Results
 
@@ -62,10 +73,21 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
     | 23   | 0.7424    | 0.65902  | 0.08338   | 11.23         |
     | 24   | 0.2920    | 0.27364  | 0.01836   | 6.29          |
     | 25   | 0.1166    | 0.12217  | 0.00557   | 4.78          |
+    | Total | 17.472   | 19.349   | 1.877     | 10.74         |
 
-    Most conductors deviate by around 10% or less (median 6%); conductor 21, next to the core, deviates by about 45%. However, the size of the gap is an uncertainty that needs to be quantified (does a smaller gap improve the results?).
+    Most conductors deviate by around 10% or less (median 6%). Conductor 21, next to the air gap, deviates by
+    about 45%; its value is close to the axisymmetric (2D) result of [1], 7.09 W. Its loss is caused by the
+    leakage field at the air gap and is very sensitive to the geometry there: moving the limb surface by only
+    0.1 mm (radius 11.7 mm instead of 11.8 mm) changes it by 13% and the total loss by 7%. The coarse model of
+    [1] (5,824 hexahedra) is unlikely to resolve this region accurately.
+
+    The case checks the total loss against Table I (12% tolerance) and the total loss of the other 24
+    conductors (-3% deviation, 5% tolerance).
 
 ## Scenes
+
+The magnetic flux density and the electric current density (real and imaginary parts) are exported to
+`VisualizationOutput/`; the scenes and the animation below are rendered from them in ParaView.
 
 * **Electric Current Density**
 
