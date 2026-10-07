@@ -13,14 +13,14 @@ The problem [[1]](#[1]) is a non-linear magnetostatic case with a center pole an
 </div>
 <br /><br />
 
-When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested in the relation between the coil current and the resulting force on the pole. The force on the center pole is compared to **experimental values** presented in [[3]](#[3]).
+When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested in the relation between the coil current and the resulting force on the pole. The force on the center pole and the flux density in the gap below it are compared to **experimental values** presented in [[2]](#[2]) and [[3]](#[3]).
 
 ## Setup
 
 
 ### Mesh
 
-The mesh was created using netgen and saved in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries.
+The geometry follows Fig. 1 of [[1]](#[1]) and is built with netgen in the `build_geometry` method of [case.py](case.py); `generate_mesh` meshes it (mesh size 1 mm on the pole and 2.5 mm on the yoke and coil) and saves it in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries. Both methods run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
 
 <div align="center">
 <img src="data/Mesh.png" alt="drawing" width="400">
@@ -46,7 +46,7 @@ in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \ve
 As for the boundary, by symmetry the magnetic flux needs to be tangential to the symmetry faces; thus we
 assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition) which ensures that
 $`\vec{B} \cdot \vec{n} = 0`$. This is achieved by specifying the tangential components of 
-$`\vec{A}`$ to zero, i.e. $`\vec{n} \times \vec{A} = 0`$. Although the outer air boundary, being a far-field boundary, could be left free, for simplicity we apply a tangential flux condition there as well.
+$`\vec{A}`$ to zero, i.e. $`\vec{n} \times \vec{A} = 0`$. It is applied on the symmetry planes $`x = 0`$ and $`y = 0`$, including the end faces of the quarter coil (`Coil::In`, `Coil::Out`); the outer air boundary, a far-field boundary, is left free.
 
 ### Excitation
 
@@ -59,7 +59,8 @@ $`S_c[\rm{m}^2]`$
 is the coil cross section and $`\vec{d}`$ is the coil path (please note that the actual calculation is 
 more involved as we need to ensure that the electric current density is homogeneous along a coil cross 
 section as well as support non-constant cross sections of the coil geometry). Here, we choose $`n_t=1000`$ 
-and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ with a total of 11 measurements.
+and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ in 11 steps, i.e. 0 to 5000 ampere-turns (the
+experimental coil has 381 turns; only the ampere-turns matter).
 
 ### Reports
 
@@ -77,7 +78,7 @@ where $`\vec{n}`$ is the normal along the surface. Note that only the z-componen
 
 ### Materials
 
-While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) is used, also shown in Figure 3.
+While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [[1]](#[1]) is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
 
 <div style="display: flex; align-items: flex-start;">
     <img src="./data/bh_curve.png" alt="BH Curve" width="600" style="margin-right: 20px;">
@@ -107,45 +108,30 @@ While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are i
 
 We run the case using [case.py](case.py) with
 ```bash
-> pymufem case.py
-...
-43 2.477455e-08
-44 7.077223e-10
-45 3.873954e-11
-Stopping criterion reached!
-electromagnetic.TimeDomainMagneticModel,
-46 2.857851e-06
-47 1.633936e-07
-48 1.051301e-08
-49 1.973070e-10
-50 4.131711e-11
-Stopping criterion reached!
-electromagnetic.TimeDomainMagneticModel,
-51 2.642555e-06
-52 1.691569e-07
-53 1.072489e-08
-54 3.637672e-10
-55 4.148898e-11
-Stopping criterion reached!
+pymufem case.py
 ```
 
-Note that in [case.py](case.py), we have a loop over an increasing value of the coil current:
+Note that the `solve` method of [case.py](case.py) loops over an increasing value of the coil current:
 ```python
 for coil_current in numpy.linspace(0.0, 5.0, 11):
-    coil_drive_current.set_value(coil_current)
-    steady_runner.advance(5)
+    self.coil_drive_current.set_value(coil_current)
 
-    force_z = magnetic_force_report_1.evaluate().z
+    self.runner.advance(5)
 
-    center_piece_force_list.append((coil_current, force_z))
+    self.pole_force.append((coil_current, -4.0 * self.pole_force_report.evaluate().z))
+    self.gap_field.append(
+        {name: report.evaluate().z for name, report in self.gap_field_reports.items()}
+    )
 ```
-Which sets the current, runs the simulation and stores the resulting force. Finally, we generate a plot showing the dependency of the force versus the coil current.
+It sets the current, runs five nonlinear iterations and stores the force on the pole (four times that of the
+quarter model, attractive in $`-z`$) and $`B_z`$ in the gap. Finally, we generate a plot showing the dependency
+of the force versus the coil current.
 
 <div align="center">
 <img src="results/Force_vs_Current.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>Figure 4: The resulting force in relation to the applied coil current and compared with the experimental values obtained from [2].</em>
+<em>Figure 4: The resulting force in relation to the applied coil current and compared with the experimental values of Fig. 2 of [3].</em>
 </div>
 <br /><br />
 
@@ -153,6 +139,20 @@ Which sets the current, runs the simulation and stores the resulting force. Fina
 The results are presented in Figure 4, where we find a good match to the experimental and numerical values
 reported in [[2]](#[2]) and [[3]](#[3]). Note that initially the force increases quadratically with an 
 increase of current until around $`I=3`$ A, where the steel saturates.
+
+The measurements of [[2]](#[2]) (Tables 4 and 6) for the four excitations of the benchmark:
+
+| Ampere-turns | $`F_z`$ mufem / measured [N] | $`B_z`$ at P1 mufem / measured [T] | $`B_z`$ at P2 mufem / measured [T] |
+| ------------ | ---------------------------- | ---------------------------------- | ---------------------------------- |
+| 1000         | 8.04 / 8.1                   | 0.320 / 0.36                       | 0.221 / 0.24                       |
+| 3000         | 55.2 / 54.4                  | 0.847 / 0.84                       | 0.581 / 0.63                       |
+| 4500         | 75.1 / 75.0                  | 1.003 / 0.99                       | 0.686 / 0.72                       |
+| 5000         | 80.2 / 80.1                  | 1.042 / 1.03                       | 0.710 / 0.74                       |
+
+P1 = (0, 0, 25.75) mm is the mid-point and P2 = (12.5, 5, 25.75) mm the edge of the gap below the pole. The
+case checks the force at all four excitations (5 % tolerance) and $`B_z`$ at 5000 AT at P1 (5 %) and P2 (10 %);
+at P2, where the flux density changes abruptly, [[2]](#[2]) also reports larger discrepancies between
+calculations and measurement.
 
 Finally, we save the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 

@@ -196,11 +196,20 @@ class Team20StaticForce(ValidationCase):
         self.pole_force_report = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
         sim.get_report_manager().add_report(self.pole_force_report)
 
+        # Flux density in the gap below the pole: mid-point P1 and edge P2 of [2].
+        self.gap_field_reports = {
+            name: mufem.ProbeReport.SinglePoint(
+                f"Gap Field {name}", "Magnetic Flux Density", x=x, y=y, z=0.02575
+            )
+            for name, x, y in [("P1", 0.0, 0.0), ("P2", 0.0125, 0.005)]
+        }
+
         return sim
 
     def solve(self):
         # Current scan; the quarter model gives a quarter of the (attractive, -z) force.
         self.pole_force = []
+        self.gap_field = []
 
         for coil_current in numpy.linspace(0.0, 5.0, 11):
             self.coil_drive_current.set_value(coil_current)
@@ -208,10 +217,26 @@ class Team20StaticForce(ValidationCase):
             self.runner.advance(5)
 
             self.pole_force.append((coil_current, -4.0 * self.pole_force_report.evaluate().z))
+            self.gap_field.append(
+                {name: report.evaluate().z for name, report in self.gap_field_reports.items()}
+            )
 
     def validate(self):
-        # Measured force at 5.02 A (Takahashi et al., 1994).
-        expect(self.pole_force[-1][1], 79.7, rel_tol=5e-2, label="pole force at 5 A [N]")
+        force = dict(self.pole_force)
+
+        # Measured force (Table 6 of [2]); 1000 turns, so the current in A is the AT / 1000.
+        for coil_current, measured_force in [(1.0, 8.1), (3.0, 54.4), (4.5, 75.0), (5.0, 80.1)]:
+            expect(
+                force[coil_current],
+                measured_force,
+                rel_tol=5e-2,
+                label=f"pole force at {1000 * coil_current:.0f} AT [N]",
+            )
+
+        # Measured Bz in the gap at 5000 AT (Table 4 of [2]); at the edge P2, where the field
+        # changes abruptly, calculation and measurement are less accurate.
+        expect(self.gap_field[-1]["P1"], 1.03, rel_tol=5e-2, label="Bz at P1 at 5000 AT [T]")
+        expect(self.gap_field[-1]["P2"], 0.74, rel_tol=1e-1, label="Bz at P2 at 5000 AT [T]")
 
     def postprocess(self):
         if self.is_main():
