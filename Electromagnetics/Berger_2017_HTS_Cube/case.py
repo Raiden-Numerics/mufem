@@ -1,6 +1,7 @@
 from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
-import math
+# numpy must be imported before mufem (see casekit/plots.py).
+import numpy
 
 import mufem
 from mufem import Bnd, Vol
@@ -110,7 +111,7 @@ class Berger2017HtsCube(ValidationCase):
         # B_max = 20 mT > B_p = mu0 * Jc * d / 2 ~ 15.7 mT places the case in the
         # full-penetration regime.
         b_max = 20.0e-3
-        h_max = b_max / (4.0e-7 * math.pi)
+        h_max = b_max / (4.0e-7 * numpy.pi)
 
         cff_applied_field = mufem.CffExpressionVector(
             f"[0, {h_max}*sin(2*pi*{frequency}*{{Time}}), 0]"
@@ -150,9 +151,17 @@ class Berger2017HtsCube(ValidationCase):
         return sim
 
     def validate(self):
-        # Peak AC loss over the period; the octant model integrates 1/8 of the cube.
-        peak_loss = 8.0 * max(loss for _, loss in self.ohmic_heating_monitor.get_values())
-        expect(peak_loss, 0.02983, rel_tol=1e-2, label="peak AC loss [W]")
+        # The octant model integrates 1/8 of the cube.
+        time, loss = numpy.array(self.ohmic_heating_monitor.get_values()).T
+        loss = 8.0 * loss
+
+        expect(loss.max(), 0.02983, rel_tol=1e-2, label="peak AC loss [W]")
+
+        # Steady-state average loss over the second half-period, Eq. (3) of [1], against
+        # model (B.3) of Table III; the six models of [1] spread by up to 10.2 % around it.
+        half = numpy.argmin(abs(time - self.period / 2))
+        average_loss = 2.0 / self.period * numpy.trapezoid(loss[half:], time[half:])
+        expect(average_loss, 13.009e-3, rel_tol=0.12, label="average AC loss [W]")
 
     def postprocess(self):
         if self.is_main():

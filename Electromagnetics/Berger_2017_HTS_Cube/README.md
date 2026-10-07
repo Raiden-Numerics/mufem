@@ -44,15 +44,18 @@ standard HTS power law (Ref. [[1]](#Berger2017), Eq. 1):
 For the $`\vec{A}`$-formulation we need the inverse relation
 $`\sigma(|\vec{E}|)`$. To avoid the $`\sigma \to \infty`$ singularity as
 $`|\vec{E}| \to 0`$, we use the regularised form (Ref. [[1]](#Berger2017),
-Eq. 5):
+Eq. 8):
 ```math
 \sigma(\vec{E}) =
 \left[
    \frac{E_c}{J_c} \left(\frac{|\vec{E}|}{E_c}\right)^{(n-1)/n}
    + \rho_0
-\right]^{-1}
-\quad \text{with } \rho_0 = 10^{-14}\,\Omega\cdot\mathrm{m} \quad .
+\right]^{-1} \quad ,
 ```
+
+where [1] uses the resistivity floor $`\rho_0 = 10^{-14}\,\Omega\cdot\mathrm{m}`$. mufem's
+superconductor material applies its own, smaller built-in floor, so the case sets only $`J_c`$,
+$`E_c`$ and $`n`$.
 
 ### Material parameters
 
@@ -65,18 +68,24 @@ characterised experimentally with $`E_c = 1\,\mu\mathrm{V}/\mathrm{cm}`$
 | $`J_c`$    | $`2.5 \times 10^6\,\mathrm{A/m^2}`$ | Critical current density  |
 | $`E_c`$    | $`1 \times 10^{-4}\,\mathrm{V/m}`$  | Critical electric field   |
 | $`n`$      | $`25`$                             | Power-law exponent        |
-| $`\rho_0`$ | $`10^{-14}\,\Omega\cdot\mathrm{m}`$ | Resistivity floor         |
 
 ### Geometry and symmetry
 
 The HTS cube has edge length $`d = 10\,\mathrm{mm}`$ and is surrounded by
-an air domain of radius $`R_{\mathrm{air}} = 25\,\mathrm{mm}`$ (a sphere
-clipped to a positive octant). The applied field is uniform and points
-along the $`y`$-axis, which gives a 1/8-symmetric geometry:
+an air domain of radius $`R_{\mathrm{air}} = 100\,\mathrm{mm}`$ (a sphere
+clipped to a positive octant), of the size of the 100 mm air box of [1]; the
+perturbation of the field by the cube is then negligible at the outer
+boundary. The applied field is uniform and points along the $`y`$-axis
+([1] uses the $`z`$-axis, which is equivalent by symmetry), which gives a
+1/8-symmetric geometry:
 
-- $`y = 0`$: $`\vec{B}`$-normal symmetry plane — Tangential-$`\vec{A}`$=0 essential BC.
-- $`x = 0`$ and $`z = 0`$: $`\vec{B}`$-tangential symmetry planes — same
-  Tangential-$`\vec{H}`$ applied-field BC as the outer sphere.
+- $`x = 0`$ and $`z = 0`$ (`Cube/Air::TangentialFlux::X/Z`): $`\vec{B}`$ lies in
+  these planes ($`\vec{B}\cdot\vec{n} = 0`$), imposed by the Tangential Magnetic
+  Flux condition ($`\vec{n}\times\vec{A} = 0`$).
+- $`y = 0`$ (`Cube/Air::NormalField`): $`\vec{B}`$ is normal to the plane; this is
+  the natural boundary condition, so no condition is set there.
+- The outer sphere (`Air::Outer`) carries the applied field as a Tangential
+  Magnetic Field condition.
 
 The single-octant integrated Ohmic heating is multiplied by 8 to recover
 the full-cube AC loss.
@@ -99,9 +108,16 @@ the bulk of the conductor and is the most demanding AC-loss reference for
 HTS solvers.
 
 We set up an unsteady simulation with the [Time-Domain Magnetic
-Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html).
-A Newton iteration with a three-point quadratic line search stabilises the
-$`n=25`$ power-law nonlinearity.
+Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)
+(first-order elements) over one period, with 50 time steps of
+$`0.4\,\mathrm{ms}`$ and up to 10 nonlinear iterations each, starting from a
+zero field. A Newton iteration with a three-point quadratic line search
+stabilises the $`n=25`$ power-law nonlinearity.
+
+The geometry is built with netgen in the `build_geometry` method of
+[case.py](case.py) (mesh size $`0.5\,\mathrm{mm}`$ in the cube) and meshed in
+`generate_mesh`; both run only when the mesh is regenerated with
+`pymufem case.py --rebuild-mesh`. The case itself is run with `pymufem case.py`.
 
 
 ## Results
@@ -118,6 +134,19 @@ induced $`|\vec{E}|`$ in the conductor — is maximal (Ref.
 $`\approx 30\,\mathrm{mW}`$ (full-cube instantaneous loss); for the
 1/8-symmetric model the integrated value is multiplied by $`8`$ before
 plotting against the reference.
+
+The case checks the peak full-cube loss against $`29.83\,\mathrm{mW}`$
+(1 % tolerance; Fig. 2(b) of [1] peaks at $`\approx 29.9\,\mathrm{mW}`$) and
+the steady-state average loss over the second half-period,
+```math
+P = \frac{2}{T} \int_{T/2}^{T} p_{\mathrm{AC}}(t)\, dt \quad ,
+```
+against $`13.009\,\mathrm{mW}`$, the value of model (B.3) in Table III of [1]
+(12 % tolerance; the six models of [1] spread from $`13.01`$ to
+$`14.34\,\mathrm{mW}`$). mufem gives $`P \approx 14.3\,\mathrm{mW}`$.
+
+The magnetic flux density and the current density are exported to
+`VisualizationOutput/` for ParaView.
 
 <div align="center">
     <img src="./results/Ohmic_Heating.png" alt="AC loss" width="600">
