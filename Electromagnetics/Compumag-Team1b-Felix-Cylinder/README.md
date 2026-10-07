@@ -29,7 +29,7 @@ We solve the time-domain quasi-static Maxwell equations using the *electric form
 ```
 where $`\vec{A}`$ is the magnetic vector potential, $`\nu`$ is the magnetic reluctivity, $`\sigma`$ the electrical conductivity, and $`\vec{H}_0`$ the tangential-field Neumann condition. The unknown $`\vec{A}`$ is discretised in the *HCurl* space; the flux density follows as $`\vec{B} = \nabla \times \vec{A}`$ and the field as $`\vec{H} = \nu \vec{B}`$.
 
-We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialisation* to obtain the fully penetrated state at $`t=0`$, then march in time with backward Euler and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition of the form
+We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialisation* to obtain the fully penetrated state at $`t=0`$, then march in time up to $`t = 20\,\mathrm{ms}`$ with time steps of $`1\,\mathrm{ms}`$ and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition of the form
 ```math
 \vec{H}_0(t) =
 \left(
@@ -38,35 +38,43 @@ We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/elec
     \mu_0^{-1}\, B_y(t) \\
     0
     \end{array}
-\right) \quad.
+\right)
 ```
+on the boundary of a cubic air box of $`0.4\,\mathrm{m}`$ edge length around the full cylinder (length $`0.2\,\mathrm{m}`$, inner and outer radii $`0.05715\,\mathrm{m}`$ and $`0.06985\,\mathrm{m}`$).
+
+The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. The case itself is run with `pymufem case.py`.
 
 ## Validation
 
-We compare the Ohmic heating loss integrated over the cylinder against the reference results compiled by [Davey (1988)](#Davey1988). The Ohmic power density follows from
-```math
-\rho_\Omega \left[ \frac{\rm{W}}{\rm{m}^3} \right]
- = \vec{J} \cdot \vec{E}
- = \sigma \frac{\partial \vec{A}}{\partial t} \cdot
-   \frac{\partial \vec{A}}{\partial t} \quad,
-```
-and the magnetic energy density from
-```math
-\rho_B \left[ \frac{\rm{J}}{\rm{m}^3} \right]
- = \int_0^B \vec{B} \cdot \vec{H}
- = \tfrac{1}{2}\, \mu_0\, \vec{H} \cdot \vec{H} \quad,
-```
-the latter being valid because all materials are linear and non-magnetic.
+The results are compared with the solutions of the 1988 eddy current workshop compiled by [Davey (1988)](#Davey1988).
+
+* **Power loss** in the cylinder, $`\int \rho J^2 \, dV`$, against Table 4 of [2] (eight codes) at $`t = 4`$, $`8`$ and $`10\,\mathrm{ms}`$:
+
+  | Time | mufem | Table 4 of [2], range (median) |
+  | ---- | ----- | ------------------------------ |
+  | 4 ms | 425 W | 321 - 464 W (430.5 W) |
+  | 8 ms | 530 W | 480 - 570 W (534.5 W) |
+  | 10 ms | 478 W | 420 - 515 W (484 W) |
+
+  The case checks the loss at these times against the medians (5 % tolerance). Table 4 is labelled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
+
+* **Induced magnetic field** at the centre of the cylinder (the field $`B_y`$ minus the applied field), against the **measurement** of Table 3 of [2]:
+
+  | Time | mufem | Measurement | Codes of [2] |
+  | ---- | ----- | ----------- | ------------ |
+  | 4 ms | 0.0322 T | 0.035 T | 0.030 - 0.039 T |
+  | 8 ms | 0.0388 T | 0.042 T | 0.036 - 0.0495 T |
+  | 10 ms | 0.0375 T | 0.0375 T | 0.034 - 0.049 T |
+
+  The case checks these values against the measurement (10 % tolerance); like most codes of [2], mufem is 5-10 % below the measurement at 4 and 8 ms.
 
 ## Results
 
-The quantity of interest is the *Ohmic Heating Loss* inside the cylinder over time.
+The power loss over time, compared with the curve of Fig. 8 of [2] (the EDDYCUFF solution of Kameari, [PowerLoss.csv](data/PowerLoss.csv)):
 
 ![Ohmic Heating Loss](results/OhmicHeating.png)
 
-The simulated loss tracks the reference closely, with minor deviation near the end of the transient.
-
-At the final time step the "Electric Current Density" field is exported and visualized using ParaView using the [create_scene.py](create_scene.py) script.
+The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; the scene below is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case).
 
 <div align="center">
     <img src="results/Scene_Electric_Current_Density.png" alt="Mesh" width="50%">
