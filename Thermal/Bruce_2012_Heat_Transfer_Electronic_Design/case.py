@@ -100,7 +100,7 @@ class Bruce2012ElectronicDesign(ValidationCase):
             density=8890,
         )
         alu_filler_material = SolidTemperatureMaterial(
-            name="Grease Aluminium Filler Particle",
+            name="Grease Aluminum Filler Particle",
             marker="TIM2" @ Vol,
             thermal_conductivity=1.0,
             specific_heat_capacity=900,

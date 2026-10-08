@@ -26,7 +26,7 @@ The package is a stack of five layers, each $`13 \times 13\,\mathrm{mm}`$:
 | TIM 2 | Grease (Al filler) | 0.05 | 1.0 | 2500 | 900 |
 | Heat sink base | Copper | 6.00 | 390 | 8890 | 385 |
 
-Starting from a uniform $`T = 273.15\,\mathrm{K}`$, the die dissipation is modelled as a surface heat
+Starting from a uniform $`T = 273.15\,\mathrm{K}`$, the die dissipation is modeled as a surface heat
 flux of $`5917\,\mathrm{W/m^2}`$ between the die and TIM 1, and the heat-sink base is cooled by a
 convective flux with coefficient $`20000\,\mathrm{W/m^2/K}`$. The transient is run to $`10\,\mathrm{s}`$.
 

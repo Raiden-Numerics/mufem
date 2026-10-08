@@ -8,18 +8,18 @@ The *FELIX Short Cylinder* (Problem 1b of the Compumag TEAM benchmark suite [[1]
     <img src="./data/Geometry.png" alt="Geometry" width="600">
     <br/>
     <br/>
-    <em>Figure 1: The geometry of the benchmark: an aluminium short cylinder in air.</em>
+    <em>Figure 1: The geometry of the benchmark: an aluminum short cylinder in air.</em>
 </div>
 <br/>
 
 
 ## Setup
 
-The setup is a conductive aluminium cylinder in air, immersed in a uniform external magnetic field in the $`y`$-direction which decays exponentially in time according to
+The setup is a conductive aluminum cylinder in air, immersed in a uniform external magnetic field in the $`y`$-direction which decays exponentially in time according to
 ```math
 B_y(t) = B_0\, e^{-t/\tau} \quad,
 ```
-where $`t=0`$ marks the moment at which the field has fully penetrated the cylinder. The decay constant is $`\tau = 0.0069 \, \rm{s}`$ and the initial flux density is $`B_0 = 0.1 \, \rm{T}`$. The aluminium has resistivity $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \, \Omega \cdot \rm{m}`$.
+where $`t=0`$ marks the moment at which the field has fully penetrated the cylinder. The decay constant is $`\tau = 0.0069 \, \rm{s}`$ and the initial flux density is $`B_0 = 0.1 \, \rm{T}`$. The aluminum has resistivity $`\rho = \sigma^{-1} = 3.94 \times 10^{-8} \, \Omega \cdot \rm{m}`$.
 
 We solve the time-domain quasi-static Maxwell equations using the *electric formulation*
 ```math
@@ -27,9 +27,9 @@ We solve the time-domain quasi-static Maxwell equations using the *electric form
  + \int_{\Omega_c} \sigma \frac{\partial \vec{A}}{\partial t}
  - \int_\Gamma \vec{H}_0 \times \vec{n} = 0 \quad,
 ```
-where $`\vec{A}`$ is the magnetic vector potential, $`\nu`$ is the magnetic reluctivity, $`\sigma`$ the electrical conductivity, and $`\vec{H}_0`$ the tangential-field Neumann condition. The unknown $`\vec{A}`$ is discretised in the *HCurl* space; the flux density follows as $`\vec{B} = \nabla \times \vec{A}`$ and the field as $`\vec{H} = \nu \vec{B}`$.
+where $`\vec{A}`$ is the magnetic vector potential, $`\nu`$ is the magnetic reluctivity, $`\sigma`$ the electrical conductivity, and $`\vec{H}_0`$ the tangential-field Neumann condition. The unknown $`\vec{A}`$ is discretized in the *HCurl* space; the flux density follows as $`\vec{B} = \nabla \times \vec{A}`$ and the field as $`\vec{H} = \nu \vec{B}`$.
 
-We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialisation* to obtain the fully penetrated state at $`t=0`$, then march in time up to $`t = 20\,\mathrm{ms}`$ with time steps of $`1\,\mathrm{ms}`$ and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition of the form
+We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialization* to obtain the fully penetrated state at $`t=0`$, then march in time up to $`t = 20\,\mathrm{ms}`$ with time steps of $`1\,\mathrm{ms}`$ and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition of the form
 ```math
 \vec{H}_0(t) =
 \left(
@@ -56,9 +56,9 @@ The results are compared with the solutions of the 1988 eddy current workshop co
   | 8 ms | 530 W | 480 - 570 W (534.5 W) |
   | 10 ms | 478 W | 420 - 515 W (484 W) |
 
-  The case checks the loss at these times against the medians (5 % tolerance). Table 4 is labelled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
+  The case checks the loss at these times against the medians (5 % tolerance). Table 4 is labeled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
 
-* **Induced magnetic field** at the centre of the cylinder (the field $`B_y`$ minus the applied field), against the **measurement** of Table 3 of [2]:
+* **Induced magnetic field** at the center of the cylinder (the field $`B_y`$ minus the applied field), against the **measurement** of Table 3 of [2]:
 
   | Time | mufem | Measurement | Codes of [2] |
   | ---- | ----- | ----------- | ------------ |

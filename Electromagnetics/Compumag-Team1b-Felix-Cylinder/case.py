@@ -103,7 +103,7 @@ class Team1bFelixCylinder(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.ohmic_heating_monitor)
 
-        # Magnetic flux density at the centre of the cylinder.
+        # Magnetic flux density at the center of the cylinder.
         center_field_report = mufem.ProbeReport.SinglePoint(
             name="Center Field", cff_name="Magnetic Flux Density", x=0.0, y=0.0, z=0.0
         )
@@ -129,7 +129,7 @@ class Team1bFelixCylinder(ValidationCase):
                 label=f"power loss at t = {1e3 * time:.0f} ms [W]",
             )
 
-        # Induced field at the centre (total minus applied) against the measurement of
+        # Induced field at the center (total minus applied) against the measurement of
         # Table 3 of [2]; most codes of [2] are also 5-10 % below it at 4 and 8 ms.
         for time, induced_field in [(0.004, 0.035), (0.008, 0.042), (0.010, 0.0375)]:
             applied_field = 0.1 * math.exp(-time / 0.0069)
@@ -137,7 +137,7 @@ class Team1bFelixCylinder(ValidationCase):
                 abs(at(self.center_field_monitor, time).y) - applied_field,
                 induced_field,
                 rel_tol=1e-1,
-                label=f"induced field at the centre at t = {1e3 * time:.0f} ms [T]",
+                label=f"induced field at the center at t = {1e3 * time:.0f} ms [T]",
             )
 
     def postprocess(self):

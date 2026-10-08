@@ -47,7 +47,7 @@ $`f_f + f_r = 2`$. The source moves with welding speed $`v`$ via $`z \rightarrow
 We reproduce the *thick-plate weld* of Goldak et al. [1] (their Fig. 4, after the experiments of
 Christensen et al.): a submerged-arc bead-on-plate weld on low-carbon steel (0.23 % C), plate
 thickness **10 cm**. The plate is $`0.3\,\mathrm{m}`$ wide and
-$`0.3\,\mathrm{m}`$ long; only the half $`x \ge 0`$ is modelled, with the weld path on the symmetry
+$`0.3\,\mathrm{m}`$ long; only the half $`x \ge 0`$ is modeled, with the weld path on the symmetry
 plane $`x = 0`$ (`Piece::Symmetry`, adiabatic) and the source on the top surface $`y = 0`$
 (`Piece::Top`).
 

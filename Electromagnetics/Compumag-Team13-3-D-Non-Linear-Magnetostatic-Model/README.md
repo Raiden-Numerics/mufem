@@ -14,7 +14,7 @@ air gaps and through the saturated regions [2, 3].
 <img src="./data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>Geometry of the benchmark: a stranded coil between two steel channels and a centre plate. One symmetry plane is exploited.</em>
+<em>Geometry of the benchmark: a stranded coil between two steel channels and a center plate. One symmetry plane is exploited.</em>
 </div>
 <br /><br />
 
@@ -30,12 +30,12 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
 
 ## Setup
 
-* The geometry follows Fig. 1 of [1]: a 3.2 mm centre plate, two steel
+* The geometry follows Fig. 1 of [1]: a 3.2 mm center plate, two steel
   channels (120 mm inside plus the 3.2 mm leg, 50 mm wide) at 0.5 mm from it,
   and a coil of $`200 \times 200`$ mm with rounded corners (R25/R50), 25 mm wide
   and 100 mm high.
 * The plane $`z = 0`$ is a symmetry plane, so the upper half of the geometry is
-  modelled (the 1/2 region of Fig. 2(b) of [1]); the outer boundaries of the air
+  modeled (the 1/2 region of Fig. 2(b) of [1]); the outer boundaries of the air
   carry a Tangential Magnetic Flux condition.
 * Time-Domain Magnetic model run to a steady state (12 nonlinear iterations),
   second-order accurate; eddy currents are not relevant in this static case.
@@ -45,7 +45,7 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
 * The stranded coil is driven with 3000 AT: 500 turns of 3 A in the cross-section
   of the half coil, i.e. the same current density as 3000 AT in the full coil.
 * A Newton line search on the variational functional is enabled for
-  iterations 0-6 to stabilise the iterates through the saturation knee.
+  iterations 0-6 to stabilize the iterates through the saturation knee.
 
 The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is

@@ -8,7 +8,7 @@ Ohmic heating within each individual conductor to the reference.
 <img src="./data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-<em>The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modelled.</em>
+<em>The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modeled.</em>
 </div>
 <br /><br />
 

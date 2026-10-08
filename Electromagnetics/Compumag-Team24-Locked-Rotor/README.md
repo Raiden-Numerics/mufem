@@ -24,7 +24,7 @@ $`\sigma = 4.54 \times 10^6 \ \mathrm{S/m}`$ and a non-linear $`B(H)`$ curve. As
 B(H) = \frac{1}{a + b H} + \mu_0 H \quad,
 ```
 
-where $`a`$ and $`b`$ are obtained from a least-squares fit over the full curve and used to fill in the low-$`H`$ portion. The modification ensures physical behaviour at large $`H`$ [3].
+where $`a`$ and $`b`$ are obtained from a least-squares fit over the full curve and used to fill in the low-$`H`$ portion. The modification ensures physical behavior at large $`H`$ [3].
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Modified B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |

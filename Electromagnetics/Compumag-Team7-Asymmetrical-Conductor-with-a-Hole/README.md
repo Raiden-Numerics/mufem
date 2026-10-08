@@ -2,8 +2,8 @@
 
 ## Introduction
 
-Problem 7 of the Compumag TEAM benchmark suite [1] is a thick aluminium plate with an
-off-centred rectangular hole, placed below an excitation coil driven by a sinusoidal
+Problem 7 of the Compumag TEAM benchmark suite [1] is a thick aluminum plate with an
+off-centered rectangular hole, placed below an excitation coil driven by a sinusoidal
 current. It is a classical 3-D eddy-current validation case, with measured data
 published at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$ [2].
 
@@ -11,13 +11,13 @@ published at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$ [2].
 <img src="./data/Geometry.png" alt="Geometry of the benchmark" width="600">
 </div>
 <div align="center">
-<em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminium plate with an off-centred hole.</em>
+<em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminum plate with an off-centered hole.</em>
 </div>
 
 
 ## Problem Description
 
-The aluminium plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
+The aluminum plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
 The stranded coil is driven by a sinusoidal current of $`2742\,\mathrm{AT}`$ at a frequency
 of $`f = 50\,\mathrm{Hz}`$ (reference data for $`200\,\mathrm{Hz}`$ also exists).
 The numerical results are compared with measurements of the magnetic flux density along two
@@ -53,7 +53,7 @@ magnetic_model = TimeHarmonicMagneticModel(
 
 Three
 [materials](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/materials/general_material.html)
-are defined: *air*, *copper*, and *aluminium*. Only aluminium is electrically conductive and
+are defined: *air*, *copper*, and *aluminum*. Only aluminum is electrically conductive and
 therefore supports eddy currents.
 
 ```python

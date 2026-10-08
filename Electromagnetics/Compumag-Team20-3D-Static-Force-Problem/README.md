@@ -9,7 +9,7 @@ The problem [[1]](#[1]) is a non-linear magnetostatic case with a center pole an
 <img src="data/Geometry.png" alt="drawing" width="600">
 </div>
 <div align="center">
-    <br/>Figure 1: Geometry of the benchmark. An excitation coil surrounds a steel pole and yoke. Due to symmetry only one quarter of the geometry is modelled.
+    <br/>Figure 1: Geometry of the benchmark. An excitation coil surrounds a steel pole and yoke. Due to symmetry only one quarter of the geometry is modeled.
 </div>
 <br /><br />
 

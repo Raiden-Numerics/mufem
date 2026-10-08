@@ -12,7 +12,7 @@ A permanent-magnet rotor turning in front of a stationary copper disc. The eddy 
 
 ## Introduction
 
-The *magnet plate* carries $`p`$ pole pairs (here $`p = 5`$) of axially magnetised permanent magnets (NdFeB, $`B_r = 1.25\,\mathrm{T}`$, pole-arc to pole-pitch ratio 0.9). The opposing *copper plate* ($`\sigma = 57\,\mathrm{MS/m}`$) is the conductor in which eddy currents are induced when relative rotation is imposed. The two plates are separated by an air gap, here $`c = 3\,\mathrm{mm}`$ (other values $`c = 5\,\mathrm{mm}`$ and $`c = 7\,\mathrm{mm}`$ are considered in [1]).
+The *magnet plate* carries $`p`$ pole pairs (here $`p = 5`$) of axially magnetized permanent magnets (NdFeB, $`B_r = 1.25\,\mathrm{T}`$, pole-arc to pole-pitch ratio 0.9). The opposing *copper plate* ($`\sigma = 57\,\mathrm{MS/m}`$) is the conductor in which eddy currents are induced when relative rotation is imposed. The two plates are separated by an air gap, here $`c = 3\,\mathrm{mm}`$ (other values $`c = 5\,\mathrm{mm}`$ and $`c = 7\,\mathrm{mm}`$ are considered in [1]).
 
 The dimensions are those of Table I of [1]: magnets from $`R_1 = 30`$ to $`R_2 = 60\,\mathrm{mm}`$ and $`10\,\mathrm{mm}`$ thick on a $`10\,\mathrm{mm}`$ back iron (here a disc up to $`R_2`$; the analytical models extend it to $`R_3`$), and the copper plate from $`R_0 = 15`$ to $`R_3 = 75\,\mathrm{mm}`$, $`5\,\mathrm{mm}`$ thick on an $`8\,\mathrm{mm}`$ back iron. The back-iron plates on both sides have $`\mu_r = 1000`$ (a linear approximation justified by the design intent of avoiding saturation) and no conductivity; in [2] a conductivity $`\sigma_b = 7\,\mathrm{MS/m}`$ is assigned to the copper-side back iron.
 
@@ -127,7 +127,7 @@ An animation is shown below, created with [create_animation.py](create_animation
 
 ## Notes
 
-- Second-order discretisation (the case uses first order) gives a notably better match to [1, 2] at the cost of runtime.
+- Second-order discretization (the case uses first order) gives a notably better match to [1, 2] at the cost of runtime.
 - Dynamic time-stepping does not appear to help here.
 
 ## References
