@@ -143,13 +143,14 @@ class Ren2014MemsCombDrive(ValidationCase):
         material = ElectrostaticMaterial("Air", Everywhere @ Vol, electric_permittivity=1.0)
         model.add_material(material)
 
-        # Boundary conditions ----------------------------------------------------------
+        # Boundary conditions: 1 V on the three-tooth comb, 0 V on the four-tooth comb and
+        # the ground plate, as in Fig. 3 of [1] ------------------------------------------
         condition_comb1 = ElectricPotentialCondition(
-            name="Comb1", marker="Comb1" @ Bnd, electric_potential=self.voltage
+            name="Comb1", marker="Comb1" @ Bnd, electric_potential=0.0
         )
 
         condition_comb2 = ElectricPotentialCondition(
-            name="Comb2", marker="Comb2" @ Bnd, electric_potential=0.0
+            name="Comb2", marker="Comb2" @ Bnd, electric_potential=self.voltage
         )
 
         condition_ground = ElectricPotentialCondition(
@@ -210,15 +211,20 @@ class Ren2014MemsCombDrive(ValidationCase):
             [self.capacitances[self.capacitances[:, 0] == x][-1, 2] for x in self.xshifts]
         )
 
-    def validate(self):
-        # Capacitance of the unshifted combs against the finest mesh of [1] (152k cells).
-        reference = numpy.loadtxt(
-            self.dir_path / "data" / "Ren_2014_Capacitance.csv", delimiter=","
+    def load_reference(self):
+        """Elements [10^3] and the primal and dual FEM capacitances [fF] of [1], Fig. 4."""
+        return numpy.loadtxt(
+            self.dir_path / "data" / "Ren_2014_Capacitance.csv", delimiter=",", comments="#"
         )
+
+    def validate(self):
+        # The capacitance of the unshifted combs must lie between the lower (dual FEM) and
+        # upper (primal FEM) bound of [1] on its finest mesh of 152k elements.
+        _, upper, lower = self.load_reference()[-1]
         expect(
             self.final_capacitances()[0] / 1e-15,
-            reference[-1, 1],
-            rel_tol=3e-2,
+            (upper + lower) / 2,
+            abs_tol=(upper - lower) / 2,
             label="capacitance at xshift = 0 [fF]",
         )
 
@@ -236,10 +242,14 @@ class Ren2014MemsCombDrive(ValidationCase):
 
         # Capacitance versus the number of cells for a few shifts ------------------------
         plt.clf()
-        reference = numpy.loadtxt(
-            self.dir_path / "data" / "Ren_2014_Capacitance.csv", delimiter=","
-        )
-        plt.plot(reference[:, 0], reference[:, 1], "k^--", label="Ren 2014 (xshift = 0 μm)")
+        reference = self.load_reference()
+        for column, marker, method in [(1, "k^--", "primal"), (2, "kv--", "dual")]:
+            plt.plot(
+                reference[:, 0],
+                reference[:, column],
+                marker,
+                label=f"Ren 2014, {method} FEM (xshift = 0)",
+            )
 
         for xshift in [0, 2, 4, 6, 8]:
             data = self.capacitances[self.capacitances[:, 0] == xshift]

@@ -21,7 +21,7 @@ By varying the distance between the combs, we can observe changes in capacitance
 
 ### Dimensions
 
-The exact dimensions of the comb drive components are illustrated in Fig. 3 of [[1]](#Ren2014). Briefly, the width of the teeth is 4 μm, the gap between the teeth is 1 μm, and the distance to the ground plate is 6 μm.
+The dimensions follow Fig. 3 of [[1]](#Ren2014): both combs are 4 μm thick and have a 5 μm wide, 34 μm long backbone; the teeth are 15 μm long and 4 μm wide. In the unshifted position, neighboring teeth are 1 μm apart and the tooth tips are 2 μm from the opposite backbone. The ground plate is 6 μm below the combs.
 
 
 ### Mesh
@@ -38,7 +38,7 @@ To simulate the entire system, we enclose the comb drive within a rectangular bo
 
 During the mesh generation process, we assign named attributes to the surfaces of each comb ("Comb1" and "Comb2"), to the boundary of the computational domain representing the ground plate ("Ground"), and to the entire computational domain itself ("Domain").
 
-To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. We begin with a zero shift, corresponding to an initial distance of 1 μm between the combs. Subsequently, we increase the inter-comb distance from this initial value by shifting the combs in increments of 0.5 μm, up to a final shift of 8 μm, at which point the combs no longer interlock. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
+To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. The zero shift is the geometry of [[1]](#Ren2014). The combs are then pulled apart along the teeth in increments of 0.5 μm, up to a final shift of 8 μm, at which point the teeth no longer overlap. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
 
 
 ### Model
@@ -50,16 +50,17 @@ using the following equation:
     \nabla \cdot \varepsilon \nabla\phi = -\rho,
 ```
 where $`\varepsilon`$ is the electric permittivity, and $`\rho`$ denotes the density of free electric
-charges, which is zero in our case. By solving this equation we calculate the total electric energy density
-$`W=\varepsilon\vec{E}^2/2`$ with $`\vec{E}=-\nabla\phi`$. Knowing the energy $`W`$ and the
-voltage $`V`$ imposed between the two comb electrodes we can find the capacitance $`C`$ of the comb
-drive as [[3]](#Wikipedia)
+charges, which is zero in our case. By solving this equation we calculate the total electric energy
+$`W`$, the integral of the energy density $`\varepsilon\vec{E}^2/2`$ with $`\vec{E}=-\nabla\phi`$. Knowing
+the energy $`W`$ and the voltage $`V`$ imposed between the two comb electrodes we can find the capacitance
+$`C`$ of the comb drive as [[3]](#Wikipedia)
 ```math
     C = \frac{2 W}{V^2}.
 ```
 
-The potentials on the two comb electrodes are set to 1 V for the four-tooth electrode and 0 V for the
-three-tooth electrode, while the ground plate is maintained at 0 V. In order to implement these voltages
+As in [[1]](#Ren2014), the potential is set to 1 V on the three-tooth electrode and to 0 V on the
+four-tooth electrode and the ground plate, so $`C`$ is the total capacitance of the three-tooth comb
+against the four-tooth comb and the ground. In order to implement these voltages
 we use the [Electric Potential Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/conditions/electric_potential.html).
 
 We also assume that the computational domain is filled with air, which we model using the [Electrostatics Material](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/materials/electrostatics.html) with the electric permittivity of free space.
@@ -156,12 +157,15 @@ becomes denser near the edges of the combs, where the electric potential changes
 <br/>
 
 
-With each refinement cycle, the number of degrees of freedom increases. Figure 4 illustrates how the 
-calculated capacitance value changes as the number of degrees of freedom grows. For the zero shift, it is compared with the values of [[1]](#Ren2014), given there versus the number
-of degrees of freedom. It is clear that the 
-capacitance value at the initial mesh is overestimated; however, with each subsequent mesh refinement 
-cycle, it decreases. After a certain number of refinement cycles, the capacitance value stabilizes and 
-reaches its final value.
+With each refinement cycle, the number of cells increases. Figure 4 illustrates how the calculated
+capacitance changes as the number of cells grows. The capacitance on the initial mesh is overestimated;
+with each refinement cycle it decreases and then stabilizes.
+
+For the zero shift, it is compared with Fig. 4 of [[1]](#Ren2014), which gives the capacitance versus the
+number of elements for two complementary formulations on meshes refined around the conductors (not
+adaptively): the primal FEM (scalar potential) converges from above and the dual FEM (vector potential)
+from below, so the exact value lies between them. On the finest mesh of [[1]](#Ren2014), 152k elements, the bounds are
+4.55 fF and 4.96 fF. mufem converges to 4.73 fF, and the case checks that it lies between these bounds.
 
 <div align="center">
     <img src="results/Capacitance_Vs_Ncells.png" width="600">
@@ -203,10 +207,10 @@ where $`\partial C/\partial x`$ represents the change in capacitance with respec
 the combs, and $`V`$ is the applied voltage.
 
 To calculate the derivative $`\partial C/\partial x`$ in Figure 6, we plot the capacitance against 
-the shift distance. As observed, the capacitance decreases linearly as the distance between the 
-combs increases.  By applying a linear fit, we can extract the value of $`\partial C/\partial x`$, 
-which in this case is equal to $`-2.84\times10^{-10}`$ F/m. Using this value in the formula provided 
-earlier, we can estimate that the comb drive generates a force $`F`$ with an amplitude of 0.142 nN.
+the shift distance. As observed, the capacitance decreases almost linearly as the distance between the 
+combs increases (within 3 % of the linear fit). From the fit, $`\partial C/\partial x = -2.78\times10^{-10}`$
+F/m. Using this value in the formula provided earlier, we can estimate that the comb drive generates a
+force $`F`$ with an amplitude of 0.139 nN.
 
 <div align="center">
     <img src="results/Capacitance_Vs_Xshift.png" width="600">
