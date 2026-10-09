@@ -1,7 +1,8 @@
 # Digitized from Goldak, J., Chakravarti, A., & Bibby, M. (1984). A new finite element model for
 # welding heat sources. Metallurgical Transactions B, 15(2), 299-305.
-# Figure 8: temperature along the top of the workpiece perpendicular to the weld, 11.5 s after the
-# heat source has passed the reference plane (32.9 V, 1170 A, 0.005 m/s).
+# Figure 8, curve "Christensen (Experimental)": temperature along the top of the workpiece
+# perpendicular to the weld, 11.5 s after the heat source has passed the reference plane
+# (32.9 V, 1170 A, 0.005 m/s).
 # Position[m], Temperature[°C]
 0.000165470714504753, 1840.6414713468655
 0.0016343452928549512, 1815.4736960152989

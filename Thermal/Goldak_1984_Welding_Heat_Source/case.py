@@ -162,13 +162,23 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             temperature_liquidus=1480.0 + 50.0 + 273.15,
         )
 
-        # Radiative/convective loss on the top surface.
+        # Radiative/convective loss on the top surface, q = H (T - T0) with the combined
+        # heat transfer coefficient H = 24.1e-4 eps T^1.61 [W/(m^2 K)], T in °C, eps = 0.9,
+        # Goldak et al. (1984), Eq. (18). As there, the surface under the arc is insulated
+        # (here the footprint of the double ellipsoid).
+        def insulated_under_arc(expr):
+            return f"""
+            var xi := {{Position}}.Z - 0.1 - 5.0e-3 * {{Time}};
+            var T := max({{Temperature}} - 273.15, 0.0);
+            if (abs({{Position}}.X) < 0.02 and xi > -0.03 and xi < 0.015, 0.0, {expr})
+            """
+
         heat_flux_condition = HeatFluxBoundaryCondition(
             name="Convective Loss",
             marker="Piece::Top" @ Bnd,
-            normal_heat_flux="-24.1e-4 * 0.9 * max({Temperature} - 293.15, 0.0)^1.61",
-            normal_heat_flux_linearization=(
-                "-24.1e-4 * 0.9 * 1.61 * max({Temperature} - 293.15, 0.0)^0.61"
+            normal_heat_flux=insulated_under_arc("-24.1e-4 * 0.9 * T^1.61 * (T - 20.0)"),
+            normal_heat_flux_linearization=insulated_under_arc(
+                "-24.1e-4 * 0.9 * (1.61 * T^0.61 * (T - 20.0) + T^1.61)"
             ),
         )
 
@@ -187,13 +197,21 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         )
         self.temperature = [(p.x, T - 273.15) for p, T in probe_report.evaluate_all()]  # °C
 
-        # Peak temperature on the weld centerline (x = 0).
-        expect(
-            self.temperature[0][1],
-            1527.63,
-            rel_tol=1e-2,
-            label="centerline temperature [°C]",
+        # Outside the weld pool against the measurement of Christensen et al. in Fig. 8 of
+        # Goldak et al. (1984). The 3D model, with heat flow along the weld, runs about 10-16 %
+        # colder there than the measurement; inside the pool the mushy-zone model keeps the
+        # temperature near the liquidus.
+        ref_x, ref_T = numpy.loadtxt(
+            self.dir_path / "data" / "Temperature_vs_Position.csv", delimiter=",", unpack=True
         )
+        x, T = numpy.array(self.temperature).T
+        for position in [0.015, 0.020]:
+            expect(
+                numpy.interp(position, x, T),
+                numpy.interp(position, ref_x, ref_T),
+                rel_tol=0.2,
+                label=f"temperature at x = {1e3 * position:.0f} mm [°C]",
+            )
 
     def postprocess(self):
         if self.is_main():

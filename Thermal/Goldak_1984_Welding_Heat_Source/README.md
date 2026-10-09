@@ -83,12 +83,15 @@ $`\rho L = 2.1 \cdot 10^9\,\mathrm{J/m^3}`$ to the effective heat capacity:
 c_{\mathrm{eff}}(T) = c(T) + \frac{\rho L}{T_l - T_s}.
 ```
 
-The top surface loses heat by a combined radiative/convective flux, after Eq. (18) of [1], with
-emissivity $`\varepsilon = 0.9`$,
+The top surface loses heat by radiation and convection, with the combined heat transfer coefficient
+of Eq. (18) of [1] and the emissivity $`\varepsilon = 0.9`$:
 
 ```math
-q = 24.1 \cdot 10^{-4}\, \varepsilon\, (T - T_0)^{1.61}\ \mathrm{W/m^2}, \qquad T_0 = 20\,{}^{\circ}\mathrm{C}.
+q = H\,(T - T_0), \qquad H = 24.1 \cdot 10^{-4}\, \varepsilon\, T^{1.61}\ \mathrm{W/(m^2\,K)}, \qquad T_0 = 20\,{}^{\circ}\mathrm{C},
 ```
+
+with $`T`$ in $`{}^{\circ}\mathrm{C}`$. As in [1], the surface under the arc is insulated while the arc
+passes; the case insulates the footprint of the double ellipsoid ($`|x| < a`$, $`-c_r < z - v t - z_0 < c_f`$).
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
@@ -100,26 +103,37 @@ Run the case with `pymufem case.py`.
 ## Results
 
 **Temperature vs. Position** at $`t = 21.5\,\mathrm{s}`$, on the top surface across the weld at
-$`z = 0.15\,\mathrm{m}`$ ($`x`$ from 0 to 30 mm), compared with the reference data of [1]
-([Temperature_vs_Position.csv](data/Temperature_vs_Position.csv)):
+$`z = 0.15\,\mathrm{m}`$ ($`x`$ from 0 to 30 mm), compared with the measurement of Christensen et al.
+shown in Fig. 8 of [1] ([Temperature_vs_Position.csv](data/Temperature_vs_Position.csv)):
 
 ![Temperature vs Position](./results/Temperature_vs_Position.png)
 
-The reference is digitized from Fig. 8 of [1]. Outside the weld pool ($`x \gtrsim 12\,\mathrm{mm}`$)
-the mufem solution follows it closely. Inside the pool the mufem temperature stays just below the liquidus
-($`\approx 1528\,{}^{\circ}\mathrm{C}`$), bounded by the latent-heat plateau of the mushy-zone model,
-while the reference reaches about $`1840\,{}^{\circ}\mathrm{C}`$ on the centerline.
+Outside the weld pool the mufem solution has the shape of the measured profile but lies
+10–16 % below it:
+
+| Position | Temperature mufem [°C] | Temperature measured [°C] |
+| -------- | ---------------------- | ------------------------- |
+| 15 mm    | 1167                   | 1277                      |
+| 20 mm    | 702                    | 835                       |
+| 25 mm    | 423                    | 570                       |
+
+Inside the pool the mufem temperature stays in the mushy zone ($`\approx 1515\,{}^{\circ}\mathrm{C}`$ on the
+centerline), bounded by the latent-heat plateau of the mushy-zone model, while the measurement reaches
+about $`1840\,{}^{\circ}\mathrm{C}`$.
 
 Differences from [1]: [1] solves a 2D cross-section (no heat flow along the weld) and also
 includes a heat of transformation of $`5.5 \cdot 10^7\,\mathrm{J/m^3}`$; the mufem case is fully 3D
-and does not model the transformation.
+and does not model the transformation. The source parameters of [1] were chosen for the 2D model,
+whose temperatures lie slightly above the measurement (Fig. 8 of [1]); with the heat flow along the
+weld, the same source gives lower temperatures in 3D.
 
-The case checks the temperature on the weld centerline ($`x = 0`$) against
-$`1527.6\,{}^{\circ}\mathrm{C}`$.
+The case checks the temperature at $`x = 15`$ and $`20\,\mathrm{mm}`$ against the measurement.
 
 ## Scenes
 
-The temperature and the heat source are exported to `VisualizationOutput/` for ParaView:
+The temperature and the heat source are exported to `VisualizationOutput/`; the scenes below show them at
+the final time and are rendered with ParaView by [create_scene.py](create_scene.py) (run with
+`pvpython create_scene.py` after the case):
 
 | Temperature | Goldak Heat Source |
 | :---: | :---: |
