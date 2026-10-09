@@ -1,5 +1,7 @@
 # Goldak 1984: Welding Heat Source
 
+## Introduction
+
 The *Goldak (1984) double-ellipsoidal welding heat source* is a classical benchmark for validating
 transient heat-conduction solvers with a **moving, highly localized volumetric heat input**. It is
 widely used in arc-welding simulation because it reproduces realistic fusion-zone (FZ) and
@@ -12,8 +14,6 @@ heat-affected-zone (HAZ) shapes while remaining computationally tractable.
 <em>Thick-plate weld geometry with the moving heat source and the measuring line.</em>
 </div>
 <br />
-
-## Introduction
 
 The governing equation is the transient heat equation with a moving volumetric source:
 
@@ -92,7 +92,10 @@ q = 24.1 \cdot 10^{-4}\, \varepsilon\, (T - T_0)^{1.61}\ \mathrm{W/m^2}, \qquad 
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-The case itself is run with `pymufem case.py`.
+
+## Running
+
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -124,8 +127,6 @@ The temperature and the heat source are exported to `VisualizationOutput/` for P
 
 ## References
 
-[1] J. Goldak, A. Chakravarti, and M. Bibby (1984). *A new finite element model for welding heat
-    sources*. Metallurgical Transactions B, 15(2), pp. 299–305.
+[1] J. Goldak, A. Chakravarti and M. Bibby (1984). *A new finite element model for welding heat sources*. Metallurgical Transactions B, 15(2), 299–305.
 
-[2] A. Anca, A. Cardona, J. Risso, and V. D. Fachinotti (2011). *Finite element modeling of welding
-    processes*. Applied Mathematical Modelling, 35(2), pp. 688–707.
+[2] A. Anca, A. Cardona, J. Risso and V. D. Fachinotti (2011). *Finite element modeling of welding processes*. Applied Mathematical Modelling, 35(2), 688–707.

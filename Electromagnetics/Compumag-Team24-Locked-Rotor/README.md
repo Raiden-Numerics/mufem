@@ -1,10 +1,12 @@
 # Compumag Team 24: Nonlinear Time-Transient Rotational Test Rig
 
+## Introduction
+
 Problem 24 of the Compumag TEAM benchmark suite [1] is a transient magnetic problem combining bulk eddy
 currents, magnetic nonlinearity, and voltage-driven coils. A solid steel rotor is locked at $`22°`$
 to a solid steel stator carrying two coils; a voltage step drives the coils and the rotor torque rises
 as the field builds up. The benchmark provides the measured coil current, rotor torque, rotor pole flux,
-and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py):
+and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py).
 
 <div align="center">
     <img src="data/Geometry.png" alt="Geometry" width="85%">
@@ -20,7 +22,7 @@ and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [
   exploiting: only the half $`z \le 0`$ is modeled (Fig. 1), with a tangential-flux condition on
   the midplane.
 * The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
-  with `pymufem case.py --rebuild-mesh`. Fig. 1 is rendered from it with `netgen_geometry_image.py`.
+  with `pymufem case.py --rebuild-mesh`.
 * Rotor and stator are solid EN9 steel with $`\sigma = 4.54 \times 10^6\,\mathrm{S/m}`$ and the
   nonlinear $`B(H)`$ curve described below. The coils are stranded (350 turns each), without eddy
   currents.
@@ -72,9 +74,6 @@ $`2\,\mathrm{mm}`$ (total $`3.75\,\mathrm{mm}`$) on the rotor and stator surface
 </div>
 <br/>
 
-The image is rendered with `pvbatch paraview_element_type.py` after a run with
-`output_for_animation = True`.
-
 ### Torque and Hall Probe
 
 The [Magnetic Torque Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_torque_report.html)
@@ -82,10 +81,19 @@ gives the torque on the rotor half, doubled for the full rotor. The Hall probe m
 air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corner and the pole end
 (Fig. 4 of [1]), i.e. at $`(7.4, 50.62, -5.0)\,\mathrm{mm}`$ in the model.
 
+## Running
+
+Run the case with `pymufem case.py`.
+
+Fig. 1 is rendered from the geometry with `netgen_geometry_image.py`. Fig. 2 is rendered with
+`pvbatch paraview_element_type.py` after a run with `output_for_animation = True`.
+
+To generate the animation (Fig. 3), set `output_for_animation = True` in `case.py`, run the case, and then
+run `paraview_gif.py` (requires ParaView and `ffmpeg`).
+
 ## Results
 
-Run the case with `pymufem case.py`. The coil current, rotor torque, and Hall probe flux density
-against the measurements of [1]:
+The coil current, rotor torque, and Hall probe flux density against the measurements of [1]:
 
 | Coil Current | Rotor Torque | Hall Probe |
 | ------------ | ------------ | ---------- |
@@ -113,8 +121,7 @@ Hall probe, $`0.1\,\mathrm{mm}`$ above the saturated rotor pole corner, is the m
 quantity: it rises to $`1.33\,\mathrm{T}`$ and $`1.41\,\mathrm{T}`$ with these refinements. The default
 mesh is kept for its runtime.
 
-To generate the animation, set `output_for_animation = True` in `case.py`, run the case, and then run
-`paraview_gif.py` (requires ParaView and `ffmpeg`):
+## Scenes
 
 <div align="center">
     <img src="results/Result_Animation.gif" alt="Result Animation" width="85%">
@@ -125,14 +132,10 @@ To generate the animation, set `output_for_animation = True` in `case.py`, run t
 
 ## References
 
-[1] Allen N. and Rodger D. *Description of TEAM Workshop Problem 24: Nonlinear Time-Transient
-    Rotational Test Rig*.
-    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
+[1] N. Allen and D. Rodger. *Description of TEAM Workshop Problem 24: Nonlinear Time-Transient Rotational Test Rig*. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
 
-[2] Rodger D., Allen N., Lai H.C. and Leonard P.J., 1994. Calculation of transient
-    3D eddy currents in nonlinear media - verification using a rotational test rig.
-    *IEEE Transactions on Magnetics*, 30(5), pp. 2988-2991.
+[2] D. Rodger, N. Allen, H. C. Lai and P. J. Leonard (1994). *Calculation of transient 3D eddy currents in nonlinear media - verification using a rotational test rig*. IEEE Transactions on Magnetics, 30(5), 2988–2991.
 
-[3] Rüberg, T., Kielhorn, L. and Zechner, J., 2021. Electromagnetic devices with moving parts — simulation with FEM/BEM coupling. *Mathematics*, 9(15), p.1804.
+[3] T. Rüberg, L. Kielhorn and J. Zechner (2021). *Electromagnetic devices with moving parts — simulation with FEM/BEM coupling*. Mathematics, 9(15), 1804.
 
-[4] Diez, P. and Webb, J.P., 2015. A rational approach to $`B`$–$`H`$ curve representation. *IEEE Transactions on Magnetics*, 52(3), pp.1-4.
+[4] P. Diez and J. P. Webb (2015). *A rational approach to $`B`$–$`H`$ curve representation*. IEEE Transactions on Magnetics, 52(3), 1–4.

@@ -2,22 +2,21 @@
 
 ## Introduction
 
-This test case reproduces the NAFEMS benchmark T4 [[1]](#references).
+This test case reproduces the NAFEMS benchmark T4 [1].
 It considers steady-state heat transfer in a rectangular domain of uniform
 thickness with mixed boundary conditions: prescribed temperature, adiabatic,
 and convective.
 The objective is to verify the temperature at a specified location.
 
-<figure style="text-align: center;">
-    <img src="data/Geometry.jpg" alt="drawing" width="40%">
-    <span style="display:inline-block; width:5%;"></span>
-    <img src="data/Mesh.jpg" alt="drawing" width="40%">
-    <figcaption style="width: 75%; margin: 0 auto; text-align: left;">
-        <em>Figure 1</em>: The geometry of the computational domain and the
-                           corresponding mesh.
-    </figcaption>
-</figure>
-
+<div align="center">
+<img src="data/Geometry.jpg" alt="Geometry" width="40%">
+&nbsp;&nbsp;&nbsp;
+<img src="data/Mesh.jpg" alt="Mesh" width="40%">
+</div>
+<div align="center">
+<em>The geometry of the computational domain and the corresponding mesh.</em>
+</div>
+<br />
 
 ## Setup
 
@@ -34,6 +33,9 @@ $`h = 750`$ W/($`\text{m}^2`$ K) (modeled by
 [ConvectionBoundaryCondition](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/conditions/convection.html)).
 No internal heat generation is present.
 
+## Running
+
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -43,17 +45,18 @@ The temperature is evaluated at point E of the benchmark, on the right edge, 0.2
 edge. mufem gives $`18.24^\circ`$ C against the NAFEMS target of $`18.3^\circ`$ C, and the case checks
 this value.
 
-The figure below shows the temperature distribution over the computational
-domain.
-![Temperature](results/Scene_Temperature.png)
-
-The next figure presents the temperature profile along the x-axis at a fixed
+The figure below presents the temperature profile along the x-axis at a fixed
 height of $`y = 0.5`$ m.
 
 ![Temperature](results/Temperature.png)
 
+## Scenes
+
+The figure below shows the temperature distribution over the computational
+domain.
+
+![Temperature](results/Scene_Temperature.png)
 
 ## References
 
-[1] A. D. Cameron, J. A. Casey, and G. B. Simpson,
-    "Benchmark Tests for Thermal Analysis (Summary)", NAFEMS (1986)
+[1] A. D. Cameron, J. A. Casey and G. B. Simpson (1986). *Benchmark Tests for Thermal Analysis (Summary)*. NAFEMS.

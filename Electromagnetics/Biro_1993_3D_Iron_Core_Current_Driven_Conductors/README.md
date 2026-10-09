@@ -1,7 +1,12 @@
 # Biro 1993: 3D Iron Core Current Driven Conductors
 
+## Introduction
+
 We are testing the current-driven solid coils following the example shown in [1], Section V. We validate by comparing the
 Ohmic heating within each individual conductor to the reference.
+
+We compare the Ohmic heating generated inside each conductor with the values provided in [1] (Table I) for
+3D with air gap ([Ohmic_Loss.csv](data/Ohmic_Loss.csv) contains all columns of the table).
 
 
 <div align="center">
@@ -12,19 +17,14 @@ Ohmic heating within each individual conductor to the reference.
 </div>
 <br /><br />
 
-## Introduction
+## Setup
 
 The core has a permeability of $`\mu_r=1000`$ (with no eddy currents), and the conductors have a
 conductivity of $`\sigma=5.6 \times 10^7 \, \mathrm{S/m}`$. In each turn, a peak current of $`I=10 \, \mathrm{A}`$, phase
 $`\phi=0^\circ`$, and frequency $`f = 5 \, \mathrm{kHz}`$ is imposed.
 
-We compare the Ohmic heating generated inside each conductor with the values provided in [1] (Table I) for
-3D with air gap ([Ohmic_Loss.csv](data/Ohmic_Loss.csv) contains all columns of the table).
-
 Each copper conductor is set up as a solid coil (conductor) - thus eddy currents are resolved and we have
 a strong skin effect.
-
-## Setup
 
 We model the quarter of the device shown in Fig. 4 of [1]: the core (with a cylindrical middle limb of radius
 11.8 mm and a 1 mm air gap at its bottom) and the 25 turns of $`1 \times 2\,\mathrm{mm}`$ at radii 12 to 17 mm.
@@ -37,8 +37,11 @@ We use 2nd order accuracy to ensure smooth curves. Note that we impose the curre
 $`y = 0`$ planes, and the losses of the quarter are multiplied by 4.
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. The case
-itself is run with `pymufem case.py`; it prints the table below.
+`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+
+## Running
+
+Run the case with `pymufem case.py`; it prints the table of the Results section.
 
 ## Results
 
@@ -105,11 +108,10 @@ The magnetic flux density and the electric current density (real and imaginary p
   | ---- | ---- |
   | ![Re Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Real.png) | ![Im Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Imag.png) |
 
+* **Animation**
 
-## Animation
-
-![Animation Electric Current Density](./results/animation.gif)
+  ![Animation Electric Current Density](./results/animation.gif)
 
 ## References
 
-[1] O. Biro, K. Preis, W. Renhart, G. Vrisk and K.R. Richter, Computation of 3D current driven skin effect problems using a current vector potential, IEEE Transactions on Magnetics, 29, 2, pp. 1325-1328, (1993).
+[1] O. Biro, K. Preis, W. Renhart, G. Vrisk and K. R. Richter (1993). *Computation of 3D current driven skin effect problems using a current vector potential*. IEEE Transactions on Magnetics, 29(2), 1325–1328.

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The *FELIX Short Cylinder* (Problem 1b of the Compumag TEAM benchmark suite [[1]](#CompumagCase)) is one of the founding eddy-current benchmarks, dating back to the Argonne National Lab *Fusion ELectromagnetic Induction eXperiment* (FELIX). It validates a code's ability to predict the time evolution of eddy currents, Ohmic losses, and stored magnetic energy in a conducting cylinder placed in a decaying transverse magnetic field [[2]](#Davey1988).
+The *FELIX Short Cylinder* (Problem 1b of the Compumag TEAM benchmark suite [1]) is one of the founding eddy-current benchmarks, dating back to the Argonne National Lab *Fusion ELectromagnetic Induction eXperiment* (FELIX). It validates a code's ability to predict the time evolution of eddy currents, Ohmic losses, and stored magnetic energy in a conducting cylinder placed in a decaying transverse magnetic field [2].
 
 <div align="center">
     <img src="./data/Geometry.png" alt="Geometry" width="600">
@@ -42,11 +42,15 @@ We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/elec
 ```
 on the boundary of a cubic air box of $`0.4\,\mathrm{m}`$ edge length around the full cylinder (length $`0.2\,\mathrm{m}`$, inner and outer radii $`0.05715\,\mathrm{m}`$ and $`0.06985\,\mathrm{m}`$).
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. The case itself is run with `pymufem case.py`.
+The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
 
-## Validation
+## Running
 
-The results are compared with the solutions of the 1988 eddy current workshop compiled by [Davey (1988)](#Davey1988).
+Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case).
+
+## Results
+
+The results are compared with the solutions of the 1988 eddy current workshop compiled by Davey (1988) [2].
 
 * **Power loss** in the cylinder, $`\int \rho J^2 \, dV`$, against Table 4 of [2] (eight codes) at $`t = 4`$, $`8`$ and $`10\,\mathrm{ms}`$:
 
@@ -68,13 +72,13 @@ The results are compared with the solutions of the 1988 eddy current workshop co
 
   The case checks these values against the measurement; like most codes of [2], mufem is 5-10 % below the measurement at 4 and 8 ms.
 
-## Results
-
 The power loss over time, compared with the curve of Fig. 8 of [2] (the EDDYCUFF solution of Kameari, [PowerLoss.csv](data/PowerLoss.csv)):
 
 ![Ohmic Heating Loss](results/OhmicHeating.png)
 
-The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; the scene below is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case).
+## Scenes
+
+The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; the scene below is rendered from them with ParaView by [create_scene.py](create_scene.py).
 
 <div align="center">
     <img src="results/Scene_Electric_Current_Density.png" alt="Mesh" width="50%">
@@ -87,10 +91,6 @@ The magnetic flux density and the electric current density at the final time are
 
 ## References
 
-<a id="CompumagCase"></a> [1] Compumag, "Problem 1b — The FELIX Short Cylinder Experiment",
-    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem1b.pdf
-    sha1: 7512924a5392dde68c236d7e3fbb7de861bbdd59
+[1] Compumag. *Problem 1b — The FELIX Short Cylinder Experiment*. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem1b.pdf
 
-<a id="Davey1988"></a> [2] Davey, K., 1988. The FELIX Cylinder problem (International Eddy Current Workshop Problem 1).
-    *COMPEL — The international journal for computation and mathematics in electrical and electronic engineering*,
-    7(1/2), pp.11-27. doi: 10.1108/eb010036 sha1: d20a1f68646aed90bf2c99873933cb849fcd8dc8
+[2] K. Davey (1988). *The FELIX Cylinder problem (International Eddy Current Workshop Problem 1)*. COMPEL, 7(1/2), 11–27. https://doi.org/10.1108/eb010036

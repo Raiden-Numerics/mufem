@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The problem [[1]](#[1]) is a non-linear magnetostatic case with a center pole and yoke made of ferromagnetic steel, and a stranded (wound) copper coil which is excited by a constant current. The geometry is shown in Figure 1.
+The problem [1] is a non-linear magnetostatic case with a center pole and yoke made of ferromagnetic steel, and a stranded (wound) copper coil which is excited by a constant current. The geometry is shown in Figure 1.
 
 
 <div align="center">
@@ -13,20 +13,19 @@ The problem [[1]](#[1]) is a non-linear magnetostatic case with a center pole an
 </div>
 <br /><br />
 
-When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested in the relation between the coil current and the resulting force on the pole. The force on the center pole and the flux density in the gap below it are compared to **experimental values** presented in [[2]](#[2]) and [[3]](#[3]).
+When current is flowing through the coil, a magnetic field is generated which is channeled through the ferromagnetic material. This creates a force between the pole and the yoke which is measured. We are interested in the relation between the coil current and the resulting force on the pole. The force on the center pole and the flux density in the gap below it are compared to **experimental values** presented in [2] and [3].
 
 ## Setup
 
-
 ### Mesh
 
-The geometry follows Fig. 1 of [[1]](#[1]) and is built with netgen in the `build_geometry` method of [case.py](case.py); `generate_mesh` meshes it (mesh size 1 mm on the pole and 2.5 mm on the yoke and coil) and saves it in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries. Both methods run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+The geometry follows Fig. 1 of [1] and is built with netgen in the `build_geometry` method of [case.py](case.py); `generate_mesh` meshes it (mesh size 1 mm on the pole and 2.5 mm on the yoke and coil) and saves it in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries. Both methods run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
 
 <div align="center">
 <img src="data/Mesh.png" alt="drawing" width="400">
 </div>
 <div align="center">
-Figure 2: The mesh used in the simulation visualized using <a href="https://glvis.org/">glvis</a>. While the mesh in the air body can be coarse, the yoke and pole require a finer mesh to ensure a good accuracy.</div>
+Figure 2: The mesh used in the simulation visualized using <a href="https://glvis.org/">glvis</a>. While the mesh in the air body can be coarse, the yoke and pole require a finer mesh to ensure a good accuracy.
 </div>
 <br /><br />
 
@@ -78,7 +77,7 @@ where $`\vec{n}`$ is the normal along the surface. Note that only the z-componen
 
 ### Materials
 
-While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [[1]](#[1]) is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
+While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [1] is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
 
 <div style="display: flex; align-items: flex-start;">
     <img src="./data/bh_curve.png" alt="BH Curve" width="600" style="margin-right: 20px;">
@@ -101,10 +100,7 @@ While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are i
     </div>
 </div>
 
-
-
-## Running the case
-
+## Running
 
 We run the case using [case.py](case.py) with
 ```bash
@@ -127,6 +123,8 @@ It sets the current, runs five nonlinear iterations and stores the force on the 
 quarter model, attractive in $`-z`$) and $`B_z`$ in the gap. Finally, we generate a plot showing the dependency
 of the force versus the coil current.
 
+## Results
+
 <div align="center">
 <img src="results/Force_vs_Current.png" alt="drawing" width="600">
 </div>
@@ -137,10 +135,10 @@ of the force versus the coil current.
 
 
 The results are presented in Figure 4, where we find a good match to the experimental and numerical values
-reported in [[2]](#[2]) and [[3]](#[3]). Note that initially the force increases quadratically with an 
+reported in [2] and [3]. Note that initially the force increases quadratically with an 
 increase of current until around $`I=3`$ A, where the steel saturates.
 
-The measurements of [[2]](#[2]) (Tables 4 and 6) for the four excitations of the benchmark:
+The measurements of [2] (Tables 4 and 6) for the four excitations of the benchmark:
 
 | Ampere-turns | $`F_z`$ mufem / measured [N] | $`B_z`$ at P1 mufem / measured [T] | $`B_z`$ at P2 mufem / measured [T] |
 | ------------ | ---------------------------- | ---------------------------------- | ---------------------------------- |
@@ -151,10 +149,14 @@ The measurements of [[2]](#[2]) (Tables 4 and 6) for the four excitations of the
 
 P1 = (0, 0, 25.75) mm is the mid-point and P2 = (12.5, 5, 25.75) mm the edge of the gap below the pole. The
 case checks the force at all four excitations and $`B_z`$ at 5000 AT at P1 and P2;
-at P2, where the flux density changes abruptly, [[2]](#[2]) also reports larger discrepancies between
+at P2, where the flux density changes abruptly, [2] also reports larger discrepancies between
 calculations and measurement.
 
-Finally, we save the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
+As an outlook, the paper [3] suggests to investigate the effect of model order, and adaptive refinement (among others) which we will look into in an upcoming update.
+
+## Scenes
+
+The case saves the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 
 <div align="center">
 <img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="600">
@@ -164,13 +166,10 @@ Finally, we save the fields at $`I=5`$ A for further evaluation with e.g. [mufem
 </div>
 <br /><br />
 
-As an outlook, the paper [[3]](#[3]) suggests to investigate the effect of model order, and adaptive refinement (among others) which we will look into in an upcoming update.
-
-
 ## References
 
-<a id="[1]"></a> [1] Compumag, "Problem 20 — 3-D Static Force Problem", https://www.compumag.org/wp/team/ sha1: 159da183684ccc3f663c0f4952535be6c02c3efd
+[1] Compumag. *Problem 20 — 3-D Static Force Problem*. https://www.compumag.org/wp/team/
 
-<a id="[2]"></a> [2] Takahashi, N., Nakata, T. and Morishige, H., 1995. Summary of results for problem 20 (3-D static force problem). *COMPEL — The international journal for computation and mathematics in electrical and electronic engineering*, 14(2/3), pp.57-75. doi: 10.1108/eb010138
+[2] N. Takahashi, T. Nakata and H. Morishige (1995). *Summary of results for problem 20 (3-D static force problem)*. COMPEL, 14(2/3), 57–75. https://doi.org/10.1108/eb010138
 
-<a id="[3]"></a> [3] Takahashi, N., Nakata, T. and Morishige, H., 1994. Investigation of a model to verify software for 3-D static force calculation. *IEEE Transactions on Magnetics*, 30(5), pp.3483-3486. doi: 10.1109/20.312689 sha1: 8f0fb72ec5c2e04619ecc24308a6b5e66fa3cd9c
+[3] N. Takahashi, T. Nakata and H. Morishige (1994). *Investigation of a model to verify software for 3-D static force calculation*. IEEE Transactions on Magnetics, 30(5), 3483–3486. https://doi.org/10.1109/20.312689

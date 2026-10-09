@@ -4,7 +4,7 @@
 
 Comb drives are capacitive actuators that utilize electrostatic forces generated between two electrically conductive combs. These actuators typically function at the micro- or nanometer scale and are among the most widely used electrostatic actuators and sensors in the micro-electromechanical systems (MEMS) industry. When a voltage is applied between the static and moving combs, attractive electrostatic forces are created, drawing them together. The force produced by the actuator is proportional to the change in capacitance between the two combs, which increases with the driving voltage.
 
-In this test case, we monitor the capacitance of the comb drive described in [[1,2]](#Ren2014). This comb drive consists of two comb conductors, one with four teeth and the other with three, positioned above a grounded plate. Figure 1 shows the geometry of the problem.
+In this test case, we monitor the capacitance of the comb drive described in [1, 2]. This comb drive consists of two comb conductors, one with four teeth and the other with three, positioned above a grounded plate. Figure 1 shows the geometry of the problem.
 
 <div align="center">
     <img src="data/Geometry.png" width="600">
@@ -21,7 +21,7 @@ By varying the distance between the combs, we can observe changes in capacitance
 
 ### Dimensions
 
-The dimensions follow Fig. 3 of [[1]](#Ren2014): both combs are 4 μm thick and have a 5 μm wide, 34 μm long backbone; the teeth are 15 μm long and 4 μm wide. In the unshifted position, neighboring teeth are 1 μm apart and the tooth tips are 2 μm from the opposite backbone. The ground plate is 6 μm below the combs.
+The dimensions follow Fig. 3 of [1]: both combs are 4 μm thick and have a 5 μm wide, 34 μm long backbone; the teeth are 15 μm long and 4 μm wide. In the unshifted position, neighboring teeth are 1 μm apart and the tooth tips are 2 μm from the opposite backbone. The ground plate is 6 μm below the combs.
 
 
 ### Mesh
@@ -38,7 +38,7 @@ To simulate the entire system, we enclose the comb drive within a rectangular bo
 
 During the mesh generation process, we assign named attributes to the surfaces of each comb ("Comb1" and "Comb2"), to the boundary of the computational domain representing the ground plate ("Ground"), and to the entire computational domain itself ("Domain").
 
-To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. The zero shift is the geometry of [[1]](#Ren2014). The combs are then pulled apart along the teeth in increments of 0.5 μm, up to a final shift of 8 μm, at which point the teeth no longer overlap. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
+To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. The zero shift is the geometry of [1]. The combs are then pulled apart along the teeth in increments of 0.5 μm, up to a final shift of 8 μm, at which point the teeth no longer overlap. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
 
 
 ### Model
@@ -53,12 +53,12 @@ where $`\varepsilon`$ is the electric permittivity, and $`\rho`$ denotes the den
 charges, which is zero in our case. By solving this equation we calculate the total electric energy
 $`W`$, the integral of the energy density $`\varepsilon\vec{E}^2/2`$ with $`\vec{E}=-\nabla\phi`$. Knowing
 the energy $`W`$ and the voltage $`V`$ imposed between the two comb electrodes we can find the capacitance
-$`C`$ of the comb drive as [[3]](#Wikipedia)
+$`C`$ of the comb drive as [3]
 ```math
     C = \frac{2 W}{V^2}.
 ```
 
-As in [[1]](#Ren2014), the potential is set to 1 V on the three-tooth electrode and to 0 V on the
+As in [1], the potential is set to 1 V on the three-tooth electrode and to 0 V on the
 four-tooth electrode and the ground plate, so $`C`$ is the total capacitance of the three-tooth comb
 against the four-tooth comb and the ground. In order to implement these voltages
 we use the [Electric Potential Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/conditions/electric_potential.html).
@@ -77,7 +77,7 @@ report = VolumeIntegralReport(
 )
 ```
 
-## Running the case
+## Running
 
 Since every shift needs its own mesh for the adaptive mesh refinement, the meshes
 (about 22 MB) are not shipped with the case and have to be built first. The following
@@ -161,10 +161,10 @@ With each refinement cycle, the number of cells increases. Figure 4 illustrates 
 capacitance changes as the number of cells grows. The capacitance on the initial mesh is overestimated;
 with each refinement cycle it decreases and then stabilizes.
 
-For the zero shift, it is compared with Fig. 4 of [[1]](#Ren2014), which gives the capacitance versus the
+For the zero shift, it is compared with Fig. 4 of [1], which gives the capacitance versus the
 number of elements for two complementary formulations on meshes refined around the conductors (not
 adaptively): the primal FEM (scalar potential) converges from above and the dual FEM (vector potential)
-from below, so the exact value lies between them. On the finest mesh of [[1]](#Ren2014), 152k elements, the bounds are
+from below, so the exact value lies between them. On the finest mesh of [1], 152k elements, the bounds are
 4.55 fF and 4.96 fF. mufem converges to 4.73 fF, and the case checks that it lies between these bounds.
 
 <div align="center">
@@ -180,33 +180,17 @@ The final value of the capacitance is taken as the value calculated at the large
 freedom.
 
 
-### Electric Potential
-
-Figure 5 illustrates how the distribution of electric potential changes as the shift between the combs 
-increases. This movement mimics the action of a real comb drive, where the combs tend to move apart when 
-voltage is applied.
-
-<div align="center">
-    <img src="results/Electric_Potential.gif" width="600">
-    <br/>
-    <br/>
-    Figure 5: The distribution of electric potential for various shifts between the combs. The GIF 
-    animation is obtained using <a href="paraview_gif.py">paraview_gif.py</a> file.
-</div>
-<br/>
-
-
 ### The developed force
 
 The force $`F`$ generated by the comb drive can be estimated using the following
-expression [[3]](#Wikipedia):
+expression [3]:
 ```math
 F = \frac{1}{2} \frac{\partial C}{\partial x} V^2,
 ```
 where $`\partial C/\partial x`$ represents the change in capacitance with respect to distance between
 the combs, and $`V`$ is the applied voltage.
 
-To calculate the derivative $`\partial C/\partial x`$ in Figure 6, we plot the capacitance against 
+To calculate the derivative $`\partial C/\partial x`$ in Figure 5, we plot the capacitance against 
 the shift distance. As observed, the capacitance decreases almost linearly as the distance between the 
 combs increases (within 3 % of the linear fit). From the fit, $`\partial C/\partial x = -2.78\times10^{-10}`$
 F/m. Using this value in the formula provided earlier, we can estimate that the comb drive generates a
@@ -216,18 +200,32 @@ force $`F`$ with an amplitude of 0.139 nN.
     <img src="results/Capacitance_Vs_Xshift.png" width="600">
     <br/>
     <br/>
-    Figure 6: Dependence of the comb drive capacitance on the distance between the combs, along with its 
+    Figure 5: Dependence of the comb drive capacitance on the distance between the combs, along with its 
     linear fit. The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.
+</div>
+<br/>
+
+
+## Scenes
+
+Figure 6 illustrates how the distribution of electric potential changes as the shift between the combs 
+increases. This movement mimics the action of a real comb drive, where the combs tend to move apart when 
+voltage is applied.
+
+<div align="center">
+    <img src="results/Electric_Potential.gif" width="600">
+    <br/>
+    <br/>
+    Figure 6: The distribution of electric potential for various shifts between the combs. The GIF 
+    animation is obtained using <a href="paraview_gif.py">paraview_gif.py</a> file.
 </div>
 <br/>
 
 
 ## References
 
-<a id="Ren2014"></a> [1] Z. Ren and X. Xu, "Dual Discrete Geometric Methods in Terms of Scalar Potential on 
-Unstructured Mesh in Electrostatics," IEEE Transactions on Magnetics, 50, 37, (2014) https://doi.org/10.1109/TMAG.2013.2280452
+[1] Z. Ren and X. Xu (2014). *Dual Discrete Geometric Methods in Terms of Scalar Potential on Unstructured Mesh in Electrostatics*. IEEE Transactions on Magnetics, 50(2), 7000704. https://doi.org/10.1109/TMAG.2013.2280452
 
-<a id="DiPietro2016"></a> [2] D.A. Di Pietro and R. Specogna, "An a posteriori-driven adaptive Mixed 
-High-Order method with application to electrostatics", Journal of Computational Physics, 326, 35 (2016) https://doi.org/10.1016/j.jcp.2016.08.041
+[2] D. A. Di Pietro and R. Specogna (2016). *An a posteriori-driven adaptive Mixed High-Order method with application to electrostatics*. Journal of Computational Physics, 326, 35. https://doi.org/10.1016/j.jcp.2016.08.041
 
-<a id="Wikipedia"></a> [3] https://en.wikipedia.org/wiki/Comb_drive
+[3] Wikipedia. *Comb drive*. https://en.wikipedia.org/wiki/Comb_drive

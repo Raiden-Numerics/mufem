@@ -49,11 +49,15 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
 
 The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is
-regenerated with `pymufem case.py --rebuild-mesh`. The case itself is run with
-`pymufem case.py`.
+regenerated with `pymufem case.py --rebuild-mesh`.
 
 
-## Validation
+## Running
+
+Run the case with `pymufem case.py`.
+
+
+## Results
 
 We compare the magnitude of the magnetic flux density along the line
 $`10 \le x \le 110`$ mm, $`y = 20`$ mm, $`z = 55`$ mm in the air (between the
@@ -67,31 +71,23 @@ are the most accurate there. The case checks the mean ratio of the computed to
 the measured $`|B|`$ over the eleven measured points.
 
 
-## Results
+![MagneticFluxDensityInAir](./results/Magnetic_Flux_Density_Line_Air.png)
 
-* **Scenes**
 
-  The magnetic flux density and the current density are exported to
-  `VisualizationOutput/`; the scene below was rendered from them.
-  *Click on the image to view the interactive 3D result*
-  <a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
-  <img src="results/TEAM-13-Results.png" alt="TEAM-13 Results"/>
-  </a>
+## Scenes
 
-* **Magnetic Flux Density in the Air**
-
-  ![MagneticFluxDensityInAir](./results/Magnetic_Flux_Density_Line_Air.png)
+The magnetic flux density and the current density are exported to
+`VisualizationOutput/`; the scene below was rendered from them.
+*Click on the image to view the interactive 3D result*
+<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
+<img src="results/TEAM-13-Results.png" alt="TEAM-13 Results"/>
+</a>
 
 
 ## References
 
-[1] Compumag, "Problem 13 - 3-D Non-Linear Magnetostatic Model",
-    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem13.pdf
+[1] Compumag. *Problem 13 - 3-D Non-Linear Magnetostatic Model*. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem13.pdf
 
-[2] Nakata, T., Takahashi, N. and Fujiwara, K., 1995. Summary of results
-    for TEAM workshop problem 13 (3-D nonlinear magnetostatic model).
-    *COMPEL*, 14(2/3), pp.91-101.
+[2] T. Nakata, N. Takahashi and K. Fujiwara (1995). *Summary of results for TEAM workshop problem 13 (3-D nonlinear magnetostatic model)*. COMPEL, 14(2/3), 91–101.
 
-[3] Nakata, T. and Fujiwara, K., 1992. Summary of results for benchmark
-    problem 13 (3-D nonlinear magnetostatic model).
-    *COMPEL*, 11(3), pp.345-369.
+[3] T. Nakata and K. Fujiwara (1992). *Summary of results for benchmark problem 13 (3-D nonlinear magnetostatic model)*. COMPEL, 11(3), 345–369.

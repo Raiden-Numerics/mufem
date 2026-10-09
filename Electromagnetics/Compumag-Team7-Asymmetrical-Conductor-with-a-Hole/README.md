@@ -15,9 +15,6 @@ and the eddy current density on its surfaces measured at $`50\,\mathrm{Hz}`$ and
 <em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminum plate with an off-centered hole.</em>
 </div>
 
-
-## Problem Description
-
 The $`294 \times 294 \times 19\,\mathrm{mm}`$ plate has a $`108 \times 108\,\mathrm{mm}`$ hole and an
 electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$. The coil, $`100\,\mathrm{mm}`$
 high and $`30\,\mathrm{mm}`$ above the plate, is excited with 2742 ampere-turns (peak value of the
@@ -29,7 +26,6 @@ $`+z`$ [1, 2]. Measured are [2]:
 * $`J_y`$ on the plate surfaces at $`y = 72\,\mathrm{mm}`$ (Table 5 of [2]),
 
 each at $`\omega t = 0°`$ and $`90°`$, for both frequencies.
-
 
 ## Setup
 
@@ -79,10 +75,17 @@ coil = CoilSpecification(
 With this direction the current flows clockwise seen from $`+z`$, opposite to [1]; the case flips
 the sign of the computed fields to compensate.
 
+## Running
+
+Run the case with `pymufem case.py`.
+
+The animation (see Scenes) is generated with [`create_anim.sh`](create_anim.sh), which runs
+[`create_scene.py`](create_scene.py) in ParaView (`PARAVIEW_PATH` set to the ParaView installation)
+on the fields exported by the case.
 
 ## Results
 
-Run the case with `pymufem case.py`. With the solution $`\vec{B} = \vec{B}_r + j\vec{B}_i`$, the flux
+With the solution $`\vec{B} = \vec{B}_r + j\vec{B}_i`$, the flux
 density at time $`t`$ is
 
 ```math
@@ -125,8 +128,7 @@ measured points. Table 5(a), labeled A3-B3, matches the bottom surface the same 
 are shifted by one measurement position from $`x = 18\,\mathrm{mm}`$ on. The eddy current density is
 therefore shown, but not checked.
 
-
-## Visualization
+## Scenes
 
 The periodic evolution of the magnetic flux density and the induced currents can be visualized
 over one excitation cycle.
@@ -139,19 +141,10 @@ over one excitation cycle.
 B<sub>z</sub> along A1-B1.</em>
 </div>
 
-The animation is generated with [`create_anim.sh`](create_anim.sh), which runs
-[`create_scene.py`](create_scene.py) in ParaView (`PARAVIEW_PATH` set to the ParaView installation)
-on the fields exported by the case.
-
-
 ## References
 
-[1] Compumag, "Problem 7 - Asymmetrical Conductor with a Hole",
-    https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
+[1] Compumag. *Problem 7 - Asymmetrical Conductor with a Hole*. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
 
-[2] K. Fujiwara and T. Nakata, "Results for benchmark problem 7 (asymmetrical conductor
-    with a hole)," *COMPEL - The International Journal for Computation and Mathematics
-    in Electrical and Electronic Engineering*, vol. 9, no. 3, pp. 137-154, 1990.
+[2] K. Fujiwara and T. Nakata (1990). *Results for benchmark problem 7 (asymmetrical conductor with a hole)*. COMPEL, 9(3), 137–154.
 
-[3] NGSolve TEAM-7 reference,
-    https://ngsolve.github.io/TEAM-problems/TEAM-7/team7.html
+[3] NGSolve. *TEAM-7 reference*. https://ngsolve.github.io/TEAM-problems/TEAM-7/team7.html

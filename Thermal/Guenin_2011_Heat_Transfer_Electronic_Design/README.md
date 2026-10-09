@@ -1,5 +1,7 @@
 # Guenin 2011: Heat Transfer in Electronic Design
 
+## Introduction
+
 We model the transient heating of a high-power IC package after a 1 W power step: a silicon die
 dissipates heat through a thermal-interface material, a copper lid, a second interface layer, and a
 copper heat sink cooled by convection. The problem was posed by B. Guenin in an *Electronics Cooling*
@@ -32,6 +34,10 @@ heat flux of $`5917\,\mathrm{W/m^2}`$ between the die and TIM 1, and the heat-si
 convective flux with coefficient $`20000\,\mathrm{W/m^2/K}`$ to an ambient of $`273.15\,\mathrm{K}`$.
 The transient is run to $`10\,\mathrm{s}`$. The temperature is probed at the center of the die and of the
 lid.
+
+## Running
+
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -70,12 +76,8 @@ state.
 
 ## References
 
-[1] B. Guenin (2011). *Calculation Corner: Transient Thermal Modeling of a High-Power IC Package,
-    Part 1*. Electronics Cooling, 17(4).
-    https://www.electronics-cooling.com/2011/12/transient-modelling-of-a-high-power-ic-package-part-1/
+[1] B. Guenin (2011). *Calculation Corner: Transient Thermal Modeling of a High-Power IC Package, Part 1*. Electronics Cooling, 17(4). https://www.electronics-cooling.com/2011/12/transient-modelling-of-a-high-power-ic-package-part-1/
 
-[2] SimScale, *Heat Transfer in Electronic Design*,
-    https://www.simscale.com/docs/validation-cases/heat-transfer-electronic-design/
+[2] SimScale. *Heat Transfer in Electronic Design*. https://www.simscale.com/docs/validation-cases/heat-transfer-electronic-design/
 
-[3] H. Li (2020). *Nonlinear electromagnetic-thermal modeling using the time-domain finite element
-    method in machinery design*. PhD thesis, University of Illinois at Urbana-Champaign, Section 3.4.1.
+[3] H. Li (2020). *Nonlinear electromagnetic-thermal modeling using the time-domain finite element method in machinery design*. PhD thesis, University of Illinois at Urbana-Champaign, Section 3.4.1.

@@ -1,5 +1,7 @@
 # Compumag TEAM 36: Multi-Physics Field Analysis of an Induction Heating Device
 
+## Introduction
+
 Problem 36 of the Compumag TEAM benchmark suite [3] is a **multi-physics** benchmark: an inductor coil
 drives an alternating magnetic field that induces eddy currents and Joule heating in a steel
 workpiece. The coupling is strong: the electrical conductivity, the magnetic permeability, the
@@ -17,19 +19,9 @@ changes substantially over the heating cycle [1, 2].
 This case couples a **Time-Harmonic Magnetic** model with a **Thermal** model and is a good
 illustration of mufem's multi-physics coupling on temperature-dependent materials.
 
-## Introduction
-
 Early in the heating cycle the skin depth is controlled by the temperature dependence of the
 electrical conductivity. As the steel approaches the Curie point, the relative permeability collapses
 and becomes the dominant factor.
-
-| | |
-| :---: | :---: |
-| ![Electrical Conductivity](data/Steel_ElectricalConductivity.png) | ![Thermal Conductivity](data/Steel_ThermalConductivity.png) |
-| ![Heat Capacity](data/Steel_SpecificHeatCapacity.png) | ![BH Curve](data/Steel_BHCurve.png) |
-
-(Note: the electrical-resistivity data point at $`700\,{}^{\circ}\mathrm{C}`$ has been changed from
-$`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print error in Table 2 of [3].)
 
 ## Setup
 
@@ -52,12 +44,25 @@ $`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print 
 * The mesh is nonconforming to allow adaptive refinement of the heating front; it is refined once, at
   $`t = 45\,\mathrm{s}`$.
 
+The temperature-dependent steel properties:
+
+| | |
+| :---: | :---: |
+| ![Electrical Conductivity](data/Steel_ElectricalConductivity.png) | ![Thermal Conductivity](data/Steel_ThermalConductivity.png) |
+| ![Heat Capacity](data/Steel_SpecificHeatCapacity.png) | ![BH Curve](data/Steel_BHCurve.png) |
+
+(Note: the electrical-resistivity data point at $`700\,{}^{\circ}\mathrm{C}`$ has been changed from
+$`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print error in Table 2 of [3].)
+
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. The case
-itself is run with `pymufem case.py`; it exports the temperature, the magnetic flux density and the
+`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+
+## Running
+
+The case is run with `pymufem case.py`; it exports the temperature, the magnetic flux density and the
 ohmic heating to `VisualizationOutput/`.
 
-## Validation
+## Results
 
 We compare the temperature evolution on the axis ($`\rho = 0`$) and at the surface ($`\rho = 3\,\mathrm{cm}`$)
 of the billet at $`z = 0`$ with Fig. 8a of [2], and the total ohmic heating power with the curve
@@ -88,12 +93,8 @@ The case checks both temperatures at $`t = 100\,\mathrm{s}`$ against the referen
 
 ## References
 
-[1] P. Di Barba, M. E. Mognaschi, D. A. Lowther, F. Dughiero, M. Forzan, S. Lupi, and E. Sieni
-    (2017). *A benchmark problem of induction heating analysis*. International Journal of Applied
-    Electromagnetics and Mechanics, 53(S1), pp. S139–S149.
+[1] P. Di Barba, M. E. Mognaschi, D. A. Lowther, F. Dughiero, M. Forzan, S. Lupi and E. Sieni (2017). *A benchmark problem of induction heating analysis*. International Journal of Applied Electromagnetics and Mechanics, 53(S1), S139–S149.
 
-[2] P. Di Barba, M. E. Mognaschi, M. Bullo, F. Dughiero, M. Forzan, S. Lupi, and E. Sieni (2018).
-    *Field models of induction heating for industrial applications*.
+[2] P. Di Barba, M. E. Mognaschi, M. Bullo, F. Dughiero, M. Forzan, S. Lupi and E. Sieni (2018). *Field models of induction heating for industrial applications*.
 
-[3] Compumag, *TEAM Problem 36: Induction Heating*,
-    https://www.compumag.org/wp/wp-content/uploads/2021/07/problem-36.pdf
+[3] Compumag. *TEAM Problem 36: Induction Heating*. https://www.compumag.org/wp/wp-content/uploads/2021/07/problem-36.pdf

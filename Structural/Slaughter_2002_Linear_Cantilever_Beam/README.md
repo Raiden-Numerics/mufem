@@ -1,5 +1,7 @@
 # Slaughter 2002: Linear Cantilever Beam
 
+## Introduction
+
 We model a linear elastic cantilever beam under an end load, following [1] and [2].
 
 <div align="center">
@@ -10,16 +12,32 @@ We model a linear elastic cantilever beam under an end load, following [1] and [
 </div>
 <br />
 
-## Introduction
-
 This validation case considers a **3D linear elastic cantilever beam** subjected to a transverse
 load at its free end. The problem is fully linear (small deformations, linear material law) and
 admits a well-known analytical solution based on **Euler–Bernoulli beam theory**.
+
+## Setup
 
 The beam has length $`L = 1\,\mathrm{m}`$, height $`h = 0.1\,\mathrm{m}`$ (along $`y`$) and width
 $`w = 0.2\,\mathrm{m}`$ (along $`z`$), with Young's modulus $`E = 210\,\mathrm{MPa}`$ and Poisson's
 ratio $`\nu = 0.30`$. The end face carries a traction of $`1000\,\mathrm{N/m^2}`$ in $`-y`$, i.e. a
 total tip force $`P = 1000\,\mathrm{N/m^2} \cdot w h = 20\,\mathrm{N}`$.
+
+The face at $`x = 0`$ (`Beam::Clamped`) is fixed with a `FixedDisplacementBoundaryCondition`, and the
+face at $`x = L`$ (`Beam::Loaded`) is loaded with a `TractionBoundaryCondition` of
+$`(0, -1000, 0)\,\mathrm{N/m^2}`$. A second-order field solution is used to obtain a smooth stress
+field. Because the problem is linear, a single iteration suffices.
+
+The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
+`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+
+## Running
+
+Run the case with `pymufem case.py`.
+
+## Results
+
+### Analytical Solution
 
 With the second moment of area $`I = w h^3 / 12 = 1/60000\,\mathrm{m^4}`$, the reference
 **displacement** field is
@@ -43,18 +61,7 @@ where $`D = h`$ is the beam height. The tip deflection is
 $`u_y(L) = -P L^3 / (3 E I) = -1.905\,\mathrm{mm}`$ and the bending stress at the top fiber is
 $`|\sigma_{xx}| = P (L - x)\,(h/2) / I`$, i.e. $`60\,\mathrm{kPa}`$ at the clamped end.
 
-## Setup
-
-The face at $`x = 0`$ (`Beam::Clamped`) is fixed with a `FixedDisplacementBoundaryCondition`, and the
-face at $`x = L`$ (`Beam::Loaded`) is loaded with a `TractionBoundaryCondition` of
-$`(0, -1000, 0)\,\mathrm{N/m^2}`$. A second-order field solution is used to obtain a smooth stress
-field. Because the problem is linear, a single iteration suffices.
-
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-The case itself is run with `pymufem case.py`.
-
-## Results
+### Comparison
 
 **Displacement** $`u_y`$ along the beam axis ($`y = 0`$):
 
@@ -71,7 +78,7 @@ The case checks the tip deflection against $`-1.905\,\mathrm{mm}`$ (the 3D solid
 about 1 % stiffer than beam theory) and the von Mises stress at $`x \approx 0.52\,\mathrm{m}`$ on the
 top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 
-## Scene
+## Scenes
 
 The displacement and von Mises stress fields are exported to `VisualizationOutput/` for ParaView:
 
@@ -79,6 +86,6 @@ The displacement and von Mises stress fields are exported to `VisualizationOutpu
 
 ## References
 
-[1] Medusa project, *Cantilever beam*, https://e6.ijs.si/medusa/wiki/index.php/Cantilever_beam
+[1] Medusa project. *Cantilever beam*. https://e6.ijs.si/medusa/wiki/index.php/Cantilever_beam
 
-[2] W. S. Slaughter (2002). *The Linearized Theory of Elasticity*, pp. 285–289. Springer, New York.
+[2] W. S. Slaughter (2002). *The Linearized Theory of Elasticity*. Springer, New York, pp. 285–289.
