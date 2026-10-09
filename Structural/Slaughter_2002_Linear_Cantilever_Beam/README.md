@@ -8,7 +8,7 @@ We model a linear elastic cantilever beam under an end load, following [1] and [
 <img src="./data/Geometry.png" alt="Cantilever beam geometry" width="600">
 </div>
 <div align="center">
-<em>3D cantilever beam geometry with a clamped end and end-face loading.</em>
+<em>3D cantilever beam geometry.</em>
 </div>
 <br />
 
@@ -39,20 +39,21 @@ Run the case with `pymufem case.py`.
 
 ### Analytical Solution
 
-With the second moment of area $`I = w h^3 / 12 = 1/60000\,\mathrm{m^4}`$, the reference
-**displacement** field is
+With the second moment of area $`I = w h^3 / 12 = 1/60000\,\mathrm{m^4}`$ and the distance
+$`\xi = L - x`$ from the loaded end, the reference **displacement** field for the clamp at
+$`x = 0`$ and the load $`P`$ in $`-y`$ is
 
 ```math
 \begin{aligned}
-u_x(x,y) &= -\frac{P y}{6 E I}\left(3(x^2 - L^2) - (2 + \nu) y^2 + 6(1+\nu)\frac{D^2}{4}\right), \\
-u_y(x,y) &= \frac{P}{6 E I}\left(3 \nu x y^2 + x^3 - 3 L^2 x + 2 L^3\right),
+u_x(x,y) &= -\frac{P y}{6 E I}\left(3(\xi^2 - L^2) - (2 + \nu) y^2 + 6(1+\nu)\frac{D^2}{4}\right), \\
+u_y(x,y) &= -\frac{P}{6 E I}\left(3 \nu \xi y^2 + \xi^3 - 3 L^2 \xi + 2 L^3\right),
 \end{aligned}
 ```
 
 and the **stress** field is
 
 ```math
-\sigma_{xx} = -\frac{P x y}{I}, \qquad
+\sigma_{xx} = \frac{P \xi y}{I}, \qquad
 \sigma_{yy} = 0, \qquad
 \sigma_{xy} = -\frac{P}{2 I}\left(\frac{D^2}{4} - y^2\right),
 ```
@@ -88,4 +89,4 @@ The displacement and von Mises stress fields are exported to `VisualizationOutpu
 
 [1] Medusa project. *Cantilever beam*. https://e6.ijs.si/medusa/wiki/index.php/Cantilever_beam
 
-[2] W. S. Slaughter (2002). *The Linearized Theory of Elasticity*. Springer, New York, pp. 285–289.
+[2] W. S. Slaughter (2002). *The Linearized Theory of Elasticity*. Birkhäuser, Boston, pp. 285–289.

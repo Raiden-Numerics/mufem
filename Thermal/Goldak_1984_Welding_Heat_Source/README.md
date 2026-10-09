@@ -11,14 +11,14 @@ heat-affected-zone (HAZ) shapes while remaining computationally tractable.
 <img src="./data/Geometry.png" alt="Welding plate geometry" width="600">
 </div>
 <div align="center">
-<em>Thick-plate weld geometry with the moving heat source and the measuring line.</em>
+<em>Modeled half ($`x \ge 0`$) of the thick plate.</em>
 </div>
 <br />
 
 The governing equation is the transient heat equation with a moving volumetric source:
 
 ```math
-\rho c(T)\,\frac{\partial T}{\partial t}
+c(T)\,\frac{\partial T}{\partial t}
 - \nabla \cdot \big(k(T)\nabla T\big)
 = Q(\mathbf{x}-\mathbf{x}_s(t))
 ```
@@ -45,7 +45,7 @@ $`f_f + f_r = 2`$. The source moves with welding speed $`v`$ via $`z \rightarrow
 ## Setup
 
 We reproduce the *thick-plate weld* of Goldak et al. [1] (their Fig. 4, after the experiments of
-Christensen et al.): a submerged-arc bead-on-plate weld on low-carbon steel (0.23 % C), plate
+Christensen et al. cited there): a submerged-arc bead-on-plate weld on low-carbon steel (0.23 % C), plate
 thickness **10 cm**. The plate is $`0.3\,\mathrm{m}`$ wide and
 $`0.3\,\mathrm{m}`$ long; only the half $`x \ge 0`$ is modeled, with the weld path on the symmetry
 plane $`x = 0`$ (`Piece::Symmetry`, adiabatic) and the source on the top surface $`y = 0`$
@@ -74,16 +74,16 @@ $`\rho = 7850\,\mathrm{kg/m^3}`$.
 Because the conductivity rises steeply at the melting point, the temperature-dependent conduction
 term is linearized with the exact (unsymmetric) Newton tangent.
 
-**Phase change** is captured with a *mushy-zone* enthalpy formulation between the solidus
+**Phase change** is captured with a *mushy-zone* enthalpy formulation, as in [2], between the solidus
 $`T_s = 1430\,{}^{\circ}\mathrm{C}`$ and the liquidus $`T_l = 1530\,{}^{\circ}\mathrm{C}`$ (around the melting
 temperature of $`1480\,{}^{\circ}\mathrm{C}`$), adding the latent heat of fusion
 $`\rho L = 2.1 \cdot 10^9\,\mathrm{J/m^3}`$ to the effective heat capacity:
 
 ```math
-c_{\mathrm{eff}}(T) = \rho\, c_s(T) + \frac{\rho L}{T_l - T_s}.
+c_{\mathrm{eff}}(T) = c(T) + \frac{\rho L}{T_l - T_s}.
 ```
 
-The top surface loses heat by a combined radiative/convective flux, after Eq. [18] of [1], with
+The top surface loses heat by a combined radiative/convective flux, after Eq. (18) of [1], with
 emissivity $`\varepsilon = 0.9`$,
 
 ```math
@@ -106,8 +106,8 @@ $`z = 0.15\,\mathrm{m}`$ ($`x`$ from 0 to 30 mm), compared with the reference da
 ![Temperature vs Position](./results/Temperature_vs_Position.png)
 
 The reference is digitized from Fig. 8 of [1]. Outside the weld pool ($`x \gtrsim 12\,\mathrm{mm}`$)
-the mufem solution follows it closely. Inside the pool the mufem temperature stays at the liquidus
-($`\approx 1525\,{}^{\circ}\mathrm{C}`$), bounded by the latent-heat plateau of the mushy-zone model,
+the mufem solution follows it closely. Inside the pool the mufem temperature stays just below the liquidus
+($`\approx 1528\,{}^{\circ}\mathrm{C}`$), bounded by the latent-heat plateau of the mushy-zone model,
 while the reference reaches about $`1840\,{}^{\circ}\mathrm{C}`$ on the centerline.
 
 Differences from [1]: [1] solves a 2D cross-section (no heat flow along the weld) and also
@@ -127,6 +127,6 @@ The temperature and the heat source are exported to `VisualizationOutput/` for P
 
 ## References
 
-[1] J. Goldak, A. Chakravarti and M. Bibby (1984). *A new finite element model for welding heat sources*. Metallurgical Transactions B, 15(2), 299–305.
+[1] J. Goldak, A. Chakravarti and M. Bibby (1984). *A new finite element model for welding heat sources*. Metallurgical Transactions B, 15(2), 299–305. https://doi.org/10.1007/BF02667333
 
 [2] A. Anca, A. Cardona, J. Risso and V. D. Fachinotti (2011). *Finite element modeling of welding processes*. Applied Mathematical Modelling, 35(2), 688–707.

@@ -21,7 +21,7 @@ from mufem.electromagnetics.timeharmonicmagnetic import (
 
 
 class Team7AsymmetricalConductor(ValidationCase):
-    name = "Compumag Team 7: Asymmetrical Conductor with a Hole"
+    name = "Compumag TEAM 7: Asymmetrical Conductor with a Hole"
     tags = {"moderate"}
 
     # Solved in this order, so that the exported fields belong to 50 Hz.
@@ -213,7 +213,7 @@ class Team7AsymmetricalConductor(ValidationCase):
                     self.results_path / f"Bz_{name}_mufem.csv",
                     numpy.c_[x.real, b.real, b.imag],
                     delimiter=",",
-                    header="x [mm], Bz [mT]",
+                    header="x [mm], Re Bz [mT], Im Bz [mT]",
                 )
 
         # ParaView export (collective) ------------------------------------------------

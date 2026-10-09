@@ -12,7 +12,7 @@ from mufem.electromagnetics.timedomainmagnetic import (
 
 
 class Team1bFelixCylinder(ValidationCase):
-    name = "Compumag Team1b: Felix Cylinder"
+    name = "Compumag TEAM 1b: The FELIX Short Cylinder"
     tags = {"moderate"}
 
     def build_geometry(self):

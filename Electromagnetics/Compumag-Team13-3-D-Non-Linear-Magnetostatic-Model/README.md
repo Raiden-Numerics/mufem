@@ -1,4 +1,4 @@
-# Compumag Team 13: 3-D Non-Linear Magnetostatic Model
+# Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model
 
 
 ## Introduction
@@ -35,8 +35,11 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
   and a coil of $`200 \times 200`$ mm with rounded corners (R25/R50), 25 mm wide
   and 100 mm high.
 * The plane $`z = 0`$ is a symmetry plane, so the upper half of the geometry is
-  modeled (the 1/2 region of Fig. 2(b) of [1]); the outer boundaries of the air
-  carry a Tangential Magnetic Flux condition.
+  modeled (the 1/2 region of Fig. 2(b) of [1]). The open space is truncated by the
+  air box; [1] leaves the open-boundary treatment to the user. No boundary
+  condition is set, so all boundaries carry the natural condition
+  $`\vec{n} \times \vec{H} = 0`$ (the field is normal to the boundary), which on
+  $`z = 0`$ is the symmetry condition of the problem.
 * Time-Domain Magnetic model run to a steady state (12 nonlinear iterations),
   second-order accurate; eddy currents are not relevant in this static case.
 * The steel uses the $`B(H)`$ curve of Fig. 3 of [1] (Table 2 of [3]) up to

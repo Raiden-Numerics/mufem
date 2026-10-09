@@ -1,4 +1,4 @@
-# Compumag TEAM Problem 7: Asymmetrical Conductor with a Hole
+# Compumag TEAM 7: Asymmetrical Conductor with a Hole
 
 ## Introduction
 
@@ -137,7 +137,7 @@ over one excitation cycle.
 <img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="1200">
 </div>
 <div align="center">
-<em>Eddy current density in the plate (50 Hz) over one period, with the coil current and
+<em>Figure 2: Eddy current density in the plate (50 Hz) over one period, with the coil current and
 B<sub>z</sub> along A1-B1.</em>
 </div>
 

@@ -1,4 +1,4 @@
-# Compumag Team 1b: The FELIX Short Cylinder
+# Compumag TEAM 1b: The FELIX Short Cylinder
 
 ## Introduction
 
@@ -29,7 +29,7 @@ We solve the time-domain quasi-static Maxwell equations using the *electric form
 ```
 where $`\vec{A}`$ is the magnetic vector potential, $`\nu`$ is the magnetic reluctivity, $`\sigma`$ the electrical conductivity, and $`\vec{H}_0`$ the tangential-field Neumann condition. The unknown $`\vec{A}`$ is discretized in the *HCurl* space; the flux density follows as $`\vec{B} = \nabla \times \vec{A}`$ and the field as $`\vec{H} = \nu \vec{B}`$.
 
-We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialization* to obtain the fully penetrated state at $`t=0`$, then march in time up to $`t = 20\,\mathrm{ms}`$ with time steps of $`1\,\mathrm{ms}`$ and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition) condition of the form
+We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html) with a *Magnetostatic initialization* to obtain the fully penetrated state at $`t=0`$, then march in time up to $`t = 20\,\mathrm{ms}`$ with time steps of $`1\,\mathrm{ms}`$ and three inner iterations per step (linearity makes the inner loop mostly a convergence check). The decaying field is imposed through a [Tangential Magnetic Field](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_field_condition.html) condition of the form
 ```math
 \vec{H}_0(t) =
 \left(
@@ -56,9 +56,9 @@ The results are compared with the solutions of the 1988 eddy current workshop co
 
   | Time | mufem | Table 4 of [2], range (median) |
   | ---- | ----- | ------------------------------ |
-  | 4 ms | 425 W | 321 - 464 W (430.5 W) |
-  | 8 ms | 530 W | 480 - 570 W (534.5 W) |
-  | 10 ms | 478 W | 420 - 515 W (484 W) |
+  | 4 ms | 425 W | 321–464 W (430.5 W) |
+  | 8 ms | 530 W | 480–570 W (534.5 W) |
+  | 10 ms | 478 W | 420–515 W (484 W) |
 
   The case checks the loss at these times against the medians. Table 4 is labeled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
 
@@ -66,25 +66,31 @@ The results are compared with the solutions of the 1988 eddy current workshop co
 
   | Time | mufem | Measurement | Codes of [2] |
   | ---- | ----- | ----------- | ------------ |
-  | 4 ms | 0.0322 T | 0.035 T | 0.030 - 0.039 T |
-  | 8 ms | 0.0388 T | 0.042 T | 0.036 - 0.0495 T |
-  | 10 ms | 0.0375 T | 0.0375 T | 0.034 - 0.049 T |
+  | 4 ms | 0.0322 T | 0.035 T | 0.030–0.039 T |
+  | 8 ms | 0.0388 T | 0.042 T | 0.036–0.0495 T |
+  | 10 ms | 0.0375 T | 0.0375 T | 0.034–0.049 T |
 
-  The case checks these values against the measurement; like most codes of [2], mufem is 5-10 % below the measurement at 4 and 8 ms.
+  The case checks these values against the measurement; like most codes of [2], mufem is 5–10 % below the measurement at 4 and 8 ms.
 
-The power loss over time, compared with the curve of Fig. 8 of [2] (the EDDYCUFF solution of Kameari, [PowerLoss.csv](data/PowerLoss.csv)):
+Figure 2 shows the power loss over time, compared with the curve of Fig. 8 of [2] (the EDDYCUFF solution of Kameari, [PowerLoss.csv](data/PowerLoss.csv)).
 
-![Ohmic Heating Loss](results/OhmicHeating.png)
+<div align="center">
+    <img src="results/OhmicHeating.png" alt="Ohmic heating loss" width="600">
+    <br/>
+    <br/>
+    <em>Figure 2: Power loss in the cylinder over time.</em>
+</div>
+<br/>
 
 ## Scenes
 
-The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; the scene below is rendered from them with ParaView by [create_scene.py](create_scene.py).
+The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; Figure 3 is rendered from them with ParaView by [create_scene.py](create_scene.py).
 
 <div align="center">
-    <img src="results/Scene_Electric_Current_Density.png" alt="Mesh" width="50%">
+    <img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="50%">
     <br/>
     <br/>
-    Figure 2: Eddy currents inside the cylinder at the final time.
+    <em>Figure 3: Eddy currents inside the cylinder at the final time.</em>
 </div>
 <br/>
 

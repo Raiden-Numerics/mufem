@@ -20,7 +20,7 @@ from mufem.electromagnetics.timedomainmagnetic import (
 
 
 class Team20StaticForce(ValidationCase):
-    name = "Compumag Team 20: 3D Static Force Problem"
+    name = "Compumag TEAM 20: 3-D Static Force Problem"
     tags = {"moderate"}
 
     def build_geometry(self):

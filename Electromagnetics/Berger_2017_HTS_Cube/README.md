@@ -3,8 +3,8 @@
 ## Introduction
 
 We model a high-temperature superconductor (HTS) cube exposed to a sinusoidal
-external magnetic field, and compare the instantaneous AC loss to the
-community-validated reference of Berger et al. (2017).
+external magnetic field, and compare the instantaneous AC loss to the reference
+of Berger et al. (2017) [1].
 
 The Berger 2017 benchmark [1] is a community-validated 3-D
 AC-loss test for high-temperature superconductors. Five independent teams
@@ -26,7 +26,7 @@ instantaneous dissipation $`p_{\mathrm{AC}}(t)`$ integrated over the cube.
     <img src="./data/Geometry.png" alt="Geometry" width="600">
     <br/>
     <br/>
-    <em>Figure 1: A superconducting cube at the center of a spherical air domain. The case exploits the symmetry of the applied field to model the positive 1/8-octant.</em>
+    <em>Figure 1: A superconducting cube at the center of a spherical air domain. The case exploits the symmetry of the applied field to model one octant (not to scale).</em>
 </div>
 <br/>
 
@@ -36,14 +36,14 @@ instantaneous dissipation $`p_{\mathrm{AC}}(t)`$ integrated over the cube.
 ### Power-law $`E\!-\!J`$ characteristic
 
 The electrical resistivity of the superconductor is modeled by the
-standard HTS power law (Ref. [1], Eq. 1):
+standard HTS power law ([1], Eq. 1):
 ```math
 \vec{E} = \frac{E_c}{J_c} \left(\frac{|\vec{J}|}{J_c}\right)^{n-1} \vec{J} \quad .
 ```
 
 For the $`\vec{A}`$-formulation we need the inverse relation
 $`\sigma(|\vec{E}|)`$. To avoid the $`\sigma \to \infty`$ singularity as
-$`|\vec{E}| \to 0`$, we use the regularized form (Ref. [1],
+$`|\vec{E}| \to 0`$, we use the regularized form ([1],
 Eq. 8):
 ```math
 \sigma(\vec{E}) =
@@ -54,14 +54,15 @@ Eq. 8):
 ```
 
 where [1] uses the resistivity floor $`\rho_0 = 10^{-14}\,\Omega\cdot\mathrm{m}`$. mufem's
-superconductor material applies its own, smaller built-in floor, so the case sets only $`J_c`$,
+superconductor material has no resistivity floor; instead it evaluates the conductivity on a
+smoothed field magnitude $`\sqrt{|\vec{E}|^2 + \varepsilon^2}`$ with $`\varepsilon = 10^{-3} E_c`$, so the case sets only $`J_c`$,
 $`E_c`$ and $`n`$.
 
 ### Material parameters
 
 The parameters are representative of cylindrical Bi-2223 samples
 characterized experimentally with $`E_c = 1\,\mu\mathrm{V}/\mathrm{cm}`$
-(Ref. [1], §II.B):
+([1], §II.B):
 
 | Symbol     | Value                              | Description               |
 | ---------- | ---------------------------------- | ------------------------- |
@@ -98,8 +99,7 @@ A uniform sinusoidal field is applied along $`y`$:
 ```
 with $`f = 50\,\mathrm{Hz}`$ and $`B_{\max} = 20\,\mathrm{mT}`$. The
 full-penetration field for this geometry is
-$`B_p = \mu_0 J_c d / 2 \approx 15.7\,\mathrm{mT}`$ (Ref.
-[1], §II.C), so $`B_{\max} > B_p`$ places the case in the
+$`B_p = \mu_0 J_c d / 2 \approx 15.7\,\mathrm{mT}`$ ([1], §II.C), so $`B_{\max} > B_p`$ places the case in the
 **full-penetration regime**: the flux front reaches the cube center during
 each half-cycle, the shielded core disappears, and $`|\vec{J}| = J_c`$ is
 supported throughout the entire cross-section (sign determined by the
@@ -127,15 +127,14 @@ Run the case with `pymufem case.py`.
 
 ## Results
 
-The instantaneous AC-loss curve is compared against the Berger (2017)
+The instantaneous AC-loss curve is compared against the Berger et al. (2017)
 reference for the 20 mT, $`n = 25`$ full-penetration case
 ([1] Fig. 2(b), digitized in
 `data/AC_Losses_B20mT.csv`).
 
-Two loss peaks per period, one per half-cycle, located at the
-zero-crossings of $`B_a(t)`$ where $`|\partial_t B_a|`$ — and hence the
-induced $`|\vec{E}|`$ in the conductor — is maximal (Ref.
-[1], §IV.A). The reference curve reaches a peak of
+Two loss peaks appear per period, one per half-cycle, at about 2 ms and 11 ms in the
+reference curve; [1] notes that they shift toward $`t = T/2`$ and $`t = T`$ as the field
+amplitude increases (§IV.A). The reference curve reaches a peak of
 $`\approx 30\,\mathrm{mW}`$ (full-cube instantaneous loss); for the
 1/8-symmetric model the integrated value is multiplied by $`8`$ before
 plotting against the reference.
@@ -157,7 +156,7 @@ The magnetic flux density and the current density are exported to
     <img src="./results/Ohmic_Heating.png" alt="AC loss" width="600">
     <br/>
     <br/>
-    <em>Figure 2: Instantaneous AC loss over one period compared against the Berger (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
+    <em>Figure 2: Instantaneous AC loss over one period compared against the Berger et al. (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
 </div>
 <br/>
 

@@ -1,8 +1,8 @@
-# Compumag Team 20: 3-D Static Force Problem
+# Compumag TEAM 20: 3-D Static Force Problem
 
 ## Introduction
 
-The problem [1] is a non-linear magnetostatic case with a center pole and yoke made of ferromagnetic steel, and a stranded (wound) copper coil which is excited by a constant current. The geometry is shown in Figure 1.
+The problem [1] is a nonlinear magnetostatic case with a center pole and yoke made of ferromagnetic steel, and a stranded (wound) copper coil which is excited by a constant current. The geometry is shown in Figure 1.
 
 
 <div align="center">
@@ -43,7 +43,7 @@ obtained from $`\vec{H} = \mu^{-1} \vec{B}`$. Note that the electric current den
 in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \vec{J} = 0`$.
 
 As for the boundary, by symmetry the magnetic flux needs to be tangential to the symmetry faces; thus we
-assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition) which ensures that
+assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition.html) which ensures that
 $`\vec{B} \cdot \vec{n} = 0`$. This is achieved by specifying the tangential components of 
 $`\vec{A}`$ to zero, i.e. $`\vec{n} \times \vec{A} = 0`$. It is applied on the symmetry planes $`x = 0`$ and $`y = 0`$, including the end faces of the quarter coil (`Coil::In`, `Coil::Out`); the outer air boundary, a far-field boundary, is left free.
 
@@ -63,7 +63,7 @@ experimental coil has 381 turns; only the ampere-turns matter).
 
 ### Reports
 
-The force is calculated using the [Magnetic Force Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_force_report) which uses the Maxwell stress 
+The force is calculated using the [Magnetic Force Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_force_report.html) which uses the Maxwell stress 
 tensor $`\mathbb{T} [\rm{Pa}]`$ given by
 ```math
 \mathbb{T} = \vec{B} \otimes \vec{H} - \frac{1}{2} \left( \vec{B} \cdot \vec{H} \right) \mathbb{I}   \quad.
@@ -77,7 +77,7 @@ where $`\vec{n}`$ is the normal along the surface. Note that only the z-componen
 
 ### Materials
 
-While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong non-linearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [1] is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
+While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong nonlinearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [1] is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
 
 <div style="display: flex; align-items: flex-start;">
     <img src="./data/bh_curve.png" alt="BH Curve" width="600" style="margin-right: 20px;">
@@ -134,8 +134,7 @@ of the force versus the coil current.
 <br /><br />
 
 
-The results are presented in Figure 4, where we find a good match to the experimental and numerical values
-reported in [2] and [3]. Note that initially the force increases quadratically with an 
+The results are presented in Figure 4, where we find a good match to the measured force of [3]. Note that initially the force increases quadratically with an 
 increase of current until around $`I=3`$ A, where the steel saturates.
 
 The measurements of [2] (Tables 4 and 6) for the four excitations of the benchmark:
@@ -152,7 +151,7 @@ case checks the force at all four excitations and $`B_z`$ at 5000 AT at P1 and P
 at P2, where the flux density changes abruptly, [2] also reports larger discrepancies between
 calculations and measurement.
 
-As an outlook, the paper [3] suggests to investigate the effect of model order, and adaptive refinement (among others) which we will look into in an upcoming update.
+As an outlook, the paper [3] suggests investigating the effect of model order and adaptive refinement (among others) which we will look into in an upcoming update.
 
 ## Scenes
 

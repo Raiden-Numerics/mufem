@@ -168,7 +168,7 @@ where $`\theta`$ is the polar angle; the pattern does not depend on the azimutha
 angle $`\phi`$.
 The cross-sections are plotted in the `postprocess` method of [case.py](case.py).
 As depicted in Fig. 4, the simulated radiation pattern closely matches the
-analytical result; towards the arms it lies a few percent below it, since the
+analytical result; toward the arms it lies a few percent below it, since the
 arms of the simulated antenna (radius $`\lambda/80`$) are not infinitely thin.
 
 <div align="center">
@@ -194,7 +194,7 @@ The pattern is compared with the thin half-wave dipole of [3]
 
 The thick arms narrow the beam slightly, which raises the directivity by 5 %;
 the port strip breaks the rotational symmetry by 2 % in the H-plane. The case checks
-all quantities in the table.
+all quantities in the table and the E-plane pattern at $`\theta = 90°`$.
 
 
 ## Scenes

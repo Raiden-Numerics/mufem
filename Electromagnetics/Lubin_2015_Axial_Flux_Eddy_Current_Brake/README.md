@@ -57,10 +57,10 @@ where $`n`$ is the mechanical speed in rpm. We use $`N = 40`$–$`80`$ steps per
 * **Magnetic-diffusion time scale**
 
 ```math
-\tau_d \sim \mu\, \sigma\, L^2 \quad,
+\tau_d \sim \mu\, \sigma\, d^2 \quad,
 ```
 
-with $`L`$ the copper plate thickness. The diffusion-resolved step is $`\Delta t_d = \tau_d / M`$ with $`M \approx 20`$. **Dominates at low slip speeds**, where $`T_e \to \infty`$.
+with $`d`$ the copper plate thickness. The diffusion-resolved step is $`\Delta t_d = \tau_d / M`$ with $`M \approx 20`$. **Dominates at low slip speeds**, where $`T_e \to \infty`$.
 
 For our setup ($`p = 5`$, $`d = 5\,\mathrm{mm}`$ copper), with $`N = 40`$ and $`M = 20`$:
 
@@ -72,7 +72,7 @@ For our setup ($`p = 5`$, $`d = 5\,\mathrm{mm}`$ copper), with $`N = 40`$ and $`
 |             2000 |          6.0 |               0.150 |            1.79 |              0.0895 |
 |             3000 |          4.0 |               0.100 |            1.79 |              0.0895 |
 
-We use $`\Delta t = 0.5\,\mathrm{ms}`$ throughout — slightly under-resolved at the highest rpm. The case simulates the slip speeds 500, 1000 and 2000 rpm; after each rotation-rate change, we advance for 20 time steps before evaluating the quasi-steady torque. First-order elements are used.
+We use $`\Delta t = 0.5\,\mathrm{ms}`$ throughout, coarser than both estimates: about 3 times $`\Delta t_e`$ at 2000 rpm and about 6 times $`\Delta t_d`$. The case simulates the slip speeds 500, 1000 and 2000 rpm; after each rotation-rate change, we advance for 20 time steps before evaluating the quasi-steady torque. First-order elements are used.
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
 
@@ -80,7 +80,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 Run the case with `pymufem case.py`.
 
-The animation shown in the Scenes section is created with [create_animation.py](create_animation.py) (requires an installation of the *focus-viewer*). To produce its input, set `output_for_animation = True` in [case.py](case.py) and run the case; it then exports the fields and writes a torque plot into `vis/` for every time step (30 steps per slip speed). Afterwards run `python create_animation.py` in the case directory.
+The animation shown in the Scenes section is created with [create_animation.py](create_animation.py) (requires an installation of the *focus-viewer*). To produce its input, set `output_for_animation = True` in [case.py](case.py) and run the case; it then exports the fields to `VisualizationOutput/` and writes a torque plot into `vis/` for every time step (30 steps per slip speed). Afterwards run `python create_animation.py` in the case directory (requires `ffmpeg`).
 
 ## Results
 
@@ -102,7 +102,7 @@ Below is the braking torque vs the slip speed.
 <figure style="text-align: center;">
 <img src="./results/Torque_vs_RPM.png" alt="drawing" width="600">
 <figcaption style="width: 75%; margin: 0 auto; text-align: left;">
-    <em>Figure 3.</em> Braking torque as a function of slip speed. The torque rises with increasing slip due to stronger induced eddy currents, reaches a maximum, and then decreases as skin-depth effects and magnetic shielding limit field penetration and reduce electromagnetic coupling.
+    <em>Figure 3</em>: Braking torque as a function of slip speed. The torque rises with increasing slip due to stronger induced eddy currents, reaches a maximum, and then decreases as skin-depth effects and magnetic shielding limit field penetration and reduce electromagnetic coupling.
 </figcaption>
 </figure>
 <br /><br />
@@ -131,7 +131,7 @@ An animation of the brake is shown below.
 <figure style="text-align: center;">
 <img src="./results/Result_Animation.gif" alt="drawing">
 <figcaption style="width: 75%; margin: 0 auto; text-align: left;">
-    <em>Figure 4.</em> Time evolution of the axial-flux eddy current brake simulation. The rotating conductive plate induces eddy currents that interact with the magnetic field of the permanent magnets, producing a braking torque and axial force while transient electromagnetic diffusion and skin effects develop over time.
+    <em>Figure 4</em>: Time evolution of the axial-flux eddy current brake simulation. The rotating magnets induce eddy currents in the copper plate that interact with the magnetic field of the permanent magnets and produce a braking torque, while transient electromagnetic diffusion and skin effects develop over time.
 </figcaption>
 </figure>
 
@@ -141,4 +141,4 @@ An animation of the brake is shown below.
 
 [2] T. Lubin and A. Rezzoug (2017). *Improved 3-D analytical model for axial-flux eddy-current couplings with curvature effects*. IEEE Transactions on Magnetics, 53(9), 1–9.
 
-[3] T. Lubin, J. Fontchastagner, S. Mezani and A. Rezzoug (2016). *Comparison of transient performances for synchronous and eddy-current torque couplers*. 2016 XXII International Conference on Electrical Machines (ICEM), 695–701. IEEE.
+[3] T. Lubin, J. Fontchastagner, S. Mezani and A. Rezzoug (2016). *Comparison of transient performances for synchronous and eddy-current torque couplers*. 2016 XXII International Conference on Electrical Machines (ICEM), 695–701.

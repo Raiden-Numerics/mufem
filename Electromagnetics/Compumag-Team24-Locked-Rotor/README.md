@@ -1,4 +1,4 @@
-# Compumag Team 24: Nonlinear Time-Transient Rotational Test Rig
+# Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig
 
 ## Introduction
 
@@ -17,9 +17,9 @@ and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [
 
 ## Setup
 
-* The geometry follows Figs. 1 and 2 of [1], with the rotor turned clockwise by $`22°`$ as in Fig. 1.
+* The geometry follows Figs. 1 and 2 of [1], with the rotor turned clockwise by $`22°`$ as in Fig. 1 of [1].
   The midplane $`z = 0`$ of the $`25.4\,\mathrm{mm}`$ long rig is a symmetry plane, which [1] suggests
-  exploiting: only the half $`z \le 0`$ is modeled (Fig. 1), with a tangential-flux condition on
+  exploiting: only the half $`z \le 0`$ is modeled (Figure 1), with a tangential-flux condition on
   the midplane.
 * The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
   with `pymufem case.py --rebuild-mesh`.
@@ -51,7 +51,7 @@ B(H) = \frac{H}{a + b H} + \mu_0 H \quad,
 ```
 
 with $`a`$ and $`b`$ fitted to the first four points of Table I and the result scaled to pass through
-the first measured point. The script [plot.py](data/tables/plot.py) writes the updated curve.
+the first measured point. The script [plot.py](data/tables/plot.py) fits the curve, writes it to `Updated_BH_curve.csv` and plots both curves.
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Updated B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
@@ -85,11 +85,11 @@ air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corn
 
 Run the case with `pymufem case.py`.
 
-Fig. 1 is rendered from the geometry with `netgen_geometry_image.py`. Fig. 2 is rendered with
+Figure 1 is rendered from the geometry with `netgen_geometry_image.py`. Figure 2 is rendered with
 `pvbatch paraview_element_type.py` after a run with `output_for_animation = True`.
 
-To generate the animation (Fig. 3), set `output_for_animation = True` in `case.py`, run the case, and then
-run `paraview_gif.py` (requires ParaView and `ffmpeg`).
+To generate the animation (Figure 3), set `output_for_animation = True` in `case.py`, run the case, and then
+run `pvbatch paraview_gif.py` (requires ParaView and `ffmpeg`).
 
 ## Results
 
@@ -126,7 +126,7 @@ mesh is kept for its runtime.
 <div align="center">
     <img src="results/Result_Animation.gif" alt="Result Animation" width="85%">
     <br/>
-    <em>Figure 3: Animation of the electric current density over time.</em>
+    <em>Figure 3: Animation of the electric current density, the coil current and the rotor torque over time.</em>
 </div>
 <br/>
 

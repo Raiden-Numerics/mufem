@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Comb drives are capacitive actuators that utilize electrostatic forces generated between two electrically conductive combs. These actuators typically function at the micro- or nanometer scale and are among the most widely used electrostatic actuators and sensors in the micro-electromechanical systems (MEMS) industry. When a voltage is applied between the static and moving combs, attractive electrostatic forces are created, drawing them together. The force produced by the actuator is proportional to the change in capacitance between the two combs, which increases with the driving voltage.
+Comb drives are capacitive actuators that utilize electrostatic forces generated between two electrically conductive combs. These actuators typically function at the micro- or nanometer scale and are among the most widely used electrostatic actuators and sensors in the micro-electromechanical systems (MEMS) industry. When a voltage is applied between the static and moving combs, attractive electrostatic forces are created, drawing them together. The force produced by the actuator is proportional to the change of the capacitance between the two combs with their displacement and to the square of the driving voltage.
 
 In this test case, we monitor the capacitance of the comb drive described in [1, 2]. This comb drive consists of two comb conductors, one with four teeth and the other with three, positioned above a grounded plate. Figure 1 shows the geometry of the problem.
 
@@ -79,7 +79,7 @@ report = VolumeIntegralReport(
 
 ## Running
 
-Since every shift needs its own mesh for the adaptive mesh refinement, the meshes
+Since every shift has its own geometry and hence its own mesh, the meshes
 (about 22 MB) are not shipped with the case and have to be built first. The following
 command builds them:
 ```bash
@@ -119,9 +119,9 @@ for xshift in self.xshifts:
 The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
-empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential 
-  obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for 
-  subsequent visualization using [ParaView](https://www.paraview.org/).
+empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
+obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for
+subsequent visualization using [ParaView](https://www.paraview.org/).
 
 
 ## Results
@@ -176,8 +176,7 @@ from below, so the exact value lies between them. On the finest mesh of [1], 152
 </div>
 <br/>
 
-The final value of the capacitance is taken as the value calculated at the largest number of degrees of 
-freedom.
+The final value of the capacitance is taken as the value calculated on the finest mesh.
 
 
 ### The developed force
@@ -208,9 +207,9 @@ force $`F`$ with an amplitude of 0.139 nN.
 
 ## Scenes
 
-Figure 6 illustrates how the distribution of electric potential changes as the shift between the combs 
-increases. This movement mimics the action of a real comb drive, where the combs tend to move apart when 
-voltage is applied.
+Figure 6 illustrates how the distribution of electric potential changes with the shift between the combs.
+The animation runs from the largest shift to zero shift, which mimics the action of a real comb drive,
+where the combs are pulled together when voltage is applied.
 
 <div align="center">
     <img src="results/Electric_Potential.gif" width="600">
@@ -226,6 +225,6 @@ voltage is applied.
 
 [1] Z. Ren and X. Xu (2014). *Dual Discrete Geometric Methods in Terms of Scalar Potential on Unstructured Mesh in Electrostatics*. IEEE Transactions on Magnetics, 50(2), 7000704. https://doi.org/10.1109/TMAG.2013.2280452
 
-[2] D. A. Di Pietro and R. Specogna (2016). *An a posteriori-driven adaptive Mixed High-Order method with application to electrostatics*. Journal of Computational Physics, 326, 35. https://doi.org/10.1016/j.jcp.2016.08.041
+[2] D. A. Di Pietro and R. Specogna (2016). *An a posteriori-driven adaptive Mixed High-Order method with application to electrostatics*. Journal of Computational Physics, 326, 35–55. https://doi.org/10.1016/j.jcp.2016.08.041
 
 [3] Wikipedia. *Comb drive*. https://en.wikipedia.org/wiki/Comb_drive

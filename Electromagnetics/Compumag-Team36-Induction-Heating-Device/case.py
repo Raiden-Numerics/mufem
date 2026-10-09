@@ -29,7 +29,7 @@ from mufem.thermal import (
 
 
 class Team36InductionHeating(ValidationCase):
-    name = "Compumag Team 36: Induction Heating Device"
+    name = "Compumag TEAM 36: Induction Heating Device"
     tags = {"long"}
 
     def build_geometry(self):
@@ -52,7 +52,7 @@ class Team36InductionHeating(ValidationCase):
         coil_radial_width = 0.02
         copper_thickness = 0.003
 
-        # 30-degree periodic sector of the axisymmetric device.
+        # 30-degree sector of the axisymmetric device, bounded by symmetry planes.
         cut = triangle_sector(1.0, 30, 1.0)
 
         # Billet: a rectangular cross-section revolved into the sector -------------------
@@ -77,7 +77,7 @@ class Team36InductionHeating(ValidationCase):
         billet.faces.Max(Y).name = "Billet::EndSurface"
 
         # Inductor: a hollow copper turn (outer minus inner), replicated axially ----------
-        half_offset = 0.2 / 19.0 / 2.0  # 20 turns over 0.2 m with 19 gaps
+        half_offset = 0.2 / 19.0 / 2.0  # 19 gaps share 1 m - 20 x 4 cm = 0.2 m
         r0, r1 = coil_internal_radius, coil_internal_radius + coil_radial_width
         y0, y1 = half_offset, half_offset + coil_axial_length
         t = copper_thickness
@@ -200,7 +200,7 @@ class Team36InductionHeating(ValidationCase):
                 f"Coil::{n}" @ mufem.Vol,
                 CoilTopologyOpen(f"Coil::{n}::In" @ mufem.Bnd, f"Coil::{n}::Out" @ mufem.Bnd),
                 CoilTypeStranded(1),
-                CoilExcitationCurrent(current=3500.0 * numpy.sqrt(2)),  # RMS
+                CoilExcitationCurrent(current=3500.0 * numpy.sqrt(2)),  # peak of 3500 A RMS
             )
             coil_model.add_coil_specification(coil)
 

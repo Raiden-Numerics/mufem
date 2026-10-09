@@ -16,7 +16,7 @@ from mufem.electromagnetics.timedomainmagnetic import (
 
 
 class Berger2017HtsCube(ValidationCase):
-    name = "Berger (2017): High-Temperature Superconductor Cube"
+    name = "Berger 2017: High-Temperature Superconductor Cube"
     tags = {"moderate"}
 
     def build_geometry(self):
@@ -94,8 +94,8 @@ class Berger2017HtsCube(ValidationCase):
         # Materials --------------------------------------------------------------------
         air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
 
-        # n=25, Jc=2.5e6 A/m^2, Ec=1e-4 V/m are characteristic of commercial Bi-2223
-        # (1G HTS tape) at 77 K self-field, matching Berger 2017 §II.B.
+        # n=25, Jc=2.5e6 A/m^2, Ec=1e-4 V/m, close to measurements on cylindrical Bi-2223
+        # samples, Berger et al. (2017), §II.B.
         hts_material = SuperconductorMagneticMaterial(
             name="Bi-2223",
             marker="Cube" @ Vol,

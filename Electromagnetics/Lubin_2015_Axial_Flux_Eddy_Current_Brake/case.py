@@ -14,13 +14,14 @@ from mufem.motion import MeshMotionPartialRemeshing, RotatingMotion
 
 
 class Lubin2015EddyCurrentBrake(ValidationCase):
-    name = "Lubin 2015: Axial-Flux Eddy Current Brake"
+    name = "Lubin 2015: Axial-Flux Eddy-Current Brake"
     tags = {"eternal"}
 
     # 2 p = 10 sector magnets (grade N40) on the magnet-side back iron
     number_of_magnets = 10
 
-    # write fields and torque frames for every time step to vis/ (see create_animation.py)
+    # export the fields to VisualizationOutput/ and torque frames to vis/ for every time step
+    # (see create_animation.py)
     output_for_animation = False
 
     def build_geometry(self):

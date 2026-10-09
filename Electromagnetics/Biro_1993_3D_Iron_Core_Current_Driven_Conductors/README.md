@@ -10,7 +10,7 @@ We compare the Ohmic heating generated inside each conductor with the values pro
 
 
 <div align="center">
-<img src="./data/Geometry.png" alt="drawing" width="600">
+<img src="./data/Geometry.png" alt="Geometry" width="600">
 </div>
 <div align="center">
 <em>The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modeled.</em>
@@ -32,7 +32,7 @@ The turns are separated by 0.1 mm gaps (each conductor is $`0.9 \times 1.9\,\mat
 distance between the limb and the first turns at the 0.3 mm of [1]. The planes $`x = 0`$ and $`y = 0`$ and the
 outer air boundary carry a Tangential Magnetic Flux condition; the plane $`z = 0`$ is left natural.
 
-We use 2nd order accuracy to ensure smooth curves. Note that we impose the current inside the coil through a
+We use second-order elements. Note that we impose the current inside the coil through a
 **source** constraint; each turn is a solid coil whose quarter is driven between its faces on the $`x = 0`$ and
 $`y = 0`$ planes, and the losses of the quarter are multiplied by 4.
 
@@ -41,7 +41,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 ## Running
 
-Run the case with `pymufem case.py`; it prints the table of the Results section.
+Run the case with `pymufem case.py`; it prints the loss of each turn against the reference (the table of the Results section).
 
 ## Results
 
@@ -49,34 +49,34 @@ Run the case with `pymufem case.py`; it prints the table of the Results section.
 
   The total Ohmic heating in each conductor is calculated and compared with the reference.
 
-    | Coil | Reference | Obtained | Abs Error | Rel Error (%) |
-    | ---- | --------- | -------- | --------- | ------------- |
-    | 1    | 0.0618    | 0.06079  | 0.00101   | 1.63          |
-    | 2    | 0.0557    | 0.05725  | 0.00155   | 2.78          |
-    | 3    | 0.0501    | 0.05494  | 0.00484   | 9.66          |
-    | 4    | 0.0481    | 0.05550  | 0.00740   | 15.38         |
-    | 5    | 0.0521    | 0.06067  | 0.00857   | 16.45         |
-    | 6    | 0.2880    | 0.26373  | 0.02427   | 8.43          |
-    | 7    | 0.2331    | 0.21589  | 0.01721   | 7.38          |
-    | 8    | 0.1726    | 0.16626  | 0.00634   | 3.67          |
-    | 9    | 0.1255    | 0.12789  | 0.00239   | 1.90          |
-    | 10   | 0.1021    | 0.10677  | 0.00467   | 4.57          |
-    | 11   | 0.9296    | 0.87791  | 0.05169   | 5.56          |
-    | 12   | 0.6964    | 0.64639  | 0.05001   | 7.18          |
-    | 13   | 0.4556    | 0.42718  | 0.02842   | 6.24          |
-    | 14   | 0.2802    | 0.27094  | 0.00926   | 3.30          |
-    | 15   | 0.1854    | 0.17937  | 0.00603   | 3.25          |
-    | 16   | 2.6304    | 2.79468  | 0.16428   | 6.25          |
-    | 17   | 1.6056    | 1.51576  | 0.08984   | 5.60          |
-    | 18   | 0.8140    | 0.74613  | 0.06787   | 8.34          |
-    | 19   | 0.3918    | 0.36845  | 0.02335   | 5.96          |
-    | 20   | 0.2046    | 0.19528  | 0.00932   | 4.56          |
-    | 21   | 4.9960    | 7.27032  | 2.27432   | 45.52         |
-    | 22   | 1.9424    | 1.83208  | 0.11032   | 5.68          |
-    | 23   | 0.7424    | 0.65902  | 0.08338   | 11.23         |
-    | 24   | 0.2920    | 0.27364  | 0.01836   | 6.29          |
-    | 25   | 0.1166    | 0.12217  | 0.00557   | 4.78          |
-    | Total | 17.472   | 19.349   | 1.877     | 10.74         |
+    | Coil | Loss mufem [W] | Loss Biro 1993 [W] | Deviation [%] |
+    | ---- | -------------- | ------------------ | ------------- |
+    | 1 | 0.06079 | 0.0618 | -1.6 |
+    | 2 | 0.05725 | 0.0557 | +2.8 |
+    | 3 | 0.05494 | 0.0501 | +9.7 |
+    | 4 | 0.05550 | 0.0481 | +15.4 |
+    | 5 | 0.06067 | 0.0521 | +16.4 |
+    | 6 | 0.26373 | 0.2880 | -8.4 |
+    | 7 | 0.21589 | 0.2331 | -7.4 |
+    | 8 | 0.16626 | 0.1726 | -3.7 |
+    | 9 | 0.12789 | 0.1255 | +1.9 |
+    | 10 | 0.10677 | 0.1021 | +4.6 |
+    | 11 | 0.87791 | 0.9296 | -5.6 |
+    | 12 | 0.64639 | 0.6964 | -7.2 |
+    | 13 | 0.42718 | 0.4556 | -6.2 |
+    | 14 | 0.27094 | 0.2802 | -3.3 |
+    | 15 | 0.17937 | 0.1854 | -3.3 |
+    | 16 | 2.79468 | 2.6304 | +6.2 |
+    | 17 | 1.51576 | 1.6056 | -5.6 |
+    | 18 | 0.74613 | 0.8140 | -8.3 |
+    | 19 | 0.36845 | 0.3918 | -6.0 |
+    | 20 | 0.19528 | 0.2046 | -4.6 |
+    | 21 | 7.27032 | 4.9960 | +45.5 |
+    | 22 | 1.83208 | 1.9424 | -5.7 |
+    | 23 | 0.65902 | 0.7424 | -11.2 |
+    | 24 | 0.27364 | 0.2920 | -6.3 |
+    | 25 | 0.12217 | 0.1166 | +4.8 |
+    | Total | 19.349 | 17.472 | +10.7 |
 
     Most conductors deviate by around 10% or less (median 6%). Conductor 21, next to the air gap, deviates by
     about 45%; its value is close to the axisymmetric (2D) result of [1], 7.09 W. Its loss is caused by the

@@ -69,7 +69,7 @@ is the electric field we seek, and $`d\vec{\Gamma}`$ is a vector representing
 an infinitesimal area element of the surface.
 By choosing a sphere of arbitrary radius $`R`$ as the enclosing surface, we can
 rewrite the equation as $`4 \pi R^2 E = Q_\text{tot} / \varepsilon_0`$, which
-simplifies to $`E = Q_\text{tot} / 4 \pi \varepsilon_0 R^2`$, where $`4 \pi R^2`$
+simplifies to $`E = Q_\text{tot} / (4 \pi \varepsilon_0 R^2)`$, where $`4 \pi R^2`$
 represents the surface area of the sphere.
 The total charge $`Q_\text{tot}`$ enclosed by the sphere of radius $`R`$ can be
 calculated using the following integral of the charge density $`\rho`$:
@@ -209,12 +209,13 @@ residual error.
 
 After setting up the simulation object and the runner, we configure the model
 for our simulations.
-To solve electrostatic problems, such as the one described in Eqs. (1)-(3), mufem
+To solve electrostatic problems, such as the one described in Eqs. (1)–(3), mufem
 utilizes the
 [Electrostatics Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html).
 We create this model by calling the constructor of the `ElectrostaticsModel`
-class and passing the marker `domain_marker` that refers to the computational
-domain to which the model will be applied.
+class; without a marker, the model applies to the whole mesh. The marker
+`domain_marker`, which refers to the computational domain, is used below for the
+material and the charge density.
 We register the model in our simulation by adding it to the
 `mufem.ModelManager`:
 
@@ -279,7 +280,7 @@ charge_density_condition = estat.ChargeDensityCondition(
 In this example, we utilize the previously created marker `domain_marker` to
 specify the region where this source condition is defined.
 
-Following Eq. (1), we specify the boundary condition at the boundary of the
+Following Eq. (2), we specify the boundary condition at the boundary of the
 computational domain.
 For this purpose, we use an instance of the
 `ElectricPotentialCondition` class, which allows us to set a constant
@@ -316,9 +317,9 @@ After the simulation finishes, we are ready to analyze the obtained data.
 First, we load necessary Python libraries:
 
 ```python
-   import numpy as np
-   import math
-   import matplotlib.pyplot as plt
+import numpy as np
+import math
+import matplotlib.pyplot as plt
 ```
 
 Next, we create a function that calculates the theoretical electric field given
@@ -379,7 +380,8 @@ for i in range(Nr):
     E_theory[i] = theory(r[i])
 ```
 
-Finally, we plot both arrays using Matplotlib functions:
+Finally, we plot both arrays. [case.py](case.py) uses the `xy_plot` helper of the shared
+`casekit` package for this; with plain Matplotlib functions the plot reads:
 
 ```python
 plt.figure(constrained_layout=True)

@@ -189,8 +189,8 @@ At the two visualized frequencies we also save the electric field in the
 [ParaView](https://www.paraview.org/).
 Please note that [ParaView](https://www.paraview.org/) is not supplied with
 mufem and must be installed separately.
-You can find the corresponding visualization code in the [create_scene.py](create_scene.py)
-file.
+The scenes are rendered by [create_scene.py](create_scene.py); run it with
+`pvpython create_scene.py` in the case directory after the case.
 
 
 ## Results
@@ -217,7 +217,7 @@ The resonances and the passband agree with the measurement of
 [1]: at the five measured points between 13.64 and
 14.44 GHz the computed $`|S_{21}|`$ lies within 0.35 dB of the measured one, and
 the case checks these points. In the stopbands the computed transmission lies
-1 to 3 dB below the measurement, as does the finite element result of
+up to 3 dB below the measurement, as does the finite element result of
 [2] for the same filter (its Fig. 6).
 
 
@@ -230,12 +230,13 @@ Figure 4 shows the distribution of the electric field inside the waveguide
 filter at both frequencies.
 
 <div align="center">
-  <img src="results/scene_electric_field_12GHz.png" alt="|E| at 12 GHz" width="49%" />
-  <img src="results/scene_electric_field_14GHz.png" alt="|E| at 14 GHz" width="49%" />
+  <img src="results/scene_electric_field_12GHz.png" alt="E at 12 GHz" width="49%" />
+  <img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="49%" />
   <br/>
   <br/>
-  Figure 4: Electric field magnitude inside the waveguide filter at frequency
-            12 GHz (left) and 14 GHz (right).
+  Figure 4: Magnitude of the real part of the electric field (the field at
+            $`\omega t = 0`$) inside the waveguide filter at frequency 12 GHz (left)
+            and 14 GHz (right).
 </div>
 <br/>
 

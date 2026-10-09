@@ -21,10 +21,11 @@ from mufem.electromagnetics.timedomainmagnetic import (
 
 
 class Team24LockedRotor(ValidationCase):
-    name = "Compumag Team 24: Locked Rotor"
+    name = "Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig"
     tags = {"moderate"}
 
-    # write fields and plots for every time step to vis/ (see paraview_gif.py)
+    # export the fields to VisualizationOutput/ and the plots to vis/ for every time step
+    # (see paraview_gif.py)
     output_for_animation = False
 
     def build_geometry(self):

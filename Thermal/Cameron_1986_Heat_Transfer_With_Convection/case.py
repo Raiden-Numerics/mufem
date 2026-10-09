@@ -63,25 +63,25 @@ class Cameron1986(ValidationCase):
         model.add_material(material)
 
         # Boundary conditions ----------------------------------------------------------
-        bc_Adiabatic = AdiabaticBoundaryCondition(
+        bc_adiabatic = AdiabaticBoundaryCondition(
             name="Insulated",
             marker="Plate::Insulated" @ Bnd,
         )
 
-        bc_TAmbient = ConvectionBoundaryCondition(
+        bc_ambient = ConvectionBoundaryCondition(
             name="Natural Convection",
             marker="Plate::AmbientTemperature" @ Bnd,
             convection_efficiency=750.0,
             temperature_medium=273.15,
         )
 
-        bc_TFixed = TemperatureCondition(
+        bc_fixed = TemperatureCondition(
             name="Fixed Temperature",
             marker="Plate::FixedTemperature" @ Bnd,
             temperature=373.15,
         )
 
-        model.add_conditions([bc_TFixed, bc_TAmbient, bc_Adiabatic])
+        model.add_conditions([bc_fixed, bc_ambient, bc_adiabatic])
 
         return sim
 
@@ -105,7 +105,7 @@ class Cameron1986(ValidationCase):
             end=(0.6, 0.5, 0.005),
             number_points=23,
         )
-        self.temperature_profile = [(p.x, T) for p, T in profile.evaluate_all()]
+        self.temperature_profile = [(p.x, T - 273.15) for p, T in profile.evaluate_all()]
 
     def postprocess(self):
         if self.is_main():
@@ -113,7 +113,7 @@ class Cameron1986(ValidationCase):
                 values=self.temperature_profile,
                 style=PlotStyle.LINE_AND_POINTS,
                 xlabel="Position [m]",
-                ylabel="Temperature [K]",
+                ylabel="Temperature [°C]",
                 path=f"{self.results_path}/Temperature.png",
             )
 

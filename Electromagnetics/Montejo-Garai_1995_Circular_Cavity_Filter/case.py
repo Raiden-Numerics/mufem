@@ -214,7 +214,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
             return
 
         # |S21| in the passband against the measurement of Montejo-Garai and Zapata (1995).
-        # In the stopband the computed transmission lies 1-3 dB below the measurement, as
+        # In the stopband the computed transmission lies up to 3 dB below the measurement, as
         # does the finite element result of Liu et al. (2002).
         measured = numpy.loadtxt(
             self.dir_path / "data" / "Montejo-Garai_1995.csv", delimiter=",", comments="#"

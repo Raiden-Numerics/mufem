@@ -18,7 +18,7 @@ from mufem.electromagnetics.timedomainmagnetic import (
 
 
 class Team13NonLinearMagnetostatic(ValidationCase):
-    name = "Compumag Team 13: 3-D Non-Linear Magnetostatic Model"
+    name = "Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model"
     tags = {"moderate"}
 
     def build_geometry(self):

@@ -1,4 +1,4 @@
-# Compumag TEAM 36: Multi-Physics Field Analysis of an Induction Heating Device
+# Compumag TEAM 36: Induction Heating Device
 
 ## Introduction
 
@@ -29,7 +29,7 @@ and becomes the dominant factor.
   $`1\,\mathrm{m}`$ long inductor of 20 turns ($`4 \times 2\,\mathrm{cm}`$ copper tubes, inner radius
   $`4.8\,\mathrm{cm}`$). The problem is axisymmetric; a $`30^{\circ}`$ sector of the upper half is modeled
   (results scaled by 24), with tangential flux on the sector planes and natural conditions on the
-  symmetry plane $`z = 0`$.
+  mid-plane. In the model coordinates the axis is $`y`$ and the mid-plane is $`y = 0`$.
 * Coupled **Time-Harmonic Magnetic** ($`f = 2\,\mathrm{kHz}`$) and **Thermal** models.
 * Temperature-dependent steel properties (resistivity, thermal conductivity, heat capacity) of Tables 2,
   4 and 5 of [3]; the relative permeability follows model A of [1, 3],
@@ -65,7 +65,7 @@ ohmic heating to `VisualizationOutput/`.
 ## Results
 
 We compare the temperature evolution on the axis ($`\rho = 0`$) and at the surface ($`\rho = 3\,\mathrm{cm}`$)
-of the billet at $`z = 0`$ with Fig. 8a of [2], and the total ohmic heating power with the curve
+of the billet in the mid-plane with Fig. 8a of [2], and the total ohmic heating power with the curve
 "FEM C = 20 °C" of Fig. 6(a) of [1], the model and parameter chosen for the benchmark.
 
 **Temperature**

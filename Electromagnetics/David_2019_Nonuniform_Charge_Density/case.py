@@ -77,7 +77,7 @@ class David2019ChargeDensity(ValidationCase):
         return sim
 
     def electric_field_theory(self, r):
-        """Radial electric field of the Gaussian charge distribution, Eq. (6)."""
+        """Radial electric field of the Gaussian charge distribution from Gauss's law."""
         Q, a = self.charge, self.charge_radius
 
         eps0 = 8.8541878188e-12  # [F/m] vacuum permittivity

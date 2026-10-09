@@ -204,7 +204,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
     def validate(self):
         # E-plane against the analytical pattern of a thin dipole, away from the nulls
-        # along the arms. The thick arms (radius L/20) lower the pattern towards the
+        # along the arms. The thick arms (radius L/20) lower the pattern toward the
         # arms, by about 6% at 30 and 150 deg.
         for theta_deg in [30, 60, 90, 120, 150]:
             i = numpy.argmin(numpy.abs(self.thetas - numpy.radians(theta_deg)))
