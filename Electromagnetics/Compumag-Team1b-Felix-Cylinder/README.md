@@ -56,7 +56,7 @@ The results are compared with the solutions of the 1988 eddy current workshop co
   | 8 ms | 530 W | 480 - 570 W (534.5 W) |
   | 10 ms | 478 W | 420 - 515 W (484 W) |
 
-  The case checks the loss at these times against the medians (5 % tolerance). Table 4 is labeled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
+  The case checks the loss at these times against the medians. Table 4 is labeled as the loss in a quarter of the cylinder, but its values agree with the total loss of Fig. 8 of [2] and with the total loss computed here.
 
 * **Induced magnetic field** at the center of the cylinder (the field $`B_y`$ minus the applied field), against the **measurement** of Table 3 of [2]:
 
@@ -66,7 +66,7 @@ The results are compared with the solutions of the 1988 eddy current workshop co
   | 8 ms | 0.0388 T | 0.042 T | 0.036 - 0.0495 T |
   | 10 ms | 0.0375 T | 0.0375 T | 0.034 - 0.049 T |
 
-  The case checks these values against the measurement (10 % tolerance); like most codes of [2], mufem is 5-10 % below the measurement at 4 and 8 ms.
+  The case checks these values against the measurement; like most codes of [2], mufem is 5-10 % below the measurement at 4 and 8 ms.
 
 ## Results
 

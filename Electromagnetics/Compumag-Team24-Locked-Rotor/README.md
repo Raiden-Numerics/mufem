@@ -99,8 +99,8 @@ against the measurements of [1]:
 | 0.10 s | 7.28 / 7.22 | 2.95 / 3.02 | 1.152 / 1.21 |
 | 0.15 s | 7.43 / 7.37 | 3.15 / 3.18 | 1.189 / 1.245 |
 
-The case checks the three quantities at $`t = 0.15\,\mathrm{s}`$ against the measurements (5 %
-tolerance; the measured values are interpolated between 0.14 s and 0.16 s).
+The case checks the three quantities at $`t = 0.15\,\mathrm{s}`$ against the measurements (the
+measured values are interpolated between 0.14 s and 0.16 s).
 
 The rotor pole flux of [1] (Table V, a search coil around a rotor pole $`8.7\,\mathrm{mm}`$ below the
 pole tip) is not checked. Integrated over the pole cross-section, mufem gives

@@ -84,7 +84,7 @@ $`825\,{}^{\circ}\mathrm{C}`$ in both:
 | ---- | ---------------------------------------------- | ------------------------------------------------- |
 | 100 s | 799 / 811.5                                   | 882 / 899.2                                       |
 
-The case checks both temperatures at $`t = 100\,\mathrm{s}`$ against the reference (15 % tolerance).
+The case checks both temperatures at $`t = 100\,\mathrm{s}`$ against the reference.
 
 ## References
 

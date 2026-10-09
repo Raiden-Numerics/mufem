@@ -67,9 +67,9 @@ The case itself is run with `pymufem case.py`.
 The mufem solution matches the analytical result. The small deviation in the stress near the
 clamped end ($`x = 0`$) is the expected Saint-Venant boundary effect.
 
-The case checks the tip deflection against $`-1.905\,\mathrm{mm}`$ (2 % tolerance; the 3D solid is
+The case checks the tip deflection against $`-1.905\,\mathrm{mm}`$ (the 3D solid is
 about 1 % stiffer than beam theory) and the von Mises stress at $`x \approx 0.52\,\mathrm{m}`$ on the
-top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$ (1 % tolerance).
+top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 
 ## Scene
 

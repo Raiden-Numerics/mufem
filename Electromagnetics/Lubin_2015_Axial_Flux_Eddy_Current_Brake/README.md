@@ -109,7 +109,7 @@ The reference is the analytical torque–slip characteristic of [1] for $`c = 3\
 | 1000             | 27.4              | 27.8                   |
 | 2000             | 21.4              | 22.8                   |
 
-The case checks the torque at the three slip speeds against the reference (15 % tolerance); the short transients of 20 steps per speed stay within about 8 % of it.
+The case checks the torque at the three slip speeds against the reference; the short transients of 20 steps per speed stay within about 8 % of it.
 
 The braking torque initially increases with slip speed because the induced electromotive force and the resulting eddy currents grow, strengthening the Lorentz force opposing the motion. As the slip speed increases further, the torque reaches a maximum and subsequently decreases. This reduction is caused by skin-depth effects and magnetic field shielding, which limit field penetration into the conductor and reduce the effective coupling between current and magnetic flux.
 

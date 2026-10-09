@@ -150,7 +150,7 @@ The measurements of [[2]](#[2]) (Tables 4 and 6) for the four excitations of the
 | 5000         | 80.2 / 80.1                  | 1.042 / 1.03                       | 0.710 / 0.74                       |
 
 P1 = (0, 0, 25.75) mm is the mid-point and P2 = (12.5, 5, 25.75) mm the edge of the gap below the pole. The
-case checks the force at all four excitations (5 % tolerance) and $`B_z`$ at 5000 AT at P1 (5 %) and P2 (10 %);
+case checks the force at all four excitations and $`B_z`$ at 5000 AT at P1 and P2;
 at P2, where the flux density changes abruptly, [[2]](#[2]) also reports larger discrepancies between
 calculations and measurement.
 

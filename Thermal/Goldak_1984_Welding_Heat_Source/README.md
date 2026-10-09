@@ -112,7 +112,7 @@ includes a heat of transformation of $`5.5 \cdot 10^7\,\mathrm{J/m^3}`$; the muf
 and does not model the transformation.
 
 The case checks the temperature on the weld centerline ($`x = 0`$) against
-$`1527.6\,{}^{\circ}\mathrm{C}`$ (1 % tolerance).
+$`1527.6\,{}^{\circ}\mathrm{C}`$.
 
 ## Scenes
 

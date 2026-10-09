@@ -81,8 +81,8 @@ itself is run with `pymufem case.py`; it prints the table below.
     0.1 mm (radius 11.7 mm instead of 11.8 mm) changes it by 13% and the total loss by 7%. The coarse model of
     [1] (5,824 hexahedra) is unlikely to resolve this region accurately.
 
-    The case checks the total loss against Table I (12% tolerance) and the total loss of the other 24
-    conductors (-3% deviation, 5% tolerance).
+    The case checks the total loss against Table I and the total loss of the other 24
+    conductors (-3% deviation).
 
 ## Scenes
 

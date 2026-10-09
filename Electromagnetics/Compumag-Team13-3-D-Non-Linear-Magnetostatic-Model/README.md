@@ -64,7 +64,7 @@ mufem is 6-15 % above the measurement along the line (12 % on average). The
 codes of the workshop based on the magnetic vector potential deviate similarly
 in the air (Fig. 9 of [3]), while the codes using the integral equation method
 are the most accurate there. The case checks the mean ratio of the computed to
-the measured $`|B|`$ over the eleven measured points (15 % tolerance).
+the measured $`|B|`$ over the eleven measured points.
 
 
 ## Results

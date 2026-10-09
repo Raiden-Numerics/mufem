@@ -136,13 +136,13 @@ $`\approx 30\,\mathrm{mW}`$ (full-cube instantaneous loss); for the
 plotting against the reference.
 
 The case checks the peak full-cube loss against $`29.83\,\mathrm{mW}`$
-(1 % tolerance; Fig. 2(b) of [1] peaks at $`\approx 29.9\,\mathrm{mW}`$) and
+(Fig. 2(b) of [1] peaks at $`\approx 29.9\,\mathrm{mW}`$) and
 the steady-state average loss over the second half-period,
 ```math
 P = \frac{2}{T} \int_{T/2}^{T} p_{\mathrm{AC}}(t)\, dt \quad ,
 ```
 against $`13.009\,\mathrm{mW}`$, the value of model (B.3) in Table III of [1]
-(12 % tolerance; the six models of [1] spread from $`13.01`$ to
+(the six models of [1] spread from $`13.01`$ to
 $`14.34\,\mathrm{mW}`$). mufem gives $`P \approx 14.3\,\mathrm{mW}`$.
 
 The magnetic flux density and the current density are exported to
