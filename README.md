@@ -98,8 +98,8 @@ vis.add_field_output("Electric Field")
 vis.save()
 ```
 
-See the [electrostatics cases](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md) for full, runnable
-examples, including mesh generation and comparison against reference results.
+See the [electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
+for a full, runnable example, including mesh generation and comparison against an analytical solution.
 
 ## Gallery
 
@@ -189,15 +189,31 @@ run a specific case with:
 (mufem-venv) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
 
-Each case loads its committed mesh (`geometry.mesh`). Cases that define their geometry can
-regenerate it, together with `geometry.step`, using [netgen](https://ngsolve.org/) (installed
-with the shared helpers):
+Each case compares its results with published, measured, or analytical reference values and
+reports every check. To run all cases, or all cases below a directory, use `run_cases.py`:
+
+```bash
+(mufem-venv) python run_cases.py                       # all cases
+(mufem-venv) python run_cases.py Thermal               # all thermal cases
+(mufem-venv) python run_cases.py --exclude-tag long --exclude-tag eternal
+```
+
+Cases are tagged by their run time (`moderate`, `long`, `eternal`); `--exclude-tag` skips the
+cases with a tag, and `--launcher` sets the command that runs each case (default `pymufem`).
+
+Each case loads its committed mesh (`geometry.mesh`, or `geometry.msh` for the cases meshed with
+gmsh). The geometry and mesh are built in the case itself, together with `geometry.step`, using
+[netgen](https://ngsolve.org/) or [gmsh](https://gmsh.info/) (both installed with the shared helpers),
+and can be regenerated with:
 
 ```bash
 (mufem-venv) pymufem Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
 ```
 
-The flag only rebuilds the mesh; run the case afterwards as usual. The committed meshes were
+The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
+does both for every case). The meshes of
+[Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
+are not committed and have to be built this way before the first run. The committed meshes were
 generated with netgen-mesher 6.2.2608; other versions produce slightly different meshes, but
 the results should still pass the case's checks.
 
@@ -233,16 +249,18 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Structural
 
+* **Linear Elasticity**
+  - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
+
+### Thermal
+
 * [**NAFEMS Benchmark Suite**](https://www.nafems.org/publications/resource_center/r0006/) \
   A long-standing set of reference problems from the NAFEMS simulation community
   covering structural, thermal, fluid, and multi-physics analyses.
 
   - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
 
-* **Structural Mechanics**
-  - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
-
-* **Thermal**
+* **Heat Conduction**
   - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
   - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
