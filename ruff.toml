@@ -9,6 +9,6 @@ select = ["E", "W", "F"]
 
 [lint.per-file-ignores]
 # Example cases prepend the repo root to sys.path before importing the shared
-# validation_case / plots helpers, so their imports intentionally follow a
+# casekit helpers, so their imports intentionally follow a
 # statement (E402).
 "**/case.py" = ["E402"]

@@ -61,7 +61,7 @@ scalar_bar = pvs.GetScalarBar(ctf)
 scalar_bar.Orientation = "Horizontal"
 scalar_bar.WindowLocation = "Any Location"
 
-scalar_bar.Title = "Electric Current Density [J/m²]"
+scalar_bar.Title = "Electric Current Density [A/m²]"
 scalar_bar.ComponentTitle = ""
 scalar_bar.UseCustomLabels = True
 scalar_bar.CustomLabels = [0, 1.0e6, 2.0e6, 3.0e6]

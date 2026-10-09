@@ -1,17 +1,16 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import math
 
 import numpy
 
 import mufem
-from plots import xy_plot, PlotStyle
-from mufem import Vol
+from mufem import Bnd, Vol
 from mufem.methods import TemperatureTable
 from mufem.thermal import (
+    HeatFluxBoundaryCondition,
+    LinearizationType,
+    MushyZoneCondition,
     SolidTemperatureMaterial,
     SolidTemperatureModel,
     VolumetricHeatSourceCondition,
@@ -54,17 +53,39 @@ def make_goldak_double_ellipsoid(
     return mufem.CffExpressionScalar(expr)
 
 
-# Problem setup ------------------------------------------------------------------------
-from validation_case import ValidationCase
-
-
 class Goldak1984WeldingHeatSource(ValidationCase):
+    name = "Goldak 1984: Welding Heat Source"
     tags = {"long"}
 
-    def run(self):
+    def build_geometry(self):
+        from netgen.occ import Box, Glue, X, Y
+
+        from casekit.netgen_geometry import color_aluminum, name_body
+
+        # Half of the plate, using the symmetry at x = 0.
+        width = 0.3
+        length = 0.3
+        height = 0.1
+
+        piece = Box((0, 0, 0), (width / 2, -height, length))
+        name_body(piece, "Piece", color=color_aluminum)
+
+        piece.faces.Min(X).name = "Piece::Symmetry"
+        piece.faces.Max(Y).name = "Piece::Top"
+
+        geometry = Glue([piece])
+
+        geometry.WriteStep(f"{self.step_path}")
+
+    def generate_mesh(self):
+        from casekit.netgen_meshing import mesh_and_save
+
+        mesh_and_save(self.step_path, basesize=1.0e-2, path=self.mesh_path)
+
+    def setup_case(self):
         sim = mufem.Simulation.New(
-            name="Goldak 1984: Welding Heat Source",
-            mesh_path="geometry.mesh",
+            name=self.name,
+            mesh_path=f"{self.mesh_path}",
         )
 
         runner = mufem.UnsteadyRunner(
@@ -74,15 +95,22 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         )
         sim.set_runner(runner)
 
-        # Model --------------------------------------------------------------------------------
+        # Model ------------------------------------------------------------------------
         model = SolidTemperatureModel(order=2)
         sim.get_model_manager().add_model(model)
+
+        # The conductivity jumps to the liquid value of 120 W/(m K) at the melting point; the
+        # exact (unsymmetric) Newton tangent of the conductivity term keeps the solve convergent.
+        model.get_solver().set_linearization_type(LinearizationType.Unsymmetric)
+
         model.get_initial_condition().set_constant(293.15)
 
-        # Materials (temperature-dependent) ----------------------------------------------------
-        thermal_conductivity_table = numpy.loadtxt("data/Thermal_Conductivity.csv", delimiter=",")
+        # Materials (temperature-dependent) --------------------------------------------
+        thermal_conductivity_table = numpy.loadtxt(
+            self.dir_path / "data" / "Thermal_Conductivity.csv", delimiter=","
+        )
         volumetric_heat_capacity_table = numpy.loadtxt(
-            "data/Volumetric_Heat_Capacity.csv", delimiter=","
+            self.dir_path / "data" / "Volumetric_Heat_Capacity.csv", delimiter=","
         )
 
         # Convert volumetric to specific heat capacity: [J/mm^3/K] / [kg/mm^3] = [J/kg/K]
@@ -103,10 +131,10 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         )
         model.add_materials([steel])
 
-        # Conditions ---------------------------------------------------------------------------
-        # Goldak source parameters from Table 2 of [1].
+        # Conditions -------------------------------------------------------------------
+        # Goldak source parameters from Table 2 of Goldak et al. (1984).
         cff_q = make_goldak_double_ellipsoid(
-            Q=36538.35,
+            Q=0.95 * 32.9 * 1170.0,  # eta * V * I [W]
             v=5.0e-3,
             tau=0.0,
             a=0.02,
@@ -126,7 +154,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         )
 
         # Latent heat of fusion via a mushy-zone (enthalpy) formulation.
-        mushy_zone_condition = mufem.thermal.MushyZoneCondition(
+        mushy_zone_condition = MushyZoneCondition(
             name="Fusion latent heat",
             marker="Piece" @ Vol,
             latent_heat=2.1e9 / 7850.0,  # [J/kg] = [J/m^3] / [kg/m^3]
@@ -134,27 +162,32 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             temperature_liquidus=1480.0 + 50.0 + 273.15,
         )
 
-        # Radiative/convective loss on the top surface.
-        heat_flux_condition = mufem.thermal.HeatFluxBoundaryCondition(
+        # Radiative/convective loss on the top surface, q = H (T - T0) with the combined
+        # heat transfer coefficient H = 24.1e-4 eps T^1.61 [W/(m^2 K)], T in °C, eps = 0.9,
+        # Goldak et al. (1984), Eq. (18). As there, the surface under the arc is insulated
+        # (here the footprint of the double ellipsoid).
+        def insulated_under_arc(expr):
+            return f"""
+            var xi := {{Position}}.Z - 0.1 - 5.0e-3 * {{Time}};
+            var T := max({{Temperature}} - 273.15, 0.0);
+            if (abs({{Position}}.X) < 0.02 and xi > -0.03 and xi < 0.015, 0.0, {expr})
+            """
+
+        heat_flux_condition = HeatFluxBoundaryCondition(
             name="Convective Loss",
-            marker="Piece::Top" @ mufem.Bnd,
-            normal_heat_flux="-24.1e-4 * 0.9 * max({Temperature} - 293.15, 0.0)^1.61",
-            normal_heat_flux_linearization=(
-                "-24.1e-4 * 0.9 * 1.61 * max({Temperature} - 293.15, 0.0)^0.61"
+            marker="Piece::Top" @ Bnd,
+            normal_heat_flux=insulated_under_arc("-24.1e-4 * 0.9 * T^1.61 * (T - 20.0)"),
+            normal_heat_flux_linearization=insulated_under_arc(
+                "-24.1e-4 * 0.9 * (1.61 * T^0.61 * (T - 20.0) + T^1.61)"
             ),
         )
 
         model.add_conditions([heat_source_condition, mushy_zone_condition, heat_flux_condition])
 
-        # Run the simulation -------------------------------------------------------------------
-        vis = sim.get_field_exporter()
-        vis.add_field_output("Temperature")
-        vis.add_field_output("VolumetricHeatSource")
+        return sim
 
-        runner.run()
-        vis.save(order=2)
-
-        # Temperature across the weld at the measuring line z = 0.15 m --------------------------
+    def validate(self):
+        # Temperature across the weld at the measuring line z = 0.15 m.
         probe_report = mufem.ProbeReport.Line(
             name="T",
             cff_name="Temperature",
@@ -162,23 +195,47 @@ class Goldak1984WeldingHeatSource(ValidationCase):
             end=(0.03, 0.0, 0.15),
             number_points=101,
         )
-        temperature = [(p.x, T - 273.15) for p, T in probe_report.evaluate_all()]  # K -> °C
+        self.temperature = [(p.x, T - 273.15) for p, T in probe_report.evaluate_all()]  # °C
 
+        # Outside the weld pool against the measurement of Christensen et al. in Fig. 8 of
+        # Goldak et al. (1984). The 3D model, with heat flow along the weld, runs about 10-16 %
+        # colder there than the measurement; inside the pool the mushy-zone model keeps the
+        # temperature near the liquidus.
         ref_x, ref_T = numpy.loadtxt(
-            "data/Temperature_vs_Position.csv", delimiter=",", unpack=True
+            self.dir_path / "data" / "Temperature_vs_Position.csv", delimiter=",", unpack=True
         )
+        x, T = numpy.array(self.temperature).T
+        for position in [0.015, 0.020]:
+            expect(
+                numpy.interp(position, x, T),
+                numpy.interp(position, ref_x, ref_T),
+                rel_tol=0.2,
+                label=f"temperature at x = {1e3 * position:.0f} mm [°C]",
+            )
 
-        xy_plot(
-            values=[(x * 1e3, T) for x, T in temperature],
-            style=PlotStyle.LINE_AND_POINTS,
-            reference_values=list(zip(ref_x * 1e3, ref_T)),
-            reference_style=PlotStyle.POINTS,
-            reference_label="Goldak et al. (1984)",
-            xlabel="Position [mm]",
-            ylabel="Temperature [°C]",
-            path="results/Temperature_vs_Position.png",
-        )
+    def postprocess(self):
+        if self.is_main():
+            ref_x, ref_T = numpy.loadtxt(
+                self.dir_path / "data" / "Temperature_vs_Position.csv", delimiter=",", unpack=True
+            )
+
+            xy_plot(
+                values=[(x * 1e3, T) for x, T in self.temperature],
+                style=PlotStyle.LINE_AND_POINTS,
+                reference_values=list(zip(ref_x * 1e3, ref_T)),
+                reference_style=PlotStyle.POINTS,
+                reference_label="Goldak et al. (1984)",
+                xlabel="Position [mm]",
+                ylabel="Temperature [°C]",
+                path=f"{self.results_path / 'Temperature_vs_Position.png'}",
+            )
+
+        # ParaView export (collective) ------------------------------------------------
+        vis = self.sim.get_field_exporter()
+        vis.add_field_output("Temperature")
+        vis.add_field_output("VolumetricHeatSource")
+        vis.save(order=2)
 
 
 if __name__ == "__main__":
-    Goldak1984WeldingHeatSource().run()
+    run_case(Goldak1984WeldingHeatSource)

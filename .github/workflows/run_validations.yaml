@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: self-hosted
+      run-cases-args:
+        description: Extra arguments for run_cases.py (e.g. --exclude-tag rebuild_mesh)
+        required: false
+        type: string
+        default: ''
 
 jobs:
   run-examples:
@@ -74,8 +79,9 @@ jobs:
       run: |
         # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11).
         python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
-        python -m pip install -r requirements.txt
-        python -m pip install -i https://gmsh.info/python-packages-dev-nox --force-reinstall --no-cache-dir gmsh
+        # Headless gmsh first, so that casekit's gmsh requirement is already satisfied.
+        python -m pip install -i https://gmsh.info/python-packages-dev-nox --no-cache-dir gmsh
+        python -m pip install -e ./casekit
 
     - name: Verify install
       run: |
@@ -99,4 +105,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python ./run_cases.py ${{ inputs.case-path }}
+        python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }}

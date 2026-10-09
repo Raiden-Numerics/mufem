@@ -1,7 +1,11 @@
 *.npz
-*.msh
 vis/
 VisualizationOutput/
 __pycache__
 .mypy_cache/
 .claude/
+*.egg-info/
+build/
+
+# Built on demand (--rebuild-mesh): one mesh per shift, too large to ship
+Electromagnetics/Ren_2014_MEMS_Comb_Drive/geometry_xshift=*

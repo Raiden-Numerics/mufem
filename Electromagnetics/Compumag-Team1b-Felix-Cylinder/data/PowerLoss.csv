@@ -1,3 +1,6 @@
+# Digitized from Davey, K. (1988). The FELIX cylinder problem. COMPEL 7(1/2), 11-27, Fig. 8:
+# total power loss of problem 1b; peak 535 W at 7.2 ms, matching the EDDYCUFF solution of Kameari.
+# Time [s], Power Loss [W]
 0.00004, 3.32080
 0.00031, 19.08766
 0.00061, 40.66979
