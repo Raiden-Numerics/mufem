@@ -14,7 +14,8 @@ class David2019ChargeDensity(ValidationCase):
 
     # [m] radius of the spherical domain, large enough to approximate free space
     sphere_radius = 10.0
-    # [C] total charge Q and [m] radius a of the Gaussian charge distribution
+    # Gaussian charge density Q / (4 pi) exp(-r^2 / (2 a^2)): amplitude Q [C/m^3] and
+    # radius a [m]; the total charge is sqrt(pi / 2) a^3 Q.
     charge = 1.0
     charge_radius = 0.5
 
