@@ -19,7 +19,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
     name = "Stutzman 2012: Dipole Antenna"
     tags = {"moderate", "mumps"}  # TimeHarmonicMaxwell needs a direct solver
 
-    # Geometry of the Palace example [2]: a half-wave dipole of two cylindrical arms with a
+    # Geometry of the Palace example: a half-wave dipole of two cylindrical arms with a
     # gap at the center, inside an air sphere.
     wavelength = 4.0  # [m]
     arm_length = wavelength / 4  # [m]
@@ -196,7 +196,9 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         self.beamwidth = numpy.degrees(theta_high - theta_low)
 
     def eplane_analytic(self, thetas):
-        """Half-wave dipole far field |cos(pi/2 cos(theta)) / sin(theta)| [3]."""
+        """Half-wave dipole far field |cos(pi/2 cos(theta)) / sin(theta)|,
+        Stutzman and Thiele (2012), Eq. (3-4).
+        """
         sin = numpy.maximum(numpy.sin(thetas), 1e-6)  # the pattern vanishes along the arms
         return numpy.abs(numpy.cos(numpy.pi / 2 * numpy.cos(thetas)) / sin)
 
@@ -217,8 +219,8 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         # rotational symmetry by about 2%.
         expect(numpy.min(self.hplane), 1.0, rel_tol=5e-2, label="H-plane pattern minimum")
 
-        # Directivity and half-power beamwidth of a thin half-wave dipole, [3] Table 3-2. The
-        # thick arms narrow the beam slightly.
+        # Directivity and half-power beamwidth of a thin half-wave dipole,
+        # Stutzman and Thiele (2012), Table 3-2. The thick arms narrow the beam slightly.
         expect(self.directivity, 1.64, rel_tol=7e-2, label="directivity")
         expect(self.beamwidth, 78.0, rel_tol=5e-2, label="E-plane half-power beamwidth [deg]")
 

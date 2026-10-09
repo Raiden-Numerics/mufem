@@ -120,7 +120,7 @@ class Team1bFelixCylinder(ValidationCase):
         def at(monitor, time):
             return min(monitor.get_values(), key=lambda sample: abs(sample[0] - time))[1]
 
-        # Power loss against the median of the eight codes of Table 4 of [2].
+        # Power loss against the median of the eight codes of Table 4 of Davey (1988).
         for time, loss in [(0.004, 430.5), (0.008, 534.5), (0.010, 484.0)]:
             expect(
                 at(self.ohmic_heating_monitor, time),
@@ -129,8 +129,8 @@ class Team1bFelixCylinder(ValidationCase):
                 label=f"power loss at t = {1e3 * time:.0f} ms [W]",
             )
 
-        # Induced field at the center (total minus applied) against the measurement of
-        # Table 3 of [2]; most codes of [2] are also 5-10 % below it at 4 and 8 ms.
+        # Induced field at the center (total minus applied) against the measurement of Table 3 of
+        # Davey (1988); most codes there are also 5-10 % below it at 4 and 8 ms.
         for time, induced_field in [(0.004, 0.035), (0.008, 0.042), (0.010, 0.0375)]:
             applied_field = 0.1 * math.exp(-time / 0.0069)
             expect(

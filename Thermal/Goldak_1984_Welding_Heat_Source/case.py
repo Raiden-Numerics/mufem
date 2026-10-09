@@ -132,7 +132,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         model.add_materials([steel])
 
         # Conditions -------------------------------------------------------------------
-        # Goldak source parameters from Table 2 of [1].
+        # Goldak source parameters from Table 2 of Goldak et al. (1984).
         cff_q = make_goldak_double_ellipsoid(
             Q=0.95 * 32.9 * 1170.0,  # eta * V * I [W]
             v=5.0e-3,

@@ -36,7 +36,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             name_body,
         )
 
-        # Dimensions of Table I in [1].
+        # Dimensions of Table I in Lubin and Rezzoug (2015).
         inner_radius_magnets = 30e-3  # R1
         outer_radius_magnets = 60e-3  # R2
         inner_radius_plate = 15e-3  # R0
@@ -234,8 +234,9 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             self.torque_vs_rpm.append((rpm, self.plate_torque()))
 
     def validate(self):
-        # Torque at the end of each speed step, against the analytical model of [1]; the
-        # short transients (20 steps per speed) stay within about 8% of it.
+        # Torque at the end of each speed step, against the analytical model of
+        # Lubin and Rezzoug (2015); the short transients (20 steps per speed) stay within about 8%
+        # of it.
         reference = numpy.loadtxt(
             self.dir_path / "data" / "Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
         )

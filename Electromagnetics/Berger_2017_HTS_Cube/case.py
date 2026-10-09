@@ -157,8 +157,8 @@ class Berger2017HtsCube(ValidationCase):
 
         expect(loss.max(), 0.02983, rel_tol=1e-2, label="peak AC loss [W]")
 
-        # Steady-state average loss over the second half-period, Eq. (3) of [1], against
-        # model (B.3) of Table III; the six models of [1] spread by up to 10.2 % around it.
+        # Steady-state average loss over the second half-period, Eq. (3) of Berger et al. (2017),
+        # against model (B.3) of Table III; the six models spread by up to 10.2 % around it.
         half = numpy.argmin(abs(time - self.period / 2))
         average_loss = 2.0 / self.period * numpy.trapezoid(loss[half:], time[half:])
         expect(average_loss, 13.009e-3, rel_tol=0.12, label="average AC loss [W]")

@@ -179,7 +179,7 @@ class Biro1993IronCore(ValidationCase):
 
         ohmic_losses = numpy.array(ohmic_losses)
 
-        # Table I of [1], 3D model with air gap.
+        # Table I of Biro et al. (1993), 3D model with air gap.
         reference = numpy.loadtxt(self.dir_path / "data" / "Ohmic_Loss.csv", delimiter=",")[:, 2]
 
         if self.is_main():
@@ -191,8 +191,9 @@ class Biro1993IronCore(ValidationCase):
 
         expect(ohmic_losses.sum(), reference.sum(), rel_tol=0.12, label="total ohmic loss [W]")
 
-        # Turn 21 sits next to the air gap; its loss is far above the 3D reference of [1]
-        # (and close to the axisymmetric one), so the other 24 turns are checked separately.
+        # Turn 21 sits next to the air gap; its loss is far above the 3D reference of
+        # Biro et al. (1993) (and close to the axisymmetric one), so the other 24 turns are checked
+        # separately.
         others = numpy.arange(self.number_of_coils) != 20
         expect(
             ohmic_losses[others].sum(),

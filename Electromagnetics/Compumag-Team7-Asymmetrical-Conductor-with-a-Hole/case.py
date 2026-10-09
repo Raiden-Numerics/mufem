@@ -114,8 +114,8 @@ class Team7AsymmetricalConductor(ValidationCase):
         sim.get_model_manager().add_model(coil_model)
 
         # 2742 ampere turns (peak), maximum at wt = 0. The current runs against the given
-        # direction, i.e. clockwise seen from +z instead of anticlockwise as in [1]; the
-        # probes below flip the sign of the field to compensate.
+        # direction, i.e. clockwise seen from +z instead of anticlockwise as in the
+        # TEAM 7 description; the probes below flip the sign of the field to compensate.
         coil_topology = CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0)
         coil_type = CoilTypeStranded(number_of_turns=2742)
         coil_excitation = CoilExcitationCurrent(current=(1.0, 0))
@@ -156,7 +156,7 @@ class Team7AsymmetricalConductor(ValidationCase):
 
         The real and imaginary parts compare with the measured values at wt = 0 and 90 deg:
         -conj(B_z) for the flux density (the minus sign undoes the reversed coil current), and
-        1j * J_y for the eddy current density, as in the NGSolve reference [3].
+        1j * J_y for the eddy current density, as in the NGSolve TEAM-7 reference.
         """
         x_values = numpy.linspace(0.0, 0.288, 97)
         lines = {

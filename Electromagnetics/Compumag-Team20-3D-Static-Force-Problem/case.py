@@ -196,7 +196,8 @@ class Team20StaticForce(ValidationCase):
         self.pole_force_report = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
         sim.get_report_manager().add_report(self.pole_force_report)
 
-        # Flux density in the gap below the pole: mid-point P1 and edge P2 of [2].
+        # Flux density in the gap below the pole: mid-point P1 and edge P2 of
+        # Takahashi et al. (1995).
         self.gap_field_reports = {
             name: mufem.ProbeReport.SinglePoint(
                 f"Gap Field {name}", "Magnetic Flux Density", x=x, y=y, z=0.02575
@@ -224,7 +225,8 @@ class Team20StaticForce(ValidationCase):
     def validate(self):
         force = dict(self.pole_force)
 
-        # Measured force (Table 6 of [2]); 1000 turns, so the current in A is the AT / 1000.
+        # Measured force (Takahashi et al. (1995), Table 6); 1000 turns, so the current in A is the
+        # AT / 1000.
         for coil_current, measured_force in [(1.0, 8.1), (3.0, 54.4), (4.5, 75.0), (5.0, 80.1)]:
             expect(
                 force[coil_current],
@@ -233,8 +235,8 @@ class Team20StaticForce(ValidationCase):
                 label=f"pole force at {1000 * coil_current:.0f} AT [N]",
             )
 
-        # Measured Bz in the gap at 5000 AT (Table 4 of [2]); at the edge P2, where the field
-        # changes abruptly, calculation and measurement are less accurate.
+        # Measured Bz in the gap at 5000 AT (Takahashi et al. (1995), Table 4); at the edge P2,
+        # where the field changes abruptly, calculation and measurement are less accurate.
         expect(self.gap_field[-1]["P1"], 1.03, rel_tol=5e-2, label="Bz at P1 at 5000 AT [T]")
         expect(self.gap_field[-1]["P2"], 0.74, rel_tol=1e-1, label="Bz at P2 at 5000 AT [T]")
 
