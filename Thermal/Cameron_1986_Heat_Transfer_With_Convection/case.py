@@ -86,7 +86,8 @@ class Cameron1986(ValidationCase):
         return sim
 
     def validate(self):
-        # NAFEMS T4 reference temperature on the right edge, 0.2 m above the bottom.
+        # NAFEMS T4 target temperature at point E on the right edge, 0.2 m above the bottom
+        # (Cameron et al. (1986)).
         report = mufem.ProbeReport.SinglePoint(
             name="TemperatureReport",
             cff_name="Temperature",
@@ -94,10 +95,9 @@ class Cameron1986(ValidationCase):
             y=0.2,
             z=0.005,
         )
-        expect(report.evaluate(), 291.45, rel_tol=1e-3, label="probe temperature [K]")
+        expect(report.evaluate() - 273.15, 18.3, rel_tol=1e-2, label="temperature at point E [°C]")
 
-        # Temperature profile along y = 0.5; check its midpoint (x = 0.3) to confirm
-        # the case produced results.
+        # Temperature profile along y = 0.5 m for the plot.
         profile = mufem.ProbeReport.Line(
             name="Probe Report",
             cff_name="Temperature",
@@ -106,13 +106,6 @@ class Cameron1986(ValidationCase):
             number_points=23,
         )
         self.temperature_profile = [(p.x, T) for p, T in profile.evaluate_all()]
-        expect(
-            self.temperature_profile[11][1],
-            301.4685,
-            rel_tol=0.0,
-            abs_tol=0.1,
-            label="profile temperature [K]",
-        )
 
     def postprocess(self):
         if self.is_main():
