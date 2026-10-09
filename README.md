@@ -244,7 +244,7 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 * **Thermal**
   - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
-  - [Bruce 2012: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Bruce_2012_Heat_Transfer_Electronic_Design/README.md)
+  - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 
 ## Continuous Integration

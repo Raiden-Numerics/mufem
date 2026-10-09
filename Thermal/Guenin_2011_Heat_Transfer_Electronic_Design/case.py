@@ -12,8 +12,8 @@ from mufem.thermal import (
 )
 
 
-class Bruce2012ElectronicDesign(ValidationCase):
-    name = "Bruce 2012: Heat Transfer in Electronic Design"
+class Guenin2011ElectronicDesign(ValidationCase):
+    name = "Guenin 2011: Heat Transfer in Electronic Design"
     tags = {"moderate"}
 
     def build_geometry(self):
@@ -142,33 +142,63 @@ class Bruce2012ElectronicDesign(ValidationCase):
         return sim
 
     def validate(self):
-        # Temperatures at t = 10 s; the temperature rise is about 1 K, so the
-        # tolerance is absolute.
-        die_temperature = self.report_die.evaluate()
+        # The heat flux covers the whole cross-section and the sides are adiabatic, so the
+        # heat flow is one-dimensional: at steady state the temperature rise follows from the
+        # thermal resistances t / (k A) of the layers and 1 / (h A) of the convection. The die
+        # is isothermal (no heat flows into it) and the lid probe is at the middle of the lid.
+        area = 13.0e-3**2
+        power = 5917.1598 * area  # [W] 1 W
+
+        def resistance(thickness, conductivity):
+            return thickness / (conductivity * area)
+
+        r_tim1 = resistance(0.1e-3, 2.0)
+        r_lid = resistance(0.5e-3, 390.0)
+        r_tim2 = resistance(0.05e-3, 1.0)
+        r_sink = resistance(6.0e-3, 390.0)
+        r_convection = 1.0 / (20000.0 * area)
+
+        steady_rise = {
+            "die": power * (r_tim1 + r_lid + r_tim2 + r_sink + r_convection),
+            "lid": power * (r_lid / 2 + r_tim2 + r_sink + r_convection),
+        }
+
+        # At t = 10 s the package is within 0.1 % of its steady state.
+        die_rise = self.report_die.evaluate() - 273.15
 
         # The single-point probe in the die returns 0 on some mesh partitionings
         # (e.g. 12 or 16 MPI ranks); a known mufem bug, so warn instead of failing.
-        if die_temperature == 0.0:
+        if die_rise == -273.15:
             if self.is_main():
                 print(
                     "Warning: the die temperature probe returned 0 K, a known point probe "
                     "bug on some mesh partitionings; the die temperature is not checked."
                 )
         else:
-            expect(
-                die_temperature,
-                274.13588784085783,
-                rel_tol=0.0,
-                abs_tol=1e-2,
-                label="die temperature [K]",
-            )
+            expect(die_rise, steady_rise["die"], rel_tol=1e-2, label="die temperature rise [K]")
         expect(
-            self.report_lid.evaluate(),
-            273.8362471408524,
-            rel_tol=0.0,
-            abs_tol=1e-2,
-            label="lid temperature [K]",
+            self.report_lid.evaluate() - 273.15,
+            steady_rise["lid"],
+            rel_tol=1e-2,
+            label="lid temperature rise [K]",
         )
+
+        # Transient: temperature rise at t = 1 s against Fig. 3.3 of Li (2020).
+        for monitor, name in [(self.monitor_die, "Die"), (self.monitor_lid, "Lid")]:
+            time, temperature = numpy.array(monitor.get_values()).T
+            if name == "Die" and temperature[-1] == 0.0:
+                continue
+            ref_t, ref_T = numpy.loadtxt(
+                self.dir_path / "data" / f"{name}_Temperature_Reference.csv",
+                delimiter=",",
+                unpack=True,
+            )
+            expect(
+                numpy.interp(1.0, time, temperature) - 273.15,
+                numpy.interp(1.0, ref_t, ref_T) - 273.15,
+                rel_tol=3e-2,
+                label=f"{name.lower()} temperature rise at t = 1 s [K]",
+            )
 
     def postprocess(self):
         if self.is_main():
@@ -213,4 +243,4 @@ class Bruce2012ElectronicDesign(ValidationCase):
 
 
 if __name__ == "__main__":
-    run_case(Bruce2012ElectronicDesign)
+    run_case(Guenin2011ElectronicDesign)
