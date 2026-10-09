@@ -4,8 +4,9 @@
 
 Problem 7 of the Compumag TEAM benchmark suite [1] is a thick aluminum plate with an
 off-centered rectangular hole, placed below an excitation coil driven by a sinusoidal
-current. It is a classical 3-D eddy-current validation case, with measured data
-published at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$ [2].
+current. It is a classical 3-D eddy-current validation case, with the flux density above the plate
+and the eddy current density on its surfaces measured at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$
+[2].
 
 <div align="center">
 <img src="./data/Geometry.png" alt="Geometry of the benchmark" width="600">
@@ -17,58 +18,38 @@ published at $`50\,\mathrm{Hz}`$ and $`200\,\mathrm{Hz}`$ [2].
 
 ## Problem Description
 
-The aluminum plate has an electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$.
-The stranded coil is driven by a sinusoidal current of $`2742\,\mathrm{AT}`$ at a frequency
-of $`f = 50\,\mathrm{Hz}`$ (reference data for $`200\,\mathrm{Hz}`$ also exists).
-The numerical results are compared with measurements of the magnetic flux density along two
-lines above the plate, denoted A1-B1 and A2-B2, as reported by Fujiwara and Nakata [2].
-A discrepancy in the absolute coil-current values reported in [2] has been cross-checked
-against the NGSolve TEAM-7 reference [3].
+The $`294 \times 294 \times 19\,\mathrm{mm}`$ plate has a $`108 \times 108\,\mathrm{mm}`$ hole and an
+electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$. The coil, $`100\,\mathrm{mm}`$
+high and $`30\,\mathrm{mm}`$ above the plate, is excited with 2742 ampere-turns (peak value of the
+current times the number of turns), maximal at $`\omega t = 0`$ and flowing anticlockwise seen from
+$`+z`$ [1, 2]. Measured are [2]:
+
+* $`B_z`$ along the lines A1-B1 ($`y = 72\,\mathrm{mm}`$) and A2-B2 ($`y = 144\,\mathrm{mm}`$) at
+  $`z = 34\,\mathrm{mm}`$, $`15\,\mathrm{mm}`$ above the plate (Table 4 of [2]),
+* $`J_y`$ on the plate surfaces at $`y = 72\,\mathrm{mm}`$ (Table 5 of [2]),
+
+each at $`\omega t = 0°`$ and $`90°`$, for both frequencies.
 
 
 ## Setup
 
-Since the problem is linear and the excitation is sinusoidal, the
+The problem is linear and the coil current oscillates at a single frequency,
+$`I(t) = I_0 \cos(\omega t)`$, so all fields oscillate at that frequency and the
 [Time-Harmonic Magnetic Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
-can be used. The excitation is prescribed using the
-[Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html).
-
-The setup script is provided in [case.py](case.py) and the corresponding mesh can be found in [geometry.mesh](geometry.mesh). The mesh contains three
-[named attributes](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13): **Air**, **Coil**, and **Plate**.
-
-### Model
-
-To compensate for the relatively coarse mesh, a third-order spatial discretization is employed
-in the time-harmonic magnetic model:
+is used with third-order elements on a second-order (curved) mesh:
 
 ```python
-magnetic_model = TimeHarmonicMagneticModel(
-    Vol.Everywhere,
-    frequency=50,
-    order=3,
-)
+magnetic_model = TimeHarmonicMagneticModel(frequency=200, order=3)
 ```
 
-### Materials
+The case solves $`200\,\mathrm{Hz}`$ first and then switches the model to $`50\,\mathrm{Hz}`$
+(`set_frequency`), so the exported fields belong to $`50\,\mathrm{Hz}`$.
 
-Three
-[materials](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/materials/general_material.html)
-are defined: *air*, *copper*, and *aluminum*. Only aluminum is electrically conductive and
-therefore supports eddy currents.
+The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
+with `pymufem case.py --rebuild-mesh`. The [mesh](geometry.mesh) (Gmsh 2.2 format, for the curved
+elements) contains the bodies **Air**, **Coil**, and **Plate**. Only the aluminum plate conducts:
 
 ```python
-air_material = TimeHarmonicMagneticGeneralMaterial(
-    name="Air",
-    marker="Air" @ Vol,
-    has_eddy_currents=False,
-)
-
-copper_material = TimeHarmonicMagneticGeneralMaterial(
-    name="Copper",
-    marker="Coil" @ Vol,
-    has_eddy_currents=False,
-)
-
 alu_material = TimeHarmonicMagneticGeneralMaterial(
     name="Alu",
     marker="Plate" @ Vol,
@@ -78,76 +59,70 @@ alu_material = TimeHarmonicMagneticGeneralMaterial(
 )
 ```
 
-
-### Coil Excitation
-
-The
+The coil uses the
 [Excitation Coil Model](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html)
-is added to the simulation. The coil is modeled as
-
-- a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitations/current.html) with $`I = 1\,\mathrm{A}`$,
-- a [stranded coil type](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/types/stranded_coil.html) with 2742 turns,
-- a [closed coil topology](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/topologies/closed_coil.html).
-
+with a [stranded](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/types/stranded_coil.html)
+coil of 2742 turns, a [closed topology](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/topologies/closed_coil.html)
+and a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitations/current.html)
+of $`1\,\mathrm{A}`$:
 
 ```python
-coil_model = ExcitationCoilModel()
-sim.get_model_manager().add_model(coil_model)
-
-coil_topology = CoilTopologyClosed(
-    x=0.2,
-    y=0.01,
-    z=0.07,
-    dx=1.0,
-    dy=0.0,
-    dz=0.0,
-)
-
-coil_type = CoilTypeStranded(number_of_turns=2742)
-
-coil_excitation = CoilExcitationCurrent.Harmonic(
-    magnitude=1.0,
-    phase=0.0,
-)
-
 coil = CoilSpecification(
     name="Coil",
     marker="Coil" @ Vol,
-    topology=coil_topology,
-    type=coil_type,
-    excitation=coil_excitation,
+    topology=CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0),
+    type=CoilTypeStranded(number_of_turns=2742),
+    excitation=CoilExcitationCurrent(current=(1.0, 0)),
 )
 ```
+
+With this direction the current flows clockwise seen from $`+z`$, opposite to [1]; the case flips
+the sign of the computed fields to compensate.
 
 
 ## Results
 
-After running the simulation with `pymufem`, the following results are obtained in the
-`results` directory.
-
-### Magnetic Flux Density
-
-The computed magnetic flux density is compared with the reference data from [2]. The reference
-provides real and imaginary components of the magnetic flux density, corresponding to
-measurements at
-
-- $`t = 0\,\mathrm{ms}`$ (phase $`\phi = 0^\circ`$),
-- $`t = 5\,\mathrm{ms}`$ (phase $`\phi = 90^\circ`$).
-
-| Magnetic Flux Density along A1-B1 | Magnetic Flux Density along A2-B2 |
-|----------------------------------|----------------------------------|
-| <img src="./results/Magnetic_Flux_Density-A1-B1.png" width="600"> | <img src="./results/Magnetic_Flux_Density-A2-B2.png" width="600"> |
-
-A very good agreement is observed for both measurement lines.
-
-Note that the solution is time-periodic with a period of $`T = 20\,\mathrm{ms}`$. The magnetic flux
-density at an arbitrary time $`t`$ can be
-reconstructed from the complex solution using
+Run the case with `pymufem case.py`. With the solution $`\vec{B} = \vec{B}_r + j\vec{B}_i`$, the flux
+density at time $`t`$ is
 
 ```math
 \vec{B}(t) = \vec{B}_r \cos(\omega t) - \vec{B}_i \sin(\omega t),
 ```
-where $`\omega = 2\pi f`$.
+
+so the measurements at $`\omega t = 0°`$ and $`90°`$ compare with $`\vec{B}_r`$ and $`-\vec{B}_i`$.
+
+### Magnetic Flux Density
+
+| | A1-B1 | A2-B2 |
+| - | - | - |
+| 50 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-50Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-50Hz.png" width="450"> |
+| 200 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-200Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-200Hz.png" width="450"> |
+
+The case checks the relative $`L_2`$ error of $`B_z`$ over the 17 measured points and both phases of
+each line:
+
+| Line | Error at 50 Hz (tolerance) | Error at 200 Hz (tolerance) |
+| ---- | -------------------------- | --------------------------- |
+| A1-B1 | 3.3 % (6 %) | 5.9 % (10 %) |
+| A2-B2 | 4.5 % (6 %) | 8.0 % (10 %) |
+
+At $`200\,\mathrm{Hz}`$ most of the error comes from the small $`\omega t = 90°`$ component, which mufem
+overestimates by about $`0.25\,\mathrm{mT}`$ above the coil.
+
+### Eddy Current Density
+
+| 50 Hz | 200 Hz |
+| ----- | ------ |
+| <img src="./results/Electric_Current_Density-Top-50Hz.png" width="450"> | <img src="./results/Electric_Current_Density-Top-200Hz.png" width="450"> |
+
+The eddy current density data of [2] cannot be used as printed. Following the NGSolve TEAM-7
+reference [3], $`J_y`$ just below the top surface of the plate ($`z = 19\,\mathrm{mm}`$) matches
+Table 5(b) of [2], which is labeled as line A4-B4 at the bottom surface ($`z = 0`$), after a phase
+shift of $`90°`$ relative to the convention of $`B_z`$ (the plots show $`j J_y`$). With this, mufem
+agrees within 4.6 % ($`50\,\mathrm{Hz}`$) and 4.4 % ($`200\,\mathrm{Hz}`$), relative $`L_2`$ over the 12
+measured points. Table 5(a), labeled A3-B3, matches the bottom surface the same way, but its values
+are shifted by one measurement position from $`x = 18\,\mathrm{mm}`$ on. The eddy current density is
+therefore shown, but not checked.
 
 
 ## Visualization
@@ -156,14 +131,16 @@ The periodic evolution of the magnetic flux density and the induced currents can
 over one excitation cycle.
 
 <div align="center">
-<img src="./results/Team7_Animation.gif" alt="Magnetic flux density animation" width="1200">
+<img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="1200">
 </div>
 <div align="center">
-<em>Absolute value of the magnetic flux density over one period.</em>
+<em>Eddy current density in the plate (50 Hz) over one period, with the coil current and
+B<sub>z</sub> along A1-B1.</em>
 </div>
 
-The animation is generated using the script [`create_anim.sh`](create_anim.sh). A static
-scene of the absolute magnetic flux density is rendered via [`create_scene.py`](create_scene.py).
+The animation is generated with [`create_anim.sh`](create_anim.sh), which runs
+[`create_scene.py`](create_scene.py) in ParaView (`PARAVIEW_PATH` set to the ParaView installation)
+on the fields exported by the case.
 
 
 ## References

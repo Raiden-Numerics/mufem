@@ -89,6 +89,7 @@ def load_data(input_path: str, size_width: int, size_height: int, glyph_scale: f
 
     pvs.ColorBy(disp, ("POINTS", "Electric Current Density", "Magnitude"))
     lut = pvs.GetColorTransferFunction("Electric Current Density")
+    lut.ApplyPreset("Cool to Warm", True)
     pwf = pvs.GetOpacityTransferFunction("Electric Current Density")
 
     disp.RescaleTransferFunctionToDataRange(True, False)
@@ -188,8 +189,9 @@ def combine_images(large_path: Path, small1_path: Path, small2_path: Path, outpu
 
 
 def create_plot(time_s: float, index: int, steps: int, outdir: Path, freq_hz: float):
+    # The coil current is maximal at wt = 0.
     def coil_current(t: float) -> float:
-        return math.sin(2.0 * math.pi * freq_hz * t)
+        return math.cos(2.0 * math.pi * freq_hz * t)
 
     t_full = np.linspace(0.0, 1.0 / freq_hz, steps)
     filename = outdir / f"Coil_Current_{index:03d}.png"
@@ -232,7 +234,7 @@ def create_magnetic_flux_density_plot(step: int, phase: float):
     ref = np.loadtxt("data/Bz_A1-B1.csv", delimiter=",", comments="#")
     plt.plot(
         ref[:, 1],
-        1.0e-1 * (ref[:, 2] * np.cos(phase) - ref[:, 3] * np.sin(phase)),
+        1.0e-1 * (ref[:, 2] * np.cos(phase) + ref[:, 3] * np.sin(phase)),
         "ko-",
         label="Reference",
         markersize=6.0,
@@ -241,7 +243,7 @@ def create_magnetic_flux_density_plot(step: int, phase: float):
 
     plt.plot(
         sim[:, 0],
-        sim[:, 1] * np.cos(phase) - sim[:, 2] * np.sin(phase),
+        sim[:, 1] * np.cos(phase) + sim[:, 2] * np.sin(phase),
         label="$\\mu$fem",
         color="r",
         linewidth=3.0,
@@ -267,7 +269,7 @@ def run_ffmpeg(outdir: Path):
 
     print("Creating animated GIF using ffmpeg...")
 
-    gif = outdir / "output.gif"
+    gif = Path("results/Team7_Animation.gif").resolve()
     palette = outdir / "palette.png"
     subprocess.run(
         f'ffmpeg -y -framerate 8 -i "{outdir}/Scene_%03d.png" '
