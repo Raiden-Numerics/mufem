@@ -32,11 +32,11 @@ class Team24LockedRotor(ValidationCase):
 
         from casekit.netgen_geometry import color_air, color_copper, color_iron, name_body
 
-        # Half model: Z = 0 is a symmetry plane.
+        # Half model: the midplane z = 0 is a symmetry plane; the lower half z <= 0 is modeled.
         axis_length = 0.0254 / 2.0
 
         origin = gp_Pnt(0, 0, 0)
-        ax_z = gp_Ax2(origin, gp_Dir(0, 0, 1))
+        ax_z = gp_Ax2(gp_Pnt(0, 0, -axis_length), gp_Dir(0, 0, 1))
 
         # Stator (outer ring with two poles) ---------------------------------------------
         outer_ring_radius = 0.209 / 2.0
@@ -46,16 +46,16 @@ class Team24LockedRotor(ValidationCase):
             ax_z, outer_ring_radius - outer_ring_width, axis_length
         )
 
-        box = Box(gp_Pnt(-0.0278 / 2.0, -0.09, 0), gp_Pnt(0.0278 / 2.0, 0.09, axis_length))
+        box = Box(gp_Pnt(-0.0278 / 2.0, -0.09, -axis_length), gp_Pnt(0.0278 / 2.0, 0.09, 0))
         outer_ring = outer_ring + (box - Cylinder(ax_z, 0.1075 / 2, axis_length))
 
         outer_ring = outer_ring.MakeFillet([outer_ring.edges[n] for n in [23, 27, 29, 31]], 4.5e-3)
         outer_ring.faces.maxh = 0.005
 
         name_body(outer_ring, "Stator", color=color_iron, individual_names=False)
-        outer_ring.faces.Min(Z).name = "Stator::TangentialFlux"
+        outer_ring.faces.Max(Z).name = "Stator::TangentialFlux"
 
-        # Rotor (inner ring with two poles), rotated by 22 degrees -----------------------
+        # Rotor (inner ring with two poles), turned clockwise by 22 degrees as in Fig. 1 ---
         inner_ring_radius = 0.0508 / 2.0
         inner_ring_width = 0.0127
 
@@ -63,14 +63,14 @@ class Team24LockedRotor(ValidationCase):
             ax_z, inner_ring_radius, axis_length
         )
 
-        box = Box(gp_Pnt(-0.0254 / 2.0, -0.06, 0), gp_Pnt(0.0254 / 2.0, 0.06, axis_length))
+        box = Box(gp_Pnt(-0.0254 / 2.0, -0.06, -axis_length), gp_Pnt(0.0254 / 2.0, 0.06, 0))
         bar = box * Cylinder(ax_z, 0.1021 / 2.0, axis_length) - Cylinder(ax_z, 0.03, axis_length)
         inner_ring = inner_ring + bar
 
         name_body(inner_ring, "Rotor", color=color_iron, individual_names=False)
-        inner_ring.faces.Min(Z).name = "Rotor::TangentialFlux"
+        inner_ring.faces.Max(Z).name = "Rotor::TangentialFlux"
 
-        inner_ring = inner_ring.Rotate(gp_Ax1(origin, Z), 22.0)
+        inner_ring = inner_ring.Rotate(gp_Ax1(origin, Z), -22.0)
         inner_ring.faces.maxh = 0.005
 
         # Coils ----------------------------------------------------------------------------
@@ -80,32 +80,32 @@ class Team24LockedRotor(ValidationCase):
         )
         coil = coil.MakeFillet([coil.edges[n] for n in [1, 5, 3, 7]], 24.0e-3)
         coil_sub = Box((-0.034 / 2, -0.017 / 2, -0.031 / 2), (0.034 / 2, 0.017 / 2, 0.031 / 2))
-        coil = coil - coil_sub - Box((-0.1, -0.1, 0), (0.1, 0.1, -0.1))
+        coil = coil - coil_sub - Box((-0.1, -0.1, 0), (0.1, 0.1, 0.1))
 
         coil1 = coil.Move((0, 0.063, 0))
         coil1.faces.maxh = 0.005
         name_body(coil1, "Upper Coil", color=color_copper, individual_names=False)
 
         for face in coil1.faces:
-            if face.center[2] < 1.0e-8:
-                face.name = "Upper Coil::In" if face.center[0] < 0 else "Upper Coil::Out"
+            if face.center[2] > -1.0e-8:
+                face.name = "Upper Coil::In" if face.center[0] > 0 else "Upper Coil::Out"
 
         coil2 = coil.Move((0, -0.063, 0))
         coil2.faces.maxh = 0.005
         name_body(coil2, "Lower Coil", color=color_copper, individual_names=False)
 
         for face in coil2.faces:
-            if face.center[2] < 1.0e-8:
-                face.name = "Lower Coil::Out" if face.center[0] > 0 else "Lower Coil::In"
+            if face.center[2] > -1.0e-8:
+                face.name = "Lower Coil::Out" if face.center[0] < 0 else "Lower Coil::In"
 
         # Air ------------------------------------------------------------------------------
-        air = Box((-0.2, -0.2, 0), (0.2, 0.2, 0.2))
+        air = Box((-0.2, -0.2, -0.2), (0.2, 0.2, 0))
         name_body(air, "Air", color=color_air, individual_names=False)
 
         air = air - outer_ring - inner_ring - coil1 - coil2
 
         for face in air.faces:
-            if face.center[2] < 1.0e-8:
+            if face.center[2] > -1.0e-8:
                 face.name = "Air::TangentialFlux"
 
         for side in [X, Y, Z]:
@@ -230,6 +230,18 @@ class Team24LockedRotor(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.current_monitor)
 
+        # Hall probe in the air gap, offset (-6.5, -1.3, -7.7) mm from the stator pole corner
+        # and the pole end (Fig. 4 of the problem description).
+        hall_probe_report = mufem.ProbeReport.SinglePoint(
+            name="Hall Probe", cff_name="Magnetic Flux Density", x=0.0074, y=0.05062, z=-0.005
+        )
+        sim.get_report_manager().add_report(hall_probe_report)
+
+        self.hall_probe_monitor = mufem.ReportMonitor(
+            name="Hall Probe Monitor", report_name="Hall Probe"
+        )
+        sim.get_monitor_manager().add_monitor(self.hall_probe_monitor)
+
         return sim
 
     def solve(self):
@@ -240,7 +252,6 @@ class Team24LockedRotor(ValidationCase):
         field_exporter = self.sim.get_field_exporter()
         field_exporter.add_field_output("Electric Current Density")
         field_exporter.add_field_output("Magnetic Flux Density")
-        field_exporter.add_field_output("Magnetic Vector Potential")
         field_exporter.add_field_output("Element Type")
         field_exporter.add_field_output("Cell Volume")
 
@@ -253,15 +264,15 @@ class Team24LockedRotor(ValidationCase):
 
     def validate(self):
         self.coil_current = self.current_monitor.get_values()
-        # Half model: twice the torque on the rotor half; it acts along -z.
-        self.rotor_torque = [
-            (t, -2.0 * torque.z) for t, torque in self.torque_monitor.get_values()
-        ]
+        # Half model: twice the torque on the rotor half; it acts along +z.
+        self.rotor_torque = [(t, 2.0 * torque.z) for t, torque in self.torque_monitor.get_values()]
+        self.hall_probe = [(t, b.y) for t, b in self.hall_probe_monitor.get_values()]
 
-        # Measured values at t = 0.15 s (Rodger et al., 1994), interpolated between
-        # 0.14 s and 0.16 s.
+        # Measured values at t = 0.15 s (TEAM 24, Tables III, IV and VI), interpolated
+        # between 0.14 s and 0.16 s.
         expect(self.coil_current[-1][1], 7.37, rel_tol=5e-2, label="coil current [A]")
         expect(self.rotor_torque[-1][1], 3.18, rel_tol=5e-2, label="rotor torque [Nm]")
+        expect(self.hall_probe[-1][1], 1.245, rel_tol=5e-2, label="Hall probe B_y [T]")
 
     def postprocess(self):
         if not self.is_main():
@@ -270,8 +281,12 @@ class Team24LockedRotor(ValidationCase):
         tables = self.dir_path / "data" / "tables"
         current_ref = numpy.loadtxt(tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1)
         torque_ref = numpy.loadtxt(tables / "Table_4_Torque.csv", delimiter=",", skiprows=1)
+        hall_probe_ref = numpy.loadtxt(
+            tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
+        )
 
         if self.output_for_animation:
+            (self.dir_path / "vis").mkdir(exist_ok=True)
             for i in range(len(self.coil_current)):
                 self.plot(
                     self.coil_current[: i + 1],
@@ -286,12 +301,26 @@ class Team24LockedRotor(ValidationCase):
             self.coil_current, self.rotor_torque, current_ref, torque_ref, self.results_path, ""
         )
 
+        xy_plot(
+            values=self.hall_probe,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=hall_probe_ref,
+            reference_style=PlotStyle.POINTS,
+            reference_label="Allen and Rodger (TEAM 24)",
+            xlabel="Time [s]",
+            ylabel="Hall Probe $B_y$ [T]",
+            xlim=(0.0, 0.15),
+            xticks=[0.0, 0.05, 0.1, 0.15],
+            ylim=(0.0, 1.4),
+            path=f"{self.results_path / 'Hall_Probe_vs_Time.png'}",
+        )
+
     @staticmethod
     def plot(current, torque, current_ref, torque_ref, directory, suffix):
         common = dict(
             style=PlotStyle.LINE_AND_POINTS,
             reference_style=PlotStyle.POINTS,
-            reference_label="Rodger et al. (1994)",
+            reference_label="Allen and Rodger (TEAM 24)",
             xlabel="Time [s]",
             xlim=(0.0, 0.15),
             xticks=[0.0, 0.05, 0.1, 0.15],

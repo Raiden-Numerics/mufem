@@ -1,198 +1,138 @@
 # Compumag Team 24: Nonlinear Time-Transient Rotational Test Rig
 
-Problem 24 of the Compumag TEAM benchmark suite [1] is a transient magnetic problem combining bulk eddy currents, magnetic non-linearity, and voltage-driven coils. The geometry is a rotor locked at $`22°`$, a stator, and two coils mounted on the stator. The benchmark provides measured coil current and rotor torque [1]. It is solved using [case.py](case.py):
+Problem 24 of the Compumag TEAM benchmark suite [1] is a transient magnetic problem combining bulk eddy
+currents, magnetic nonlinearity, and voltage-driven coils. A solid steel rotor is locked at $`22°`$
+to a solid steel stator carrying two coils; a voltage step drives the coils and the rotor torque rises
+as the field builds up. The benchmark provides the measured coil current, rotor torque, rotor pole flux,
+and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py):
 
 <div align="center">
     <img src="data/Geometry.png" alt="Geometry" width="85%">
     <br/>
-    <em>Figure 1: Geometry of the benchmark: a stator carrying two coils and a rotor ring locked at 22°.</em>
+    <em>Figure 1: The modeled half (z ≤ 0) of the benchmark: a stator carrying two coils and a rotor locked at 22°.</em>
 </div>
 <br/>
-
-The [mesh](geometry.mesh) was created using Netgen and exported in MFEM v1.3 format.
-
-The goal of the benchmark is to calculate the torque acting on the rotor.
 
 ## Setup
 
-### Updating the B-H Curve
+* The geometry follows Figs. 1 and 2 of [1], with the rotor turned clockwise by $`22°`$ as in Fig. 1.
+  The midplane $`z = 0`$ of the $`25.4\,\mathrm{mm}`$ long rig is a symmetry plane, which [1] suggests
+  exploiting: only the half $`z \le 0`$ is modeled (Fig. 1), with a tangential-flux condition on
+  the midplane.
+* The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
+  with `pymufem case.py --rebuild-mesh`. Fig. 1 is rendered from it with `netgen_geometry_image.py`.
+* Rotor and stator are solid EN9 steel with $`\sigma = 4.54 \times 10^6\,\mathrm{S/m}`$ and the
+  nonlinear $`B(H)`$ curve described below. The coils are stranded (350 turns each), without eddy
+  currents.
+* A voltage step of $`U = 23.1\,\mathrm{V}`$ drives the two coils in series, with a total resistance of
+  $`3.09\,\Omega`$. As in the authors' model, the initial overshoot of about $`0.5\,\mathrm{V}`$ of the
+  measured voltage (Table II of [1]) is disregarded. The applied voltage and resistance are scaled by
+  $`0.25`$ per coil (two coils, half model):
 
-The *rotor* and *stator* are made of iron with a constant electrical conductivity
-$`\sigma = 4.54 \times 10^6 \ \mathrm{S/m}`$ and a non-linear $`B(H)`$ curve. As pointed out by Rüberg *et al.* [2], the provided [B-H curve](data/tables/Table_1_BH_curve.csv) is too sparse between zero and the first data point, which introduces a noticeable error in the saturated regime. We fit the data with the modified Fröhlich relation
+```python
+symmetry = 0.25
 
-```math
-B(H) = \frac{1}{a + b H} + \mu_0 H \quad,
+excitation = CoilExcitationVoltage(voltage=23.1 * symmetry, resistance=3.09 * symmetry)
 ```
 
-where $`a`$ and $`b`$ are obtained from a least-squares fit over the full curve and used to fill in the low-$`H`$ portion. The modification ensures physical behavior at large $`H`$ [3].
+* The time step is $`5\,\mathrm{ms}`$ up to $`t = 0.15\,\mathrm{s}`$.
 
-| [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Modified B-H Curve](data/tables/Updated_BH_curve.csv) |
+### Updating the B-H Curve
+
+Table I of [1] samples the measured $`B(H)`$ curve with no point between $`H = 0`$ and
+$`H = 4000\,\mathrm{A/m}`$ ($`B = 1.413\,\mathrm{T}`$). As pointed out by Rüberg *et al.* [3], a straight
+line over this interval noticeably changes the results. We fill the interval with the rational form
+of Diez and Webb [4] (their Eq. (1) with degree 1)
+
+```math
+B(H) = \frac{H}{a + b H} + \mu_0 H \quad,
+```
+
+with $`a`$ and $`b`$ fitted to the first four points of Table I and the result scaled to pass through
+the first measured point. The script [plot.py](data/tables/plot.py) writes the updated curve.
+
+| [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Updated B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
 | ![B-H Curve](data/tables/Table_1_BH_curve.png) | ![B-H Curve](data/tables/Updated_BH_curve.png) |
 
+### Boundary Layer Mesh
 
-### Setting the Coils
-
-A constant electric voltage of $`U=23.1 \, \mathrm{V}`$ is applied to the stranded coils.
-
-We specify a stranded coil by using the [Stranded Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/types/stranded_coil.html) option, and the voltage excitation is set by using
-[Excitation Voltage](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/excitations/voltage.html) option.
-
-```python
-for coil in ["Upper", "Lower"]:
-    coil_topology = CoilTopologyOpen(
-        in_marker=f"{coil} Coil::In" @ Bnd, out_marker=f"{coil} Coil::Out" @ Bnd
-    )
-
-    # 0.25 factor as we have two coils to which the voltage is applied and we have a symmetry plane
-    symmetry = 0.25
-
-    coil_type = CoilTypeStranded(number_of_turns=350)
-
-    coil_excitation = CoilExcitationVoltage.Constant(
-        voltage=23.1 * symmetry, resistance=3.09 * symmetry
-    )
-
-    coil = CoilSpecification(
-        name=f"{coil} Coil",
-        marker=f"{coil} Coil" @ Vol,
-        topology=coil_topology,
-        type=coil_type,
-        excitation=coil_excitation,
-    )
-    coil_model.add_coil_specification(coil)
-```
-
-
-This results in a current rise, compared against the [reference](data/tables/Table_3_Coil_Current.csv):
-
-<div align="center">
-    <img src="data/tables/Table_3_Coil_Current.png" alt="Coil Current" width="50%">
-    <br/>
-    <em>Figure 3: Measured coil current rise under a constant applied voltage.</em>
-</div>
-<br/>
-
-### Skin-Depth-Aware Boundary Layer Mesh
-
-As the iron is conductive, eddy currents occur in the stator and rotor. To resolve them accurately, a mesh with a *prismatic boundary layer* is used.
-
-For time-harmonic problems, the skin depth can be estimated by:
-
-```math
-\delta = \sqrt{\frac{2}{\omega \mu \sigma}} \quad,
-```
-
-where $`\omega = 2\pi f`$ and $`f`$ is the excitation frequency. In time-transient problems, there is no single frequency; instead, the behavior is governed by the excitation time scale (e.g., rise-time constant $`\tau`$), with dominant frequency $`f \approx 1/(2\pi \tau)`$.
-
-The skin depth is resolved by a prism boundary layer of total thickness $`t_{\text{bl}} \geq 3\delta`$ (preferably $`5`$ to $`6\,\delta`$), with first-layer thickness $`t_0 \leq \delta/3`$ and a geometric progression $`t_i = t_0\, r^{i-1}`$ ($`r \in [1.2, 1.5]`$) so that
-
-```math
-\sum_{i=1}^{n} t_i = t_0\, \frac{1 - r^n}{1 - r} \approx t_{\text{bl}} \quad.
-```
-
-**Summary of recommended values**
-
-| Parameter             | Recommendation                       |
-| --------------------- | ------------------------------------ |
-| Skin depth $`\delta`$ | $`\sqrt{2/(\omega \mu \sigma)}`$     |
-| Total BL thickness    | $`> 3\delta`$ (better $`5`$–$`6\,\delta`$) |
-| First layer $`t_0`$   | $`< \delta/3`$                       |
-| Layer count           | 5–10                                 |
-| Growth rate $`r`$     | 1.2 to 1.5                           |
-
-For a linear setup with a single coil and no eddy currents, the current evolution is:
-
-```math
-I(t) = \frac{V}{R} \left( 1 - e^{-t/\tau} \right),
-```
-
-with $`\tau = L/R`$, where $`L`$ is the inductance and $`R`$ is the resistance.
-
-These values are estimated using the [Magnetic Inductance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/magnetic_inductance_report.html)
-and the [Coil Resistance Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/reports/coil_resistance_report.html) via:
-
-```python
-sim.initialize()
-
-inductance_report = MagneticInductanceReport("Coil Inductance")
-print("Inductance Value:\n", inductance_report.evaluate())
-
-resistance_report = ResistanceReport("Coil Resistance")
-print("Resistance Value:\n", resistance_report.evaluate())
-```
-
-Result:
-```bash
->>> Inductance Value:
-    [0.0117051, 0.00197861]
-    [0.00197861, 0.0117273]
-
->>> Resistance Value:
-    0.5145621732484141
-```
-
-Thus, $`\tau \approx 0.01 / 0.5 = 0.02 \ \mathrm{s}`$. Note that this is a rough estimate due to nonlinearity and eddy currents.
-
-The eddy current penetration depth follows a diffusion law:
-```math
-\delta = \sqrt{D \tau} \quad, \quad \text{with} \quad D = \frac{1}{\mu \sigma} \quad.
-```
+The voltage step induces eddy currents in the solid steel. Their penetration depth grows as
+$`\delta = \sqrt{\tau/(\mu \sigma)}`$ with the time scale of the current rise,
+$`\tau \approx 20\,\mathrm{ms}`$ (the measured current reaches $`1 - e^{-1}`$ of its final value
+after about $`22\,\mathrm{ms}`$). For $`\mu_r`$ between 300 and 800 this gives
+$`\delta \approx 2`$ to $`3.5\,\mathrm{mm}`$. Prism boundary layers of $`0.25`$, $`0.5`$, $`1`$, and
+$`2\,\mathrm{mm}`$ (total $`3.75\,\mathrm{mm}`$) on the rotor and stator surfaces resolve this region:
 
 <div align="center">
     <img src="results/Scene_ElementType.png" alt="Element Type" width="50%">
     <br/>
-    <em>Figure 4: Prismatic boundary layer elements (type 6) are used to capture skin effects. The interior uses tetrahedral elements (type 4).</em>
+    <em>Figure 2: Prism boundary layer elements (type 6) at the iron surfaces; the interior uses
+    tetrahedra (type 4).</em>
 </div>
 <br/>
 
-### Torque Calculation
+The image is rendered with `pvbatch paraview_element_type.py` after a run with
+`output_for_animation = True`.
 
-The [Magnetic Torque Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_torque_report.html) is used to compute the magnetic torque on the locked rotor over time, which is then compared to the reference.
+### Torque and Hall Probe
+
+The [Magnetic Torque Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_torque_report.html)
+gives the torque on the rotor half, doubled for the full rotor. The Hall probe measures $`B_y`$ in the
+air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corner and the pole end
+(Fig. 4 of [1]), i.e. at $`(7.4, 50.62, -5.0)\,\mathrm{mm}`$ in the model.
 
 ## Results
 
-After installing `mufem`, run the simulation using:
+Run the case with `pymufem case.py`. The coil current, rotor torque, and Hall probe flux density
+against the measurements of [1]:
 
-```bash
-> pymufem case.py
-...
-Simulation done. Thank you for using the software.
-```
+| Coil Current | Rotor Torque | Hall Probe |
+| ------------ | ------------ | ---------- |
+| ![Coil Current vs Time](results/Coil_Current_vs_Time.png) | ![Rotor Torque vs Time](results/Rotor_Torque_vs_Time.png) | ![Hall Probe vs Time](results/Hall_Probe_vs_Time.png) |
 
-The script [case.py](case.py) contains post-processing routines that extract *coil current vs. time* and *torque vs. time*:
+| Time | Current mufem / measured [A] | Torque mufem / measured [Nm] | Hall probe $`B_y`$ mufem / measured [T] |
+| ---- | ---------------------------- | ---------------------------- | --------------------------------------- |
+| 0.01 s | 2.83 / 2.95 | 0.31 / 0.39 | 0.375 / 0.38 |
+| 0.02 s | 4.43 / 4.49 | 0.86 / 0.96 | 0.624 / 0.64 |
+| 0.05 s | 6.50 / 6.45 | 2.17 / 2.24 | 0.988 / 1.03 |
+| 0.10 s | 7.28 / 7.22 | 2.95 / 3.02 | 1.152 / 1.21 |
+| 0.15 s | 7.43 / 7.37 | 3.15 / 3.18 | 1.189 / 1.245 |
 
-<div align="center">
-    <img src="results/Coil_Current_vs_Time.png" alt="Coil Current vs Time" width="50%">
-    <br/>
-    <em>Figure 5: The simulated coil current closely matches the reference.</em>
-</div>
-<br/>
+The case checks the three quantities at $`t = 0.15\,\mathrm{s}`$ against the measurements (5 %
+tolerance; the measured values are interpolated between 0.14 s and 0.16 s).
 
-<div align="center">
-    <img src="results/Rotor_Torque_vs_Time.png" alt="Rotor Torque vs Time" width="50%">
-    <br/>
-    <em>Figure 6: The rotor torque shows good agreement with the reference.</em>
-</div>
-<br/>
+The rotor pole flux of [1] (Table V, a search coil around a rotor pole $`8.7\,\mathrm{mm}`$ below the
+pole tip) is not checked. Integrated over the pole cross-section, mufem gives
+$`4.1 \times 10^{-4}\,\mathrm{Wb}`$ at $`0.15\,\mathrm{s}`$ against the measured
+$`4.7 \times 10^{-4}\,\mathrm{Wb}`$, about 13 % lower throughout the transient. This is a
+discretization error of the default mesh: with the iron surface mesh refined from $`5`$ to
+$`2.5\,\mathrm{mm}`$ the pole flux rises to $`4.4 \times 10^{-4}\,\mathrm{Wb}`$, and with second-order
+elements to $`4.5 \times 10^{-4}\,\mathrm{Wb}`$, while current and torque change by less than 2 %. The
+Hall probe, $`0.1\,\mathrm{mm}`$ above the saturated rotor pole corner, is the most mesh-sensitive
+quantity: it rises to $`1.33\,\mathrm{T}`$ and $`1.41\,\mathrm{T}`$ with these refinements. The default
+mesh is kept for its runtime.
 
-To generate the animation, ensure `output_for_animation = True` is set in `case.py`. Then run the simulation followed by `paraview_gif.py` (requires `ffmpeg`). This produces the animation:
+To generate the animation, set `output_for_animation = True` in `case.py`, run the case, and then run
+`paraview_gif.py` (requires ParaView and `ffmpeg`):
 
 <div align="center">
     <img src="results/Result_Animation.gif" alt="Result Animation" width="85%">
     <br/>
-    <em>Figure 7: Animation of the electric current density over time.</em>
+    <em>Figure 3: Animation of the electric current density over time.</em>
 </div>
 <br/>
 
 ## References
 
-[1] Rodger D., Allen N., Lai H.C. and Leonard P.J., 1994. Calculation of transient
-    3D eddy currents in nonlinear media - verification using a rotational test rig.
-    *IEEE Transactions on Magnetics*, 30(5), pp. 2988-2991.
-    Problem description and reference data:
+[1] Allen N. and Rodger D. *Description of TEAM Workshop Problem 24: Nonlinear Time-Transient
+    Rotational Test Rig*.
     https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
 
-[2] Rüberg, T., Kielhorn, L. and Zechner, J., 2021. Electromagnetic devices with moving parts — simulation with FEM/BEM coupling. *Mathematics*, 9(15), p.1804.
+[2] Rodger D., Allen N., Lai H.C. and Leonard P.J., 1994. Calculation of transient
+    3D eddy currents in nonlinear media - verification using a rotational test rig.
+    *IEEE Transactions on Magnetics*, 30(5), pp. 2988-2991.
 
-[3] Diez, P. and Webb, J.P., 2015. A rational approach to $`B`$–$`H`$ curve representation. *IEEE Transactions on Magnetics*, 52(3), pp.1-4.
+[3] Rüberg, T., Kielhorn, L. and Zechner, J., 2021. Electromagnetic devices with moving parts — simulation with FEM/BEM coupling. *Mathematics*, 9(15), p.1804.
+
+[4] Diez, P. and Webb, J.P., 2015. A rational approach to $`B`$–$`H`$ curve representation. *IEEE Transactions on Magnetics*, 52(3), pp.1-4.
