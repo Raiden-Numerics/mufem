@@ -19,9 +19,17 @@ class MontejoGarai1995CavityFilter(ValidationCase):
     name = "Montejo-Garai 1995: Circular Cavity Filter"
     tags = {"moderate", "mumps"}  # TimeHarmonicMaxwell needs a direct solver
 
-    # True scans 251 frequencies and regenerates data/S21_precalculated.csv; the default
-    # run solves only the two frequencies at which the field is visualized.
+    # True scans 501 frequencies and regenerates data/S21_precalculated.csv; the default
+    # run solves only the frequencies of the checks and the two at which the field is
+    # visualized.
     precalculate = False
+
+    # [Hz] frequencies at which the field is visualized
+    visualized_frequencies = (12e9, 14e9)
+
+    # Measured passband points of Montejo-Garai and Zapata (1995), Fig. 2, checked
+    # against the computed |S21|.
+    checked_frequencies = (13.637e9, 13.841e9, 14.038e9, 14.240e9, 14.441e9)
 
     @property
     def mesh_path(self):
@@ -179,9 +187,11 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
     def solve(self):
         if self.precalculate:
-            self.frequencies = numpy.linspace(10e9, 15e9, 251)  # [Hz]
+            self.frequencies = numpy.linspace(10e9, 15e9, 501)  # [Hz]
         else:
-            self.frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies to visualize
+            self.frequencies = numpy.array(
+                sorted(self.visualized_frequencies + self.checked_frequencies)
+            )
             vis = self.sim.get_field_exporter()
             vis.add_field_output("Electric Field-Real")
 
@@ -194,7 +204,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
             self.model.set_frequency(frequency)
             self.runner.advance(1)
 
-            if not self.precalculate:
+            if not self.precalculate and frequency in self.visualized_frequencies:
                 vis.save(order=2)
 
             self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
@@ -203,17 +213,19 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         if self.precalculate:
             return
 
-        # |S21| against the precalculated spectrum, in the stopband (12 GHz) and the
-        # passband (14 GHz) of the filter. Deep in the stopband the small amplitude is
-        # sensitive to the mesh (about 6% between meshes).
-        precalculated = self.load_precalculated()
-        for frequency, s21 in zip(self.frequencies, self.s21):
-            expected = precalculated[numpy.argmin(numpy.abs(precalculated[:, 0] - frequency))]
+        # |S21| in the passband against the measurement of Montejo-Garai and Zapata (1995).
+        # In the stopband the computed transmission lies 1-3 dB below the measurement, as
+        # does the finite element result of Liu et al. (2002).
+        measured = numpy.loadtxt(
+            self.dir_path / "data" / "Montejo-Garai_1995.csv", delimiter=",", comments="#"
+        )
+        for frequency in self.checked_frequencies:
+            s21 = self.s21[list(self.frequencies).index(frequency)]
             expect(
-                abs(s21),
-                abs(expected[1] + 1j * expected[2]),
-                rel_tol=1e-1,
-                label=f"|S21| at {frequency / 1e9:.0f} GHz",
+                20 * numpy.log10(abs(s21)),
+                measured[numpy.argmin(abs(measured[:, 0] - frequency / 1e9)), 1],
+                abs_tol=0.5,
+                label=f"|S21| at {frequency / 1e9:.3f} GHz [dB]",
             )
 
     def postprocess(self):
@@ -233,7 +245,9 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
         # Reference data:
         data = numpy.loadtxt(self.dir_path / "data" / "Montejo-Garai_1995.csv", delimiter=",")
-        plt.plot(data[:, 0], data[:, 1], "k^", label="Montejo-Garai 1995", markersize=10)
+        plt.plot(
+            data[:, 0], data[:, 1], "k^", label="Montejo-Garai 1995 (measured)", markersize=10
+        )
 
         # Precalculated spectrum:
         precalculated = self.load_precalculated()
@@ -252,7 +266,9 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         plt.savefig(self.results_path / "S21_vs_frequency.png", bbox_inches="tight")
 
     def load_precalculated(self):
-        return numpy.loadtxt(self.dir_path / "data" / "S21_precalculated.csv", delimiter=",")
+        return numpy.loadtxt(
+            self.dir_path / "data" / "S21_precalculated.csv", delimiter=",", comments="#"
+        )
 
 
 if __name__ == "__main__":

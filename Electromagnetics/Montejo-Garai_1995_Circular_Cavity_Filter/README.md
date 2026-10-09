@@ -30,8 +30,8 @@ Figure 1 shows the geometry of the filter.
 The purpose of this test case is to calculate the transmission of a waveguide
 filter over a given frequency range to determine the frequencies at which the
 filter passes the incoming signal.
-We then compare the obtained results to the experimental results published in
-[[1]](#Montejo-Garai1995).
+We then compare the obtained results to the measured transmission published in
+Fig. 2 of [[1]](#Montejo-Garai1995).
 We also visualize the electric field inside the filter obtained at one of the
 resonant frequencies of the cavity and at one frequency outside the
 resonance.
@@ -150,18 +150,21 @@ terminal command:
 pymufem case.py
 ```
 
-Resolving the transmission spectrum of the filter requires a scan over 251
-frequencies in the range of 10 to 15 GHz, which takes a considerable amount of
-time.
+Resolving the transmission spectrum of the filter requires a scan over 501
+frequencies in the range of 10 to 15 GHz, which takes considerably longer than
+the default run.
 The spectrum is therefore supplied precalculated in
 [data/S21_precalculated.csv](data/S21_precalculated.csv), and by default
-[case.py](case.py) solves only the two frequencies 12 and 14 GHz at which we
-visualize the electric field:
+[case.py](case.py) solves only the five measured passband frequencies that the
+case checks and the two frequencies, 12 and 14 GHz, at which we visualize the
+electric field:
 ```py
 if self.precalculate:
-    self.frequencies = numpy.linspace(10e9, 15e9, 251)  # [Hz]
+    self.frequencies = numpy.linspace(10e9, 15e9, 501)  # [Hz]
 else:
-    self.frequencies = numpy.array([12e9, 14e9])  # [Hz] frequencies to visualize
+    self.frequencies = numpy.array(
+        sorted(self.visualized_frequencies + self.checked_frequencies)
+    )
 ```
 
 Setting the class attribute `precalculate = True` scans the whole frequency range
@@ -173,7 +176,7 @@ for i, frequency in enumerate(self.frequencies):
     self.model.set_frequency(frequency)
     self.runner.advance(1)
 
-    if not self.precalculate:
+    if not self.precalculate and frequency in self.visualized_frequencies:
         vis.save(order=2)
 
     self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
@@ -181,12 +184,12 @@ for i, frequency in enumerate(self.frequencies):
 
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
-Unless we are precalculating the spectrum, we also save the electric field in
-the [VTK](https://vtk.org/) file format for subsequent visualization with
+At the two visualized frequencies we also save the electric field in the
+[VTK](https://vtk.org/) file format for subsequent visualization with
 [ParaView](https://www.paraview.org/).
 
 Figure 3 shows the squared magnitude of the precalculated $`S_{21}`$ parameter
-as a function of frequency, with the two frequencies solved by the default run
+as a function of frequency, with the frequencies solved by the default run
 marked by stars.
 
 <div align="center">
@@ -198,12 +201,17 @@ marked by stars.
 <br/>
 
 In Fig. 3 we can see that the transmission spectrum of the waveguide circular
-filter has a number of resonances around 10.4, 11.5, and 12.6 GHz, as well as a
-fairly wide bandwidth from 13.8 to 14.5 GHz.
-Radiation emitted at these frequencies passes through the filter with minimal
-loss, while radiation at other frequencies is reflected back.
-Figure 3 also shows that the results of our simulations are in very good
-agreement with the experimental data presented in [[1]](#Montejo-Garai1995).
+filter has resonances at 10.42, 11.51, and 12.65 GHz, as well as a passband
+from about 13.6 to 14.5 GHz.
+Radiation at these frequencies passes through the filter with minimal loss,
+while radiation at other frequencies is reflected back.
+
+The resonances and the passband agree with the measurement of
+[[1]](#Montejo-Garai1995): at the five measured points between 13.64 and
+14.44 GHz the computed $`|S_{21}|`$ lies within 0.35 dB of the measured one, and
+the case checks these points. In the stopbands the computed transmission lies
+1 to 3 dB below the measurement, as does the finite element result of
+[[2]](#Liu2002) for the same filter (its Fig. 6).
 
 To illustrate the electric field configuration inside the filter at frequencies
 both within and outside the filter's bandwidth, during the simulation we export
