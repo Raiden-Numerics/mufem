@@ -98,13 +98,14 @@ so the measurements at $`\omega t = 0°`$ and $`90°`$ compare with $`\vec{B}_r`
 | 50 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-50Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-50Hz.png" width="450"> |
 | 200 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-200Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-200Hz.png" width="450"> |
 
-The case checks the relative $`L_2`$ error of $`B_z`$ over the 17 measured points and both phases of
-each line:
+The relative $`L_2`$ error of $`B_z`$ over the 17 measured points and both phases of each line:
 
-| Line | Error at 50 Hz (tolerance) | Error at 200 Hz (tolerance) |
-| ---- | -------------------------- | --------------------------- |
-| A1-B1 | 3.3 % (6 %) | 5.9 % (10 %) |
-| A2-B2 | 4.5 % (6 %) | 8.0 % (10 %) |
+| Line | Error at 50 Hz | Error at 200 Hz |
+| ---- | -------------- | --------------- |
+| A1-B1 | 3.3 % | 5.9 % |
+| A2-B2 | 4.5 % | 8.0 % |
+
+The case checks these errors.
 
 At $`200\,\mathrm{Hz}`$ most of the error comes from the small $`\omega t = 90°`$ component, which mufem
 overestimates by about $`0.25\,\mathrm{mT}`$ above the coil.

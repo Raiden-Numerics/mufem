@@ -39,6 +39,9 @@ The gap acts as the excitation point for the antenna.
 The feeding circuit is modeled using a
 [Lumped Port Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/conditions/lumped_port.html),
 applied to a flat rectangular strip connecting the two arms of the antenna.
+The strip spans the arm diameter $`w = 2a = 10`$ cm across the field and the gap
+$`l = 1`$ cm along it, so a $`Z = 50\,\Omega`$ feed corresponds to the surface
+impedance $`Z_s = Z\,w/l = 500\,\Omega`$.
 
 The antenna is surrounded by free space, represented in the model by an
 enclosing sphere of radius $`r=1.5\lambda=6`$ m, centered at the origin.
@@ -51,10 +54,10 @@ The problem geometry and corresponding mesh are generated with the
 The geometry is built in the `build_geometry` method of [case.py](case.py) and
 meshed in `generate_mesh`; both run only when the mesh is regenerated with
 `pymufem case.py --rebuild-mesh`.
-To achieve higher precision, we set the maximum size of the mesh elements to
-one-fifth of the radiation wavelength $`\lambda`$.
-Additionally, we employ second-order mesh elements to ensure at least 12
-elements per $`2\pi`$ radians of the mesh curvature:
+The maximum element size is one fifth of the wavelength $`\lambda`$, curved
+surfaces such as the arms get at least 12 elements per $`2\pi`$ of curvature,
+and the elements are second order (curved), so that they follow the cylindrical
+arms:
 
 ```py
 mesh_and_save(
@@ -161,23 +164,23 @@ characteristic of dipole radiation.
 </div>
 <br/>
 
-To further assess how closely the radiation of the dipole antenna aligns with
-that of an ideal dipole, we compare the simulated radiation pattern
-cross-sections to the analytical solution for a radiating elementary dipole
+We compare the simulated radiation pattern with the far field of a thin
+half-wave dipole with a sinusoidal current distribution, Eq. (3-4) of
 [[3]](#references):
 
 ```math
-    E(\theta,\phi)
+    F(\theta)
     = \left|
         \frac{\cos\left(\frac{\pi}{2} \cos\theta\right)} {\sin\theta}
       \right|,
 ```
 
-where $`\theta`$ is the polar angle and $`\phi`$ is the azimuthal angle.
+where $`\theta`$ is the polar angle; the pattern does not depend on the azimuthal
+angle $`\phi`$.
 The cross-sections are plotted in the `postprocess` method of [case.py](case.py).
-As depicted in Fig. 5., the simulated radiation pattern closely matches the
+As depicted in Fig. 5, the simulated radiation pattern closely matches the
 analytical result; towards the arms it lies a few percent below it, since the
-arms of the simulated antenna are not infinitely thin.
+arms of the simulated antenna (radius $`\lambda/80`$) are not infinitely thin.
 
 <div align="center">
     <img src="results/Far_Field_E-plane.png" alt="drawing" width="49%">
@@ -189,8 +192,23 @@ arms of the simulated antenna are not infinitely thin.
 </div>
 <br/>
 
+The pattern is compared with the thin half-wave dipole of [[3]](#references)
+(Eq. (3-4) and Table 3-2):
+
+| Quantity | mufem | Half-wave dipole [3] |
+| -------- | ----- | -------------------- |
+| E-plane pattern at $`\theta = 30°`$ / $`60°`$ | 0.396 / 0.808 | 0.418 / 0.816 |
+| E-plane pattern at $`\theta = 120°`$ / $`150°`$ | 0.810 / 0.393 | 0.816 / 0.418 |
+| H-plane pattern minimum | 0.980 | 1 |
+| Directivity | 1.72 | 1.64 |
+| E-plane half-power beamwidth | 75.7° | 78° |
+
+The thick arms narrow the beam slightly, which raises the directivity by 5 %;
+the port strip breaks the rotational symmetry by 2 % in the H-plane. The case checks
+all quantities in the table.
+
 
 ## References
 [1] [Dipole antenna (Wikipedia)](https://en.wikipedia.org/wiki/Dipole_antenna) \
 [2] [Palace: Dipole Antenna and Radiation Fields](https://awslabs.github.io/palace/dev/examples/antenna/) \
-[3] W.L. Stutzman and G.A. Thiele "Antenna Theory and Design", 3rd ed., John Wiley & Sons (2012)
+[3] W.L. Stutzman and G.A. Thiele "Antenna Theory and Design", 3rd ed., John Wiley & Sons (2012), Sec. 3.2 and Table 3-2

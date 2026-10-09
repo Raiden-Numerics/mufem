@@ -19,7 +19,13 @@ class Stutzman2012DipoleAntenna(ValidationCase):
     name = "Stutzman 2012: Dipole Antenna"
     tags = {"moderate", "mumps"}  # TimeHarmonicMaxwell needs a direct solver
 
+    # Geometry of the Palace example [2]: a half-wave dipole of two cylindrical arms with a
+    # gap at the center, inside an air sphere.
     wavelength = 4.0  # [m]
+    arm_length = wavelength / 4  # [m]
+    arm_radius = arm_length / 20  # [m]
+    gap_size = arm_length / 100  # [m]
+    outer_boundary_radius = 1.5 * wavelength  # [m]
 
     @property
     def mesh_path(self):
@@ -31,10 +37,10 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
         gmsh.initialize()
 
-        arm_length = self.wavelength / 4
-        arm_radius = arm_length / 20
-        gap_size = arm_length / 100
-        outer_boundary_radius = 1.5 * self.wavelength
+        arm_length = self.arm_length
+        arm_radius = self.arm_radius
+        gap_size = self.gap_size
+        outer_boundary_radius = self.outer_boundary_radius
 
         # Air sphere without the two arms, with the port strip in the gap --------------
         occ = gmsh.model.occ
@@ -128,9 +134,11 @@ class Stutzman2012DipoleAntenna(ValidationCase):
             marker=["BoundaryTopArm", "BoundaryBotArm"] @ Bnd,
         )
 
-        port_width = 0.10  # [m]
-        port_length = 0.04  # [m]
-        impedance = 50  # [Ohm] transmission line impedance
+        # 50 Ohm feed on the port strip, which spans the arm diameter across the field and
+        # the gap along it: surface impedance Z w / l.
+        impedance = 50  # [Ohm]
+        port_width = 2 * self.arm_radius  # [m]
+        port_length = self.gap_size  # [m]
         condition_port = LumpedPortCondition(
             name="Port",
             marker="Port" @ Bnd,
@@ -173,6 +181,20 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         self.eplane = eplane / numpy.max(eplane)
         self.hplane = hplane / numpy.max(hplane)
 
+        # Directivity 4 pi U_max / P from the radiation intensity U ~ |E|^2 (the azimuthal
+        # grid includes both 0 and 360 deg).
+        intensity = self.radiation_pattern**2
+        intensity_phi = numpy.mean(intensity[:, :-1], axis=1)
+        power = 2 * numpy.pi * numpy.trapezoid(intensity_phi * numpy.sin(self.thetas), self.thetas)
+        self.directivity = 4 * numpy.pi * numpy.max(intensity) / power
+
+        # Half-power beamwidth of the E-plane, interpolated on both sides of the maximum.
+        i_max = numpy.argmax(self.eplane)
+        half = 1 / numpy.sqrt(2)
+        theta_low = numpy.interp(half, self.eplane[: i_max + 1], self.thetas[: i_max + 1])
+        theta_high = numpy.interp(half, self.eplane[i_max:][::-1], self.thetas[i_max:][::-1])
+        self.beamwidth = numpy.degrees(theta_high - theta_low)
+
     def eplane_analytic(self, thetas):
         """Half-wave dipole far field |cos(pi/2 cos(theta)) / sin(theta)| [3]."""
         sin = numpy.maximum(numpy.sin(thetas), 1e-6)  # the pattern vanishes along the arms
@@ -194,6 +216,11 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         # The H-plane pattern of the dipole is uniform; the port strip breaks the
         # rotational symmetry by about 2%.
         expect(numpy.min(self.hplane), 1.0, rel_tol=5e-2, label="H-plane pattern minimum")
+
+        # Directivity and half-power beamwidth of a thin half-wave dipole, [3] Table 3-2. The
+        # thick arms narrow the beam slightly.
+        expect(self.directivity, 1.64, rel_tol=7e-2, label="directivity")
+        expect(self.beamwidth, 78.0, rel_tol=5e-2, label="E-plane half-power beamwidth [deg]")
 
     def postprocess(self):
         if not self.is_main():
