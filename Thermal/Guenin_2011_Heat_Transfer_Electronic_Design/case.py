@@ -164,18 +164,12 @@ class Guenin2011ElectronicDesign(ValidationCase):
         }
 
         # At t = 10 s the package is within 0.1 % of its steady state.
-        die_rise = self.report_die.evaluate() - 273.15
-
-        # The single-point probe in the die returns 0 on some mesh partitionings
-        # (e.g. 12 or 16 MPI ranks); a known mufem bug, so warn instead of failing.
-        if die_rise == -273.15:
-            if self.is_main():
-                print(
-                    "Warning: the die temperature probe returned 0 K, a known point probe "
-                    "bug on some mesh partitionings; the die temperature is not checked."
-                )
-        else:
-            expect(die_rise, steady_rise["die"], rel_tol=1e-2, label="die temperature rise [K]")
+        expect(
+            self.report_die.evaluate() - 273.15,
+            steady_rise["die"],
+            rel_tol=1e-2,
+            label="die temperature rise [K]",
+        )
         expect(
             self.report_lid.evaluate() - 273.15,
             steady_rise["lid"],
@@ -186,8 +180,6 @@ class Guenin2011ElectronicDesign(ValidationCase):
         # Transient: temperature rise at t = 1 s against Fig. 3.3 of Li (2020).
         for monitor, name in [(self.monitor_die, "Die"), (self.monitor_lid, "Lid")]:
             time, temperature = numpy.array(monitor.get_values()).T
-            if name == "Die" and temperature[-1] == 0.0:
-                continue
             ref_t, ref_T = numpy.loadtxt(
                 self.dir_path / "data" / f"{name}_Temperature_Reference.csv",
                 delimiter=",",

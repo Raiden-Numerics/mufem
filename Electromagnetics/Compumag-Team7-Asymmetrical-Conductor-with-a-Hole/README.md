@@ -72,8 +72,8 @@ coil = CoilSpecification(
 )
 ```
 
-With this direction the current flows clockwise seen from $`+z`$, opposite to [1]; the case flips
-the sign of the computed fields to compensate.
+At the point $`(0.2, 0.01, 0.07)\,\mathrm{m}`$, inside the coil, the current flows in $`+x`$, i.e.
+anticlockwise seen from $`+z`$ as in [1].
 
 ## Running
 
@@ -122,7 +122,7 @@ overestimates by about $`0.25\,\mathrm{mT}`$ above the coil.
 The eddy current density data of [2] cannot be used as printed. Following the NGSolve TEAM-7
 reference [3], $`J_y`$ just below the top surface of the plate ($`z = 19\,\mathrm{mm}`$) matches
 Table 5(b) of [2], which is labeled as line A4-B4 at the bottom surface ($`z = 0`$), after a phase
-shift of $`90°`$ relative to the convention of $`B_z`$ (the plots show $`j J_y`$). With this, mufem
+shift of $`90°`$ relative to the convention of $`B_z`$ (the plots show $`-j J_y`$). With this, mufem
 agrees within 4.6 % ($`50\,\mathrm{Hz}`$) and 4.4 % ($`200\,\mathrm{Hz}`$), relative $`L_2`$ over the 12
 measured points. Table 5(a), labeled A3-B3, matches the bottom surface the same way, but its values
 are shifted by one measurement position from $`x = 18\,\mathrm{mm}`$ on. The eddy current density is

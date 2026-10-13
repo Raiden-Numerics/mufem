@@ -113,9 +113,8 @@ class Team7AsymmetricalConductor(ValidationCase):
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
-        # 2742 ampere turns (peak), maximum at wt = 0. The current runs against the given
-        # direction, i.e. clockwise seen from +z instead of anticlockwise as in the
-        # TEAM 7 description; the probes below flip the sign of the field to compensate.
+        # 2742 ampere turns (peak), maximum at wt = 0, flowing in +x at (0.2, 0.01, 0.07),
+        # i.e. anticlockwise seen from +z as in the TEAM 7 description.
         coil_topology = CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0)
         coil_type = CoilTypeStranded(number_of_turns=2742)
         coil_excitation = CoilExcitationCurrent(current=(1.0, 0))
@@ -155,13 +154,13 @@ class Team7AsymmetricalConductor(ValidationCase):
         """B_z [mT] on A1-B1 and A2-B2, and J_y [A/mm^2] just below the top surface of the plate.
 
         The real and imaginary parts compare with the measured values at wt = 0 and 90 deg:
-        -conj(B_z) for the flux density (the minus sign undoes the reversed coil current), and
-        1j * J_y for the eddy current density, as in the NGSolve TEAM-7 reference.
+        conj(B_z) for the flux density, and -1j * J_y for the eddy current density, as in the
+        NGSolve TEAM-7 reference.
         """
         x_values = numpy.linspace(0.0, 0.288, 97)
         lines = {
             name: [
-                (1e3 * x, -1e3 * numpy.conj(self.probe("Magnetic Flux Density", x, y, 0.034)[2]))
+                (1e3 * x, 1e3 * numpy.conj(self.probe("Magnetic Flux Density", x, y, 0.034)[2]))
                 for x in x_values
             ]
             for name, y in self.flux_density_lines
@@ -173,7 +172,7 @@ class Team7AsymmetricalConductor(ValidationCase):
             ([eps], numpy.linspace(0.003, 0.018 - eps, 6), numpy.linspace(0.126 + eps, 0.288, 55))
         )
         lines["Top"] = [
-            (1e3 * x, 1e-6 * 1j * self.probe("Electric Current Density", x, 0.072, 0.019 - eps)[1])
+            (1e3 * x, -1e-6j * self.probe("Electric Current Density", x, 0.072, 0.019 - eps)[1])
             for x in x_plate
         ]
         return lines

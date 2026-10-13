@@ -80,14 +80,15 @@ of the billet in the mid-plane with Fig. 8a of [2], and the total ohmic heating 
 
 The two-way coupling is active: as the steel approaches the Curie point its permeability collapses,
 which reshapes the ohmic heating (a peak followed by decay) and in turn the temperature. In mufem the
-peak (about $`480\,\mathrm{kW}`$ near $`t = 10\,\mathrm{s}`$) comes earlier and is higher than in the reference
-($`358\,\mathrm{kW}`$ at $`t = 18\,\mathrm{s}`$); from about $`20\,\mathrm{s}`$ on the heating power agrees well.
-The temperatures follow the reference closely, with the surface plateau near the Curie point at about
-$`825\,{}^{\circ}\mathrm{C}`$ in both:
+peak (about $`414\,\mathrm{kW}`$ at $`t = 20\,\mathrm{s}`$, sampled with the $`5\,\mathrm{s}`$ time step) is higher than
+in the reference ($`358\,\mathrm{kW}`$ at $`t = 18\,\mathrm{s}`$); from about $`45\,\mathrm{s}`$ on the heating power agrees well.
+The temperatures follow the reference but stay somewhat below it: during the first $`20\,\mathrm{s}`$ the
+surface temperature trails the reference by a few seconds, and its plateau near the Curie point lies at
+about $`815\,{}^{\circ}\mathrm{C}`$ against $`825\,{}^{\circ}\mathrm{C}`$ in the reference:
 
 | Time | Temperature on the axis mufem / reference [°C] | Temperature at the surface mufem / reference [°C] |
 | ---- | ---------------------------------------------- | ------------------------------------------------- |
-| 100 s | 799 / 811.5                                   | 882 / 899.2                                       |
+| 100 s | 774 / 811.5                                   | 852 / 899.2                                       |
 
 The case checks both temperatures at $`t = 100\,\mathrm{s}`$ against the reference.
 
