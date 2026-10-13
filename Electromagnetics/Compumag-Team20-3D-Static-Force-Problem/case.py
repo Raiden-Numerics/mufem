@@ -1,21 +1,15 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root: validation_case
+from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import numpy
 
-from plots import xy_plot, PlotStyle
-
-from mufem import Bnd, Vol, SteadyRunner, CffConstantScalar, Simulation
+import mufem
+from mufem import Bnd, Vol
 from mufem.electromagnetics.coil import (
     CoilExcitationCurrent,
     CoilSpecification,
     CoilTopologyOpen,
     CoilTypeStranded,
     ExcitationCoilModel,
-    MagneticInductanceReport,
-    ResistanceReport,
 )
 from mufem.electromagnetics.timedomainmagnetic import (
     MagneticForceReport,
@@ -24,38 +18,137 @@ from mufem.electromagnetics.timedomainmagnetic import (
     TimeDomainMagneticModel,
 )
 
-from typing import List
-
-from pathlib import Path
-
-dir_path = Path(__file__).resolve().parent
-
-
-from validation_case import ValidationCase
-
 
 class Team20StaticForce(ValidationCase):
+    name = "Compumag TEAM 20: 3-D Static Force Problem"
     tags = {"moderate"}
 
-    def run(self):
-        sim = Simulation.New(
-            name="Compumag-Team20-3D-Static-Force-Problem",
-            mesh_path=f"{dir_path}/geometry.mesh",
+    def build_geometry(self):
+        from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
+
+        from casekit.netgen_geometry import (
+            color_air,
+            color_copper,
+            color_iron,
+            name_body,
+            polygon_face,
         )
 
-        # Setup Problem
-        steady_runner = SteadyRunner(total_iterations=0)
+        # Quarter model: X = 0 and Y = 0 are symmetry planes.
 
+        # Yoke -------------------------------------------------------------------------
+        yoke_face = polygon_face(
+            [
+                (0.0, 0.0, 0.0),
+                (0.0635, 0.0, 0.0),
+                (0.0635, 0.0, 0.150),
+                (0.0135, 0.0, 0.150),
+                (0.0135, 0.0, 0.125),
+                (0.0385, 0.0, 0.125),
+                (0.0385, 0.0, 0.025),
+                (0.0, 0.0, 0.025),
+            ]
+        )
+        yoke = yoke_face.Extrude(0.025 / 2, Y)
+
+        name_body(yoke, "Yoke", color=color_iron, individual_names=False)
+        yoke.faces.Min(Y).name = "Yoke::TangentialFlux"
+        yoke.faces.Min(X).name = "Yoke::TangentialFlux"
+
+        # Pole -------------------------------------------------------------------------
+        z_pole = 0.025 + 0.0015
+        pole_face = polygon_face(
+            [
+                (0.0, 0.0, z_pole),
+                (0.0125, 0.0, z_pole),
+                (0.0125, 0.0, z_pole + 0.0985),
+                (0.0, 0.0, z_pole + 0.0985),
+            ]
+        )
+        pole = pole_face.Extrude(0.010 / 2, Y)
+
+        name_body(pole, "Pole", color=color_iron, individual_names=False)
+        pole.faces.Min(Y).name = "Pole::TangentialFlux"
+        pole.faces.Min(X).name = "Pole::TangentialFlux"
+
+        # Coil (quarter of a rounded square annulus) -----------------------------------
+        # Extrude the outer and inner quarter squares before subtracting: the top face of
+        # an extruded face with arcs loses its name in WriteStep.
+        coil_height = 0.100 - 2 * 0.0017
+
+        def rounded_quarter_square(size, radius):
+            pnt0 = Pnt(0, 0, 0)
+            pnt1 = Pnt(size, 0, 0)
+            pnt2 = Pnt(size, size - radius, 0)
+            pnt3 = Pnt(size - radius, size, 0)
+            pnt4 = Pnt(0, size, 0)
+
+            wire = Wire(
+                [
+                    Segment(pnt0, pnt1),
+                    Segment(pnt1, pnt2),
+                    ArcOfCircle(pnt2, Vec(0, 1, 0), pnt3),
+                    Segment(pnt3, pnt4),
+                    Segment(pnt4, pnt0),
+                ]
+            )
+            return Face(wire).Extrude(coil_height, Z)
+
+        coil = rounded_quarter_square(0.075 / 2.0, 0.023) - rounded_quarter_square(
+            0.039 / 2.0, 0.005
+        )
+        coil = coil.Move((0.025 + 0.0017) * Z)
+
+        name_body(coil, "Coil", color=color_copper, individual_names=False)
+        coil.faces.Min(Y).name = "Coil::In"
+        coil.faces.Min(X).name = "Coil::Out"
+
+        # Air --------------------------------------------------------------------------
+        air = Box(Pnt(0, 0, -0.1), Pnt(0.2, 0.25, 0.25))
+        name_body(air, "Air", color=color_air, individual_names=False)
+
+        air = air - yoke - pole - coil
+
+        air.faces.Min(Y).name = "Air::TangentialFlux"
+        air.faces.Min(X).name = "Air::TangentialFlux"
+
+        # Mesh sizes -------------------------------------------------------------------
+        pole.faces.maxh = 0.001
+        yoke.faces.maxh = 0.0025
+        coil.faces.maxh = 0.0025
+
+        geometry = Glue([air, yoke, pole, coil])
+
+        geometry.WriteStep(f"{self.step_path}")
+
+    def generate_mesh(self):
+        from casekit.netgen_meshing import mesh_and_save
+
+        mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
+
+    def setup_case(self):
+        sim = mufem.Simulation.New(
+            name=self.name,
+            mesh_path=f"{self.mesh_path}",
+        )
+
+        self.runner = mufem.SteadyRunner(total_iterations=0)
+        sim.set_runner(self.runner)
+
+        # Model ------------------------------------------------------------------------
         magnetic_model = TimeDomainMagneticModel(order=1)
         sim.get_model_manager().add_model(magnetic_model)
 
+        # Materials --------------------------------------------------------------------
         air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
 
         copper_material = TimeDomainMagneticGeneralMaterial(
             name="Copper", marker="Coil" @ Vol, electric_conductivity=1.0e7
         )
 
-        bh = numpy.loadtxt(f"{dir_path}/data/Table_1_BH_Curve.csv", delimiter=",", comments="#")
+        bh = numpy.loadtxt(
+            self.dir_path / "data" / "Table_1_BH_Curve.csv", delimiter=",", comments="#"
+        )
 
         iron_material = TimeDomainMagneticGeneralMaterial(
             name="Iron",
@@ -66,7 +159,7 @@ class Team20StaticForce(ValidationCase):
 
         magnetic_model.add_materials([air_material, copper_material, iron_material])
 
-        # Boundaries
+        # Boundary conditions ----------------------------------------------------------
         tangential_magnetic_flux_bc = TangentialMagneticFluxBoundaryCondition(
             name="TangentialFlux",
             marker=[
@@ -80,15 +173,15 @@ class Team20StaticForce(ValidationCase):
         )
         magnetic_model.add_condition(tangential_magnetic_flux_bc)
 
-        # Coil
+        # Coil -------------------------------------------------------------------------
         coil_model = ExcitationCoilModel()
         sim.get_model_manager().add_model(coil_model)
 
         coil_topology = CoilTopologyOpen(in_marker="Coil::In" @ Bnd, out_marker="Coil::Out" @ Bnd)
         coil_type = CoilTypeStranded(number_of_turns=1000)
 
-        coil_drive_current = CffConstantScalar(1.0)
-        coil_excitation = CoilExcitationCurrent(current=coil_drive_current)
+        self.coil_drive_current = mufem.CffConstantScalar(1.0)
+        coil_excitation = CoilExcitationCurrent(current=self.coil_drive_current)
 
         coil = CoilSpecification(
             name="Coil",
@@ -99,56 +192,76 @@ class Team20StaticForce(ValidationCase):
         )
         coil_model.add_coil_specification(coil)
 
-        magnetic_force_report_1 = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
-        sim.get_report_manager().add_report(magnetic_force_report_1)
+        # Reports ----------------------------------------------------------------------
+        self.pole_force_report = MagneticForceReport(name="Pole Force", marker="Pole" @ Vol)
+        sim.get_report_manager().add_report(self.pole_force_report)
 
-        inductance_report = MagneticInductanceReport(name="Coil Inductance")
-        sim.get_report_manager().add_report(inductance_report)
+        # Flux density in the gap below the pole: mid-point P1 and edge P2 of
+        # Takahashi et al. (1995).
+        self.gap_field_reports = {
+            name: mufem.ProbeReport.SinglePoint(
+                f"Gap Field {name}", "Magnetic Flux Density", x=x, y=y, z=0.02575
+            )
+            for name, x, y in [("P1", 0.0, 0.0), ("P2", 0.0125, 0.005)]
+        }
 
-        coil_resistance_report = ResistanceReport(name="Coil Resistance", coil_index=0)
-        sim.get_report_manager().add_report(coil_resistance_report)
+        return sim
 
-        # Run the scan
-
-        center_piece_force_list: List[float] = []
+    def solve(self):
+        # Current scan; the quarter model gives a quarter of the (attractive, -z) force.
+        self.pole_force = []
+        self.gap_field = []
 
         for coil_current in numpy.linspace(0.0, 5.0, 11):
-            coil_drive_current.set_value(coil_current)
+            self.coil_drive_current.set_value(coil_current)
 
-            steady_runner.advance(5)
+            self.runner.advance(5)
 
-            force_z = magnetic_force_report_1.evaluate().z
+            self.pole_force.append((coil_current, -4.0 * self.pole_force_report.evaluate().z))
+            self.gap_field.append(
+                {name: report.evaluate().z for name, report in self.gap_field_reports.items()}
+            )
 
-            center_piece_force_list.append((coil_current, force_z))
+    def validate(self):
+        force = dict(self.pole_force)
 
-        # Plot the results
+        # Measured force (Takahashi et al. (1995), Table 6); 1000 turns, so the current in A is the
+        # AT / 1000.
+        for coil_current, measured_force in [(1.0, 8.1), (3.0, 54.4), (4.5, 75.0), (5.0, 80.1)]:
+            expect(
+                force[coil_current],
+                measured_force,
+                rel_tol=5e-2,
+                label=f"pole force at {1000 * coil_current:.0f} AT [N]",
+            )
 
-        # 1/4 symmetry; the pole force is attractive (measured along -z), so
-        # negate to plot its magnitude against the (positive) reference.
-        symmetry_factor = 4.0
+        # Measured Bz in the gap at 5000 AT (Takahashi et al. (1995), Table 4); at the edge P2,
+        # where the field changes abruptly, calculation and measurement are less accurate.
+        expect(self.gap_field[-1]["P1"], 1.03, rel_tol=5e-2, label="Bz at P1 at 5000 AT [T]")
+        expect(self.gap_field[-1]["P2"], 0.74, rel_tol=1e-1, label="Bz at P2 at 5000 AT [T]")
 
-        xy_plot(
-            values=center_piece_force_list,
-            yscale=-symmetry_factor,
-            style=PlotStyle.LINE_AND_POINTS,
-            reference_file=f"{dir_path}/data/ReferenceForce.csv",
-            reference_style=PlotStyle.POINTS,
-            reference_label="Takahashi et al. (1994)",
-            xlabel="Coil Current [A]",
-            ylabel="Pole Force [N]",
-            xlim=(0.0, 5.4),
-            ylim=(0, 90),
-            yticks=[0, 20, 40, 60, 80],
-            path=f"{dir_path}/results/Force_vs_Current.png",
-        )
+    def postprocess(self):
+        if self.is_main():
+            xy_plot(
+                values=self.pole_force,
+                style=PlotStyle.LINE_AND_POINTS,
+                reference_file=f"{self.dir_path}/data/ReferenceForce.csv",
+                reference_style=PlotStyle.POINTS,
+                reference_label="Takahashi et al. (1994)",
+                xlabel="Coil Current [A]",
+                ylabel="Pole Force [N]",
+                xlim=(0.0, 5.4),
+                ylim=(0, 90),
+                yticks=[0, 20, 40, 60, 80],
+                path=f"{self.results_path / 'Force_vs_Current.png'}",
+            )
 
-        # Finally, we save a few fields so we can visualize with paraview
-        vis = sim.get_field_exporter()
+        # ParaView export (collective) ------------------------------------------------
+        vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density")
         vis.add_field_output("Electric Current Density")
-
         vis.save(order=1)
 
 
 if __name__ == "__main__":
-    Team20StaticForce().run()
+    run_case(Team20StaticForce)

@@ -1,3 +1,5 @@
+# Analytical torque-slip characteristic of Lubin & Rezzoug (2015), IEEE Trans. Magn. 51(10),
+# for the coupling of their Table I with an air gap c = 3 mm (Fig. 11).
 #Slip Speed [rpm],Torque [Nm]
 0.000000000000000000e+00,0.000000000000000000e+00
 1.500000000000000000e+01,8.858969961743791144e-01

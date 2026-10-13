@@ -8,7 +8,7 @@ import time
 
 from typing import List, Optional, Set, Tuple
 
-from validation_case import ValidationCase
+from casekit import ValidationCase
 
 
 def load_app_class(case_path: str) -> Optional[type]:
@@ -45,6 +45,7 @@ def run_cases(
     base_directory: str,
     launcher: str,
     exclude_tags: Set[str],
+    rebuild_mesh: bool = False,
 ) -> None:
 
     failed_cases: List[str] = []
@@ -79,6 +80,10 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
+            if rebuild_mesh:
+                subprocess.run(
+                    args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
+                )
             subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
@@ -121,6 +126,11 @@ if __name__ == "__main__":
         metavar="TAG",
         help="skip cases carrying this tag (repeatable), e.g. --exclude-tag long",
     )
+    parser.add_argument(
+        "--rebuild-mesh",
+        action="store_true",
+        help="rebuild each case's geometry and mesh (serially) before running it",
+    )
     args = parser.parse_args()
 
     print(f"Running cases in directory: {args.base_directory}")
@@ -128,4 +138,5 @@ if __name__ == "__main__":
         base_directory=args.base_directory,
         launcher=args.launcher,
         exclude_tags=set(args.exclude_tag),
+        rebuild_mesh=args.rebuild_mesh,
     )

@@ -14,7 +14,7 @@ def create_scene(index: int, show: bool = False):
 
     renderView1.Set(
         ViewSize=[1600, 1300],
-        CameraPosition=[0.0, 0.0, -0.45],
+        CameraPosition=[0.0, 0.0, 0.45],
         # CameraFocalPoint=[0.00336064, -0.0151335, 0.00804053],
         CameraViewUp=[0, 1, 0],
         CameraViewAngle=30.0,

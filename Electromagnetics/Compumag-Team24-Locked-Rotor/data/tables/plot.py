@@ -50,7 +50,7 @@ from scipy.optimize import curve_fit
 def modified_frohlich_formula(h, a, b):
     mu0 = 4 * numpy.pi * 1e-7
 
-    # Diez, 2015, Eq (11)
+    # Diez and Webb (2015), Eq. (1) with degree d = 1
     return h / (a + b * h) + mu0 * h
 
 

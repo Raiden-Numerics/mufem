@@ -18,3 +18,5 @@ jobs:
     with:
       python-version: '3.12'
       case-path: '.'
+      # Cases whose meshes are not shipped run in validations_linux_rebuild_mesh.yml.
+      run-cases-args: '--exclude-tag rebuild_mesh'

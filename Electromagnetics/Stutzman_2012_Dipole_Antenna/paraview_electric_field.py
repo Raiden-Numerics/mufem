@@ -14,7 +14,7 @@ def create_scene(data_original, phase, screenshot_file):
     data.ResultArrayName = f"{field_name}"
     data.Function = f'"{field_name_real}" * cos({phase}) - "{field_name_imag}" * sin({phase})'
 
-    # Slice plane at z=0 ---------------------------------------------------------------
+    # Slice plane at x=0 ---------------------------------------------------------------
     data = pvs.Slice(Input=data)
     data.SliceType = "Plane"
     data.SliceType.Origin = (0, 0, 0)
