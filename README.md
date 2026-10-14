@@ -230,7 +230,7 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Structural
 
-* **Linear Elasticity**
+* **Time-Domain Solid Mechanics**
   - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
 
 ### Thermal
