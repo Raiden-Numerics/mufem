@@ -13,7 +13,7 @@ fig, ax = plt.subplots()
 
 ax.plot(H, B, "o-", linewidth=2.5, markersize=5.0)
 
-ax.set_xlabel("Magnetic Field Strength $\\left[ \\frac{\\rm{A}}{\\rm{m}^2} \\right]$")
+ax.set_xlabel("Magnetic Field Strength $\\left[ \\frac{\\rm{A}}{\\rm{m}} \\right]$")
 ax.set_ylabel("Magnetic Flux Density [T]")
 
 ax.set_xlim((0, 20000))

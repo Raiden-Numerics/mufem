@@ -1,0 +1,15 @@
+name: Validations with mesh rebuild (Linux x86-64, Python 3.12)
+
+on:
+  schedule:
+    - cron: '0 16 * * 6'  # Sunday 01:00 JST (Saturday 16:00 UTC)
+  workflow_dispatch:
+
+# Full example suite with every geometry and mesh rebuilt before the case runs.
+jobs:
+  examples:
+    uses: ./.github/workflows/run_validations.yaml
+    with:
+      python-version: '3.12'
+      case-path: '.'
+      run-cases-args: '--rebuild-mesh'

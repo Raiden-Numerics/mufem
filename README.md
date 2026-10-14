@@ -66,7 +66,7 @@ from mufem import Vol, Bnd
 sim = mufem.Simulation.New(name="Charged Cube", mesh_path="cube.msh")
 sim.set_runner(mufem.SteadyRunner(total_iterations=1))
 
-# Electrostatics model on the tagged "Cube" volume
+# Electrostatics model, with air filling the tagged "Cube" volume
 model = estat.ElectrostaticsModel(order=2)
 sim.get_model_manager().add_model(model)
 model.add_material(estat.ElectrostaticMaterial(name="Air", marker="Cube" @ Vol))
@@ -98,9 +98,6 @@ vis.add_field_output("Electric Field")
 vis.save()
 ```
 
-See the [electrostatics cases](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md) for full, runnable
-examples, including mesh generation and comparison against reference results.
-
 ## Gallery
 
 <table>
@@ -130,7 +127,7 @@ model.
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
 <td width="60%">
 
-**[Felix cylinder (TEAM 1b)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
+**[FELIX cylinder (TEAM 1b)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
 
 Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the **Time-Domain
 Magnetic** model.
@@ -170,19 +167,36 @@ pip install mufem
 
 See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
 for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
-for tutorials and API reference.
-
-That is all you need to run the [validation cases](#validation-cases) below directly.
+for tutorials and API reference. For a complete, runnable case, including mesh generation and a
+comparison with an analytical solution, see the
+[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md).
 
 ## Validation cases
 
 This repository collects validation examples for mufem (tested against the pinned [version](https://github.com/Raiden-Numerics/mufem/blob/main/VERSION)).
 After following the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
-run a specific case with:
+install the shared helpers and dependencies of the cases from the repository root:
+
+```bash
+(mufem-venv) pip install -e ./casekit
+```
+
+Then run a specific case with:
 
 ```bash
 (mufem-venv) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
+
+Each case compares its results with published, measured, or analytical reference values and
+reports every check. To run all cases, or all cases below a directory, use `run_cases.py`:
+
+```bash
+(mufem-venv) python run_cases.py                       # all cases
+(mufem-venv) python run_cases.py Thermal               # all thermal cases
+```
+
+See [VALIDATION.md](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md)
+for the options of `run_cases.py`, the case tags, and how the meshes are built.
 
 ### Electromagnetics
 
@@ -192,19 +206,19 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 * [**TEAM (Testing Electromagnetic Analysis Methods) Benchmark Suite**](https://www.compumag.org/wp/team/) \
   Introduced in the late 1980s and continuously updated, the TEAM benchmarks focus primarily on low-frequency magnetic problems, providing a standard framework for evaluating numerical methods. Available cases:
 
-  - [Compumag TEAM 1b: The Felix Cylinder](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
+  - [Compumag TEAM 1b: The FELIX Short Cylinder](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
   - [Compumag TEAM 7: Asymmetrical Conductor with a Hole](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/README.md)
   - [Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md)
-  - [Compumag TEAM 20: 3D Static Force Problem](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
-  - [Compumag TEAM 24: Locked Rotor](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
+  - [Compumag TEAM 20: 3-D Static Force Problem](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
+  - [Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
   - [Compumag TEAM 36: Induction Heating Device](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md)
 
-* **[Electrostatic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**
+* **[Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**
   - [Ren 2014: MEMS Comb Drive](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
   - [David 2019: Nonuniform Charge Density](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
 
 * **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
-  - [Lubin 2015: Axial-Flux Eddy Current Brake](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
+  - [Lubin 2015: Axial-Flux Eddy-Current Brake](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
   - [Berger 2017: High-Temperature Superconductor Cube](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Berger_2017_HTS_Cube/README.md)
 
 * **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
@@ -216,18 +230,15 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Structural
 
-* [**NAFEMS Benchmark Suite**](https://www.nafems.org/publications/resource_center/r0006/) \
-  A long-standing set of reference problems from the NAFEMS simulation community
-  covering structural, thermal, fluid, and multi-physics analyses.
-
-  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
-
-* **Structural Mechanics**
+* **[Time-Domain Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)**
   - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
 
-* **Thermal**
+### Thermal
+
+* **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)**
+  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
   - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
-  - [Bruce 2012: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Bruce_2012_Heat_Transfer_Electronic_Design/README.md)
+  - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 
 ## Continuous Integration

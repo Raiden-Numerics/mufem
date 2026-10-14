@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mufem-casekit"
+version = "0.0.0"
+description = "Shared helpers for the mufem validation cases"
+requires-python = ">=3.10"
+# matplotlib/numpy for the plots; gmsh and netgen-mesher to build the case meshes
+dependencies = ["matplotlib", "numpy", "gmsh", "netgen-mesher"]
+
+[tool.setuptools]
+packages = ["casekit"]
+package-dir = {"casekit" = "."}
