@@ -6,7 +6,7 @@ The problem [1] is a nonlinear magnetostatic case with a center pole and yoke ma
 
 
 <div align="center">
-<img src="data/Geometry.png" alt="drawing" width="75%">
+<img src="data/Geometry.png" alt="drawing" width="45%">
 <br/>
 <br/>
 <em>Figure 1: Geometry of the benchmark. An excitation coil surrounds a steel pole and yoke. Due to symmetry only one quarter of the geometry is modeled.</em>
@@ -35,16 +35,16 @@ We use the [Time-Domain Magnetic Model](https://raiden-numerics.github.io/mufem-
 ```math
 \rm{curl}\, \mu^{-1} \rm{curl}\, \vec{A} = \vec{J} \quad,
 ```
-where $`\vec{A} [\frac{\rm{Wb}}{\rm{m}}]`$ is the magnetic vector potential, 
+where $`\vec{A} [\frac{\rm{Wb}}{\rm{m}}]`$ is the magnetic vector potential,
 $`\mu [\frac{\rm{H}}{\rm{m}}]`$ is the magnetic permeability, and $`\vec{J} [\frac{\rm{A}}{\rm{m}^2}]`$
-is the electric current density. The magnetic flux density $`\vec{B} [T]`$ is then given by 
-$`\vec{B} = \rm{curl}\, \vec{A}`$. The magnetic field $`\vec{H}[\frac{\rm{A}}{\rm{m}}]`$ can be 
+is the electric current density. The magnetic flux density $`\vec{B} [T]`$ is then given by
+$`\vec{B} = \rm{curl}\, \vec{A}`$. The magnetic field $`\vec{H}[\frac{\rm{A}}{\rm{m}}]`$ can be
 obtained from $`\vec{H} = \mu^{-1} \vec{B}`$. Note that the electric current density is only non-zero
 in the coil body and is required to be divergence free, i.e., $`\nabla \cdot \vec{J} = 0`$.
 
 As for the boundary, by symmetry the magnetic flux needs to be tangential to the symmetry faces; thus we
 assign a [Tangential Magnetic Flux Condition](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/conditions/tangential_magnetic_flux_condition.html) which ensures that
-$`\vec{B} \cdot \vec{n} = 0`$. This is achieved by specifying the tangential components of 
+$`\vec{B} \cdot \vec{n} = 0`$. This is achieved by specifying the tangential components of
 $`\vec{A}`$ to zero, i.e. $`\vec{n} \times \vec{A} = 0`$. It is applied on the symmetry planes $`x = 0`$ and $`y = 0`$, including the end faces of the quarter coil (`Coil::In`, `Coil::Out`); the outer air boundary, a far-field boundary, is left free.
 
 ### Excitation
@@ -53,17 +53,17 @@ The electric current density in the right-hand side of the equation is provided 
 ```math
 \vec{J}= I \frac{n_t}{S_c} \vec{d} \quad,
 ```
-where $`I [\rm{A}]`$ is the applied coil current, $`n_t`$ is the number of coil turns, and 
-$`S_c[\rm{m}^2]`$ 
-is the coil cross section and $`\vec{d}`$ is the coil path (please note that the actual calculation is 
-more involved as we need to ensure that the electric current density is homogeneous along a coil cross 
-section as well as support non-constant cross sections of the coil geometry). Here, we choose $`n_t=1000`$ 
+where $`I [\rm{A}]`$ is the applied coil current, $`n_t`$ is the number of coil turns, and
+$`S_c[\rm{m}^2]`$
+is the coil cross section and $`\vec{d}`$ is the coil path (please note that the actual calculation is
+more involved as we need to ensure that the electric current density is homogeneous along a coil cross
+section as well as support non-constant cross sections of the coil geometry). Here, we choose $`n_t=1000`$
 and a coil current ranging from $`I=0\text{A}`$ to $`I=5\text{A}`$ in 11 steps, i.e. 0 to 5000 ampere-turns (the
 experimental coil has 381 turns; only the ampere-turns matter).
 
 ### Reports
 
-The force is calculated using the [Magnetic Force Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_force_report.html) which uses the Maxwell stress 
+The force is calculated using the [Magnetic Force Report](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/reports/magnetic_force_report.html) which uses the Maxwell stress
 tensor $`\mathbb{T} [\rm{Pa}]`$ given by
 ```math
 \mathbb{T} = \vec{B} \otimes \vec{H} - \frac{1}{2} \left( \vec{B} \cdot \vec{H} \right) \mathbb{I}   \quad.
@@ -133,7 +133,7 @@ Figures 2 and 5 are rendered with ParaView by [create_scene.py](create_scene.py)
 <br/>
 
 
-The results are presented in Figure 4, where we find a good match to the measured force of [3]. Note that initially the force increases quadratically with an 
+The results are presented in Figure 4, where we find a good match to the measured force of [3]. Note that initially the force increases quadratically with an
 increase of current until around $`I=3`$ A, where the steel saturates.
 
 The measurements of [2] (Tables 4 and 6) for the four excitations of the benchmark:
@@ -157,7 +157,7 @@ As an outlook, the paper [3] suggests investigating the effect of model order an
 The case saves the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 
 <div align="center">
-<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="75%">
+<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="45%">
 <br/>
 <br/>
 <em>Figure 5: The magnetic flux density at I=5 A. At the corner of the center pole the magnitude of the magnetic flux density exceeds the values of the provided B-H table requiring extrapolation.</em>

@@ -1,109 +1,62 @@
 """Render data/Vis_MagneticFluxDensity.png and data/Mesh.png from the output of case.py.
 
-Run with `pvpython create_scene.py` after the case.
+Run with `pvpython create_scene.py` after the case. Both images use the isometric view along
+(-1, -1, 1) onto the symmetry planes x = 0 and y = 0, with z up, as data/Geometry.png.
 """
 
-import os
+import sys
+from pathlib import Path
 
-import paraview.simple as pvs
-from PIL import Image, ImageOps
+case_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(case_dir.parents[1]))
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
+import paraview.simple as pvs  # noqa: E402
 
-view = pvs.CreateView("RenderView")
-view.OrientationAxesVisibility = 0
-view.UseColorPaletteForBackground = 0
-view.Background = [1.0, 1.0, 1.0]
-pvs._DisableFirstRenderCameraReset()
-
-data = pvs.XMLPartitionedDatasetCollectionReader(
-    FileName=[f"{script_dir}/VisualizationOutput/Output.vtpc.series"]
+from casekit.paraview_scene import (  # noqa: E402
+    color_by,
+    new_view,
+    read_output,
+    save,
+    set_camera,
+    show,
 )
 
+data = read_output(case_dir)
 
-def save(path, bounds):
-    """Isometric view along (-1, -1, 1) onto the symmetry planes x = 0 and y = 0."""
+
+def view_onto(view, source):
+    source.UpdatePipeline()
+    bounds = source.GetDataInformation().GetBounds()
     center = [(bounds[2 * i] + bounds[2 * i + 1]) / 2 for i in range(3)]
-    view.CameraFocalPoint = center
-    view.CameraPosition = [center[0] - 1.0, center[1] - 1.0, center[2] + 1.0]
-    view.CameraViewUp = [0.0, 0.0, 1.0]
-    view.CameraParallelProjection = 1
-    view.ResetCamera(bounds, False)
-
-    pvs.Render(view)
-    pvs.SaveScreenshot(path, view, OverrideColorPalette="WhiteBackground")
-
-    # Trim the white margins, keeping a small border.
-    image = Image.open(path).convert("RGB")
-    left, top, right, bottom = ImageOps.invert(image).getbbox()
-    box = (
-        max(left - 20, 0),
-        max(top - 20, 0),
-        min(right + 20, image.width),
-        min(bottom + 20, image.height),
-    )
-    image.crop(box).save(path)
+    set_camera(view, (-1, -1, 1), (0, 0, 1), center, parallel_scale=1.0, bounds=bounds)
 
 
-# Magnetic flux density in the yoke, the pole and the coil --------------------------------
-view.ViewSize = [1900, 1600]
+# Magnetic flux density in the yoke, the pole and the coil.
+view = new_view((1900, 1600))
 parts = pvs.ExtractBlock(Input=data, Selectors=["/Root/Yoke", "/Root/Pole", "/Root/Coil"])
+display = show(parts, view)
+color_by(
+    display,
+    view,
+    "Magnetic Flux Density",
+    "Magnetic Flux Density [T]",
+    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5],
+    "%.1f",
+    orientation="Vertical",
+    position=(0.78, 0.3),
+    component="Magnitude",
+)
+view_onto(view, parts)
+save(view, case_dir / "data" / "Vis_MagneticFluxDensity.png")
 
-display = pvs.Show(parts, view)
-display.Representation = "Surface"
-display.Ambient = 0.3
-display.Diffuse = 0.8
-pvs.ColorBy(display, ("POINTS", "Magnetic Flux Density", "Magnitude"))
-
-lut = pvs.GetColorTransferFunction("Magnetic Flux Density")
-lut.ApplyPreset("Cool to Warm", True)
-lut.RescaleTransferFunction(0.0, 2.5)
-lut.AutomaticRescaleRangeMode = "Never"
-
-bar = pvs.GetScalarBar(lut, view)
-bar.Title = "Magnetic Flux Density [T]"
-bar.ComponentTitle = ""
-bar.Orientation = "Vertical"
-bar.HorizontalTitle = 0
-bar.WindowLocation = "Any Location"
-bar.Position = [0.78, 0.3]
-bar.ScalarBarLength = 0.4
-bar.UseCustomLabels = True
-bar.CustomLabels = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5]
-bar.AddRangeLabels = 0
-bar.AutomaticLabelFormat = 0
-bar.LabelFormat = "%.1f"
-bar.TitleFontSize = 28
-bar.LabelFontSize = 24
-bar.TitleColor = [0, 0, 0]
-bar.LabelColor = [0, 0, 0]
-bar.TitleBold = 1
-bar.LabelBold = 1
-display.SetScalarBarVisibility(view, True)
-
-parts.UpdatePipeline()
-save(f"{script_dir}/data/Vis_MagneticFluxDensity.png", parts.GetDataInformation().GetBounds())
-
-display.SetScalarBarVisibility(view, False)
-pvs.Hide(parts, view)
-
-# Mesh of all bodies -----------------------------------------------------------------------
-view.ViewSize = [1600, 1600]
-for selector, color in [
-    ("/Root/Air", [0.96, 0.89, 0.83]),
-    ("/Root/Yoke", [0.6, 0.6, 0.6]),
-    ("/Root/Pole", [0.6, 0.6, 0.6]),
-    ("/Root/Coil", [0.72, 0.45, 0.2]),
+# Mesh of all bodies.
+view = new_view((1600, 1600))
+for name, color in [
+    ("Air", (0.96, 0.89, 0.83)),
+    ("Yoke", (0.6, 0.6, 0.6)),
+    ("Pole", (0.6, 0.6, 0.6)),
+    ("Coil", (0.72, 0.45, 0.2)),
 ]:
-    block = pvs.ExtractBlock(Input=data, Selectors=[selector])
-    mesh_display = pvs.Show(block, view)
-    mesh_display.Representation = "Surface With Edges"
-    mesh_display.EdgeColor = [0.0, 0.0, 0.0]
-    mesh_display.Ambient = 0.3
-    mesh_display.Diffuse = 0.8
-    pvs.ColorBy(mesh_display, None)
-    mesh_display.AmbientColor = color
-    mesh_display.DiffuseColor = color
-
-data.UpdatePipeline()
-save(f"{script_dir}/data/Mesh.png", data.GetDataInformation().GetBounds())
+    show(pvs.ExtractBlock(Input=data, Selectors=[f"/Root/{name}"]), view, color, edges=True)
+view_onto(view, data)
+save(view, case_dir / "data" / "Mesh.png")

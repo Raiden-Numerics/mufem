@@ -1,54 +1,42 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
 The plate is seen from the front (onto the x-y plane), as the scene of create_scene.py, with
-the boundary conditions of the benchmark. Needs a display; headless:
+the boundary conditions of the benchmark and the evaluation point E. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
 """
 
-import os
+from pathlib import Path
 
-import matplotlib
-import netgen
-import netgen.gui
-from netgen.occ import Glue, OCCGeometry
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from netgen.occ import OCCGeometry
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-width, height = 1200, 1600
+from casekit.netgen_image import Labels, pad, snapshot, trim
 
-shape = OCCGeometry(f"{script_dir}/geometry.step").shape
-OCCGeometry(Glue(shape.solids)).Draw()
+case_dir = Path(__file__).resolve().parent
 
-tk = netgen.gui.win.tk
-tk.eval(f"wm geometry . {width}x{height}")
-netgen.Redraw(blocking=True)
+solids = OCCGeometry(f"{case_dir}/geometry.step").shape.solids
+image = snapshot(solids, direction=(0, 0, 1), up=(0, 1, 0), zoom=0, size=(1200, 1600))
 
-image = Image.fromarray(netgen.gui.Snapshot(width, height)).convert("RGB")
-
-# Trim the white margins: the image is then the plate, 0.6 m x 1.0 m.
-plate = image.crop(ImageOps.invert(image).getbbox())
+# The plate, 0.6 m x 1.0 m, with room around it for the boundary conditions.
+plate = trim(image, border=0)
 scale = plate.height / 1.0  # [px/m]
-
-# Room around the plate for the boundary conditions.
 left, top, right, bottom = 250, 110, 360, 110
-image = Image.new("RGB", (plate.width + left + right, plate.height + top + bottom), "white")
-image.paste(plate, (left, top))
-draw = ImageDraw.Draw(image)
-font = ImageFont.truetype(f"{matplotlib.get_data_path()}/fonts/ttf/DejaVuSans-Bold.ttf", 32)
+image = pad(plate, left, top, right, bottom)
 
+labels = Labels(image, font_size=32)
 x0, x1 = left, left + plate.width
 y0, y1 = top, top + plate.height
-draw.text(((x0 + x1) / 2, y1 + 55), "T = 100 °C", font=font, fill="black", anchor="mm")
-draw.text((x0 - 25, (y0 + y1) / 2), "Adiabatic", font=font, fill="black", anchor="rm")
-draw.text(((x0 + x1) / 2, y0 - 55), "Convection", font=font, fill="black", anchor="mm")
-draw.text((x1 + 25, (y0 + y1) / 2 - 25), "Convection", font=font, fill="black", anchor="lm")
-draw.text((x1 + 25, (y0 + y1) / 2 + 25), "h = 750 W/(m² K)", font=font, fill="black", anchor="lm")
-draw.text((x1 + 25, (y0 + y1) / 2 + 75), "T∞ = 0 °C", font=font, fill="black", anchor="lm")
+xm, ym = (x0 + x1) / 2, (y0 + y1) / 2
+labels.text((xm, y1 + 55), "T = 100 °C")
+labels.text((x0 - 25, ym), "Adiabatic", "rm")
+labels.text((xm, y0 - 55), "Convection")
+labels.text((x1 + 25, ym - 25), "Convection", "lm")
+labels.text((x1 + 25, ym + 25), "h = 750 W/(m² K)", "lm")
+labels.text((x1 + 25, ym + 75), "T∞ = 0 °C", "lm")
 
 # Point E on the right edge, 0.2 m above the bottom edge.
 e = (x1, y1 - 0.2 * scale)
-draw.ellipse([e[0] - 12, e[1] - 12, e[0] + 12, e[1] + 12], fill="black")
-draw.text((e[0] + 25, e[1]), "E", font=font, fill="black", anchor="lm")
+labels.dot(e)
+labels.text((e[0] + 25, e[1]), "E", "lm")
 
-image.save(f"{script_dir}/data/Geometry.png")
+image.save(case_dir / "data" / "Geometry.png")

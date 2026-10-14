@@ -1,53 +1,25 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The geometry is turned so that the view matches the animation of create_scene.py.
-Needs a display; headless:
+The view is the one of the animation of create_scene.py. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
 """
 
-import os
+from pathlib import Path
 
-import netgen
-import netgen.gui
-from netgen.occ import Axis, Glue, OCCGeometry, Pnt, X, Y, Z
+from netgen.occ import OCCGeometry
 
-from PIL import Image, ImageOps
+from casekit.netgen_image import snapshot, trim
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-width, height = 1600, 1200
+case_dir = Path(__file__).resolve().parent
 
-shape = OCCGeometry(f"{script_dir}/geometry.step").shape
-
-# netgen shows x to the right, y up and z toward the viewer. Rotate the model so that the
-# camera of the animation of create_scene.py (screen right, up, toward the viewer) maps onto
-# these axes.
-origin = Pnt(0, 0, 0)
-shape = (
-    shape.Rotate(Axis(origin, X), 47.86)
-    .Rotate(Axis(origin, Y), 59.97)
-    .Rotate(Axis(origin, Z), 142.6)
+solids = OCCGeometry(f"{case_dir}/geometry.step").shape.solids
+# The camera of the animation of create_scene.py (position, focal point and view up there).
+position = (-0.3697352196806951, 0.3392467327757224, 0.22955715848836572)
+focal_point = (-0.3041336634862759, 0.31113183987720244, 0.20412014606490986)
+image = snapshot(
+    solids,
+    direction=[p - f for p, f in zip(position, focal_point)],
+    up=(0.30395294501951486, -0.1429607220735116, 0.9418995908047652),
 )
-
-OCCGeometry(Glue(shape.solids)).Draw()
-
-tk = netgen.gui.win.tk
-tk.eval(f"wm geometry . {width}x{height}")
-netgen.Redraw(blocking=True)
-tk.eval("Ng_MouseMove 0 0 0 -30 zoom")
-netgen.Redraw(blocking=True)
-
-image = Image.fromarray(netgen.gui.Snapshot(width, height)).convert("RGB")
-
-# Trim the white margins, keeping a small border.
-border = 20
-left, top, right, bottom = ImageOps.invert(image).getbbox()
-image = image.crop(
-    (
-        max(left - border, 0),
-        max(top - border, 0),
-        min(right + border, image.width),
-        min(bottom + border, image.height),
-    )
-)
-image.save(f"{script_dir}/data/Geometry.png")
+trim(image).save(case_dir / "data" / "Geometry.png")
