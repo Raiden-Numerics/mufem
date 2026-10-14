@@ -98,9 +98,6 @@ vis.add_field_output("Electric Field")
 vis.save()
 ```
 
-See the [electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
-for a full, runnable example, including mesh generation and comparison against an analytical solution.
-
 ## Gallery
 
 <table>
@@ -170,20 +167,21 @@ pip install mufem
 
 See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
 for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
-for tutorials and API reference.
-
-To run the [validation cases](#validation-cases) below, also install their shared helpers and
-dependencies from the repository root:
-
-```bash
-pip install -e ./casekit
-```
+for tutorials and API reference. For a complete, runnable case, including mesh generation and a
+comparison with an analytical solution, see the
+[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md).
 
 ## Validation cases
 
 This repository collects validation examples for mufem (tested against the pinned [version](https://github.com/Raiden-Numerics/mufem/blob/main/VERSION)).
 After following the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
-run a specific case with:
+install the shared helpers and dependencies of the cases from the repository root:
+
+```bash
+(mufem-venv) pip install -e ./casekit
+```
+
+Then run a specific case with:
 
 ```bash
 (mufem-venv) pymufem Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
