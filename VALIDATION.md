@@ -26,7 +26,6 @@ for the installation and a first run.
 | --- | ------- |
 | `moderate`, `long`, `eternal` | run time of the case |
 | `mumps` | needs the MUMPS direct solver |
-| `rebuild_mesh` | the mesh is not committed and is built before the first run |
 
 ## Meshes
 
@@ -40,9 +39,9 @@ helpers), and can be regenerated with:
 ```
 
 The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
-does both for every case). The meshes of
+does both for every case). A mesh that is missing, such as those of
 [Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
-(`geometry_xshift=<shift>.msh`, one per comb shift) are not committed and have to be built this
-way before the first run. The committed netgen meshes were generated with netgen-mesher 6.2.2608;
-other versions produce slightly different meshes, but the results should still pass the case's
-checks.
+(`geometry_xshift=<shift>.msh`, one per comb shift, not committed), is built by `run_cases.py`
+before it runs the case, and by a serial `python case.py`; an MPI run asks for `--rebuild-mesh`
+first. The committed netgen meshes were generated with netgen-mesher 6.2.2608; other versions
+produce slightly different meshes, but the results should still pass the case's checks.

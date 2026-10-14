@@ -7,9 +7,10 @@ A case implements the steps of two separate workflows:
 
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()` to doing nothing. `build_geometry()` and
-`generate_mesh()` are only needed to regenerate the committed mesh, which is done
-with `pymufem case.py --rebuild-mesh` before the case is run with `pymufem case.py`;
-netgen is imported inside those methods, so normal runs do not load it.
+`generate_mesh()` default to doing nothing; they regenerate the mesh with
+`pymufem case.py --rebuild-mesh`, and a mesh that is not committed is built with them
+before the first run (by run_cases.py, or by a serial `python case.py`). netgen is
+imported inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
 running the case. That is what lets CI select a subset (e.g. skip `long` cases, or
@@ -56,7 +57,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, List, Optional, Set
 
 if TYPE_CHECKING:
     import mufem
@@ -116,8 +117,10 @@ class ValidationCase(ABC):
         """
 
     def generate_mesh(self) -> None:
-        """Mesh `self.step_path` and write it to `self.mesh_path`."""
-        raise NotImplementedError(f"{type(self).__name__} cannot rebuild its mesh")
+        """Mesh `self.step_path` and write it to `self.mesh_path`.
+
+        Optional: by default the committed mesh is used as is.
+        """
 
     @abstractmethod
     def setup_case(self) -> "mufem.Simulation":
@@ -140,6 +143,18 @@ class ValidationCase(ABC):
         """
 
     # --- helpers --------------------------------------------------------------
+    def mesh_missing(self) -> bool:
+        """True if a mesh of `self.mesh_paths` has not been built yet."""
+        return any(not path.exists() for path in self.mesh_paths)
+
+    @staticmethod
+    def _launcher_size() -> int:
+        """Number of processes started by the MPI launcher (1 without one)."""
+        for key in ("OMPI_COMM_WORLD_SIZE", "PMIX_SIZE", "PMI_SIZE"):
+            if (value := os.environ.get(key)) is not None:
+                return int(value)
+        return 1
+
     @staticmethod
     def _is_launcher_main_process() -> bool:
         """True on rank 0 or without an MPI launcher; read from the launcher's environment
@@ -173,6 +188,11 @@ class ValidationCase(ABC):
         return self.dir_path / "geometry.mesh"
 
     @property
+    def mesh_paths(self) -> List[Path]:
+        """All meshes the case loads; override for a case with several."""
+        return [self.mesh_path]
+
+    @property
     def results_path(self) -> Path:
         """Output directory for plots / tables; created by `run()`."""
         return self.dir_path / "results"
@@ -194,5 +214,15 @@ def run_case(case_class: type[ValidationCase]) -> None:
     case = case_class()
     if args.rebuild_mesh:
         case.build_geometry_and_mesh()
-    else:
-        case.run()
+        return
+
+    if case.mesh_missing():
+        # Without a Simulation there is no MPI barrier, so the other processes could not
+        # wait for the main one to build the mesh: build it only in a serial run.
+        if case._launcher_size() > 1:
+            sys.exit(
+                f"{case_class.name}: the mesh is missing; build it first with "
+                "`pymufem case.py --rebuild-mesh`"
+            )
+        case.build_geometry_and_mesh()
+    case.run()

@@ -25,6 +25,8 @@ def load_app_class(case_path: str) -> Optional[type]:
     """
     spec = importlib.util.spec_from_file_location("_mufem_case", case_path)
     module = importlib.util.module_from_spec(spec)
+    # Registered so that ValidationCase.dir_path finds the file of the case.
+    sys.modules[spec.name] = module
     saved_argv = sys.argv
     sys.argv = [case_path]
     try:
@@ -57,22 +59,21 @@ def run_cases(
 
         case_path = os.path.join(root, "case.py")
 
-        # Only import a case to read its metadata when filtering is actually
-        # requested. Importing runs the module's top level; for migrated
-        # (class-based) cases that is side-effect-free, but a legacy script
-        # would solve at import — so filtering presumes migrated cases.
+        # Importing a case runs only its module top level, which is side-effect-free for
+        # class-based cases; it gives the tags and whether the mesh still has to be built.
+        app = load_app_class(case_path)
         if exclude_tags:
-            app = load_app_class(case_path)
             if app is None:
-                # Metadata unavailable (legacy case, or its imports don't resolve
-                # in this environment). When filtering we run only cases we can
-                # positively clear, so skip rather than risk running an excluded one.
+                # Metadata unavailable (its imports don't resolve in this environment).
+                # When filtering we run only cases we can positively clear, so skip
+                # rather than risk running an excluded one.
                 print(f"Skipping (no readable metadata): {case_path}")
                 continue
             skip = set(app.tags) & exclude_tags
             if skip:
                 print(f"Skipping (tag {sorted(skip)}): {case_path}")
                 continue
+        build_mesh = rebuild_mesh or (app is not None and app().mesh_missing())
 
         print(f"Running case: {case_path}")
         original_dir = os.getcwd()
@@ -80,7 +81,7 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
-            if rebuild_mesh:
+            if build_mesh:
                 subprocess.run(
                     args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
                 )

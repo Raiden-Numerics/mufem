@@ -38,7 +38,7 @@ To simulate the entire system, we enclose the comb drive within a rectangular bo
 
 During the mesh generation process, we assign named attributes to the surfaces of each comb ("Comb1" and "Comb2"), to the boundary of the computational domain representing the ground plate ("Ground"), and to the entire computational domain itself ("Domain").
 
-To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. The zero shift is the geometry of [1]. The combs are then pulled apart along the teeth in increments of 0.5 μm, up to a final shift of 8 μm, at which point the teeth no longer overlap. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run only when the meshes are built with `pymufem case.py --rebuild-mesh`.
+To investigate the change in capacitance as the distance between the combs increases, we prepare one mesh for each shift of the combs relative to each other. The zero shift is the geometry of [1]. The combs are then pulled apart along the teeth in increments of 0.5 μm, up to a final shift of 8 μm, at which point the teeth no longer overlap. The geometries are built in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`, which write the files `geometry_xshift=<shift>.step` and `geometry_xshift=<shift>.msh`; both methods run when the meshes are built with `pymufem case.py --rebuild-mesh`, or automatically when they are missing.
 
 
 ### Model
@@ -81,7 +81,8 @@ report = VolumeIntegralReport(
 
 Since every shift has its own geometry and hence its own mesh, the meshes
 (about 22 MB) are not shipped with the case and have to be built first. The following
-command builds them:
+command builds them (`run_cases.py` and a serial `python case.py` do this automatically
+when the meshes are missing):
 ```bash
 pymufem case.py --rebuild-mesh
 ```

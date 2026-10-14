@@ -5,8 +5,7 @@ on:
     - cron: '0 16 * * 6'  # Sunday 01:00 JST (Saturday 16:00 UTC)
   workflow_dispatch:
 
-# Full example suite with every geometry and mesh rebuilt before the case runs,
-# including the cases whose meshes are not shipped (tag rebuild_mesh).
+# Full example suite with every geometry and mesh rebuilt before the case runs.
 jobs:
   examples:
     uses: ./.github/workflows/run_validations.yaml

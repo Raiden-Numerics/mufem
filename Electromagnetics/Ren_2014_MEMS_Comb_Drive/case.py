@@ -22,9 +22,9 @@ from mufem.electromagnetics.electrostatics import (
 
 class Ren2014MemsCombDrive(ValidationCase):
     name = "Ren 2014: MEMS Comb Drive"
-    # The meshes of all shifts (about 22 MB) are not shipped: they must be built first
-    # with --rebuild-mesh.
-    tags = {"long", "rebuild_mesh"}
+    # The meshes of all shifts (about 22 MB) are not shipped; they are built before the
+    # first run.
+    tags = {"long"}
 
     # [um] shifts of the combs apart from each other, one mesh each
     xshifts = [0.5 * k for k in range(17)]
@@ -36,6 +36,10 @@ class Ren2014MemsCombDrive(ValidationCase):
 
     def mesh_path_for(self, xshift):
         return self.dir_path / f"geometry_xshift={xshift:.1f}.msh"
+
+    @property
+    def mesh_paths(self):
+        return [self.mesh_path_for(x) for x in self.xshifts]
 
     def build_geometry(self):
         import gmsh
@@ -113,15 +117,6 @@ class Ren2014MemsCombDrive(ValidationCase):
             )
 
     def setup_case(self):
-        missing = [
-            self.mesh_path_for(x) for x in self.xshifts if not self.mesh_path_for(x).exists()
-        ]
-        if missing:
-            raise FileNotFoundError(
-                f"{missing[0].name} and {len(missing) - 1} more meshes are missing: build "
-                "them with pymufem case.py --rebuild-mesh"
-            )
-
         sim = Simulation.New(name=self.name)
 
         self.runner = SteadyRunner(total_iterations=2)
