@@ -235,13 +235,8 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Thermal
 
-* [**NAFEMS Benchmark Suite**](https://www.nafems.org/publications/resource_center/r0006/) \
-  A long-standing set of reference problems from the NAFEMS simulation community
-  covering structural, thermal, fluid, and multi-physics analyses.
-
-  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
-
 * **Heat Conduction**
+  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
   - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
   - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
