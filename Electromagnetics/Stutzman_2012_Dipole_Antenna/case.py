@@ -197,7 +197,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
     def eplane_analytic(self, thetas):
         """Half-wave dipole far field |cos(pi/2 cos(theta)) / sin(theta)|,
-        Stutzman and Thiele (2012), Eq. (3-4).
+        Stutzman (2012), Eq. (3-4).
         """
         sin = numpy.maximum(numpy.sin(thetas), 1e-6)  # the pattern vanishes along the arms
         return numpy.abs(numpy.cos(numpy.pi / 2 * numpy.cos(thetas)) / sin)
@@ -220,7 +220,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         expect(numpy.min(self.hplane), 1.0, rel_tol=5e-2, label="H-plane pattern minimum")
 
         # Directivity and half-power beamwidth of a thin half-wave dipole,
-        # Stutzman and Thiele (2012), Table 3-2. The thick arms narrow the beam slightly.
+        # Stutzman (2012), Table 3-2. The thick arms narrow the beam slightly.
         expect(self.directivity, 1.64, rel_tol=7e-2, label="directivity")
         expect(self.beamwidth, 78.0, rel_tol=5e-2, label="E-plane half-power beamwidth [deg]")
 
@@ -257,7 +257,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
             fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
             ax.set_theta_zero_location("N")
             ax.set_theta_direction(-1)
-            ax.plot(angles, to_db(analytic), "k-", label="Analytic")
+            ax.plot(angles, to_db(analytic), "k-", label="Stutzman (2012)")
             ax.plot(angles, to_db(simulated), "r-", label="$\\mu$fem")
             ax.set_ylim(-12, 2)
             ax.set_yticks([-10, -8, -6, -4, -2, 0])

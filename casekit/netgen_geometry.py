@@ -6,10 +6,10 @@ Name the bodies and faces of a geometry (the names become the mesh markers, e.g.
     def build_geometry(self):
         from netgen.occ import Box, Glue, X
 
-        from casekit.netgen_geometry import color_nice_green, name_body
+        from casekit.netgen_geometry import color_green, name_body
 
         plate = Box((0, 0, 0), (0.6, 1.0, 0.01))
-        name_body(plate, "Plate", color=color_nice_green)
+        name_body(plate, "Plate", color=color_green)
         plate.faces.Min(X).name = "Plate::Insulated"
 
         Glue([plate]).WriteStep(f"{self.step_path}")
@@ -54,12 +54,12 @@ def hex_to_float(hex: str, transparency: Optional[float] = None) -> Color:
 
 color_air = hex_to_float("a6e7ff", transparency=0.6)
 color_aluminum = hex_to_float("848789")
+color_blue = hex_to_float("00a2e8")
 color_copper = hex_to_float("B87333")
+color_green = hex_to_float("00af7f")
 color_hts = hex_to_float("4c9173")
 color_iron = hex_to_float("a19d94")
-color_nice_blue = hex_to_float("00a2e8")
-color_nice_green = hex_to_float("00af7f")
-color_nice_red = hex_to_float("ed1c24")
+color_red = hex_to_float("ed1c24")
 color_steel = hex_to_float("71797E")
 
 

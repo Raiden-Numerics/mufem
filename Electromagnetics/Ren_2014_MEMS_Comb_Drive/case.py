@@ -144,7 +144,7 @@ class Ren2014MemsCombDrive(ValidationCase):
         model.add_material(material)
 
         # Boundary conditions: 1 V on the three-tooth comb, 0 V on the four-tooth comb and
-        # the ground plate, as in Fig. 3 of Ren and Xu (2014) ----------------------------
+        # the ground plate, as in Fig. 3 of Ren (2014) ---------------------------------
         condition_comb1 = ElectricPotentialCondition(
             name="Comb1", marker="Comb1" @ Bnd, electric_potential=0.0
         )
@@ -212,7 +212,7 @@ class Ren2014MemsCombDrive(ValidationCase):
         )
 
     def load_reference(self):
-        """Elements [10^3] and the primal and dual FEM capacitances [fF] of Ren and Xu (2014),
+        """Elements [10^3] and the primal and dual FEM capacitances [fF] of Ren (2014),
         Fig. 4.
         """
         return numpy.loadtxt(
@@ -221,7 +221,7 @@ class Ren2014MemsCombDrive(ValidationCase):
 
     def validate(self):
         # The capacitance of the unshifted combs must lie between the lower (dual FEM) and upper
-        # (primal FEM) bound of Ren and Xu (2014) on their finest mesh of 152k elements.
+        # (primal FEM) bound of Ren (2014) on their finest mesh of 152k elements.
         _, upper, lower = self.load_reference()[-1]
         expect(
             self.final_capacitances()[0] / 1e-15,

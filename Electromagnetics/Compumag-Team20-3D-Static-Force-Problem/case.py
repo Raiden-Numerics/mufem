@@ -197,7 +197,7 @@ class Team20StaticForce(ValidationCase):
         sim.get_report_manager().add_report(self.pole_force_report)
 
         # Flux density in the gap below the pole: mid-point P1 and edge P2 of
-        # Takahashi et al. (1995).
+        # Takahashi (1995).
         self.gap_field_reports = {
             name: mufem.ProbeReport.SinglePoint(
                 f"Gap Field {name}", "Magnetic Flux Density", x=x, y=y, z=0.02575
@@ -225,7 +225,7 @@ class Team20StaticForce(ValidationCase):
     def validate(self):
         force = dict(self.pole_force)
 
-        # Measured force (Takahashi et al. (1995), Table 6); 1000 turns, so the current in A is the
+        # Measured force (Takahashi (1995), Table 6); 1000 turns, so the current in A is the
         # AT / 1000.
         for coil_current, measured_force in [(1.0, 8.1), (3.0, 54.4), (4.5, 75.0), (5.0, 80.1)]:
             expect(
@@ -235,7 +235,7 @@ class Team20StaticForce(ValidationCase):
                 label=f"pole force at {1000 * coil_current:.0f} AT [N]",
             )
 
-        # Measured Bz in the gap at 5000 AT (Takahashi et al. (1995), Table 4); at the edge P2,
+        # Measured Bz in the gap at 5000 AT (Takahashi (1995), Table 4); at the edge P2,
         # where the field changes abruptly, calculation and measurement are less accurate.
         expect(self.gap_field[-1]["P1"], 1.03, rel_tol=5e-2, label="Bz at P1 at 5000 AT [T]")
         expect(self.gap_field[-1]["P2"], 0.74, rel_tol=1e-1, label="Bz at P2 at 5000 AT [T]")
@@ -247,7 +247,7 @@ class Team20StaticForce(ValidationCase):
                 style=PlotStyle.LINE_AND_POINTS,
                 reference_file=f"{self.dir_path}/data/ReferenceForce.csv",
                 reference_style=PlotStyle.POINTS,
-                reference_label="Takahashi et al. (1994)",
+                reference_label="Takahashi (1994)",
                 xlabel="Coil Current [A]",
                 ylabel="Pole Force [N]",
                 xlim=(0.0, 5.4),

@@ -236,7 +236,7 @@ def create_magnetic_flux_density_plot(step: int, phase: float):
         ref[:, 1],
         1.0e-1 * (ref[:, 2] * np.cos(phase) + ref[:, 3] * np.sin(phase)),
         "ko-",
-        label="Reference",
+        label="Fujiwara (1990)",
         markersize=6.0,
         linewidth=2.0,
     )

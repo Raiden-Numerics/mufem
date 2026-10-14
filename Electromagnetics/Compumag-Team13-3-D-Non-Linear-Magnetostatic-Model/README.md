@@ -47,8 +47,8 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
   plotted by [plot_bh_table.py](data/plot_bh_table.py)).
 * The stranded coil is driven with 3000 AT: 500 turns of 3 A in the cross-section
   of the half coil, i.e. the same current density as 3000 AT in the full coil.
-* A Newton line search on the variational functional is enabled for
-  iterations 0-6 to stabilize the iterates through the saturation knee.
+* A Newton line search on the variational functional is enabled for the
+  first six iterations to stabilize the iterates through the saturation knee.
 
 The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is

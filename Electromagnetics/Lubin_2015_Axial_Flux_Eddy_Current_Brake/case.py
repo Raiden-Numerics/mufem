@@ -30,14 +30,14 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         from casekit.netgen_geometry import (
             annular_sector,
             color_air,
+            color_blue,
             color_copper,
             color_iron,
-            color_nice_blue,
-            color_nice_red,
+            color_red,
             name_body,
         )
 
-        # Dimensions of Table I in Lubin and Rezzoug (2015).
+        # Dimensions of Table I in Lubin (2015).
         inner_radius_magnets = 30e-3  # R1
         outer_radius_magnets = 60e-3  # R2
         inner_radius_plate = 15e-3  # R0
@@ -78,7 +78,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             magnet = magnet.Rotate(Axis(Pnt(0, 0, 0), Z), k * 360.0 / self.number_of_magnets)
             magnet = magnet.Move(Vec(0, 0, z))
 
-            color = color_nice_red if k % 2 == 0 else color_nice_blue
+            color = color_red if k % 2 == 0 else color_blue
             name_body(magnet, f"Magnet::{k}", color=color, individual_names=False)
             magnet.faces.maxh = 3.0e-3
             parts.append(magnet)
@@ -236,7 +236,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
     def validate(self):
         # Torque at the end of each speed step, against the analytical model of
-        # Lubin and Rezzoug (2015); the short transients (20 steps per speed) stay within about 8%
+        # Lubin (2015); the short transients (20 steps per speed) stay within about 8%
         # of it.
         reference = numpy.loadtxt(
             self.dir_path / "data" / "Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
@@ -275,7 +275,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_values=reference,
             reference_style=PlotStyle.LINE,
-            reference_label="Lubin & Rezzoug (2015)",
+            reference_label="Lubin (2015)",
             xlabel="Slip Speed [rpm]",
             ylabel="Torque [Nm]",
             xlim=(0, 3000),
@@ -292,9 +292,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         """Torque vs slip speed with an arrow at the current speed."""
         plt.clf()
 
-        plt.plot(
-            reference[:, 0], reference[:, 1], "k-", label="Lubin & Rezzoug (2015)", linewidth=3.0
-        )
+        plt.plot(reference[:, 0], reference[:, 1], "k-", label="Lubin (2015)", linewidth=3.0)
         plt.plot(*zip(*self.torque_vs_rpm), "ro", label="$\\mu$fem", markersize=10.0)
 
         plt.xlabel("Slip Speed [rpm]", fontsize=16)

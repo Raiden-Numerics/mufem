@@ -1,4 +1,4 @@
-# Total capacitance of the comb drive versus the number of elements, Ren and Xu (2014), Fig. 4:
+# Total capacitance of the comb drive versus the number of elements, Ren (2014), Fig. 4:
 # primal FEM (upper bound, values of the earlier digitization) and dual FEM (lower bound, read
 # from the figure; 4.376 fF at 39296 elements from Table I).
 # Elements (1e3), Primal FEM (fF), Dual FEM (fF)

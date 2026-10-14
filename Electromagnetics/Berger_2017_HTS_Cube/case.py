@@ -95,7 +95,7 @@ class Berger2017HtsCube(ValidationCase):
         air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
 
         # n=25, Jc=2.5e6 A/m^2, Ec=1e-4 V/m, close to measurements on cylindrical Bi-2223
-        # samples, Berger et al. (2017), §II.B.
+        # samples, Berger (2017), §II.B.
         hts_material = SuperconductorMagneticMaterial(
             name="Bi-2223",
             marker="Cube" @ Vol,
@@ -157,7 +157,7 @@ class Berger2017HtsCube(ValidationCase):
 
         expect(loss.max(), 0.02983, rel_tol=1e-2, label="peak AC loss [W]")
 
-        # Steady-state average loss over the second half-period, Eq. (3) of Berger et al. (2017),
+        # Steady-state average loss over the second half-period, Eq. (3) of Berger (2017),
         # against model (B.3) of Table III; the six models spread by up to 10.2 % around it.
         half = numpy.argmin(abs(time - self.period / 2))
         average_loss = 2.0 / self.period * numpy.trapezoid(loss[half:], time[half:])
@@ -172,7 +172,7 @@ class Berger2017HtsCube(ValidationCase):
                 style=PlotStyle.LINE_AND_POINTS,
                 reference_file=f"{self.dir_path}/data/AC_Losses_B20mT.csv",
                 reference_style=PlotStyle.POINTS,
-                reference_label="Berger et al. (2017)",
+                reference_label="Berger (2017)",
                 xlabel="Time [ms]",
                 ylabel="Ohmic Heating [mW]",
                 xlim=(0.0, 1.0e3 * self.period),

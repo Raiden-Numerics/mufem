@@ -132,7 +132,7 @@ mesh is kept for its runtime.
 
 ## References
 
-[1] N. Allen and D. Rodger. *Description of TEAM Workshop Problem 24: Nonlinear Time-Transient Rotational Test Rig*. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
+[1] N. Allen and D. Rodger (1996). *Description of TEAM Workshop Problem 24: Nonlinear Time-Transient Rotational Test Rig*. Proc. TEAM Workshop, Sixth Round, Okayama, Japan. https://www.compumag.org/wp/wp-content/uploads/2018/06/problem24.pdf
 
 [2] D. Rodger, N. Allen, H. C. Lai and P. J. Leonard (1994). *Calculation of transient 3D eddy currents in nonlinear media - verification using a rotational test rig*. IEEE Transactions on Magnetics, 30(5), 2988–2991.
 

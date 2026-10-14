@@ -307,7 +307,7 @@ class Team24LockedRotor(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_values=hall_probe_ref,
             reference_style=PlotStyle.POINTS,
-            reference_label="Allen and Rodger (TEAM 24)",
+            reference_label="Allen (1996)",
             xlabel="Time [s]",
             ylabel="Hall Probe $B_y$ [T]",
             xlim=(0.0, 0.15),
@@ -321,7 +321,7 @@ class Team24LockedRotor(ValidationCase):
         common = dict(
             style=PlotStyle.LINE_AND_POINTS,
             reference_style=PlotStyle.POINTS,
-            reference_label="Allen and Rodger (TEAM 24)",
+            reference_label="Allen (1996)",
             xlabel="Time [s]",
             xlim=(0.0, 0.15),
             xticks=[0.0, 0.05, 0.1, 0.15],

@@ -7,7 +7,7 @@ The common case — one computed curve versus one CSV reference — is a single 
     xy_plot(
         values=center_piece_force_list,
         reference_file=f"{dir_path}/data/ReferenceForce.csv",
-        reference_label="Takahashi & Nakata (1994)",
+        reference_label="Takahashi (1994)",
         xlabel="Coil Current [A]",
         ylabel="Pole Force [N]",
         path=f"{dir_path}/results/Force_vs_Current.png",

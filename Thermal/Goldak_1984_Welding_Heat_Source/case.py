@@ -132,7 +132,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         model.add_materials([steel])
 
         # Conditions -------------------------------------------------------------------
-        # Goldak source parameters from Table 2 of Goldak et al. (1984).
+        # Goldak source parameters from Table 2 of Goldak (1984).
         cff_q = make_goldak_double_ellipsoid(
             Q=0.95 * 32.9 * 1170.0,  # eta * V * I [W]
             v=5.0e-3,
@@ -164,7 +164,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
 
         # Radiative/convective loss on the top surface, q = H (T - T0) with the combined
         # heat transfer coefficient H = 24.1e-4 eps T^1.61 [W/(m^2 K)], T in °C, eps = 0.9,
-        # Goldak et al. (1984), Eq. (18). As there, the surface under the arc is insulated
+        # Goldak (1984), Eq. (18). As there, the surface under the arc is insulated
         # (here the footprint of the double ellipsoid).
         def insulated_under_arc(expr):
             return f"""
@@ -198,7 +198,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         self.temperature = [(p.x, T - 273.15) for p, T in probe_report.evaluate_all()]  # °C
 
         # Outside the weld pool against the measurement of Christensen et al. in Fig. 8 of
-        # Goldak et al. (1984). The 3D model, with heat flow along the weld, runs about 10-16 %
+        # Goldak (1984). The 3D model, with heat flow along the weld, runs about 10-16 %
         # colder there than the measurement; inside the pool the mushy-zone model keeps the
         # temperature near the liquidus.
         ref_x, ref_T = numpy.loadtxt(
@@ -224,7 +224,7 @@ class Goldak1984WeldingHeatSource(ValidationCase):
                 style=PlotStyle.LINE_AND_POINTS,
                 reference_values=list(zip(ref_x * 1e3, ref_T)),
                 reference_style=PlotStyle.POINTS,
-                reference_label="Goldak et al. (1984)",
+                reference_label="Goldak (1984)",
                 xlabel="Position [mm]",
                 ylabel="Temperature [°C]",
                 path=f"{self.results_path / 'Temperature_vs_Position.png'}",

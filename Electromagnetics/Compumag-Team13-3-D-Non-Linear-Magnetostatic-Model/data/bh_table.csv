@@ -1,5 +1,5 @@
 # B-H curve of the TEAM problem 13 steel: Fig. 3 of the Compumag problem description and
-# Table 2 of Nakata & Fujiwara (1992) up to 1.8 T; above, Eq. (1) of the problem description:
+# Table 2 of Nakata (1992) up to 1.8 T; above, Eq. (1) of the problem description:
 # B = mu0 H + a H^2 + b H + c (1.8 <= B <= 2.22 T, a = -2.381e-10, b = 2.327e-5, c = 1.590)
 # and B = mu0 H + 2.16 T (B >= 2.22 T).
 # B[T],H[A/m]

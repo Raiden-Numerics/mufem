@@ -27,7 +27,7 @@ class Team7AsymmetricalConductor(ValidationCase):
     # Solved in this order, so that the exported fields belong to 50 Hz.
     frequencies = (200, 50)
 
-    # Measurement lines of B_z at z = 34 mm (Fujiwara and Nakata (1990), Table 4): name, y [m].
+    # Measurement lines of B_z at z = 34 mm (Fujiwara (1990), Table 4): name, y [m].
     flux_density_lines = (("A1-B1", 0.072), ("A2-B2", 0.144))
 
     # Tolerance of the relative L2 error of B_z against the measurement per frequency.
@@ -225,10 +225,14 @@ class Team7AsymmetricalConductor(ValidationCase):
 
     def plot_line(self, x, values, ref_x, ref_values, ylabel, title, path):
         plt.clf()
-        plt.plot(ref_x, ref_values.real, "ko", markersize=6, label="Measured ($\\omega t = 0°$)")
-        plt.plot(ref_x, ref_values.imag, "ks", markersize=6, label="Measured ($\\omega t = 90°$)")
-        plt.plot(x, values.real, color="r", linewidth=3.0, label="$\\mu$fem ($\\omega t = 0°$)")
-        plt.plot(x, values.imag, color="b", linewidth=3.0, label="$\\mu$fem ($\\omega t = 90°$)")
+        plt.plot(
+            ref_x, ref_values.real, "ko", markersize=6, label="Fujiwara (1990), $\\omega t = 0°$"
+        )
+        plt.plot(
+            ref_x, ref_values.imag, "ks", markersize=6, label="Fujiwara (1990), $\\omega t = 90°$"
+        )
+        plt.plot(x, values.real, color="r", linewidth=3.0, label="$\\mu$fem, $\\omega t = 0°$")
+        plt.plot(x, values.imag, color="b", linewidth=3.0, label="$\\mu$fem, $\\omega t = 90°$")
         plt.xlabel("Position x [mm]")
         plt.ylabel(ylabel)
         plt.title(title)

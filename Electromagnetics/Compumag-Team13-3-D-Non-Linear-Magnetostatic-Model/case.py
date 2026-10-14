@@ -112,7 +112,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
 
         line_search = magnetic_model.get_solver().get_line_search()
         line_search.set_active(True)
-        line_search.set_iteration_window(min_iter=0, max_iter=6)
+        line_search.set_iteration_window(min_iter=1, max_iter=6)
 
         # Materials --------------------------------------------------------------------
         air_material = TimeDomainMagneticGeneralMaterial(name="Air", marker="Air" @ Vol)
@@ -164,7 +164,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         )
         self.flux_density = [(p.x, v.mag) for p, v in probe_report.evaluate_all()]
 
-        # Measured |B| at x = 10, 20, ..., 110 mm (Nakata & Fujiwara 1992, Table 7). The
+        # Measured |B| at x = 10, 20, ..., 110 mm (Nakata (1992), Table 7). The
         # A-formulation codes of that workshop are also 10-20 % above the measurement in the
         # air (their Fig. 9), so the mean ratio over the line is checked.
         measured = numpy.loadtxt(
@@ -196,7 +196,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
                 reference_xscale=1000.0,
                 reference_yscale=1000.0,
                 reference_style=PlotStyle.POINTS,
-                reference_label="Nakata & Fujiwara (1992), measured",
+                reference_label="Nakata (1992)",
                 xlabel="x [mm]",
                 ylabel="B [mT]",
                 xlim=(0.0, 120.0),

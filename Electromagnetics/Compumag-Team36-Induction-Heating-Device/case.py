@@ -299,7 +299,7 @@ class Team36InductionHeating(ValidationCase):
             vis.save()
 
     def validate(self):
-        # Temperatures at t = 100 s; Di Barba et al. (2018), Fig. 8a, interpolated.
+        # Temperatures at t = 100 s; Di Barba (2018), Fig. 8a, interpolated.
         # mufem stays about 2% below the reference curves here.
         temperature = {
             name: monitor.get_values()[-1][1] - 273.15
@@ -323,7 +323,7 @@ class Team36InductionHeating(ValidationCase):
             style=PlotStyle.LINE_AND_POINTS,
             reference_values=list(zip(ref_t, ref_p * 1e-3)),
             reference_style=PlotStyle.POINTS,
-            reference_label="Di Barba et al. (2017)",
+            reference_label="Di Barba (2017)",
             xlabel="Time t [s]",
             ylabel="Ohmic Heating [kW]",
             xlim=(0, 80),
@@ -343,7 +343,7 @@ class Team36InductionHeating(ValidationCase):
                 style=PlotStyle.LINE_AND_POINTS,
                 reference_values=list(zip(ref_t, ref_T)),
                 reference_style=PlotStyle.POINTS,
-                reference_label="Di Barba et al. (2018)",
+                reference_label="Di Barba (2018)",
                 xlabel="Time [s]",
                 ylabel="Temperature [°C]",
                 xlim=(0, 100),

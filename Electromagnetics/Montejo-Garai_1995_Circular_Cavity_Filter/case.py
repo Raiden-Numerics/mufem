@@ -27,7 +27,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
     # [Hz] frequencies at which the field is visualized
     visualized_frequencies = (12e9, 14e9)
 
-    # Measured passband points of Montejo-Garai and Zapata (1995), Fig. 2, checked
+    # Measured passband points of Montejo-Garai (1995), Fig. 2, checked
     # against the computed |S21|.
     checked_frequencies = (13.637e9, 13.841e9, 14.038e9, 14.240e9, 14.441e9)
 
@@ -213,9 +213,9 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         if self.precalculate:
             return
 
-        # |S21| in the passband against the measurement of Montejo-Garai and Zapata (1995).
+        # |S21| in the passband against the measurement of Montejo-Garai (1995).
         # In the stopband the computed transmission lies up to 3 dB below the measurement, as
-        # does the finite element result of Liu et al. (2002).
+        # does the finite element result of Liu (2002).
         measured = numpy.loadtxt(
             self.dir_path / "data" / "Montejo-Garai_1995.csv", delimiter=",", comments="#"
         )
@@ -245,9 +245,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
         # Reference data:
         data = numpy.loadtxt(self.dir_path / "data" / "Montejo-Garai_1995.csv", delimiter=",")
-        plt.plot(
-            data[:, 0], data[:, 1], "k^", label="Montejo-Garai 1995 (measured)", markersize=10
-        )
+        plt.plot(data[:, 0], data[:, 1], "k^", label="Montejo-Garai (1995)", markersize=10)
 
         # Precalculated spectrum:
         precalculated = self.load_precalculated()

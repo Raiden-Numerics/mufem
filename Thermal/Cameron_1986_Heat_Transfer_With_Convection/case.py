@@ -18,11 +18,11 @@ class Cameron1986(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.netgen_geometry import color_nice_green, name_body
+        from casekit.netgen_geometry import color_green, name_body
 
         plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
 
-        name_body(plate_body, "Plate", color=color_nice_green)
+        name_body(plate_body, "Plate", color=color_green)
 
         plate_body.faces.Min(X).name = "Plate::Insulated"
         plate_body.faces.Max(X).name = "Plate::AmbientTemperature"
@@ -87,7 +87,7 @@ class Cameron1986(ValidationCase):
 
     def validate(self):
         # NAFEMS T4 target temperature at point E on the right edge, 0.2 m above the bottom
-        # (Cameron et al. (1986)).
+        # (Cameron (1986)).
         report = mufem.ProbeReport.SinglePoint(
             name="TemperatureReport",
             cff_name="Temperature",
