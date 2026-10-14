@@ -193,28 +193,10 @@ reports every check. To run all cases, or all cases below a directory, use `run_
 ```bash
 (mufem-venv) python run_cases.py                       # all cases
 (mufem-venv) python run_cases.py Thermal               # all thermal cases
-(mufem-venv) python run_cases.py --exclude-tag long --exclude-tag eternal
 ```
 
-Cases are tagged by their run time (`moderate`, `long`, `eternal`), by `mumps` if they need the
-MUMPS direct solver, and by `rebuild_mesh` if their mesh is not committed; `--exclude-tag` skips the
-cases with a tag, and `--launcher` sets the command that runs each case (default `pymufem`).
-
-Each case loads its committed mesh (`geometry.mesh`, or `geometry.msh` for the cases meshed with
-gmsh). The geometry and mesh are built in the case itself, together with `geometry.step`, using
-[netgen](https://ngsolve.org/) or [gmsh](https://gmsh.info/) (both installed with the shared helpers),
-and can be regenerated with:
-
-```bash
-(mufem-venv) pymufem Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
-```
-
-The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
-does both for every case). The meshes of
-[Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
-(`geometry_xshift=<shift>.msh`, one per comb shift) are not committed and have to be built this way
-before the first run. The committed netgen meshes were generated with netgen-mesher 6.2.2608; other
-versions produce slightly different meshes, but the results should still pass the case's checks.
+See [VALIDATION.md](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md)
+for the options of `run_cases.py`, the case tags, and how the meshes are built.
 
 ### Electromagnetics
 
