@@ -3,7 +3,7 @@
 The view is the one of the scene of create_scene.py, horizontal along (-1, 0, 1) so that the
 applied field (y) stays vertical; three arrows show the applied field. Needs a display; headless:
 
-    xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
+    xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
 
 from pathlib import Path

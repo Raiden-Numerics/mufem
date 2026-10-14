@@ -37,7 +37,7 @@ lid.
 ## Running
 
 Run the case with `pymufem case.py`. Figure 1 shows the geometry rendered from `geometry.step` with
-the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py); the mesh image and the
+the netgen viewer by [create_geometry_image.py](create_geometry_image.py); the mesh image and the
 scenes of Figure 3 are rendered from the case output with ParaView by [create_scene.py](create_scene.py)
 (run with `pvpython create_scene.py` after the case). All use the same isometric view.
 

@@ -1,8 +1,8 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The modeled sector is shown in an isometric view. Needs a display; headless:
+The view is the one of the scenes of create_scene.py. Needs a display; headless:
 
-    xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
+    xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
 
 from pathlib import Path
@@ -14,6 +14,6 @@ from casekit.netgen_image import snapshot, trim
 case_dir = Path(__file__).resolve().parent
 
 solids = OCCGeometry(f"{case_dir}/geometry.step").shape.solids
-# Isometric view along (-1, 1, 1) with the axis of the device (y) up.
-image = snapshot(solids, direction=(-1, 1, 1), up=(0, 1, 0))
+# The camera of the scenes of create_scene.py: onto the symmetry plane x = 0 and the top surface.
+image = snapshot(solids, direction=(-0.25, 0.17, -0.15), up=(0.3, 0.9, 0.2))
 trim(image).save(case_dir / "data" / "Geometry.png")

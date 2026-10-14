@@ -2,7 +2,7 @@
 
 The view is the one of the animation of create_scene.py. Needs a display; headless:
 
-    xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
+    xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
 
 from pathlib import Path

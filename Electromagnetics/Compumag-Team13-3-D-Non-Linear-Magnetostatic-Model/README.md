@@ -48,7 +48,7 @@ parts, which contains a sharp Rayleigh region followed by deep saturation (Figur
   second-order accurate; eddy currents are not relevant in this static case.
 * The steel uses the $`B(H)`$ curve of Fig. 3 of [1] (Table 2 of [3]) up to
   1.8 T, extended above 1.8 T with Eq. (1) of [1] ([bh_table.csv](data/bh_table.csv),
-  plotted by [plot_bh_table.py](data/plot_bh_table.py)).
+  plotted by [plot_bh_curve.py](data/plot_bh_curve.py)).
 * The stranded coil is driven with 3000 AT: 500 turns of 3 A in the cross-section
   of the half coil, i.e. the same current density as 3000 AT in the full coil.
 * A Newton line search on the variational functional is enabled for the
@@ -58,7 +58,7 @@ The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is
 regenerated with `pymufem case.py --rebuild-mesh`.
 Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[netgen_geometry_image.py](netgen_geometry_image.py), in the view of Figure 4.
+[create_geometry_image.py](create_geometry_image.py), in the view of Figure 4.
 
 
 ## Running

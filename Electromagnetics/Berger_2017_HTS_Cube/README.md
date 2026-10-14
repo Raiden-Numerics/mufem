@@ -119,7 +119,7 @@ The geometry is built with netgen in the `build_geometry` method of
 `generate_mesh`; both run only when the mesh is regenerated with
 `pymufem case.py --rebuild-mesh`.
 Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[netgen_geometry_image.py](netgen_geometry_image.py), with the cube enlarged six times.
+[create_geometry_image.py](create_geometry_image.py), with the cube enlarged six times.
 
 
 ## Running

@@ -77,7 +77,7 @@ where $`\vec{n}`$ is the normal along the surface. Note that only the z-componen
 
 ### Materials
 
-While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong nonlinearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [1] is used, also shown in Figure 3 (plotted by [plot_bh_table.py](data/plot_bh_table.py)).
+While the *coil* and *air* have vacuum permeability, the *Yoke* and *Pole* are iron materials with a strong nonlinearity given by the B(H) curve with a Rayleigh region and saturation. Robustly capturing the Rayleigh region and saturation effects is numerically challenging. In the benchmark case, the tabulated [B-H curve](data/Table_1_BH_Curve.csv) of Table 1 of [1] is used, also shown in Figure 3 (plotted by [plot_bh_curve.py](data/plot_bh_curve.py)).
 
 <div align="center">
 <img src="./data/bh_curve.png" alt="BH Curve" width="75%">
@@ -118,7 +118,7 @@ quarter model, attractive in $`-z`$) and $`B_z`$ in the gap. Finally, we generat
 of the force versus the coil current.
 
 Figures 1 and 2 and the scene of Figure 5 share the isometric view onto the symmetry planes. Figure 1
-is rendered from `geometry.step` with the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py);
+is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py);
 Figures 2 and 5 are rendered with ParaView by [create_scene.py](create_scene.py) (run with
 `pvpython create_scene.py` after the case).
 

@@ -80,11 +80,10 @@ anticlockwise seen from $`+z`$ as in [1].
 
 Run the case with `pymufem case.py`.
 
-The animation (see Scenes) is generated with [`create_anim.sh`](create_anim.sh), which runs
-[`create_scene.py`](create_scene.py) in ParaView (`PARAVIEW_PATH` set to the ParaView installation)
-on the fields exported by the case.
+The animation (see Scenes) is rendered with ParaView by [create_scene.py](create_scene.py) from the
+fields exported by the case (run with `pvpython create_scene.py`, requires `ffmpeg`).
 The geometry image (Figure 1) is rendered from `geometry.step` with the netgen viewer by
-[netgen_geometry_image.py](netgen_geometry_image.py), in the view of the animation.
+[create_geometry_image.py](create_geometry_image.py), in the view of the animation.
 
 ## Results
 

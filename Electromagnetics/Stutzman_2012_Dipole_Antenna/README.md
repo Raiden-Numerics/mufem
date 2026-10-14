@@ -127,8 +127,8 @@ outlined in the
 [Visualization](https://raiden-numerics.github.io/mufem-doc/framework/visualization.html)
 section of the documentation.
 We then use the script from the
-[paraview_electric_field.py](paraview_electric_field.py) file to plot it in
-ParaView.
+[create_scene.py](create_scene.py) file to plot it in
+ParaView (run with `pvpython create_scene.py`).
 
 
 ## Results
@@ -139,7 +139,7 @@ To visualize the antenna's radiation pattern, we employ the
 [Far-Field Radiation Sensor](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/reports/far_field_radiation_sensor.html)
 to generate the far-field data.
 Subsequently, we utilize the
-[paraview_radiation_pattern.py](paraview_radiation_pattern.py) file to plot it
+[create_scene.py](create_scene.py) file to plot it
 in ParaView.
 As shown in Figure 3, the resulting radiation pattern exhibits a donut-like shape,
 characteristic of dipole radiation.

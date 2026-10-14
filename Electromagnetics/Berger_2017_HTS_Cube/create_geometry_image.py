@@ -3,7 +3,7 @@
 The cube is enlarged six times for visibility; the view looks onto the symmetry planes x = 0
 and z = 0. Needs a display; headless:
 
-    xvfb-run -a -s "-screen 0 2400x1600x24" python netgen_geometry_image.py
+    xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
 
 from pathlib import Path

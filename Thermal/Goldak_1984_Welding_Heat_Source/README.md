@@ -96,7 +96,7 @@ passes; the case insulates the footprint of the double ellipsoid ($`|x| < a`$, $
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
 The geometry image above is rendered from `geometry.step` with the netgen viewer by
-[netgen_geometry_image.py](netgen_geometry_image.py), in the view of the scenes.
+[create_geometry_image.py](create_geometry_image.py), in the view of the scenes.
 
 ## Running
 

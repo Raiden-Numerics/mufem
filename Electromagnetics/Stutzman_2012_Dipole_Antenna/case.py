@@ -228,7 +228,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         if not self.is_main():
             return
 
-        # 3D pattern for paraview_radiation_pattern.py.
+        # 3D pattern for create_scene.py.
         numpy.savez(
             self.results_path / "Far_Field_3D.npz",
             thetas=self.thetas,

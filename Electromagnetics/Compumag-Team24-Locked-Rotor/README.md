@@ -52,7 +52,7 @@ B(H) = \frac{H}{a + b H} + \mu_0 H \quad,
 ```
 
 with $`a`$ and $`b`$ fitted to the first four points of Table I and the result scaled to pass through
-the first measured point. The script [plot.py](data/tables/plot.py) fits the curve, writes it to `Updated_BH_curve.csv` and plots both curves (Figure 2).
+the first measured point. The script [plot_bh_curve.py](data/plot_bh_curve.py) fits the curve, writes it to `Updated_BH_curve.csv` and plots both curves (Figure 2).
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Updated B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
@@ -91,11 +91,11 @@ air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corn
 
 Run the case with `pymufem case.py`.
 
-Figure 1 is rendered from the geometry with `netgen_geometry_image.py`. Figure 3 is rendered with
-`pvbatch paraview_element_type.py` after a run with `output_for_animation = True`.
-
-To generate the animation (Figure 5), set `output_for_animation = True` in `case.py`, run the case, and then
-run `pvbatch paraview_gif.py` (requires ParaView and `ffmpeg`).
+Figure 1 is rendered from the geometry with [create_geometry_image.py](create_geometry_image.py).
+Figure 3 and the animation (Figure 5) are rendered with ParaView by
+[create_scene.py](create_scene.py). To produce its input, set `output_for_animation = True` in
+[case.py](case.py) and run the case; then run `pvpython create_scene.py` in the case directory
+(requires `ffmpeg`).
 
 ## Results
 

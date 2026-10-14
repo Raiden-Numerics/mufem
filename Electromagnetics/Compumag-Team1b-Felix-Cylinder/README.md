@@ -46,7 +46,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 ## Running
 
-Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case). Figure 1 is rendered from `geometry.step` with the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py), in the same view as Figure 3.
+Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case). Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), in the same view as Figure 3.
 
 ## Results
 

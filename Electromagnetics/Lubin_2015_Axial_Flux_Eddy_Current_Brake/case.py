@@ -21,7 +21,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     number_of_magnets = 10
 
     # export the fields to VisualizationOutput/ and torque frames to vis/ for every time step
-    # (see create_animation.py)
+    # (see create_scene.py)
     output_for_animation = False
 
     def build_geometry(self):

@@ -35,7 +35,7 @@ No internal heat generation is present.
 ## Running
 
 Run the case with `pymufem case.py`. The geometry image of Figure 1 is rendered from `geometry.step`
-with the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py), the mesh image by
+with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), the mesh image by
 [create_scene.py](create_scene.py).
 
 ## Results

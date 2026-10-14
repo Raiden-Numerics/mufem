@@ -75,13 +75,13 @@ For our setup ($`p = 5`$, $`d = 5\,\mathrm{mm}`$ copper), with $`N = 40`$ and $`
 
 We use $`\Delta t = 0.5\,\mathrm{ms}`$ throughout, coarser than both estimates: about 3 times $`\Delta t_e`$ at 2000 rpm and about 6 times $`\Delta t_d`$. The case simulates the slip speeds 500, 1000 and 2000 rpm; after each rotation-rate change, we advance for 20 time steps before evaluating the quasi-steady torque. First-order elements are used.
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. Figure 1 is rendered from `geometry.step` with the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py).
+The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py).
 
 ## Running
 
 Run the case with `pymufem case.py`.
 
-The animation shown in the Scenes section is rendered with ParaView by [create_animation.py](create_animation.py). To produce its input, set `output_for_animation = True` in [case.py](case.py) and run the case; it then exports the fields to `VisualizationOutput/` and writes a torque plot into `vis/` for every time step (30 steps per slip speed). Afterwards run `pvpython create_animation.py` in the case directory (requires `ffmpeg`).
+The animation shown in the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py). To produce its input, set `output_for_animation = True` in [case.py](case.py) and run the case; it then exports the fields to `VisualizationOutput/` and writes a torque plot into `vis/` for every time step (30 steps per slip speed). Afterwards run `pvpython create_scene.py` in the case directory (requires `ffmpeg`).
 
 ## Results
 

@@ -47,7 +47,7 @@ display.SetScalarBarVisibility(view, False)
 pvs.Hide(temperature, view)
 
 # Mesh, in the flat color of the plate in data/Geometry.png and at the size and position of the
-# plate there (see netgen_geometry_image.py), so that both images of Figure 1 match.
+# plate there (see create_geometry_image.py), so that both images of Figure 1 match.
 display = show(data, view, color=(0.02, 0.69, 0.5), edges=True)
 display.Ambient = 1.0
 display.Diffuse = 0.0

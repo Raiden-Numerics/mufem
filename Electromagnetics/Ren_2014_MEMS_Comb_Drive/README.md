@@ -122,7 +122,8 @@ the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines 
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
 obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for
-subsequent visualization using [ParaView](https://www.paraview.org/).
+subsequent visualization using [ParaView](https://www.paraview.org/) by [create_scene.py](create_scene.py)
+(run with `pvpython create_scene.py`, requires `ffmpeg`).
 
 
 ## Results
@@ -151,7 +152,7 @@ becomes denser near the edges of the combs, where the electric potential changes
 <img src="results/Scene_Electric_Potential_1_Mesh.png" width="45%" />
 <br/>
 <br/>
-<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement. The images are obtained using <a href="paraview_mesh.py">paraview_mesh.py</a> file.</em>
+<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement. The images are rendered by <a href="create_scene.py">create_scene.py</a>.</em>
 </div>
 <br/>
 
@@ -212,7 +213,7 @@ where the combs are pulled together when voltage is applied.
 <img src="results/Electric_Potential.gif" width="75%">
 <br/>
 <br/>
-<em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is obtained using <a href="paraview_gif.py">paraview_gif.py</a> file.</em>
+<em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is rendered by <a href="create_scene.py">create_scene.py</a>.</em>
 </div>
 <br/>
 

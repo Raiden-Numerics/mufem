@@ -25,7 +25,7 @@ class Team24LockedRotor(ValidationCase):
     tags = {"moderate"}
 
     # export the fields to VisualizationOutput/ and the plots to vis/ for every time step
-    # (see paraview_gif.py)
+    # (see create_scene.py)
     output_for_animation = False
 
     def build_geometry(self):

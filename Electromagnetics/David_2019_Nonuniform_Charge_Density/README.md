@@ -437,8 +437,8 @@ distribution), and at $`r = 5`$ m, outside the charge, where it is 0.5 % below.
 
 To visualize the exported electric field data, we use
 [ParaView](https://www.paraview.org/).
-The corresponding Python script is available in the [paraview.py](paraview.py)
-file.
+The corresponding Python script is available in the [create_scene.py](create_scene.py)
+file (run with `pvpython create_scene.py`).
 Figure 2 illustrates the distribution of the $`x`$-component of the
 electric field in the $`z=0`$ cross-section.
 
