@@ -21,26 +21,6 @@ pylab.ylabel("Magnetic Flux Density [T]")
 pylab.savefig("Table_1_BH_curve.png", bbox_inches="tight")
 
 
-# Plot the coil current
-pylab.clf()
-
-coil_current = pylab.loadtxt("Table_3_Coil_Current.csv", delimiter=",", comments="#")
-
-
-pylab.xlim((0, 0.15))
-pylab.ylim((0.0, 8.0))
-
-pylab.xticks([0.0, 0.05, 0.1, 0.15])
-pylab.yticks([0.0, 2.0, 4.0, 6.0, 8.0])
-
-pylab.xlabel("Time [s]")
-pylab.ylabel("Coil Current [A]")
-
-pylab.plot(coil_current[:, 0], coil_current[:, 1], linewidth=2.5)
-
-pylab.savefig("Table_3_Coil_Current.png", bbox_inches="tight")
-
-
 # Update the BH curve (we need to update the augment the BH curve with the modified Fröhlich model
 # to ensure reasonable well behaved BH curve at low magnetic field strengths)
 

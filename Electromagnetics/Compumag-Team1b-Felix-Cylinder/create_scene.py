@@ -1,15 +1,20 @@
-import paraview.simple as pvs
 import os
+
+import paraview.simple as pvs
+from PIL import Image, ImageOps
 
 renderView1 = pvs.CreateView("RenderView")
 
 
 renderView1.Set(
     ViewSize=[1600, 1300],
-    CameraPosition=[-0.331145, 0.126167, -0.215592],
-    CameraFocalPoint=[0.00336064, -0.0151335, 0.00804053],
-    CameraViewUp=[0.222756, 0.939455, 0.260393],
+    OrientationAxesVisibility=0,
+    # The horizontal view along (-1, 0, 1) with y up, as the geometry image data/Geometry.png.
+    CameraPosition=[-0.3324, 0.0, 0.3324],
+    CameraFocalPoint=[0.0, 0.0, 0.0],
+    CameraViewUp=[0.0, 1.0, 0.0],
     CameraViewAngle=30.0,
+    CameraParallelProjection=1,
     EyeAngle=2.0,
     CameraFocalDisk=1.0,
     CameraFocalDistance=0.0,
@@ -65,13 +70,16 @@ scalar_bar.Title = "Electric Current Density [A/m²]"
 scalar_bar.ComponentTitle = ""
 scalar_bar.UseCustomLabels = True
 scalar_bar.CustomLabels = [0, 1.0e6, 2.0e6, 3.0e6]
+scalar_bar.AddRangeLabels = 0
+scalar_bar.AutomaticLabelFormat = 0
+scalar_bar.LabelFormat = "%.0e"
 scalar_bar.TitleFontSize = 32
 scalar_bar.LabelFontSize = 28
 scalar_bar.TitleBold = 1
 scalar_bar.LabelBold = 1
 scalar_bar.TitleColor = [0, 0, 0]
 scalar_bar.LabelColor = [0, 0, 0]
-scalar_bar.Position = [0.58, 0.1]
+scalar_bar.Position = [0.35, 0.05]
 scalar_bar.ScalarBarLength = 0.3
 scalar_bar.ScalarBarThickness = 40
 
@@ -86,8 +94,22 @@ glyph1Display.Set(
 glyph1Display.SetScalarBarVisibility(renderView1, True)
 
 
+# Fit the cylinder (radius 0.07 m, length 0.2 m) with room for the color bar below it.
+renderView1.CameraFocalPoint = [0.0, -0.016, 0.0]
+renderView1.CameraPosition = [-0.3324, -0.016, 0.3324]
+renderView1.CameraParallelScale = 0.12
+
 pvs.Render()
-pvs.SaveScreenshot(
-    f"{script_dir}/results/Scene_Electric_Current_Density.png",
-    OverrideColorPalette="WhiteBackground",
+path = f"{script_dir}/results/Scene_Electric_Current_Density.png"
+pvs.SaveScreenshot(path, OverrideColorPalette="WhiteBackground")
+
+# Trim the white margins, keeping a small border.
+image = Image.open(path).convert("RGB")
+left, top, right, bottom = ImageOps.invert(image).getbbox()
+box = (
+    max(left - 20, 0),
+    max(top - 20, 0),
+    min(right + 20, image.width),
+    min(bottom + 20, image.height),
 )
+image.crop(box).save(path)

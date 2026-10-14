@@ -13,9 +13,10 @@ def create_scene(index: int, show: bool = False):
     renderView1 = pvs.CreateView("RenderView")
 
     renderView1.Set(
-        ViewSize=[1600, 1300],
-        CameraPosition=[0.0, 0.0, 0.45],
-        # CameraFocalPoint=[0.00336064, -0.0151335, 0.00804053],
+        ViewSize=[1900, 1300],
+        # Shifted so that the stator sits on the left and the color bar fits on the right.
+        CameraPosition=[0.025, 0.0, 0.45],
+        CameraFocalPoint=[0.025, 0.0, 0.0],
         CameraViewUp=[0, 1, 0],
         CameraViewAngle=30.0,
         EyeAngle=2.0,
@@ -53,21 +54,24 @@ def create_scene(index: int, show: bool = False):
     ctf.RescaleTransferFunction(0, 3.0e5)
 
     scalar_bar = pvs.GetScalarBar(ctf)
-    scalar_bar.Orientation = "Horizontal"
+    scalar_bar.Orientation = "Vertical"
     scalar_bar.WindowLocation = "Any Location"
 
     scalar_bar.Title = "Electric Current Density [A/m²]"
     scalar_bar.ComponentTitle = ""
     scalar_bar.UseCustomLabels = True
     scalar_bar.CustomLabels = [0, 1.0e5, 2.0e5, 3.0e5]
+    scalar_bar.AddRangeLabels = 0
+    scalar_bar.AutomaticLabelFormat = 0
+    scalar_bar.LabelFormat = "%.0e"
     scalar_bar.TitleFontSize = 32
     scalar_bar.LabelFontSize = 28
     scalar_bar.TitleBold = 1
     scalar_bar.LabelBold = 1
     scalar_bar.TitleColor = [0, 0, 0]
     scalar_bar.LabelColor = [0, 0, 0]
-    scalar_bar.Position = [0.58, 0.1]
-    scalar_bar.ScalarBarLength = 0.3
+    scalar_bar.Position = [0.8, 0.25]
+    scalar_bar.ScalarBarLength = 0.5
     scalar_bar.ScalarBarThickness = 40
 
     pvs.Render()

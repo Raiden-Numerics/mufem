@@ -11,19 +11,21 @@ import os
 import matplotlib
 import netgen
 import netgen.gui
-from netgen.occ import Glue, OCCGeometry
-from PIL import Image, ImageDraw, ImageFont
+from netgen.occ import Axis, Glue, OCCGeometry, Pnt, Y
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 width, height = 1969, 1135
 
 shape = OCCGeometry(f"{script_dir}/geometry.step").shape
+# netgen looks along -z with y up, as the animation of paraview_gif.py; a small turn about y
+# shows the depth of the air volume.
+shape = shape.Rotate(Axis(Pnt(0, 0, 0), Y), 20)
 OCCGeometry(Glue(shape.solids)).Draw()
 
 tk = netgen.gui.win.tk
 tk.eval(f"wm geometry . {width}x{height}")
 netgen.Redraw(blocking=True)
-tk.eval("Ng_MouseMove 0 0 25 20 rotate")
 tk.eval("Ng_MouseMove 0 0 0 -15 zoom")
 netgen.Redraw(blocking=True)
 
@@ -45,14 +47,26 @@ def arrow(start, end, head=22):
     )
 
 
-draw.text((940, 230), "Air", font=font, fill="black", anchor="mm")
+draw.text((1060, 290), "Air", font=font, fill="black", anchor="mm")
 for text, position, anchor, start, end in [
-    ("Upper Coil", (590, 560), "rm", (600, 552), (940, 470)),
-    ("Lower Coil", (590, 665), "rm", (600, 672), (930, 742)),
-    ("Stator", (1330, 520), "lm", (1318, 525), (1252, 580)),
-    ("Rotor", (1330, 665), "lm", (1318, 665), (1112, 625)),
+    ("Upper Coil", (860, 395), "rm", (870, 400), (972, 440)),
+    ("Lower Coil", (860, 745), "rm", (870, 740), (972, 695)),
+    ("Stator", (1330, 470), "lm", (1318, 475), (1228, 520)),
+    ("Rotor", (1330, 620), "lm", (1318, 620), (1120, 575)),
 ]:
     draw.text(position, text, font=font, fill="black", anchor=anchor)
     arrow(start, end)
 
+# Trim the white margins, keeping a small border.
+border = 20
+image = image.convert("RGB")
+left, top, right, bottom = ImageOps.invert(image).getbbox()
+image = image.crop(
+    (
+        max(left - border, 0),
+        max(top - border, 0),
+        min(right + border, image.width),
+        min(bottom + border, image.height),
+    )
+)
 image.save(f"{script_dir}/data/Geometry.png")

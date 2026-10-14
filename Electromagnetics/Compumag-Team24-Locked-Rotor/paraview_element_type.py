@@ -44,7 +44,12 @@ scalar_bar.LabelFontSize = 28
 scalar_bar.WindowLocation = "Any Location"
 scalar_bar.Position = [0.86, 0.04]
 scalar_bar.ScalarBarLength = 0.35
-scalar_bar.RangeLabelFormat = "%-#6.1e"
+# The element types are integers: label 4, 5 and 6 only.
+scalar_bar.UseCustomLabels = True
+scalar_bar.CustomLabels = [4.0, 5.0, 6.0]
+scalar_bar.AddRangeLabels = 0
+scalar_bar.AutomaticLabelFormat = 0
+scalar_bar.LabelFormat = "%.0f"
 
 view.CameraPosition = [-0.012, 0.06, 0.16]
 view.CameraFocalPoint = [0.0, 0.045, -0.006]

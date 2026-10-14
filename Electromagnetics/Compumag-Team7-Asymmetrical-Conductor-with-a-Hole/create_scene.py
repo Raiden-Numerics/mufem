@@ -63,8 +63,11 @@ def load_data(input_path: str, size_width: int, size_height: int, glyph_scale: f
     data_display.BlockSelectors = ["/Root/Coil", "/Root/Plate"]
     pvs.ColorBy(data_display, None)
 
-    # computed vector field J(t)
-    calc = pvs.PythonCalculator(registrationName="J_of_t", Input=data)
+    # computed vector field J(t) in the coil and the plate (zero in the air)
+    conductors = pvs.ExtractBlock(
+        registrationName="Conductors", Input=data, Selectors=["/Root/Coil", "/Root/Plate"]
+    )
+    calc = pvs.PythonCalculator(registrationName="J_of_t", Input=conductors)
     calc.ArrayAssociation = "Point Data"
     calc.ArrayName = "Electric Current Density"
     calc.Expression = build_expression(0.0)
@@ -79,10 +82,10 @@ def load_data(input_path: str, size_width: int, size_height: int, glyph_scale: f
 
     # thicker arrows
     glyph.GlyphType.ShaftRadius = 0.07
-    glyph.GlyphType.ShaftResolution = 100
+    glyph.GlyphType.ShaftResolution = 16
     glyph.GlyphType.TipRadius = 0.12
     glyph.GlyphType.TipLength = 0.15
-    glyph.GlyphType.TipResolution = 24
+    glyph.GlyphType.TipResolution = 16
 
     disp = pvs.Show(glyph, view, "GeometryRepresentation")
     disp.Representation = "Surface"
@@ -93,6 +96,7 @@ def load_data(input_path: str, size_width: int, size_height: int, glyph_scale: f
     pwf = pvs.GetOpacityTransferFunction("Electric Current Density")
 
     disp.RescaleTransferFunctionToDataRange(True, False)
+    lut.RescaleTransferFunction(0.0, lut.RGBPoints[-4])
     scalar_bar = pvs.GetScalarBar(lut, view)
     disp.SetScalarBarVisibility(view, True)
 

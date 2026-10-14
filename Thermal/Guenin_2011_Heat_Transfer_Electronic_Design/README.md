@@ -8,14 +8,13 @@ copper heat sink cooled by convection. The problem was posed by B. Guenin in an 
 column [1] and set up as a validation case by SimScale [2]; we follow the setup of Li (2020) [3].
 
 <div align="center">
-<img src="./data/Geometry.jpg" alt="Package geometry" width="42%">
-&nbsp;&nbsp;&nbsp;
-<img src="./data/Mesh.jpg" alt="Package mesh" width="42%">
+<img src="./data/Geometry.png" alt="Package geometry" width="45%">
+<img src="./data/Mesh.png" alt="Package mesh" width="45%">
+<br/>
+<br/>
+<em>Figure 1: Geometry of the layered package (left) and the corresponding mesh (right).</em>
 </div>
-<div align="center">
-<em>Geometry of the layered package (left) and the corresponding mesh (right).</em>
-</div>
-<br />
+<br/>
 
 ## Setup
 
@@ -37,15 +36,24 @@ lid.
 
 ## Running
 
-Run the case with `pymufem case.py`.
+Run the case with `pymufem case.py`. Figure 1 shows the geometry rendered from `geometry.step` with
+the netgen viewer by [netgen_geometry_image.py](netgen_geometry_image.py); the mesh image and the
+scenes of Figure 3 are rendered from the case output with ParaView by [create_scene.py](create_scene.py)
+(run with `pvpython create_scene.py` after the case). All use the same isometric view.
 
 ## Results
 
-Temperature rise at the die and lid probe points, compared against Fig. 3.3 of Li (2020) [3]:
+Figure 2 shows the temperature rise at the die and lid probe points, compared against Fig. 3.3 of
+Li (2020) [3].
 
 | Die | Lid |
 | :---: | :---: |
 | ![Die temperature](./results/Die_Temperature_Evolution.png) | ![Lid temperature](./results/Lid_Temperature_Evolution.png) |
+
+<div align="center">
+<em>Figure 2: Temperature rise at the die (left) and lid (right) probe points, compared with Fig. 3.3 of [3].</em>
+</div>
+<br/>
 
 Since the heat flux covers the whole cross-section $`A`$ and the sides are adiabatic, the heat flows in
 one dimension, and the steady-state temperature rise follows from the thermal resistances
@@ -68,11 +76,19 @@ state.
 
 ## Scenes
 
-| Temperature | Heat Capacity |
+Figure 3 shows the temperature rise at the end of the transient and the material properties of the
+package.
+
+| Temperature Rise | Heat Capacity |
 | :---: | :---: |
 | ![Temperature](./results/Scene_Temperature.png) | ![Heat Capacity](./results/Scene_Heat_Capacity.png) |
 | **Density** | **Thermal Conductivity** |
 | ![Density](./results/Scene_Density.png) | ![Thermal Conductivity](./results/Scene_Thermal_Conductivity.png) |
+
+<div align="center">
+<em>Figure 3: Temperature rise at <i>t</i> = 10 s (top left), specific heat capacity (top right), density (bottom left) and thermal conductivity (bottom right) of the package.</em>
+</div>
+<br/>
 
 ## References
 

@@ -8,12 +8,12 @@ widely used in arc-welding simulation because it reproduces realistic fusion-zon
 heat-affected-zone (HAZ) shapes while remaining computationally tractable.
 
 <div align="center">
-<img src="./data/Geometry.png" alt="Welding plate geometry" width="600">
+<img src="./data/Geometry.png" alt="Welding plate geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: Modeled half (<i>x</i> ≥ 0) of the thick plate.</em>
 </div>
-<div align="center">
-<em>Modeled half ($`x \ge 0`$) of the thick plate.</em>
-</div>
-<br />
+<br/>
 
 The governing equation is the transient heat equation with a moving volumetric source:
 
@@ -95,6 +95,8 @@ passes; the case insulates the footprint of the double ellipsoid ($`|x| < a`$, $
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+The geometry image above is rendered from `geometry.step` with the netgen viewer by
+[netgen_geometry_image.py](netgen_geometry_image.py), in the view of the scenes.
 
 ## Running
 
@@ -102,11 +104,17 @@ Run the case with `pymufem case.py`.
 
 ## Results
 
-**Temperature vs. Position** at $`t = 21.5\,\mathrm{s}`$, on the top surface across the weld at
+Figure 2 shows the temperature at $`t = 21.5\,\mathrm{s}`$ on the top surface across the weld at
 $`z = 0.15\,\mathrm{m}`$ ($`x`$ from 0 to 30 mm), compared with the measurement of Christensen et al.
-shown in Fig. 8 of [1] ([Temperature_vs_Position.csv](data/Temperature_vs_Position.csv)):
+shown in Fig. 8 of [1] ([Temperature_vs_Position.csv](data/Temperature_vs_Position.csv)).
 
-![Temperature vs Position](./results/Temperature_vs_Position.png)
+<div align="center">
+<img src="./results/Temperature_vs_Position.png" alt="Temperature vs position" width="75%">
+<br/>
+<br/>
+<em>Figure 2: Temperature across the weld at <i>t</i> = 21.5 s, compared with the measurement in Fig. 8 of [1].</em>
+</div>
+<br/>
 
 Outside the weld pool the mufem solution has the shape of the measured profile but lies
 10–16 % below it:
@@ -131,13 +139,18 @@ The case checks the temperature at $`x = 15`$ and $`20\,\mathrm{mm}`$ against th
 
 ## Scenes
 
-The temperature and the heat source are exported to `VisualizationOutput/`; the scenes below show them at
-the final time and are rendered with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case):
+The temperature and the heat source are exported to `VisualizationOutput/`; Figure 3 shows them at
+the final time, rendered with ParaView by [create_scene.py](create_scene.py) (run with
+`pvpython create_scene.py` after the case).
 
 | Temperature | Goldak Heat Source |
 | :---: | :---: |
 | ![Temperature](./results/Scene_Temperature.png) | ![Heat Source](./results/Scene_Goldak_Heat_Source.png) |
+
+<div align="center">
+<em>Figure 3: Temperature (left) and Goldak heat source (right) at the final time.</em>
+</div>
+<br/>
 
 ## References
 

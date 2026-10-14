@@ -11,21 +11,25 @@ the prediction of magnetic flux density on probe lines passing through the
 air gaps and through the saturated regions [2, 3].
 
 <div align="center">
-<img src="./data/Geometry.png" alt="drawing" width="600">
+<img src="./data/Geometry.png" alt="Geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: Geometry of the benchmark: a stranded coil between two steel channels and a center plate. One symmetry plane is exploited.</em>
 </div>
-<div align="center">
-<em>Geometry of the benchmark: a stranded coil between two steel channels and a center plate. One symmetry plane is exploited.</em>
-</div>
-<br /><br />
+<br/>
 
 
 The strong nonlinearity comes from the $`B(H)`$ curve assigned to the steel
-parts, which contains a sharp Rayleigh region followed by deep saturation:
-
+parts, which contains a sharp Rayleigh region followed by deep saturation (Figure 2):
 
 | BH Curve                      | Rayleigh region (zoomed)            |
 | ----------------------------- | ----------------------------------- |
 | ![BHCurve](data/bh_curve.png) | ![BHCurve](./data/bh_curve_low.png) |
+
+<div align="center">
+<em>Figure 2: The <i>B</i>(<i>H</i>) curve of the steel (left) and its Rayleigh region (right).</em>
+</div>
+<br/>
 
 
 ## Setup
@@ -53,6 +57,8 @@ parts, which contains a sharp Rayleigh region followed by deep saturation:
 The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is
 regenerated with `pymufem case.py --rebuild-mesh`.
+Figure 1 is rendered from `geometry.step` with the netgen viewer by
+[netgen_geometry_image.py](netgen_geometry_image.py), in the view of Figure 4.
 
 
 ## Running
@@ -71,20 +77,31 @@ mufem is 6-15 % above the measurement along the line (12 % on average). The
 codes of the workshop based on the magnetic vector potential deviate similarly
 in the air (Fig. 9 of [3]), while the codes using the integral equation method
 are the most accurate there. The case checks the mean ratio of the computed to
-the measured $`|B|`$ over the eleven measured points.
+the measured $`|B|`$ over the eleven measured points (Figure 3).
 
-
-![MagneticFluxDensityInAir](./results/Magnetic_Flux_Density_Line_Air.png)
+<div align="center">
+<img src="./results/Magnetic_Flux_Density_Line_Air.png" alt="Magnetic flux density in the air" width="75%">
+<br/>
+<br/>
+<em>Figure 3: Magnitude of the magnetic flux density along the line in the air, compared with the measurement of [3].</em>
+</div>
+<br/>
 
 
 ## Scenes
 
 The magnetic flux density and the current density are exported to
-`VisualizationOutput/`; the scene below was rendered from them.
-*Click on the image to view the interactive 3D result*
+`VisualizationOutput/`; the scene of Figure 4 was rendered from them.
+
+<div align="center">
 <a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
-<img src="results/TEAM-13-Results.png" alt="TEAM-13 Results"/>
+<img src="results/TEAM-13-Results.png" alt="TEAM-13 Results" width="75%">
 </a>
+<br/>
+<br/>
+<em>Figure 4: Magnetic flux density and current density. Click on the image to view the interactive 3D result.</em>
+</div>
+<br/>
 
 
 ## References

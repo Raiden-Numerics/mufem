@@ -20,10 +20,10 @@ thin rectangular irises.
 Figure 1 shows the geometry of the filter.
 
 <div align="center">
-    <img src="data/Geometry.png" alt="drawing" width="50%">
-    <br/>
-    <br/>
-    Figure 1: Geometry of the waveguide circular cavity filter.
+<img src="data/Geometry.png" alt="drawing" width="45%">
+<br/>
+<br/>
+<em>Figure 1: Geometry of the waveguide circular cavity filter.</em>
 </div>
 <br/>
 
@@ -66,10 +66,10 @@ approximate a curved surface with flat finite elements.
 Figure 2 shows the resulting mesh.
 
 <div align="center">
-    <img src="data/Mesh.png" alt="Mesh" width="50%">
-    <br/>
-    <br/>
-    Figure 2: The mesh created by Gmsh mesh generator.
+<img src="data/Mesh.png" alt="Mesh" width="45%">
+<br/>
+<br/>
+<em>Figure 2: The mesh created by Gmsh mesh generator.</em>
 </div>
 <br/>
 
@@ -200,10 +200,10 @@ as a function of frequency, with the frequencies solved by the default run
 marked by stars.
 
 <div align="center">
-    <img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="50%">
-    <br/>
-    Figure 3: Transmission spectrum (the squared magnitude of S21 parameter as a
-              function of frequency) of the waveguide circular cavity filter.
+<img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="45%">
+<br/>
+<br/>
+<em>Figure 3: Transmission spectrum (the squared magnitude of S21 parameter as a function of frequency) of the waveguide circular cavity filter.</em>
 </div>
 <br/>
 
@@ -230,13 +230,11 @@ Figure 4 shows the distribution of the electric field inside the waveguide
 filter at both frequencies.
 
 <div align="center">
-  <img src="results/scene_electric_field_12GHz.png" alt="E at 12 GHz" width="49%" />
-  <img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="49%" />
-  <br/>
-  <br/>
-  Figure 4: Magnitude of the real part of the electric field (the field at
-            $`\omega t = 0`$) inside the waveguide filter at frequency 12 GHz (left)
-            and 14 GHz (right).
+<img src="results/scene_electric_field_12GHz.png" alt="E at 12 GHz" width="45%" />
+<img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="45%" />
+<br/>
+<br/>
+<em>Figure 4: Magnitude of the real part of the electric field (the field at <i>ωt</i> = 0) inside the waveguide filter at frequency 12 GHz (left) and 14 GHz (right).</em>
 </div>
 <br/>
 

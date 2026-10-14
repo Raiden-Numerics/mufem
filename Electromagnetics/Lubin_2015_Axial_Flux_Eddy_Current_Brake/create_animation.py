@@ -1,81 +1,147 @@
+import os
 import subprocess
 
-# flake8: noqa: FKA100
+import paraview.simple as pvs
 from PIL import Image
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+view = pvs.CreateView("RenderView")
+view.ViewSize = [1600, 1200]
+view.OrientationAxesVisibility = 0
+view.UseColorPaletteForBackground = 0
+view.Background = [1.0, 1.0, 1.0]
+pvs._DisableFirstRenderCameraReset()
+
+number_of_magnets = 10
+
+# Arrow positions: rings on the magnet-side face of the plate (radii 15-75 mm, z = 23 mm),
+# 3.5 mm apart radially and along each ring; fixed for all frames.
+arrow_grid_script = """
+import numpy as np
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkCellArray
+
+spacing = 3.5e-3
+points = vtkPoints()
+vertices = vtkCellArray()
+for r in np.arange(15.0e-3 + spacing / 2, 75.0e-3, spacing):
+    n = int(round(2.0 * np.pi * r / spacing))
+    for phi in np.linspace(0.0, 2.0 * np.pi, n, endpoint=False):
+        vertices.InsertNextCell(1)
+        vertices.InsertCellPoint(points.InsertNextPoint(r * np.cos(phi), r * np.sin(phi), 0.0232))
+
+output = self.GetPolyDataOutput()
+output.SetPoints(points)
+output.SetVerts(vertices)
+"""
+
+
+def show_solid(data, selectors, color):
+    block = pvs.ExtractBlock(Input=data, Selectors=selectors)
+    display = pvs.Show(block, view)
+    display.Representation = "Surface"
+    display.Ambient = 0.3
+    display.Diffuse = 0.8
+    pvs.ColorBy(display, None)
+    display.AmbientColor = color
+    display.DiffuseColor = color
+    return block
 
 
 def create_scene(index: int, rpm: int):
+    data = pvs.OpenDataFile(f"{script_dir}/VisualizationOutput/Output_{index}.vtpc")
 
-    import focus_viewer  # type: ignore[import-not-found]
-    import os
+    copper = show_solid(data, ["/Root/CopperPlate"], [205 / 255, 112 / 255, 43 / 255])
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Magnets with alternating axial magnetization: N red, S blue.
+    magnets_n = show_solid(
+        data, [f"/Root/Magnet{k}" for k in range(0, number_of_magnets, 2)], [1.0, 0.0, 0.0]
+    )
+    magnets_s = show_solid(
+        data, [f"/Root/Magnet{k}" for k in range(1, number_of_magnets, 2)], [0.0, 0.0, 1.0]
+    )
 
-    data_file = f"{script_dir}/VisualizationOutput/Output_{index}.vtpc"
+    # Eddy currents in the plate: arrows of equal length on a fixed grid, colored by |J|.
+    grid = pvs.ProgrammableSource(OutputDataSetType="vtkPolyData", Script=arrow_grid_script)
+    sampled = pvs.ResampleWithDataset(SourceDataArrays=copper, DestinationMesh=grid)
+    glyph = pvs.Glyph(Input=sampled, GlyphType="Arrow")
+    glyph.OrientationArray = ["POINTS", "Electric Current Density"]
+    glyph.ScaleArray = ["POINTS", "No scale array"]
+    glyph.ScaleFactor = 3.5e-3
+    glyph.GlyphMode = "All Points"
+    glyph.GlyphType.TipRadius = 0.19
+    glyph.GlyphType.ShaftRadius = 0.08
+    glyph.GlyphType.TipResolution = 12
+    glyph.GlyphType.ShaftResolution = 12
 
-    viewer = focus_viewer.FocusViewer()
-    viewer.initialize()
-    viewer.load_data_file(str(data_file))
-    viewer.reset_view()
+    # Sampled just inside the plate; shift the arrows into the gap so that the plate
+    # surface does not hide them.
+    shifted = pvs.Transform(Input=glyph)
+    shifted.Transform.Translate = [0.0, 0.0, -0.7e-3]
 
-    scene = viewer.get_active_scene()
+    glyph_display = pvs.Show(shifted, view)
+    glyph_display.Ambient = 0.3
+    glyph_display.Diffuse = 0.8
+    pvs.ColorBy(glyph_display, ("POINTS", "Electric Current Density", "Magnitude"))
 
-    solid_visual = scene.new_solid_visual()
+    lut = pvs.GetColorTransferFunction("Electric Current Density")
+    lut.ApplyPreset("Cool to Warm", True)
+    lut.RescaleTransferFunction(0.0, 5.0e7)
+    lut.AutomaticRescaleRangeMode = "Never"
 
-    for hide in [13, 12, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
-        solid_visual.set_block_visibility(hide, False)
+    scalar_bar = pvs.GetScalarBar(lut, view)
+    scalar_bar.Title = "Electric Current Density [A/m²]"
+    scalar_bar.ComponentTitle = ""
+    scalar_bar.Orientation = "Horizontal"
+    scalar_bar.WindowLocation = "Any Location"
+    scalar_bar.Position = [0.3, 0.05]
+    scalar_bar.ScalarBarLength = 0.4
+    scalar_bar.ScalarBarThickness = 30
+    scalar_bar.UseCustomLabels = True
+    scalar_bar.CustomLabels = [0.0, 2.5e7, 5.0e7]
+    scalar_bar.AddRangeLabels = 0
+    scalar_bar.TitleFontSize = 28
+    scalar_bar.LabelFontSize = 24
+    scalar_bar.TitleColor = [0, 0, 0]
+    scalar_bar.LabelColor = [0, 0, 0]
+    scalar_bar.TitleBold = 1
+    scalar_bar.LabelBold = 1
+    glyph_display.SetScalarBarVisibility(view, True)
 
-    solid_visual.set_color(205, 112, 43)  # Copper
+    text = pvs.Text(Text=f"RPM: {rpm:.0f}")
+    text_display = pvs.Show(text, view)
+    text_display.WindowLocation = "Any Location"
+    text_display.Position = [0.2, 0.9]
+    text_display.FontSize = 38
+    text_display.Bold = 1
+    text_display.Color = [0.4, 0.4, 0.4]
 
-    # Note that if we put this later it is influenced by the vectors reaching
-    # out of the domain.
-    viewer.get_camera().set_orientation(13)
-    viewer.get_camera().fit_to_scene(0.7)
+    # Oblique view from the magnet side (the magnets lie below the plate), 50 deg from below as
+    # the geometry images of netgen_geometry_image.py.
+    view.CameraPosition = [0.0, -0.1827, -0.1978]
+    view.CameraFocalPoint = [0.0, 0.0, 0.02]
+    view.CameraViewUp = [0.0, 0.0, 1.0]
+    view.CameraViewAngle = 30.0
+    view.ResetCamera(copper.GetDataInformation().GetBounds(), False)
+    view.GetActiveCamera().Dolly(1.3)
 
-    # Show currents
-    vector_visual = scene.new_vector_visual()
-    vector_visual.set_vector_field("Electric Current Density")  # magnitude only
+    pvs.Render(view)
+    pvs.SaveScreenshot(
+        f"{script_dir}/vis/Scene_Electric_Current_Density_{index:03d}.png",
+        view,
+        OverrideColorPalette="WhiteBackground",
+    )
 
-    for hide in [13, 12, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
-        vector_visual.set_block_visibility(hide, False)
-
-    vector_visual.set_scale_factor(5.0e-3)
-    vector_visual.set_colorbar_visible(True)
-    vector_visual.set_scalar_range(0, 5e7)
-
-    vector_visual.set_arrow_tip_radius(0.19)
-    vector_visual.set_arrow_shaft_radius(0.08)
-    vector_visual.set_arrow_resolution(12, 12)
-
-    # Show magnets
-
-    scene_magnet_n = scene.new_solid_visual()
-    for hide in [0, 1, 3, 5, 7, 9, 11, 12, 13]:
-        scene_magnet_n.set_block_visibility(hide, False)
-
-    scene_magnet_n.set_color(255, 0, 0)  # Red for N magnets
-
-    scene_magnet_s = scene.new_solid_visual()
-    for hide in [0, 2, 4, 6, 8, 10, 11, 12, 13]:
-        scene_magnet_s.set_block_visibility(hide, False)
-
-    scene_magnet_s.set_color(0, 0, 255)  # Blue for S magnets
-
-    ann1 = scene.new_annotation_visual()
-    ann1.set_text(f"RPM: {rpm:.0f}")
-    ann1.set_position(0.2, 0.05)
-    ann1.set_color(100, 100, 100)
-    ann1.set_font_size(38)
-    ann1.set_bold(True)
-
-    viewer.save_screenshot(f"vis/Scene_Electric_Current_Density_{index:03d}.png")
+    for proxy in [text, shifted, glyph, sampled, grid, magnets_s, magnets_n, copper, data]:
+        pvs.Delete(proxy)
 
 
 def combine_images(large_path, small1_path, output_path, small_scale=0.9, right_padding=80):
     large = Image.open(large_path)
     small1 = Image.open(small1_path)
 
-    large = large.crop((150, 0, large.width - 250, large.height))
+    large = large.crop((0, 0, large.width - 250, large.height))
 
     # resize small1 to match height, then scale down a bit
     ratio = large.height / small1.height

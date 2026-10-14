@@ -420,10 +420,16 @@ and `generate_mesh` create the mesh, `setup_case` sets up the simulation, `valid
 compares the electric field with the theory at two points, and `postprocess` plots
 the field along the x-axis and exports it.
 
-The resulting figure demonstrates that the electric field obtained from the mufem
-simulation closely matches the field calculated using the analytical formula:
+Figure 1 demonstrates that the electric field obtained from the mufem
+simulation closely matches the field calculated using the analytical formula.
 
-![Electric_Field.png](results/Electric_Field.png)
+<div align="center">
+<img src="results/Electric_Field.png" alt="Electric field" width="75%">
+<br/>
+<br/>
+<em>Figure 1: Electric field along the x-axis: mufem and the analytical solution.</em>
+</div>
+<br/>
 
 The case checks the field at $`r = 1`$ m, near its maximum, where mufem is 3.4 % above the
 analytical value (the mesh size of 0.5 m equals the width $`a`$ of the charge
@@ -433,10 +439,16 @@ To visualize the exported electric field data, we use
 [ParaView](https://www.paraview.org/).
 The corresponding Python script is available in the [paraview.py](paraview.py)
 file.
-The following figure illustrates the distribution of the $`x`$-component of the
-electric field in the $`z=0`$ cross-section:
+Figure 2 illustrates the distribution of the $`x`$-component of the
+electric field in the $`z=0`$ cross-section.
 
-![Scene_Electric_Field.png](results/Scene_Electric_Field.png)
+<div align="center">
+<img src="results/Scene_Electric_Field.png" alt="Electric field scene" width="75%">
+<br/>
+<br/>
+<em>Figure 2: The <i>x</i>-component of the electric field in the cross-section <i>z</i> = 0.</em>
+</div>
+<br/>
 
 
 ## References

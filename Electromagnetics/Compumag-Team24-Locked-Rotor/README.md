@@ -9,9 +9,10 @@ as the field builds up. The benchmark provides the measured coil current, rotor 
 and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py).
 
 <div align="center">
-    <img src="data/Geometry.png" alt="Geometry" width="85%">
-    <br/>
-    <em>Figure 1: The modeled half (z ≤ 0) of the benchmark: a stator carrying two coils and a rotor locked at 22°.</em>
+<img src="data/Geometry.png" alt="Geometry" width="85%">
+<br/>
+<br/>
+<em>Figure 1: The modeled half (z ≤ 0) of the benchmark: a stator carrying two coils and a rotor locked at 22°.</em>
 </div>
 <br/>
 
@@ -51,11 +52,16 @@ B(H) = \frac{H}{a + b H} + \mu_0 H \quad,
 ```
 
 with $`a`$ and $`b`$ fitted to the first four points of Table I and the result scaled to pass through
-the first measured point. The script [plot.py](data/tables/plot.py) fits the curve, writes it to `Updated_BH_curve.csv` and plots both curves.
+the first measured point. The script [plot.py](data/tables/plot.py) fits the curve, writes it to `Updated_BH_curve.csv` and plots both curves (Figure 2).
 
 | [Original B-H Curve](data/tables/Table_1_BH_curve.csv) | [Updated B-H Curve](data/tables/Updated_BH_curve.csv) |
 | ----------------- | ------------------------------- |
 | ![B-H Curve](data/tables/Table_1_BH_curve.png) | ![B-H Curve](data/tables/Updated_BH_curve.png) |
+
+<div align="center">
+<em>Figure 2: The <i>B</i>(<i>H</i>) curve of Table I of [1] (left) and the updated curve used in the case (right).</em>
+</div>
+<br/>
 
 ### Boundary Layer Mesh
 
@@ -64,13 +70,13 @@ $`\delta = \sqrt{\tau/(\mu \sigma)}`$ with the time scale of the current rise,
 $`\tau \approx 20\,\mathrm{ms}`$ (the measured current reaches $`1 - e^{-1}`$ of its final value
 after about $`22\,\mathrm{ms}`$). For $`\mu_r`$ between 300 and 800 this gives
 $`\delta \approx 2`$ to $`3.5\,\mathrm{mm}`$. Prism boundary layers of $`0.25`$, $`0.5`$, $`1`$, and
-$`2\,\mathrm{mm}`$ (total $`3.75\,\mathrm{mm}`$) on the rotor and stator surfaces resolve this region:
+$`2\,\mathrm{mm}`$ (total $`3.75\,\mathrm{mm}`$) on the rotor and stator surfaces resolve this region (Figure 3).
 
 <div align="center">
-    <img src="results/Scene_ElementType.png" alt="Element Type" width="50%">
-    <br/>
-    <em>Figure 2: Prism boundary layer elements (type 6) at the iron surfaces; the interior uses
-    tetrahedra (type 4).</em>
+<img src="results/Scene_ElementType.png" alt="Element Type" width="45%">
+<br/>
+<br/>
+<em>Figure 3: Prism boundary layer elements (type 6) at the iron surfaces; the interior uses tetrahedra (type 4).</em>
 </div>
 <br/>
 
@@ -85,19 +91,24 @@ air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corn
 
 Run the case with `pymufem case.py`.
 
-Figure 1 is rendered from the geometry with `netgen_geometry_image.py`. Figure 2 is rendered with
+Figure 1 is rendered from the geometry with `netgen_geometry_image.py`. Figure 3 is rendered with
 `pvbatch paraview_element_type.py` after a run with `output_for_animation = True`.
 
-To generate the animation (Figure 3), set `output_for_animation = True` in `case.py`, run the case, and then
+To generate the animation (Figure 5), set `output_for_animation = True` in `case.py`, run the case, and then
 run `pvbatch paraview_gif.py` (requires ParaView and `ffmpeg`).
 
 ## Results
 
-The coil current, rotor torque, and Hall probe flux density against the measurements of [1]:
+Figure 4 shows the coil current, rotor torque, and Hall probe flux density against the measurements of [1].
 
 | Coil Current | Rotor Torque | Hall Probe |
 | ------------ | ------------ | ---------- |
 | ![Coil Current vs Time](results/Coil_Current_vs_Time.png) | ![Rotor Torque vs Time](results/Rotor_Torque_vs_Time.png) | ![Hall Probe vs Time](results/Hall_Probe_vs_Time.png) |
+
+<div align="center">
+<em>Figure 4: Coil current (left), rotor torque (center) and Hall probe flux density (right) over time, compared with the measurements of [1].</em>
+</div>
+<br/>
 
 | Time | Current mufem / measured [A] | Torque mufem / measured [Nm] | Hall probe $`B_y`$ mufem / measured [T] |
 | ---- | ---------------------------- | ---------------------------- | --------------------------------------- |
@@ -124,9 +135,10 @@ mesh is kept for its runtime.
 ## Scenes
 
 <div align="center">
-    <img src="results/Result_Animation.gif" alt="Result Animation" width="85%">
-    <br/>
-    <em>Figure 3: Animation of the electric current density, the coil current and the rotor torque over time.</em>
+<img src="results/Result_Animation.gif" alt="Result Animation" width="100%">
+<br/>
+<br/>
+<em>Figure 5: Animation of the electric current density, the coil current and the rotor torque over time.</em>
 </div>
 <br/>
 
