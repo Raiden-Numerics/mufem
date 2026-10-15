@@ -107,7 +107,7 @@ direction = [p - f for p, f in zip(position, focal_point)]
 set_camera(
     view,
     direction,
-    (0.30395294501951486, -0.1429607220735116, 0.9418995908047652),
+    (0, 0, 1),
     focal_point,
     parallel_scale=0.18,
     distance=math.dist(position, focal_point),
