@@ -12,7 +12,7 @@ case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
 
-from casekit.images import write_gif
+from casekit.images import trim_frames, write_gif
 from casekit.paraview_scene import (
     add_text,
     blocks,
@@ -58,7 +58,7 @@ def at_phase(field, names, labels, label_format, phase_deg, path, label=False):
             component="Magnitude",
         )
         if label:
-            add_text(view, f"Phase = {phase_deg:.0f}°")
+            add_text(view, f"Phase = {phase_deg:.0f}°", position=(0.671, 0.886))
         save(view, path, crop=False)
 
 
@@ -66,16 +66,21 @@ current = ("Electric Current Density", coils, [0.0, 5.0e7, 1.0e8], "%.0e")
 results = case_dir / "results"
 
 # The imaginary part of B is much smaller than the real part: own color range.
+stills = []
 for phase_deg, name, b_max in [(0, "Real", 1.2), (90, "Imag", 0.1)]:
-    at_phase(*current, phase_deg, results / f"Scene_Electric_Current_Density_Phase_{name}.png")
+    stills.append(results / f"Scene_Electric_Current_Density_Phase_{name}.png")
+    at_phase(*current, phase_deg, stills[-1])
+    stills.append(results / f"Scene_Magnetic_Flux_Density_Phase_{name}.png")
     at_phase(
         "Magnetic Flux Density",
         ["Core", *coils],
         [0.0, b_max / 2, b_max],
         "%g",
         phase_deg,
-        results / f"Scene_Magnetic_Flux_Density_Phase_{name}.png",
+        stills[-1],
     )
+# All four cropped alike, as they stand side by side in the README.
+trim_frames(stills)
 
 frames = []
 for i, phase_deg in enumerate(range(0, 360, 5)):

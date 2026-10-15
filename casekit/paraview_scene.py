@@ -172,15 +172,12 @@ def set_camera(
         camera.SetPosition(*[p + d for p, d in zip(camera.GetPosition(), shift)])
 
 
-def add_text(view, text: str, position: Optional[Tuple[float, float]] = None, font_size=40):
-    """Bold black text in the upper left corner, or at `position` (fractions of the view)."""
+def add_text(view, text: str, position: Tuple[float, float], font_size=40):
+    """Bold black text with its lower left corner at `position` (fractions of the view)."""
     source = pvs.Text(Text=text)
     display = pvs.Show(source, view)
-    if position is None:
-        display.WindowLocation = "Upper Left Corner"
-    else:
-        display.WindowLocation = "Any Location"
-        display.Position = list(position)
+    display.WindowLocation = "Any Location"
+    display.Position = list(position)
     display.FontSize = font_size
     display.Bold = 1
     display.Color = [0.0, 0.0, 0.0]
