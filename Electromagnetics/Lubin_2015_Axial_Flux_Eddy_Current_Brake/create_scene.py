@@ -55,7 +55,6 @@ def arrow_grid(spacing=3.5e-3):
 
 grid = arrow_grid()
 view = new_view((1600, 1200))
-view.CameraViewAngle = 30.0
 
 
 def solid(data, selectors, color):
@@ -112,7 +111,7 @@ def create_scene(index, rpm, path):
         (0.0, 0.0, 0.02),
         bounds=copper.GetDataInformation().GetBounds(),
     )
-    view.GetActiveCamera().Dolly(1.3)
+    view.GetActiveCamera().Zoom(1.3)
     save(view, path, crop=False)
 
     display.SetScalarBarVisibility(view, False)

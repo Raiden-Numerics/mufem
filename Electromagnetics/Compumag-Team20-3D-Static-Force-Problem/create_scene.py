@@ -28,7 +28,7 @@ def view_onto(view, source):
     source.UpdatePipeline()
     bounds = source.GetDataInformation().GetBounds()
     center = [(bounds[2 * i] + bounds[2 * i + 1]) / 2 for i in range(3)]
-    set_camera(view, (-1, -1, 1), (0, 0, 1), center, parallel_scale=1.0, bounds=bounds)
+    set_camera(view, (-1, -1, 1), (0, 0, 1), center, bounds=bounds)
 
 
 # Magnetic flux density in the yoke, the pole and the coil.

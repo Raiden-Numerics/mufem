@@ -48,15 +48,13 @@ color_by(
     title_size=30,
     label_size=28,
 )
-view.CameraViewAngle = 30.0
-set_camera(view, (-0.012, 0.015, 0.166), (0, 1, 0), (0.0, 0.045, -0.006), distance=0.1671)
+set_camera(view, (-0.012, 0.015, 0.166), (0, 1, 0), (0.0, 0.045, -0.006), parallel_scale=0.0448)
 save(view, case_dir / "results" / "Scene_ElementType.png", crop=False)
 
 # Animation: the electric current density in front, the coil current and the rotor torque of
 # case.py on the right. The stator sits on the left so that the color bar fits on the right.
 view = new_view((1900, 1300))
-view.CameraViewAngle = 30.0
-set_camera(view, (0, 0, 1), (0, 1, 0), (0.025, 0.0, 0.0), distance=0.45)
+set_camera(view, (0, 0, 1), (0, 1, 0), (0.025, 0.0, 0.0), parallel_scale=0.12)
 
 frames = []
 for i in range(31):

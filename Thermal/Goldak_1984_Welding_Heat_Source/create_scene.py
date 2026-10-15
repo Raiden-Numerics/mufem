@@ -22,7 +22,6 @@ from casekit.paraview_scene import (  # noqa: E402
 )
 
 view = new_view((1600, 1000))
-view.CameraViewAngle = 30.0
 data = read_output(case_dir)
 
 temperature = pvs.Calculator(Input=data)

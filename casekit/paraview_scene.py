@@ -114,24 +114,28 @@ def set_camera(
     focal_point: Sequence[float],
     parallel_scale: Optional[float] = None,
     bounds: Optional[Sequence[float]] = None,
-    distance: float = 1.0,
     shift_up: float = 0.0,
 ):
     """Look at `focal_point` from `direction` (toward the viewer) with `up` up on the screen.
 
-    With `parallel_scale` the projection is parallel with that half height; with `bounds` the
-    camera is fitted to them; otherwise it keeps a perspective projection at `distance`.
-    `shift_up` [model units] then moves the picture up on the screen, e.g. to make room for a
-    color bar below it.
+    The projection is parallel, so vertical edges stay vertical: the visible half height is
+    `parallel_scale` [model units], or the view is fitted to `bounds`. `shift_up` [model units]
+    then moves the picture up on the screen, e.g. to make room for a color bar below it.
     """
+    if (parallel_scale is None) == (bounds is None):
+        raise ValueError("set_camera needs either parallel_scale or bounds")
+
+    # Only the clipping depends on the distance in a parallel projection: keep the camera well
+    # outside the model.
+    distance = 100.0 * parallel_scale if parallel_scale is not None else 1.0
     norm = math.sqrt(sum(d * d for d in direction))
     view.CameraFocalPoint = list(focal_point)
     view.CameraPosition = [f + distance * d / norm for f, d in zip(focal_point, direction)]
     view.CameraViewUp = list(up)
+    view.CameraParallelProjection = 1
     if parallel_scale is not None:
-        view.CameraParallelProjection = 1
         view.CameraParallelScale = parallel_scale
-    if bounds is not None:
+    else:
         view.ResetCamera(list(bounds), False)
     if shift_up:
         camera = view.GetActiveCamera()

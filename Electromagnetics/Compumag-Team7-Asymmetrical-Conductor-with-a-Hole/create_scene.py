@@ -95,7 +95,6 @@ def plot_flux_density(phase, path):
 
 
 view = new_view((1600, 1200))
-view.CameraViewAngle = 30.0
 data = read_output(case_dir)
 conductors = pvs.ExtractBlock(Input=data, Selectors=["/Root/Coil", "/Root/Plate"])
 show(conductors, view, color=(0.9, 0.9, 0.9))
@@ -110,7 +109,6 @@ set_camera(
     (0, 0, 1),
     focal_point,
     parallel_scale=0.18,
-    distance=math.dist(position, focal_point),
 )
 
 frames = []

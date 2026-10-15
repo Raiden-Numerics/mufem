@@ -87,7 +87,7 @@ color_by(
     title_size=32,
     label_size=28,
 )
-set_camera(view, (4, 4, 3), (0, 0, 1), (0.0, 0.0, -0.8), parallel_scale=5.0, distance=20.0)
+set_camera(view, (4, 4, 3), (0, 0, 1), (0.0, 0.0, -0.8), parallel_scale=5.0)
 save(view, results / "Scene_Radiation_Pattern.png")
 
 # Electric field in the yz-plane over half a period, after which the magnitude repeats.
