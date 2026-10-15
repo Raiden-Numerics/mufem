@@ -1,8 +1,9 @@
 """Render results/Scene_Electric_Potential_*_Mesh.png and results/Electric_Potential.gif.
 
-Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). For every shift between
-the combs, case.py exports the electric potential on the initial and on the refined mesh
-(VisualizationOutput/Output_<2 i> and Output_<2 i + 1> for shift i).
+Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). case.py exports the
+electric potential on the initial and the refined mesh of the zero shift
+(VisualizationOutput/Output_0 and Output_1) and on the refined mesh of every further shift i
+(Output_<i + 1>).
 """
 
 import sys
@@ -69,7 +70,7 @@ set_camera(view, (1, 1, 1), (0, 1, 0), (0.0, 0.0, 0.0), parallel_scale=5e-5)
 frames = []
 for shift in reversed(range(shifts)):
     with scene(view):
-        clip = pvs.Clip(Input=read_output(case_dir, 2 * shift + 1))
+        clip = pvs.Clip(Input=read_output(case_dir, shift + 1))
         clip.ClipType = "Plane"
         clip.ClipType.Origin = [11e-6, 2e-6, 17e-6]
         clip.ClipType.Normal = [0.0, 1.0, 0.0]

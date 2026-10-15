@@ -102,7 +102,8 @@ for xshift in self.xshifts:
     for i in range(max_refinements):
         self.runner.advance(2)
 
-        if i == 0:
+        # The initial mesh, shown in the mesh image of create_scene.py.
+        if i == 0 and xshift == self.xshifts[0]:
             vis.save(order=2)
 
         ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
@@ -125,7 +126,7 @@ The external `for` loop iterates through all inter-comb shifts. At the start of 
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
-obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for
+obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format, allowing for
 subsequent visualization using [ParaView](https://www.paraview.org/) by [create_scene.py](create_scene.py)
 (run with `pvpython create_scene.py`, requires `ffmpeg`).
 
