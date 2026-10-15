@@ -53,7 +53,7 @@ for source, array, title, labels, label_format, name in [
     set_camera(
         view,
         (-0.25, 0.17, -0.15),
-        (0.3, 0.9, 0.2),
+        (0, 1, 0),
         (0.03, -0.03, 0.17),
         bounds=(0.0, 0.15, -0.1, 0.0, 0.0, 0.3),
         shift_up=0.025,

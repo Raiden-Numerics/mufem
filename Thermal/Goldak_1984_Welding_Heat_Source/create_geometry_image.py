@@ -15,5 +15,5 @@ case_dir = Path(__file__).resolve().parent
 
 solids = OCCGeometry(f"{case_dir}/geometry.step").shape.solids
 # The camera of the scenes of create_scene.py: onto the symmetry plane x = 0 and the top surface.
-image = snapshot(solids, direction=(-0.25, 0.17, -0.15), up=(0.3, 0.9, 0.2))
+image = snapshot(solids, direction=(-0.25, 0.17, -0.15), up=(0, 1, 0))
 trim(image).save(case_dir / "data" / "Geometry.png")
