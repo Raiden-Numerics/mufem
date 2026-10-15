@@ -26,7 +26,7 @@ image = snapshot(
     size=(1969, 1135),
 )
 
-labels = Labels(image, font_size=44)
+labels = Labels(image, font_size=38)
 labels.text((1060, 290), "Air")
 for text, position, anchor, start, end in [
     ("Upper Coil", (860, 395), "rm", (870, 400), (972, 440)),

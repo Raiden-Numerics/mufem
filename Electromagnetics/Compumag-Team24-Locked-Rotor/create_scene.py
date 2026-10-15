@@ -1,8 +1,8 @@
 """Render results/Scene_ElementType.png and results/Result_Animation.gif from the case output.
 
-Run the case with `output_for_animation = True` first: it exports the fields of every time step
-and writes the current and torque plots into vis/. Then run `pvpython create_scene.py`
-(requires `ffmpeg`).
+Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The case exports the
+fields of every time step to VisualizationOutput/ and writes the coil current and the rotor
+torque over time to VisualizationOutput/Scene_Data.npz.
 """
 
 import sys
@@ -11,13 +11,16 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
+import numpy as np
 
+from casekit import PlotStyle, xy_plot
 from casekit.images import combine_images, write_gif
 from casekit.paraview_scene import (
     blocks,
     color_by,
     new_view,
     read_output,
+    read_scene_data,
     save,
     scene,
     set_camera,
@@ -25,6 +28,40 @@ from casekit.paraview_scene import (
 )
 
 vis = case_dir / "vis"
+tables = case_dir / "data" / "tables"
+monitors = read_scene_data(case_dir)
+current_ref = np.loadtxt(tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1)
+torque_ref = np.loadtxt(tables / "Table_4_Torque.csv", delimiter=",", skiprows=1)
+
+
+def plots(i):
+    """Coil current and rotor torque up to time step `i`, as the plots of case.py."""
+    common = dict(
+        style=PlotStyle.LINE_AND_POINTS,
+        reference_style=PlotStyle.POINTS,
+        reference_label="Allen (1996)",
+        xlabel="Time [s]",
+        xlim=(0.0, 0.15),
+        xticks=[0.0, 0.05, 0.1, 0.15],
+    )
+    paths = [vis / f"Coil_Current_vs_Time_{i:03d}.png", vis / f"Rotor_Torque_vs_Time_{i:03d}.png"]
+    xy_plot(
+        values=monitors["coil_current"][: i + 1],
+        reference_values=current_ref,
+        ylabel="Coil Current [A]",
+        ylim=(0.0, 8.0),
+        path=f"{paths[0]}",
+        **common,
+    )
+    xy_plot(
+        values=monitors["rotor_torque"][: i + 1],
+        reference_values=torque_ref,
+        ylabel="Rotor Torque [Nm]",
+        ylim=(0.0, 3.5),
+        path=f"{paths[1]}",
+        **common,
+    )
+    return paths
 
 
 def read_step(index):
@@ -77,10 +114,6 @@ for i in range(31):
         save(view, vis / f"Scene_Electric_Current_Density_{i:03d}.png", crop=False)
 
     frames.append(vis / f"Scene_{i:03d}.png")
-    combine_images(
-        vis / f"Scene_Electric_Current_Density_{i:03d}.png",
-        [vis / f"Coil_Current_vs_Time_{i:03d}.png", vis / f"Rotor_Torque_vs_Time_{i:03d}.png"],
-        frames[-1],
-    )
+    combine_images(vis / f"Scene_Electric_Current_Density_{i:03d}.png", plots(i), frames[-1])
 
 write_gif(frames, case_dir / "results" / "Result_Animation.gif")

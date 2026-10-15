@@ -24,10 +24,6 @@ class Team24LockedRotor(ValidationCase):
     name = "Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig"
     tags = {"moderate"}
 
-    # export the fields to VisualizationOutput/ and the plots to vis/ for every time step
-    # (see create_scene.py)
-    output_for_animation = False
-
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z, gp_Ax1, gp_Ax2, gp_Dir, gp_Pnt
 
@@ -246,22 +242,17 @@ class Team24LockedRotor(ValidationCase):
         return sim
 
     def solve(self):
-        if not self.output_for_animation:
-            self.sim.run()
-            return
-
-        field_exporter = self.sim.get_field_exporter()
-        field_exporter.add_field_output("Electric Current Density")
-        field_exporter.add_field_output("Magnetic Flux Density")
-        field_exporter.add_field_output("Element Type")
-        field_exporter.add_field_output("Cell Volume")
+        # The fields of every time step for the scenes of create_scene.py (collective).
+        exporter = self.sim.get_field_exporter()
+        exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        exporter.add_field_outputs(["Electric Current Density", "Element Type"])
 
         self.sim.initialize()
-        field_exporter.save()
+        exporter.save()
 
         for _ in range(30):
             self.runner.advance(1)
-            field_exporter.save()
+            exporter.save()
 
     def validate(self):
         self.coil_current = self.current_monitor.get_values()
@@ -286,20 +277,36 @@ class Team24LockedRotor(ValidationCase):
             tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
         )
 
-        if self.output_for_animation:
-            (self.dir_path / "vis").mkdir(exist_ok=True)
-            for i in range(len(self.coil_current)):
-                self.plot(
-                    self.coil_current[: i + 1],
-                    self.rotor_torque[: i + 1],
-                    current_ref,
-                    torque_ref,
-                    self.dir_path / "vis",
-                    f"_{i:03d}",
-                )
+        # The input of the animation of create_scene.py.
+        numpy.savez(
+            self.scene_data_path,
+            coil_current=numpy.array(self.coil_current),
+            rotor_torque=numpy.array(self.rotor_torque),
+        )
 
-        self.plot(
-            self.coil_current, self.rotor_torque, current_ref, torque_ref, self.results_path, ""
+        common = dict(
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_style=PlotStyle.POINTS,
+            reference_label="Allen (1996)",
+            xlabel="Time [s]",
+            xlim=(0.0, 0.15),
+            xticks=[0.0, 0.05, 0.1, 0.15],
+        )
+        xy_plot(
+            values=self.coil_current,
+            reference_values=current_ref,
+            ylabel="Coil Current [A]",
+            ylim=(0.0, 8.0),
+            path=f"{self.results_path / 'Coil_Current_vs_Time.png'}",
+            **common,
+        )
+        xy_plot(
+            values=self.rotor_torque,
+            reference_values=torque_ref,
+            ylabel="Rotor Torque [Nm]",
+            ylim=(0.0, 3.5),
+            path=f"{self.results_path / 'Rotor_Torque_vs_Time.png'}",
+            **common,
         )
 
         xy_plot(
@@ -314,34 +321,6 @@ class Team24LockedRotor(ValidationCase):
             xticks=[0.0, 0.05, 0.1, 0.15],
             ylim=(0.0, 1.4),
             path=f"{self.results_path / 'Hall_Probe_vs_Time.png'}",
-        )
-
-    @staticmethod
-    def plot(current, torque, current_ref, torque_ref, directory, suffix):
-        common = dict(
-            style=PlotStyle.LINE_AND_POINTS,
-            reference_style=PlotStyle.POINTS,
-            reference_label="Allen (1996)",
-            xlabel="Time [s]",
-            xlim=(0.0, 0.15),
-            xticks=[0.0, 0.05, 0.1, 0.15],
-        )
-
-        xy_plot(
-            values=current,
-            reference_values=current_ref,
-            ylabel="Coil Current [A]",
-            ylim=(0.0, 8.0),
-            path=f"{directory}/Coil_Current_vs_Time{suffix}.png",
-            **common,
-        )
-        xy_plot(
-            values=torque,
-            reference_values=torque_ref,
-            ylabel="Rotor Torque [Nm]",
-            ylim=(0.0, 3.5),
-            path=f"{directory}/Rotor_Torque_vs_Time{suffix}.png",
-            **common,
         )
 
 

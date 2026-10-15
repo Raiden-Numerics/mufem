@@ -9,7 +9,7 @@ as the field builds up. The benchmark provides the measured coil current, rotor 
 and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py).
 
 <div align="center">
-<img src="data/Geometry.png" alt="Geometry" width="85%">
+<img src="data/Geometry.png" alt="Geometry" width="45%">
 <br/>
 <br/>
 <em>Figure 1: The modeled half (z ≤ 0) of the benchmark: a stator carrying two coils and a rotor locked at 22°.</em>
@@ -107,9 +107,9 @@ Run the case with `pymufem case.py`.
 
 Figure 1 is rendered from the geometry with [create_geometry_image.py](create_geometry_image.py).
 Figure 3 and the animation (Figure 5) are rendered with ParaView by
-[create_scene.py](create_scene.py). To produce its input, set `output_for_animation = True` in
-[case.py](case.py) and run the case; then run `pvpython create_scene.py` in the case directory
-(requires `ffmpeg`).
+[create_scene.py](create_scene.py) from the fields of every time step and the coil current and
+rotor torque that every run of the case writes to `VisualizationOutput/`; run
+`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
 
 ## Results
 
