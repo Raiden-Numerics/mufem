@@ -52,7 +52,8 @@ def pad(image: Image.Image, left=0, top=0, right=0, bottom=0) -> Image.Image:
 
 def trim_frames(paths: Sequence[Path], border: int = 20):
     """Crop the images at `paths` (the frames of an animation) to one box around the content of
-    all of them, so that they keep their common size and position."""
+    all of them, so that they keep their common size and position. write_gif does this itself;
+    call it only to crop frames before composing them, e.g. with combine_images."""
     images = [Image.open(path).convert("RGB") for path in paths]
     box = content_box(*images)
     for path, image in zip(paths, images):
@@ -102,15 +103,18 @@ def combine_images(
 
 
 def write_gif(frames: Sequence[Path], path: Path, fps: int = 8, width: int = 800):
-    """Encode the image files `frames` into an animated GIF of the given width."""
+    """Encode the image files `frames` into an animated GIF of the given width, cropped to the
+    content of all frames (see trim_frames; the files `frames` are left as they are)."""
     if shutil.which("ffmpeg") is None:
         raise RuntimeError("write_gif needs ffmpeg on the PATH")
 
     work = Path(frames[0]).parent / "gif"
     shutil.rmtree(work, ignore_errors=True)
     work.mkdir(parents=True)
-    for i, frame in enumerate(frames):
-        shutil.copyfile(frame, work / f"{i:04d}.png")
+    copies = [work / f"{i:04d}.png" for i in range(len(frames))]
+    for frame, copy in zip(frames, copies):
+        shutil.copyfile(frame, copy)
+    trim_frames(copies)
 
     scale = f"scale={width}:-1:flags=lanczos"
     subprocess.run(
