@@ -50,6 +50,15 @@ def pad(image: Image.Image, left=0, top=0, right=0, bottom=0) -> Image.Image:
     return out
 
 
+def trim_frames(paths: Sequence[Path], border: int = 20):
+    """Crop the images at `paths` (the frames of an animation) to one box around the content of
+    all of them, so that they keep their common size and position."""
+    images = [Image.open(path).convert("RGB") for path in paths]
+    box = content_box(*images)
+    for path, image in zip(paths, images):
+        trim(image, border, box).save(path)
+
+
 def place(
     path: Path,
     canvas: Tuple[int, int],
@@ -72,19 +81,23 @@ def place(
     out.save(path)
 
 
-def combine_images(main: Path, sides: Sequence[Path], path: Path):
-    """Put the images `sides` stacked on the right of `main`, each scaled to fit its height."""
+def combine_images(
+    main: Path, sides: Sequence[Path], path: Path, side_scale: float = 1.0, gap: int = 0
+):
+    """Put the images `sides` stacked on the right of `main`, `gap` pixels apart from it and
+    vertically centered, each scaled to `side_scale` times its share of the height of `main`."""
     large = Image.open(main).convert("RGB")
-    height = large.height // len(sides)
+    height = int(side_scale * large.height) // len(sides)
     smalls = []
     for side in sides:
         small = Image.open(side).convert("RGB")
         smalls.append(small.resize((round(small.width * height / small.height), height)))
 
-    out = Image.new("RGB", (large.width + max(s.width for s in smalls), large.height), "white")
+    left = large.width + gap
+    out = Image.new("RGB", (left + max(s.width for s in smalls), large.height), "white")
     out.paste(large, (0, 0))
     for i, small in enumerate(smalls):
-        out.paste(small, (large.width, i * height + (large.height - len(sides) * height) // 2))
+        out.paste(small, (left, i * height + (large.height - len(sides) * height) // 2))
     out.save(path)
 
 

@@ -109,6 +109,9 @@ def xy_plot(
     xticks: Optional[Sequence[float]] = None,
     yticks: Optional[Sequence[float]] = None,
     title: Optional[str] = None,
+    # black arrows as (start, end) points in data coordinates, e.g. one marking the current
+    # value in an animation frame
+    arrows: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]] = (),
 ) -> None:
     """Plot `values` (and an optional `reference_file`) to `path`, with a
     consistent style (best-loc legend, no frame)."""
@@ -165,6 +168,15 @@ def xy_plot(
     if yticks is not None:
         plt.yticks(yticks)
     plt.tick_params(labelsize=_TICK_FONTSIZE)
+
+    for start, end in arrows:
+        plt.annotate(
+            "",
+            xy=end,
+            xytext=start,
+            arrowprops=dict(arrowstyle="->", linewidth=2.5, color=REFERENCE_COLOR),
+            annotation_clip=False,
+        )
 
     plt.legend(loc="best", frameon=False, fontsize=_LEGEND_FONTSIZE)
     fig.savefig(path, dpi=_DPI, metadata={"Software": None})

@@ -85,7 +85,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 Run the case with `pymufem case.py`.
 
-The animation shown in the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py). To produce its input, set `output_for_animation = True` in [case.py](case.py) and run the case; it then exports the fields to `VisualizationOutput/` and writes a torque plot into `vis/` for every time step (30 steps per slip speed). Afterwards run `pvpython create_scene.py` in the case directory (requires `ffmpeg`).
+The animation shown in the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py). Its input comes from a separate run with `output_for_animation = True` in [case.py](case.py), which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds. Afterwards run `pvpython create_scene.py` in the case directory (requires `ffmpeg`); the scene can then be redrawn without running the case again.
 
 ## Results
 

@@ -1,8 +1,9 @@
 """Render results/Result_Animation.gif from the output of case.py.
 
 Run with `pvpython create_scene.py` after the case with `output_for_animation = True` (requires
-`ffmpeg`). The case then exports the fields to VisualizationOutput/ and the torque plots
-vis/Torque_vs_RPM_<i>.png for 30 time steps per rotation rate.
+`ffmpeg`). That run exports the eddy currents of every time step to VisualizationOutput/ and
+writes the torque at the three speeds and the number of time steps per speed to
+VisualizationOutput/Scene_Data.npz.
 """
 
 import sys
@@ -13,26 +14,27 @@ sys.path.insert(0, str(case_dir.parents[1]))
 
 import numpy as np
 import paraview.simple as pvs
-from PIL import Image
 from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData
 
-from casekit.images import combine_images, content_box, trim, write_gif
+from casekit import PlotStyle, xy_plot
+from casekit.images import combine_images, trim_frames, write_gif
 from casekit.paraview_scene import (
     add_text,
     blocks,
     color_by,
     new_view,
     read_output,
+    read_scene_data,
     save,
     scene,
     set_camera,
     show,
 )
 
-number_of_magnets = 10
-rpms = [500, 1000, 2000]
-steps_per_rpm = 30
+vis = case_dir / "vis"
+scene_data = read_scene_data(case_dir)
+reference = np.loadtxt(case_dir / "data" / "Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1)
 
 
 def arrow_grid(spacing=3.5e-3):
@@ -58,11 +60,16 @@ grid = arrow_grid()
 view = new_view((1600, 1200))
 
 # Oblique view from the magnet side (the magnets lie below the plate), 50 deg from below as
-# data/Geometry.png, fitted to the copper plate, which does not move.
+# data/Geometry.png, fitted to the copper plate, which does not move, and moved up away from
+# the color bar below it.
 copper = blocks(read_output(case_dir, 0), ["CopperPlate"])
 copper.UpdatePipeline()
 set_camera(
-    view, (0.0, -0.6428, -0.7660), (0, 0, 1), bounds=copper.GetDataInformation().GetBounds()
+    view,
+    (0.0, -0.6428, -0.7660),
+    (0, 0, 1),
+    bounds=copper.GetDataInformation().GetBounds(),
+    shift_up=0.014,
 )
 view.GetActiveCamera().Zoom(1.3)
 
@@ -73,9 +80,9 @@ def create_scene(index, rpm, path):
         copper = blocks(data, ["CopperPlate"])
         show(copper, view, (205 / 255, 112 / 255, 43 / 255))
 
-        # Magnets with alternating axial magnetization: N red, S blue.
+        # The 10 magnets with alternating axial magnetization: N red, S blue.
         for first, color in [(0, (1, 0, 0)), (1, (0, 0, 1))]:
-            magnets = [f"Magnet{k}" for k in range(first, number_of_magnets, 2)]
+            magnets = [f"Magnet{k}" for k in range(first, 10, 2)]
             show(blocks(data, magnets), view, color)
 
         # Eddy currents in the plate: arrows of equal length on a fixed grid, colored by |J|.
@@ -110,18 +117,37 @@ def create_scene(index, rpm, path):
         save(view, path, crop=False)
 
 
-vis = case_dir / "vis"
-count = len(rpms) * steps_per_rpm
-renders = [vis / f"Scene_Electric_Current_Density_{i:03d}.png" for i in range(count)]
-for i, render in enumerate(renders):
-    create_scene(i, rpms[i // steps_per_rpm], render)
+def torque_plot(rpm, path):
+    """Torque against slip speed as results/Torque_vs_RPM.png, with an arrow up at `rpm`."""
+    xy_plot(
+        values=scene_data["torque_vs_rpm"],
+        style=PlotStyle.POINTS,
+        reference_values=reference,
+        reference_style=PlotStyle.LINE,
+        reference_label="Lubin (2015)",
+        xlabel="Slip Speed [rpm]",
+        ylabel="Torque [Nm]",
+        xlim=(0, 3000),
+        ylim=(0, 35),
+        path=f"{path}",
+        arrows=[((rpm, 0.0), (rpm, 6.0))],
+    )
 
-# Crop all renders to the same box, so that the frames keep their size and position.
-images = [Image.open(render).convert("RGB") for render in renders]
-box = content_box(*images)
-frames = [vis / f"Scene_{i:03d}.png" for i in range(count)]
-for i, (render, image) in enumerate(zip(renders, images)):
-    trim(image, box=box).save(render)
-    combine_images(render, [vis / f"Torque_vs_RPM_{i:03d}.png"], frames[i])
 
-write_gif(frames, case_dir / "results" / "Result_Animation.gif")
+# The exported time steps: steps_per_rpm at each slip speed of torque_vs_rpm, in its order.
+rpms = [
+    int(rpm) for rpm, _ in scene_data["torque_vs_rpm"] for _ in range(scene_data["steps_per_rpm"])
+]
+renders = [vis / f"Scene_Electric_Current_Density_{i:03d}.png" for i in range(len(rpms))]
+for i, (rpm, render) in enumerate(zip(rpms, renders)):
+    create_scene(i, rpm, render)
+
+# Without the white margins of the view, the plot about as wide as the scene beside it.
+trim_frames(renders)
+gif_frames = [vis / f"Scene_{i:03d}.png" for i in range(len(rpms))]
+for i, (rpm, render) in enumerate(zip(rpms, renders)):
+    plot = vis / f"Torque_vs_RPM_{i:03d}.png"
+    torque_plot(rpm, plot)
+    combine_images(render, [plot], gif_frames[i], side_scale=0.7, gap=150)
+
+write_gif(gif_frames, case_dir / "results" / "Result_Animation.gif")
