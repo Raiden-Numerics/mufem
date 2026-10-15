@@ -1,7 +1,8 @@
 """Render results/Scene_Radiation_Pattern.png and results/Electric_Field.gif.
 
-Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The radiation pattern
-is read from results/Far_Field_3D.npz, the electric field from VisualizationOutput/.
+Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The case writes the
+electric field and the 3D radiation pattern (VisualizationOutput/Scene_Data.npz) to
+VisualizationOutput/.
 """
 
 import sys
@@ -22,6 +23,7 @@ from casekit.paraview_scene import (
     new_view,
     phase_field,
     read_output,
+    read_scene_data,
     save,
     scene,
     set_camera,
@@ -68,7 +70,7 @@ def radiation_surface(thetas, phis, pattern, scale=4.5):
 
 
 # Far-field radiation pattern; 20 log10 since the pattern is a field amplitude.
-far_field = np.load(results / "Far_Field_3D.npz")
+far_field = read_scene_data(case_dir)
 source = pvs.TrivialProducer()
 source.GetClientSideObject().SetOutput(
     radiation_surface(far_field["thetas"], far_field["phis"], far_field["radiation_pattern"])
