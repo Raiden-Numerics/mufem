@@ -113,14 +113,14 @@ any software that produces a mesh in a format recognized by MFEM can be utilized
 ([supported mesh formats](https://mfem.org/mesh-formats/)).
 
 Our computational domain is a sphere placed at the center (0, 0, 0) with a radius
-`R` of 10 m, which is sufficiently large to simulate free space:
+`sphere_radius` of 10 m, which is sufficiently large to simulate free space:
 
 ```python
 from netgen.occ import Glue, Pnt, Sphere
 
-R = 10.0  # [m] sphere radius
+sphere_radius = 10.0  # [m] radius of the spherical domain
 
-domain = Sphere(Pnt(0, 0, 0), R)
+domain = Sphere(Pnt(0, 0, 0), sphere_radius)
 ```
 
 We will now assign name attributes to the geometry for reference in the mufem
@@ -132,9 +132,9 @@ to the sphere and, with `individual_names=False`, the name "Domain::Boundary" to
 all of its faces, which for a sphere is its single surface:
 
 ```python
-from casekit.netgen_geometry import name_body
+from casekit.netgen_geometry import color_air, name_body
 
-name_body(domain, "Domain", individual_names=False)
+name_body(domain, "Domain", color=color_air, individual_names=False)
 ```
 
 Finally, we save the geometry as a STEP file and generate the mesh from it with a
@@ -144,7 +144,9 @@ The mesh is written in the MFEM format, which keeps the name attributes:
 ```python
 from casekit.netgen_meshing import mesh_and_save
 
-Glue([domain]).WriteStep("geometry.step")
+geometry = Glue([domain])
+
+geometry.WriteStep("geometry.step")
 
 mesh_and_save("geometry.step", basesize=0.5, path="geometry.mesh")
 ```
@@ -175,7 +177,7 @@ simulation ("Nonuniform Charge Density") and the path to the mesh file:
 
 ```python
 sim = mufem.Simulation.New(
-    name="Nonuniform Charge Density",
+    name="David 2019: Nonuniform Charge Density",
     mesh_path="geometry.mesh",
 )
 ```
@@ -253,13 +255,13 @@ The expression uses the built-in `{Position}` symbol to access the spatial
 coordinates and supports standard mathematical operators and functions:
 
 ```python
-Q = 1.0  # [C/m^3] amplitude of the charge density
-a = 0.5  # [m] radius of the charge distribution
+charge = 1.0  # [C/m^3] amplitude Q of the charge density
+charge_radius = 0.5  # [m] radius a of the charge distribution
 
 charge_expr = f"""
     var r := sqrt({{Position}}.X^2 + {{Position}}.Y^2 + {{Position}}.Z^2);
-    var Q := {Q};
-    var a := {a};
+    var Q := {charge};
+    var a := {charge_radius};
 
     Q / (4 * pi) * exp(-r^2 / (2 * a^2))
 """
@@ -317,16 +319,20 @@ After the simulation finishes, we are ready to analyze the obtained data.
 First, we load necessary Python libraries:
 
 ```python
-import numpy as np
 import math
+
 import matplotlib.pyplot as plt
+import numpy as np
 ```
 
 Next, we create a function that calculates the theoretical electric field given
 by Eq. (6):
 
 ```python
-def theory(r):
+def electric_field_theory(r):
+    """Radial electric field of the Gaussian charge distribution from Gauss's law."""
+    Q, a = charge, charge_radius
+
     eps0 = 8.8541878188e-12  # [F/m] vacuum permittivity
     factor = Q / (4 * np.pi * eps0 * r**2)
     term1 = np.sqrt(np.pi / 2) * a**3 * math.erf(r / (np.sqrt(2) * a))
@@ -336,48 +342,37 @@ def theory(r):
 
 For simplicity, we will compare the electric field obtained from the simulations
 with the theoretical one only along the x-axis.
-To do this, we create a one-dimensional array of coordinates that spans the
-diameter of the sphere representing the computational domain, ranging from `-R`
-to `R` and divided into 500 points.
+To do this, we create a one-dimensional array of 500 positions that spans the
+diameter of the sphere representing the computational domain, from
+`-sphere_radius` to `sphere_radius`.
 To avoid issues when the mesh does not have an element exactly at the distance
-`R`, we add a small tolerance.
-Finally, we create two arrays, `E_mufem` and `E_theory`, to store the fields
-obtained from the simulations and those calculated using the theoretical
-formula:
+`sphere_radius`, we add a small tolerance:
 
 ```python
-R = 10.0  # [m] sphere radius
-Nr = 500
-
-r = np.linspace(-R + 0.01, R - 0.01, Nr)
-E_mufem = np.zeros(Nr)
-E_theory = np.zeros(Nr)
+positions = np.linspace(-sphere_radius + 0.01, sphere_radius - 0.01, 500)
 ```
 
-Next, we create a loop to iterate over all points across the diameter of the
-computational domain.
-At each step of the loop, we create a `mufem.ProbeReport` for a single point to
-access the electric field calculated by mufem (more information about reports can
+To access the electric field calculated by mufem at a position on the x-axis, we
+create a `mufem.ProbeReport` for a single point (more information about reports can
 be found in
 [Reports and Monitors](https://raiden-numerics.github.io/mufem-doc/framework/reports_and_monitors.html)).
 After evaluating this report, we extract the desired component of the electric
-field and store it in the `E_mufem` array.
-Similarly, we update the `E_theory` array by calling the previously defined
-`theory` function:
+field:
 
 ```python
-for i in range(Nr):
+def electric_field_x(x):
     report = mufem.ProbeReport.SinglePoint(
-        name="Electric Field Report",
-        cff_name="Electric Field",
-        x=r[i],
-        y=0,
-        z=0,
+        name="Electric Field Report", cff_name="Electric Field", x=x, y=0, z=0
     )
-    E = report.evaluate()
-    E_mufem[i] = E.x
+    return report.evaluate().x
+```
 
-    E_theory[i] = theory(r[i])
+We evaluate it at all positions and, similarly, the previously defined
+`electric_field_theory` function:
+
+```python
+e_mufem = [electric_field_x(x) for x in positions]
+e_theory = [electric_field_theory(x) for x in positions]
 ```
 
 Finally, we plot both arrays. [case.py](case.py) uses the `xy_plot` helper of the shared
@@ -385,8 +380,8 @@ Finally, we plot both arrays. [case.py](case.py) uses the `xy_plot` helper of th
 
 ```python
 plt.figure(constrained_layout=True)
-plt.plot(r, E_theory / 1e9, "k-", label="Theory")
-plt.plot(r, E_mufem / 1e9, label="$\\mu$fem")
+plt.plot(positions, np.array(e_theory) / 1e9, "k-", label="Theory")
+plt.plot(positions, np.array(e_mufem) / 1e9, label="$\\mu$fem")
 plt.legend(loc="best", frameon=False)
 plt.xlabel("Distance $r$ [m]")
 plt.ylabel("Electric field $E$ [GV/m]")
