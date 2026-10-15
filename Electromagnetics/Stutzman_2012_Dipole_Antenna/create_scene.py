@@ -10,21 +10,22 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import numpy as np  # noqa: E402
-import paraview.simple as pvs  # noqa: E402
-from vtkmodules.util.numpy_support import numpy_to_vtk, numpy_to_vtkIdTypeArray  # noqa: E402
-from vtkmodules.vtkCommonCore import vtkPoints  # noqa: E402
-from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData  # noqa: E402
+import numpy as np
+import paraview.simple as pvs
+from vtkmodules.util.numpy_support import numpy_to_vtk, numpy_to_vtkIdTypeArray
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.images import write_gif
+from casekit.paraview_scene import (
     color_by,
     new_view,
     phase_field,
     read_output,
     save,
+    scene,
     set_camera,
     show,
-    write_gif,
 )
 
 results = case_dir / "results"
@@ -96,29 +97,26 @@ view = new_view((1000, 1000))
 set_camera(view, (1, 0, 0), (0, 0, 1), (0.0, 0.0, -1.0), parallel_scale=8.0)
 frames = []
 for i, phase_deg in enumerate(range(0, 180, 5)):
-    field = phase_field(data, "Electric Field", phase_deg)
-    section = pvs.Slice(Input=field)
-    section.SliceType = "Plane"
-    section.SliceType.Origin = [0.0, 0.0, 0.0]
-    section.SliceType.Normal = [1.0, 0.0, 0.0]
+    with scene(view):
+        section = pvs.Slice(Input=phase_field(data, "Electric Field", phase_deg))
+        section.SliceType = "Plane"
+        section.SliceType.Origin = [0.0, 0.0, 0.0]
+        section.SliceType.Normal = [1.0, 0.0, 0.0]
 
-    display = show(section, view)
-    color_by(
-        display,
-        view,
-        "Electric Field",
-        "Electric Field [V/m]",
-        [0.0, 10.0, 20.0, 30.0],
-        position=(0.3, 0.05),
-        thickness=30,
-        title_size=32,
-        label_size=28,
-        component="Magnitude",
-    )
-    frames.append(case_dir / "vis" / f"Scene_{i:03d}.png")
-    save(view, frames[-1], crop=False)
-    display.SetScalarBarVisibility(view, False)
-    for proxy in (section, field):
-        pvs.Delete(proxy)
+        display = show(section, view)
+        color_by(
+            display,
+            view,
+            "Electric Field",
+            "Electric Field [V/m]",
+            [0.0, 10.0, 20.0, 30.0],
+            position=(0.3, 0.05),
+            thickness=30,
+            title_size=32,
+            label_size=28,
+            component="Magnitude",
+        )
+        frames.append(case_dir / "vis" / f"Scene_{i:03d}.png")
+        save(view, frames[-1], crop=False)
 
 write_gif(frames, results / "Electric_Field.gif", fps=12)

@@ -11,25 +11,24 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import paraview.simple as pvs  # noqa: E402
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.images import combine_images, write_gif
+from casekit.paraview_scene import (
+    blocks,
     color_by,
-    combine_images,
     new_view,
+    read_output,
     save,
+    scene,
     set_camera,
     show,
-    write_gif,
 )
 
-parts = ["/Root/Stator", "/Root/Rotor", "/Root/LowerCoil", "/Root/UpperCoil"]
 vis = case_dir / "vis"
 
 
 def read_step(index):
-    data = pvs.OpenDataFile(f"{case_dir}/VisualizationOutput/Output_{index}.vtpc")
-    return pvs.ExtractBlock(Input=data, Selectors=parts)
+    return blocks(read_output(case_dir, index), ["Stator", "Rotor", "LowerCoil", "UpperCoil"])
 
 
 # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism layers
@@ -58,26 +57,24 @@ set_camera(view, (0, 0, 1), (0, 1, 0), (0.025, 0.0, 0.0), parallel_scale=0.12)
 
 frames = []
 for i in range(31):
-    step = read_step(i)
-    display = show(step, view)
-    color_by(
-        display,
-        view,
-        "Electric Current Density",
-        "Electric Current Density [A/m²]",
-        [0.0, 1.0e5, 2.0e5, 3.0e5],
-        label_format="%.0e",
-        orientation="Vertical",
-        position=(0.8, 0.25),
-        length=0.5,
-        thickness=40,
-        title_size=32,
-        label_size=28,
-        component="Magnitude",
-    )
-    save(view, vis / f"Scene_Electric_Current_Density_{i:03d}.png", crop=False)
-    pvs.Hide(step, view)
-    pvs.Delete(step)
+    with scene(view):
+        display = show(read_step(i), view)
+        color_by(
+            display,
+            view,
+            "Electric Current Density",
+            "Electric Current Density [A/m²]",
+            [0.0, 1.0e5, 2.0e5, 3.0e5],
+            label_format="%.0e",
+            orientation="Vertical",
+            position=(0.8, 0.25),
+            length=0.5,
+            thickness=40,
+            title_size=32,
+            label_size=28,
+            component="Magnitude",
+        )
+        save(view, vis / f"Scene_Electric_Current_Density_{i:03d}.png", crop=False)
 
     frames.append(vis / f"Scene_{i:03d}.png")
     combine_images(

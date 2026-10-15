@@ -1,9 +1,8 @@
 """Render data/Geometry.png and data/Geometry_Magnets.png from geometry.step with netgen.
 
-Both images look from the side of the animation of create_scene.py, 50 deg from below
-(39 deg there), so that the edge of the air domain clears the magnets. The magnet-side back
-iron covers the magnets in this view, so the second image leaves it out. Needs a display;
-headless:
+Both images look from the side of the animation of create_scene.py, 50 deg from below as
+there, so that the edge of the air domain clears the magnets. The magnet-side back iron covers
+the magnets in this view, so the second image leaves it out. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
@@ -13,7 +12,8 @@ from pathlib import Path
 
 from netgen.occ import OCCGeometry
 
-from casekit.netgen_image import content_box, snapshot, trim
+from casekit.images import content_box, trim
+from casekit.netgen_image import snapshot
 
 case_dir = Path(__file__).resolve().parent
 

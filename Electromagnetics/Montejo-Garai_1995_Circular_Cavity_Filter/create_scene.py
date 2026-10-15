@@ -10,14 +10,22 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import paraview.simple as pvs  # noqa: E402
 
-from casekit.paraview_scene import color_by, new_view, save, set_camera, show  # noqa: E402
+from casekit.paraview_scene import (
+    color_by,
+    new_view,
+    read_output,
+    save,
+    scene,
+    set_camera,
+    show,
+)
 
 # Two WR75 waveguides of 20 mm, two irises of 1 mm and the cavity of 100 mm along z.
 total_length = 20e-3 + 1e-3 + 100e-3 + 1e-3 + 20e-3
 
 view = new_view((1200, 650))
+# Onto the middle of the filter from 14 deg above the x-z plane, 48 deg from -x toward -z.
 set_camera(
     view,
     (-0.6830, 0.2588, -0.6830 - total_length / 2),
@@ -27,16 +35,14 @@ set_camera(
 )
 
 for index, frequency in enumerate(["12GHz", "14GHz"]):
-    data = pvs.OpenDataFile(f"{case_dir}/VisualizationOutput/Output_{index}.vtpc")
-    display = show(data, view)
-    color_by(
-        display,
-        view,
-        "Electric Field-Real",
-        "Electric Field [V/m]",
-        [0.0, 1000.0, 2000.0, 3000.0],
-        component="Magnitude",
-    )
-    save(view, case_dir / "results" / f"scene_electric_field_{frequency}.png", crop=False)
-    display.SetScalarBarVisibility(view, False)
-    pvs.Delete(data)
+    with scene(view):
+        display = show(read_output(case_dir, index), view)
+        color_by(
+            display,
+            view,
+            "Electric Field-Real",
+            "Electric Field [V/m]",
+            [0.0, 1000.0, 2000.0, 3000.0],
+            component="Magnitude",
+        )
+        save(view, case_dir / "results" / f"scene_electric_field_{frequency}.png", crop=False)

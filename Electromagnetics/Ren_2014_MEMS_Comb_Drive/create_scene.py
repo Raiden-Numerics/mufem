@@ -11,23 +11,21 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import paraview.simple as pvs  # noqa: E402
+import paraview.simple as pvs
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.images import write_gif
+from casekit.paraview_scene import (
     color_by,
     new_view,
+    read_output,
     save,
+    scene,
     set_camera,
     show,
-    write_gif,
 )
 
 shifts = 17
 results = case_dir / "results"
-
-
-def read(index):
-    return pvs.OpenDataFile(f"{case_dir}/VisualizationOutput/Output_{index}.vtpc")
 
 
 def potential(display, view, boxed=False):
@@ -51,21 +49,18 @@ def potential(display, view, boxed=False):
 view = new_view((1100, 800))
 set_camera(view, (0, 1, 0), (-1, 0, 0), (0.0, 0.0, 0.0), parallel_scale=2e-5)
 for index in (0, 1):
-    data = read(index)
-    section = pvs.Slice(Input=data)
-    section.SliceType = "Plane"
-    section.SliceType.Origin = [11e-6, 2e-6, 17e-6]
-    section.SliceType.Normal = [0.0, 1.0, 0.0]
-    moved = pvs.Transform(Input=section)
-    moved.Transform.Translate = [-15e-6, 0.0, -17e-6]
+    with scene(view):
+        section = pvs.Slice(Input=read_output(case_dir, index))
+        section.SliceType = "Plane"
+        section.SliceType.Origin = [11e-6, 2e-6, 17e-6]
+        section.SliceType.Normal = [0.0, 1.0, 0.0]
+        moved = pvs.Transform(Input=section)
+        moved.Transform.Translate = [-15e-6, 0.0, -17e-6]
 
-    display = show(moved, view, edges=True)
-    display.EdgeColor = [0.1, 0.1, 0.1]
-    potential(display, view, boxed=True)
-    save(view, results / f"Scene_Electric_Potential_{index}_Mesh.png", crop=False)
-    display.SetScalarBarVisibility(view, False)
-    for proxy in (moved, section, data):
-        pvs.Delete(proxy)
+        display = show(moved, view, edges=True)
+        display.EdgeColor = [0.1, 0.1, 0.1]
+        potential(display, view, boxed=True)
+        save(view, results / f"Scene_Electric_Potential_{index}_Mesh.png", crop=False)
 
 # Animation: the potential on the refined mesh, clipped through the combs, from the largest
 # shift to zero, as the combs are pulled together when the voltage is applied.
@@ -73,20 +68,17 @@ view = new_view((1100, 800))
 set_camera(view, (1, 1, 1), (0, 1, 0), (0.0, 0.0, 0.0), parallel_scale=5e-5)
 frames = []
 for shift in reversed(range(shifts)):
-    data = read(2 * shift + 1)
-    clip = pvs.Clip(Input=data)
-    clip.ClipType = "Plane"
-    clip.ClipType.Origin = [11e-6, 2e-6, 17e-6]
-    clip.ClipType.Normal = [0.0, 1.0, 0.0]
-    moved = pvs.Transform(Input=clip)
-    moved.Transform.Translate = [7e-6, 30e-6, 0.0]
+    with scene(view):
+        clip = pvs.Clip(Input=read_output(case_dir, 2 * shift + 1))
+        clip.ClipType = "Plane"
+        clip.ClipType.Origin = [11e-6, 2e-6, 17e-6]
+        clip.ClipType.Normal = [0.0, 1.0, 0.0]
+        moved = pvs.Transform(Input=clip)
+        moved.Transform.Translate = [7e-6, 30e-6, 0.0]
 
-    display = show(moved, view)
-    potential(display, view)
-    frames.append(case_dir / "vis" / f"Scene_{shift:03d}.png")
-    save(view, frames[-1], crop=False)
-    display.SetScalarBarVisibility(view, False)
-    for proxy in (moved, clip, data):
-        pvs.Delete(proxy)
+        display = show(moved, view)
+        potential(display, view)
+        frames.append(case_dir / "vis" / f"Scene_{shift:03d}.png")
+        save(view, frames[-1], crop=False)
 
 write_gif(frames, results / "Electric_Potential.gif", fps=5)

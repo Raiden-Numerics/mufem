@@ -12,24 +12,25 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import matplotlib  # noqa: E402
+import matplotlib
 
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import paraview.simple as pvs  # noqa: E402
+import matplotlib.pyplot as plt
+import numpy as np
+import paraview.simple as pvs
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.images import combine_images, write_gif
+from casekit.paraview_scene import (
+    blocks,
     color_by,
-    combine_images,
     new_view,
     phase_field,
     read_output,
     save,
+    scene,
     set_camera,
     show,
-    write_gif,
 )
 
 frequency = 50.0
@@ -96,7 +97,7 @@ def plot_flux_density(phase, path):
 
 view = new_view((1600, 1200))
 data = read_output(case_dir)
-conductors = pvs.ExtractBlock(Input=data, Selectors=["/Root/Coil", "/Root/Plate"])
+conductors = blocks(data, ["Coil", "Plate"])
 show(conductors, view, color=(0.9, 0.9, 0.9))
 
 # The view of data/Geometry.png.
@@ -114,44 +115,44 @@ set_camera(
 frames = []
 for i in range(frames_per_period):
     phase = 2.0 * math.pi * i / frames_per_period
-    current = phase_field(conductors, "Electric Current Density", math.degrees(phase))
-    glyph = pvs.Glyph(Input=current, GlyphType="Arrow")
-    glyph.OrientationArray = ["POINTS", "Electric Current Density"]
-    glyph.ScaleArray = ["POINTS", "Electric Current Density"]
-    glyph.ScaleFactor = 2e-8
-    glyph.GlyphMode = "All Points"
-    glyph.GlyphType.ShaftRadius = 0.07
-    glyph.GlyphType.ShaftResolution = 16
-    glyph.GlyphType.TipRadius = 0.12
-    glyph.GlyphType.TipLength = 0.15
-    glyph.GlyphType.TipResolution = 16
+    current = vis / f"Scene_Electric_Current_Density_{i:03d}.png"
+    with scene(view):
+        glyph = pvs.Glyph(
+            Input=phase_field(conductors, "Electric Current Density", math.degrees(phase)),
+            GlyphType="Arrow",
+        )
+        glyph.OrientationArray = ["POINTS", "Electric Current Density"]
+        glyph.ScaleArray = ["POINTS", "Electric Current Density"]
+        glyph.ScaleFactor = 2e-8
+        glyph.GlyphMode = "All Points"
+        glyph.GlyphType.ShaftRadius = 0.07
+        glyph.GlyphType.ShaftResolution = 16
+        glyph.GlyphType.TipRadius = 0.12
+        glyph.GlyphType.TipLength = 0.15
+        glyph.GlyphType.TipResolution = 16
 
-    display = show(glyph, view)
-    color_by(
-        display,
-        view,
-        "Electric Current Density",
-        "Electric Current Density [A/m²]",
-        [0.0, 1.0e6, 2.0e6],
-        "%.0e",
-        position=(0.35, 0.1),
-        length=0.3,
-        thickness=40,
-        title_size=32,
-        label_size=28,
-        component="Magnitude",
-    )
-    scene = vis / f"Scene_Electric_Current_Density_{i:03d}.png"
-    save(view, scene, crop=False)
-    display.SetScalarBarVisibility(view, False)
-    for proxy in (glyph, current):
-        pvs.Delete(proxy)
+        display = show(glyph, view)
+        color_by(
+            display,
+            view,
+            "Electric Current Density",
+            "Electric Current Density [A/m²]",
+            [0.0, 1.0e6, 2.0e6],
+            "%.0e",
+            position=(0.35, 0.1),
+            length=0.3,
+            thickness=40,
+            title_size=32,
+            label_size=28,
+            component="Magnitude",
+        )
+        save(view, current, crop=False)
 
     plot_coil_current(phase, vis / f"Coil_Current_{i:03d}.png")
     plot_flux_density(phase, vis / f"Magnetic_Flux_Density_{i:03d}.png")
     frames.append(vis / f"Scene_{i:03d}.png")
     combine_images(
-        scene,
+        current,
         [vis / f"Coil_Current_{i:03d}.png", vis / f"Magnetic_Flux_Density_{i:03d}.png"],
         frames[-1],
     )

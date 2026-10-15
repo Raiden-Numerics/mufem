@@ -10,13 +10,14 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import paraview.simple as pvs  # noqa: E402
+import paraview.simple as pvs
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.paraview_scene import (
     color_by,
     new_view,
     read_output,
     save,
+    scene,
     set_camera,
     show,
 )
@@ -27,6 +28,15 @@ data = read_output(case_dir)
 temperature = pvs.Calculator(Input=data)
 temperature.ResultArrayName = "Temperature [°C]"
 temperature.Function = '"Temperature" - 273.15'
+
+# The whole half plate in frame, moved up away from the color bar below it.
+set_camera(
+    view,
+    (-0.25, 0.17, -0.15),
+    (0, 1, 0),
+    bounds=(0.0, 0.15, -0.1, 0.0, 0.0, 0.3),
+    shift_up=0.025,
+)
 
 for source, array, title, labels, label_format, name in [
     (
@@ -46,17 +56,9 @@ for source, array, title, labels, label_format, name in [
         "Scene_Goldak_Heat_Source.png",
     ),
 ]:
-    display = show(source, view)
-    color_by(display, view, array, title, labels, label_format, position=(0.3, 0.03), thickness=30)
-    # The whole half plate in frame, moved up away from the color bar below it.
-    set_camera(
-        view,
-        (-0.25, 0.17, -0.15),
-        (0, 1, 0),
-        (0.03, -0.03, 0.17),
-        bounds=(0.0, 0.15, -0.1, 0.0, 0.0, 0.3),
-        shift_up=0.025,
-    )
-    save(view, case_dir / "results" / name)
-    display.SetScalarBarVisibility(view, False)
-    pvs.Hide(source, view)
+    with scene(view):
+        display = show(source, view)
+        color_by(
+            display, view, array, title, labels, label_format, position=(0.3, 0.03), thickness=30
+        )
+        save(view, case_dir / "results" / name)

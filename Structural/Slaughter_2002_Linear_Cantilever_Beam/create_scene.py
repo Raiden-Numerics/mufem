@@ -10,16 +10,16 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-import paraview.simple as pvs  # noqa: E402
+import paraview.simple as pvs
 
-from casekit.paraview_scene import (  # noqa: E402
+from casekit.images import write_gif
+from casekit.paraview_scene import (
     color_by,
     new_view,
     read_output,
     save,
     set_camera,
     show,
-    write_gif,
 )
 
 # The tip deflection (1.9 mm) is invisible at true scale.
@@ -29,8 +29,10 @@ frames = 30
 view = new_view((1600, 900))
 data = read_output(case_dir)
 
+# Von Mises stress [kPa] at the load fraction of each frame (set in the loop below).
 stress = pvs.Calculator(Input=data)
 stress.ResultArrayName = "Stress"
+stress.Function = '"Von Mises Stress" / 1000'
 warp = pvs.WarpByVector(Input=stress)
 warp.Vectors = ["POINTS", "Displacement"]
 
