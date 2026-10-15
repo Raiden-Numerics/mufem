@@ -69,23 +69,24 @@ def read_step(index):
 
 
 # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism layers
-# show as quads.
+# show as quads. The color bar sits in the free space to the right of the rotor.
 view = new_view((1989, 1471))
 display = show(read_step(0), view, edges=True)
-color_by(
+bar = color_by(
     display,
     view,
     "Element Type",
     "Element Type",
     [4.0, 5.0, 6.0],  # tetrahedra and prisms
     orientation="Vertical",
-    position=(0.86, 0.04),
-    length=0.35,
-    title_size=30,
-    label_size=28,
+    length=0.5,
+    thickness=40,
+    title_size=40,
+    label_size=36,
 )
+bar.WindowLocation = "Lower Right Corner"
 set_camera(view, (-0.012, 0.015, 0.166), (0, 1, 0), (0.0, 0.045, -0.006), parallel_scale=0.0448)
-save(view, case_dir / "results" / "Scene_ElementType.png", crop=False)
+save(view, case_dir / "results" / "Scene_ElementType.png")
 
 # Animation: the electric current density in front, the coil current and the rotor torque of
 # case.py on the right. The stator sits on the left so that the color bar fits on the right.
