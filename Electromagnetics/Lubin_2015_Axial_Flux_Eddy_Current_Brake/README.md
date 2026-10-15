@@ -23,8 +23,11 @@ The dimensions are those of Table I of [1]: magnets from $`R_1 = 30`$ to $`R_2 =
 
 The rotational motion can be applied either to the copper plate or to the magnetic plate using the `RigidBodyMotionModel`. As in the test bench of [1], the copper side is held and the magnet side rotates:
 
+<!-- fmt: off -->
 ```python
-rbm_model = RigidBodyMotionModel(mesh_motion_strategy=MeshMotionPartialRemeshing("Air" @ Vol))
+rbm_model = RigidBodyMotionModel(
+    mesh_motion_strategy=MeshMotionPartialRemeshing("Air" @ Vol)
+)
 
 self.motion = RotatingMotion(
     name="Rotation",
@@ -36,6 +39,7 @@ self.motion = RotatingMotion(
 rbm_model.add_motion(self.motion)
 sim.get_model_manager().add_model(rbm_model)
 ```
+<!-- fmt: on -->
 
 The braking torque is evaluated on the copper plate and its back iron with a Magnetic Torque Report.
 

@@ -158,6 +158,7 @@ The spectrum is therefore supplied precalculated in
 [case.py](case.py) solves only the five measured passband frequencies that the
 case checks and the two frequencies, 12 and 14 GHz, at which we visualize the
 electric field:
+<!-- fmt: off -->
 ```py
 if self.precalculate:
     self.frequencies = numpy.linspace(10e9, 15e9, 501)  # [Hz]
@@ -166,6 +167,7 @@ else:
         sorted(self.visualized_frequencies + self.checked_frequencies)
     )
 ```
+<!-- fmt: on -->
 
 Setting the class attribute `precalculate = True` scans the whole frequency range
 instead and regenerates the precalculated spectrum, skipping the field export.
@@ -173,6 +175,9 @@ instead and regenerates the precalculated spectrum, skipping the field export.
 For either choice of the frequencies we then use the same loop:
 ```py
 for i, frequency in enumerate(self.frequencies):
+    if self.is_main():
+        print(f"\nFrequency {i + 1}/{len(self.frequencies)}: {frequency / 1e9:.3f}GHz")
+
     self.model.set_frequency(frequency)
     self.runner.advance(1)
 

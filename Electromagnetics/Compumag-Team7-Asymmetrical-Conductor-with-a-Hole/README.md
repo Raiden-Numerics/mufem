@@ -36,7 +36,7 @@ $`I(t) = I_0 \cos(\omega t)`$, so all fields oscillate at that frequency and the
 is used with third-order elements on a second-order (curved) mesh:
 
 ```python
-magnetic_model = TimeHarmonicMagneticModel(frequency=200, order=3)
+self.magnetic_model = TimeHarmonicMagneticModel(frequency=self.frequencies[0], order=3)
 ```
 
 The case solves $`200\,\mathrm{Hz}`$ first and then switches the model to $`50\,\mathrm{Hz}`$
@@ -64,12 +64,18 @@ and a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/el
 of $`1\,\mathrm{A}`$:
 
 ```python
+# 2742 ampere turns (peak), maximum at wt = 0, flowing in +x at (0.2, 0.01, 0.07),
+# i.e. anticlockwise seen from +z as in the TEAM 7 description.
+coil_topology = CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0)
+coil_type = CoilTypeStranded(number_of_turns=2742)
+coil_excitation = CoilExcitationCurrent(current=(1.0, 0))
+
 coil = CoilSpecification(
     name="Coil",
     marker="Coil" @ Vol,
-    topology=CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0),
-    type=CoilTypeStranded(number_of_turns=2742),
-    excitation=CoilExcitationCurrent(current=(1.0, 0)),
+    topology=coil_topology,
+    type=coil_type,
+    excitation=coil_excitation,
 )
 ```
 

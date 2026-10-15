@@ -71,7 +71,7 @@ We also assume that the computational domain is filled with air, which we model 
 
 To calculate the energy $`W`$ we use the Volume Integral Report, which integrates the Electric Energy Density over the computational domain:
 ```py
-report = VolumeIntegralReport(
+self.report = VolumeIntegralReport(
     name="Electric Energy Density Report",
     cff_name="Electric Energy Density",
 )
@@ -93,6 +93,7 @@ pymufem case.py
 ```
 
 Inside the `solve` method of [case.py](case.py) we have the following double loop:
+<!-- fmt: off -->
 ```py
 for xshift in self.xshifts:
     self.sim.get_domain().load_mesh(f"{self.mesh_path_for(xshift)}")
@@ -113,10 +114,13 @@ for xshift in self.xshifts:
 
         self.refinement_model.refine_mesh()
     else:
-        raise RuntimeError(f"No {max_ncells:.0e} cells after {max_refinements} refinements.")
+        raise RuntimeError(
+            f"No {max_ncells:.0e} cells after {max_refinements} refinements."
+        )
 
     vis.save(order=2)
 ```
+<!-- fmt: on -->
 The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
@@ -137,8 +141,8 @@ where it is essential to enhance the solution, while leaving the mesh in other r
 domain unaffected. The parameters of the mesh refinement algorithm can be adjusted using the model-specific 
 Mesh Refiner:
 ```py
-mesh_refiner = model.get_mesh_refiner()
-mesh_refiner.set_refinement_fraction(0.3)
+# Refine the 30% of the cells with the largest error estimate.
+model.get_mesh_refiner().set_refinement_fraction(0.3)
 ```
 For instance, in the code above, we set the mesh refinement fraction to 0.3, indicating that the top 30% of 
 elements with the highest error will be refined.

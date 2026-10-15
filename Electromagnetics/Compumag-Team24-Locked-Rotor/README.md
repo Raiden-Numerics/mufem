@@ -32,11 +32,25 @@ and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [
   measured voltage (Table II of [1]) is disregarded. The applied voltage and resistance are scaled by
   $`0.25`$ per coil (two coils, half model):
 
+<!-- fmt: off -->
 ```python
 symmetry = 0.25
 
-excitation = CoilExcitationVoltage(voltage=23.1 * symmetry, resistance=3.09 * symmetry)
+for coil in ["Upper", "Lower"]:
+    coil_specification = CoilSpecification(
+        name=f"{coil} Coil",
+        marker=f"{coil} Coil" @ Vol,
+        topology=CoilTopologyOpen(
+            in_marker=f"{coil} Coil::In" @ Bnd, out_marker=f"{coil} Coil::Out" @ Bnd
+        ),
+        type=CoilTypeStranded(number_of_turns=350),
+        excitation=CoilExcitationVoltage(
+            voltage=23.1 * symmetry, resistance=3.09 * symmetry
+        ),
+    )
+    coil_model.add_coil_specification(coil_specification)
 ```
+<!-- fmt: on -->
 
 * The time step is $`5\,\mathrm{ms}`$ up to $`t = 0.15\,\mathrm{s}`$.
 

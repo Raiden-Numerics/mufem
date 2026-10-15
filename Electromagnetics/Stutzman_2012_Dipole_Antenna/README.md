@@ -68,6 +68,8 @@ mesh_and_save(
         "Mesh.MeshSizeMax": self.wavelength / 5,
         "Mesh.MeshSizeFromCurvature": 12,
         "Mesh.ElementOrder": 2,
+        # Optimize the curved elements without the elastic step (value 2): that
+        # step uses the PETSc built into gmsh, which clashes with mufem's MPI.
         "Mesh.HighOrderOptimize": 1,
     },
 )
@@ -106,7 +108,7 @@ model using the time-harmonic Maxwell
 with the permeability and permittivity of free space:
 
 ```py
-material = TimeHarmonicMaxwellGeneralMaterial.Constant(
+material_air = TimeHarmonicMaxwellGeneralMaterial.Constant(
     name="Air",
     marker="Domain" @ Vol,
 )
