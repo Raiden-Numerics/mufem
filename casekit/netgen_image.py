@@ -111,7 +111,7 @@ class Labels:
         x, y = center
         self.draw.ellipse([x - radius, y - radius, x + radius, y + radius], fill="black")
 
-    def math(self, position, tex: str, font_size: int = 40):
+    def formula(self, position, tex: str, font_size: int = 40):
         """Formula `tex` in matplotlib mathtext (e.g. "$B_y(t)$"), upper left at `position`."""
         import matplotlib.pyplot as plt
 

@@ -69,7 +69,7 @@ Figure 2 shows the resulting mesh.
 <img src="data/Mesh.png" alt="Mesh" width="45%">
 <br/>
 <br/>
-<em>Figure 2: The mesh created by Gmsh mesh generator.</em>
+<em>Figure 2: The mesh created by the Gmsh mesh generator.</em>
 </div>
 <br/>
 
@@ -208,7 +208,7 @@ marked by stars.
 <img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="45%">
 <br/>
 <br/>
-<em>Figure 3: Transmission spectrum (the squared magnitude of S21 parameter as a function of frequency) of the waveguide circular cavity filter.</em>
+<em>Figure 3: Transmission spectrum (the squared magnitude of the S21 parameter as a function of frequency) of the waveguide circular cavity filter.</em>
 </div>
 <br/>
 
@@ -239,7 +239,7 @@ filter at both frequencies.
 <img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="45%" />
 <br/>
 <br/>
-<em>Figure 4: Magnitude of the real part of the electric field (the field at <i>ωt</i> = 0) inside the waveguide filter at frequency 12 GHz (left) and 14 GHz (right).</em>
+<em>Figure 4: Magnitude of the real part of the electric field (the field at <i>ωt</i> = 0) inside the waveguide filter at 12 GHz (left) and 14 GHz (right).</em>
 </div>
 <br/>
 

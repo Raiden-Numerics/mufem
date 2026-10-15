@@ -155,7 +155,7 @@ over one excitation cycle (Figure 4).
 <img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="100%">
 <br/>
 <br/>
-<em>Figure 4: Eddy current density in the plate (50 Hz) over one period, with the coil current and B<sub>z</sub> along A1-B1.</em>
+<em>Figure 4: Current density in the coil and eddy currents in the plate (50 Hz) over one period, with the coil current and B<sub>z</sub> along A1-B1.</em>
 </div>
 <br/>
 

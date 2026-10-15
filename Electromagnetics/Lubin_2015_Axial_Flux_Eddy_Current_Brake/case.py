@@ -19,12 +19,12 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     # 2 p = 10 sector magnets (grade N40) on the magnet-side back iron
     number_of_magnets = 10
 
-    # Slip speeds [rpm], each for 20 time steps before the torque is evaluated.
+    # Slip speeds [rpm], each for steps_per_rpm time steps before the torque is evaluated.
     rpms = [500, 1000, 2000]
     steps_per_rpm = 20
 
     # Export the eddy currents after every time step for the animation of create_scene.py; a
-    # separate run, since the export of all 60 steps takes about 1 GB.
+    # separate run, since the export of all steps takes about 1 GB.
     output_for_animation = False
 
     def build_geometry(self):

@@ -11,7 +11,6 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-
 from casekit.images import trim_frames, write_gif
 from casekit.paraview_scene import (
     add_text,

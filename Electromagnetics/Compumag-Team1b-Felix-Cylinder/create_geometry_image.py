@@ -23,6 +23,6 @@ labels = Labels(image)
 x, top, length = 90, 360, 200
 for dx in (0, 45, 90):
     labels.arrow((x + dx, top), (x + dx, top + length + 10), width=9, head=26, spread=0.46)
-labels.math((x - 10, top - 75), "$B_y(t)$")
+labels.formula((x - 10, top - 75), "$B_y(t)$")
 
 image.save(case_dir / "data" / "Geometry.png")

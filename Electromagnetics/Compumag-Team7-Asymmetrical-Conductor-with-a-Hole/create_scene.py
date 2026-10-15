@@ -1,8 +1,8 @@
 """Render results/Team7_Animation.gif from the output of case.py.
 
-Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The frames show the eddy
-current density J(t) = J_r cos(wt) - J_i sin(wt) at 50 Hz over one period, next to the coil
-current and B_z along A1-B1 at the same time.
+Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The frames show the current
+density J(t) = J_r cos(wt) - J_i sin(wt) in the coil and the plate at 50 Hz over one period, next
+to the coil current and B_z along A1-B1 at the same time.
 """
 
 import math

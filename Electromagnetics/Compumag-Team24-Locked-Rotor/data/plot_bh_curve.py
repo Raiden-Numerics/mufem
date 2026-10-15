@@ -1,8 +1,8 @@
 """Plot the B-H curve of tables/Table_1_BH_curve.csv and extend it to low fields.
 
-Below the first measured point the curve is replaced by the modified Froehlich formula fitted to
-the first four points; the result is written to tables/Updated_BH_curve.csv, and both curves are
-plotted into tables/Table_1_BH_curve.png and tables/Updated_BH_curve.png.
+Below the first measured point the curve is replaced by the modified Fröhlich formula fitted to
+the first four points; the result is written to tables/Updated_BH_curve.csv. The original curve is
+plotted into tables/Table_1_BH_curve.png, both curves into tables/Updated_BH_curve.png.
 """
 
 from pathlib import Path

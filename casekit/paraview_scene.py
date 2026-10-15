@@ -60,7 +60,8 @@ def blocks(source, names: Sequence[str]):
 
 
 def show(source, view, color: Optional[Sequence[float]] = None, edges: bool = False):
-    """Show `source` as a lit surface, in a solid `color` or (without) colored later."""
+    """Show `source` as a lit surface, in a solid `color` or, without one, to be colored by
+    color_by."""
     display = pvs.Show(source, view)
     display.Representation = "Surface With Edges" if edges else "Surface"
     display.EdgeColor = [0.0, 0.0, 0.0]
@@ -214,7 +215,7 @@ def scene(view):
 
 
 def save(view, path: Path, crop: bool = True):
-    """Render `view` to `path` on white and crop the white margins."""
+    """Render `view` to `path` on white and, with `crop`, crop the white margins."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     pvs.Render(view)
     pvs.SaveScreenshot(str(path), view, OverrideColorPalette="WhiteBackground")

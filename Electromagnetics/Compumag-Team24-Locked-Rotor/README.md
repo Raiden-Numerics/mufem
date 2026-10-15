@@ -105,7 +105,8 @@ air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corn
 
 Run the case with `pymufem case.py`.
 
-Figure 1 is rendered from the geometry with [create_geometry_image.py](create_geometry_image.py).
+Figure 1 is rendered from `geometry.step` with the netgen viewer by
+[create_geometry_image.py](create_geometry_image.py).
 Figure 3 and the animation (Figure 5) are rendered with ParaView by
 [create_scene.py](create_scene.py) from the fields of every time step and the coil current and
 rotor torque that every run of the case writes to `VisualizationOutput/`; run
