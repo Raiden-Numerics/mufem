@@ -43,7 +43,7 @@ color_by(
     "Stress",
     "Von Mises Stress [kPa]",
     [0.0, 20.0, 40.0, 60.0],
-    position=(0.06, 0.1),
+    position=(0.35, 0.05),
     length=0.3,
 )
 

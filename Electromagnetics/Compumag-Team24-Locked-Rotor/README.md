@@ -9,7 +9,7 @@ as the field builds up. The benchmark provides the measured coil current, rotor 
 and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [case.py](case.py).
 
 <div align="center">
-<img src="data/Geometry.png" alt="Geometry" width="45%">
+<img src="data/Geometry.png" alt="Geometry" width="75%">
 <br/>
 <br/>
 <em>Figure 1: The modeled half (z ≤ 0) of the benchmark: a stator carrying two coils and a rotor locked at 22°.</em>
@@ -87,7 +87,7 @@ $`\delta \approx 2`$ to $`3.5\,\mathrm{mm}`$. Prism boundary layers of $`0.25`$,
 $`2\,\mathrm{mm}`$ (total $`3.75\,\mathrm{mm}`$) on the rotor and stator surfaces resolve this region (Figure 3).
 
 <div align="center">
-<img src="results/Scene_ElementType.png" alt="Element Type" width="45%">
+<img src="results/Scene_ElementType.png" alt="Element Type" width="75%">
 <br/>
 <br/>
 <em>Figure 3: Prism boundary layer elements (type 6) at the iron surfaces; the interior uses tetrahedra (type 4).</em>
