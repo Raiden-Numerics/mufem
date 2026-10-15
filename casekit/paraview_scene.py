@@ -41,6 +41,13 @@ def read_output(case_dir: Path, index: Optional[int] = None):
     )
 
 
+def read_scene_data(case_dir: Path):
+    """The extra input of the scenes that case.py writes to ValidationCase.scene_data_path."""
+    import numpy as np
+
+    return np.load(case_dir / "VisualizationOutput" / "Scene_Data.npz")
+
+
 def blocks(source, names: Sequence[str]):
     """The bodies `names` of `source` (e.g. "Coil1"; ParaView drops the spaces of the names in
     case.py); raises if one does not exist, which would silently leave it out of the image."""
@@ -60,7 +67,8 @@ def show(source, view, color: Optional[Sequence[float]] = None, edges: bool = Fa
     display.Ambient = 0.3
     display.Diffuse = 0.8
     if color is not None:
-        pvs.ColorBy(display, None)
+        if display.ColorArrayName[1]:
+            pvs.ColorBy(display, None)
         display.AmbientColor = list(color)
         display.DiffuseColor = list(color)
     return display

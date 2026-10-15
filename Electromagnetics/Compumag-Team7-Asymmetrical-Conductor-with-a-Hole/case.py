@@ -205,15 +205,10 @@ class Team7AsymmetricalConductor(ValidationCase):
                     self.plot_flux_density(frequency, name, lines[name])
                 self.plot_current_density(frequency, lines["Top"])
 
-            # Used by create_scene.py for the animation (50 Hz).
-            for name, _ in self.flux_density_lines:
-                x, b = numpy.array(self.results[50][name]).T
-                numpy.savetxt(
-                    self.results_path / f"Bz_{name}_mufem.csv",
-                    numpy.c_[x.real, b.real, b.imag],
-                    delimiter=",",
-                    header="x [mm], Re Bz [mT], Im Bz [mT]",
-                )
+            # The input of the animation of create_scene.py: B_z [mT] along A1-B1 at 50 Hz,
+            # over x [mm], as compared with the measurement (conjugated, see evaluate_lines).
+            x, b = numpy.array(self.results[50]["A1-B1"]).T
+            numpy.savez(self.scene_data_path, x=x.real, bz=b)
 
         # ParaView export (collective) ------------------------------------------------
         vis = self.sim.get_field_exporter()

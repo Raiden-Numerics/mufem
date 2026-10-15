@@ -27,6 +27,7 @@ from casekit.paraview_scene import (
     new_view,
     phase_field,
     read_output,
+    read_scene_data,
     save,
     scene,
     set_camera,
@@ -37,9 +38,10 @@ frequency = 50.0
 frames_per_period = 40
 vis = case_dir / "vis"
 
-# B_z along A1-B1 [mT]: x, Re and -Im of the solution (case.py), and x, wt = 0 and 90 deg of the
-# measurement [G], so that B_z(t) = Re cos(wt) + Im sin(wt) for both.
-computed = np.loadtxt(case_dir / "results" / "Bz_A1-B1_mufem.csv", delimiter=",")
+# B_z along A1-B1: x [mm] and the complex B_z [mT] of case.py, which holds Re and -Im of the
+# solution, and x, wt = 0 and 90 deg of the measurement [G], so that
+# B_z(t) = Re cos(wt) + Im sin(wt) for both.
+computed = read_scene_data(case_dir)
 measured = np.loadtxt(case_dir / "data" / "Bz_A1-B1.csv", delimiter=",")
 
 
@@ -79,8 +81,8 @@ def plot_flux_density(phase, path):
         label="Fujiwara (1990)",
     )
     plt.plot(
-        computed[:, 0],
-        computed[:, 1] * np.cos(phase) + computed[:, 2] * np.sin(phase),
+        computed["x"],
+        computed["bz"].real * np.cos(phase) + computed["bz"].imag * np.sin(phase),
         color="r",
         linewidth=3.0,
         label="$\\mu$fem",
