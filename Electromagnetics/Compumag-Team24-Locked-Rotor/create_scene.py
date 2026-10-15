@@ -14,7 +14,7 @@ sys.path.insert(0, str(case_dir.parents[1]))
 import numpy as np
 
 from casekit import PlotStyle, xy_plot
-from casekit.images import combine_images, write_gif
+from casekit.images import combine_images, trim_frames, write_gif
 from casekit.paraview_scene import (
     blocks,
     color_by,
@@ -92,8 +92,8 @@ save(view, case_dir / "results" / "Scene_ElementType.png", crop=False)
 view = new_view((1900, 1300))
 set_camera(view, (0, 0, 1), (0, 1, 0), (0.025, 0.0, 0.0), parallel_scale=0.12)
 
-frames = []
-for i in range(31):
+renders = [vis / f"Scene_Electric_Current_Density_{i:03d}.png" for i in range(31)]
+for i, render in enumerate(renders):
     with scene(view):
         display = show(read_step(i), view)
         color_by(
@@ -111,9 +111,12 @@ for i in range(31):
             label_size=28,
             component="Magnitude",
         )
-        save(view, vis / f"Scene_Electric_Current_Density_{i:03d}.png", crop=False)
+        save(view, render, crop=False)
 
-    frames.append(vis / f"Scene_{i:03d}.png")
-    combine_images(vis / f"Scene_Electric_Current_Density_{i:03d}.png", plots(i), frames[-1])
+# Without the white margins of the view, the plots beside the scene.
+trim_frames(renders)
+frames = [vis / f"Scene_{i:03d}.png" for i in range(31)]
+for i, render in enumerate(renders):
+    combine_images(render, plots(i), frames[i], gap=150)
 
 write_gif(frames, case_dir / "results" / "Result_Animation.gif")

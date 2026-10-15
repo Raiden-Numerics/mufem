@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import paraview.simple as pvs
 
-from casekit.images import combine_images, write_gif
+from casekit.images import combine_images, trim_frames, write_gif
 from casekit.paraview_scene import (
     blocks,
     color_by,
@@ -114,10 +114,9 @@ set_camera(
     parallel_scale=0.18,
 )
 
-frames = []
-for i in range(frames_per_period):
-    phase = 2.0 * math.pi * i / frames_per_period
-    current = vis / f"Scene_Electric_Current_Density_{i:03d}.png"
+phases = [2.0 * math.pi * i / frames_per_period for i in range(frames_per_period)]
+renders = [vis / f"Scene_Electric_Current_Density_{i:03d}.png" for i in range(frames_per_period)]
+for phase, render in zip(phases, renders):
     with scene(view):
         glyph = pvs.Glyph(
             Input=phase_field(conductors, "Electric Current Density", math.degrees(phase)),
@@ -148,15 +147,15 @@ for i in range(frames_per_period):
             label_size=28,
             component="Magnitude",
         )
-        save(view, current, crop=False)
+        save(view, render, crop=False)
 
-    plot_coil_current(phase, vis / f"Coil_Current_{i:03d}.png")
-    plot_flux_density(phase, vis / f"Magnetic_Flux_Density_{i:03d}.png")
-    frames.append(vis / f"Scene_{i:03d}.png")
-    combine_images(
-        current,
-        [vis / f"Coil_Current_{i:03d}.png", vis / f"Magnetic_Flux_Density_{i:03d}.png"],
-        frames[-1],
-    )
+# Without the white margins of the view, the plots beside the scene.
+trim_frames(renders)
+frames = [vis / f"Scene_{i:03d}.png" for i in range(frames_per_period)]
+for i, (phase, render) in enumerate(zip(phases, renders)):
+    plots = [vis / f"Coil_Current_{i:03d}.png", vis / f"Magnetic_Flux_Density_{i:03d}.png"]
+    plot_coil_current(phase, plots[0])
+    plot_flux_density(phase, plots[1])
+    combine_images(render, plots, frames[i], gap=150)
 
 write_gif(frames, case_dir / "results" / "Team7_Animation.gif", width=1200)
