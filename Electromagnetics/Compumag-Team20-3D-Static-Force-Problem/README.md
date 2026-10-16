@@ -119,8 +119,9 @@ of the force versus the coil current.
 
 Figures 1 and 2 and the scene of Figure 5 share the isometric view onto the symmetry planes. Figure 1
 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py);
-Figures 2 and 5 are rendered with [PyVista](https://pyvista.org/) by [create_scene.py](create_scene.py)
-(run with `python create_scene.py` after the case).
+Figures 2 and 5 are rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
+[case.py](case.py) (run the case with `--scenes`, or with `--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 ## Results
 

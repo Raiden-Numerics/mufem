@@ -108,9 +108,10 @@ Run the case with `pymufem case.py`.
 Figure 1 is rendered from `geometry.step` with the netgen viewer by
 [create_geometry_image.py](create_geometry_image.py).
 Figure 3 and the animation (Figure 5) are rendered with [PyVista](https://pyvista.org/) and
-matplotlib by [create_scene.py](create_scene.py) from the fields of every time step and the coil
-current and rotor torque that every run of the case writes to `VisualizationOutput/`; run
-`python create_scene.py` in the case directory after the case.
+matplotlib by `create_scenes()` in [case.py](case.py) from the fields of every time step and the
+coil current and rotor torque that every run of the case writes to `VisualizationOutput/`; run
+the case with `--scenes`, or with `--scenes-only` after a run (see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 ## Results
 

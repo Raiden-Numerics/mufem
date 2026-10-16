@@ -4,9 +4,11 @@ A case implements the steps of two separate workflows:
 
     build_geometry_and_mesh():  build_geometry -> generate_mesh    (--rebuild-mesh)
     run():                      setup_case -> solve -> validate -> postprocess
+                                [-> create_scenes                  (--scenes)]
+    create_scenes():            from the output of a run           (--scenes-only)
 
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
-the simulation, `postprocess()` to doing nothing. `build_geometry()` and
+the simulation, `postprocess()` and `create_scenes()` to doing nothing. `build_geometry()` and
 `generate_mesh()` default to doing nothing; they regenerate the mesh with
 `pymufem case.py --rebuild-mesh`, and a mesh that is not committed is built with them
 before the first run (by run_cases.py, or by a serial `python case.py`). netgen is
@@ -91,14 +93,17 @@ class ValidationCase(ABC):
     sim: Optional["mufem.Simulation"] = None
 
     # --- workflow -------------------------------------------------------------
-    def run(self) -> None:
-        """Run the case; raises on a failed check, so the process exits non-zero."""
+    def run(self, scenes: bool = False) -> None:
+        """Run the case, with `scenes` also its scenes; raises on a failed check, so the process
+        exits non-zero."""
         self.results_path.mkdir(exist_ok=True)
 
         self.sim = self.setup_case()
         self.solve()
         self.validate()
         self.postprocess()
+        if scenes and self.is_main():
+            self.create_scenes()
 
     def build_geometry_and_mesh(self) -> None:
         """Rebuild the geometry and the mesh."""
@@ -140,6 +145,15 @@ class ValidationCase(ABC):
         collective MPI operations, so every rank must reach them together.
         Guard purely rank-local output (matplotlib file writes, prints) with
         `self.is_main()`.
+        """
+
+    def create_scenes(self) -> None:
+        """Images and animations of the fields (casekit.pyvista_scene). Optional.
+
+        Runs on the main process only and reads nothing but what a run left on disk (the fields
+        exported to VisualizationOutput/ and `self.scene_data_path`), so that the scenes can be
+        redrawn without solving again (`--scenes-only`); there is no Simulation then. Import
+        PyVista inside: it is an optional dependency (`pip install ./casekit[scenes]`).
         """
 
     # --- helpers --------------------------------------------------------------
@@ -194,9 +208,9 @@ class ValidationCase(ABC):
 
     @property
     def scene_data_path(self) -> Path:
-        """Extra input of the scenes of create_scene.py that the field export does not hold
-        (e.g. monitor values), written with numpy.savez next to the exported fields; not shipped,
-        so that the scenes can be redrawn after one run of the case."""
+        """Extra input of `create_scenes()` that the field export does not hold (e.g. monitor
+        values), written with numpy.savez next to the exported fields by `postprocess()`; not
+        shipped, so that the scenes can be redrawn after one run of the case."""
         path = self.dir_path / "VisualizationOutput" / "Scene_Data.npz"
         path.parent.mkdir(exist_ok=True)
         return path
@@ -208,7 +222,8 @@ class ValidationCase(ABC):
 
 
 def run_case(case_class: type[ValidationCase]) -> None:
-    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh]`."""
+    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh | --scenes |
+    --scenes-only]`."""
     parser = argparse.ArgumentParser(
         description=case_class.name,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -218,11 +233,24 @@ def run_case(case_class: type[ValidationCase]) -> None:
         action="store_true",
         help="rebuild geometry and mesh instead of running the case",
     )
+    scenes = parser.add_mutually_exclusive_group()
+    scenes.add_argument(
+        "--scenes", action="store_true", help="also create the scenes after running the case"
+    )
+    scenes.add_argument(
+        "--scenes-only",
+        action="store_true",
+        help="only create the scenes, from the output of a previous run",
+    )
     args = parser.parse_args()
 
     case = case_class()
     if args.rebuild_mesh:
         case.build_geometry_and_mesh()
+        return
+    if args.scenes_only:
+        if case._is_launcher_main_process():
+            case.create_scenes()
         return
 
     if case.mesh_missing():
@@ -234,4 +262,4 @@ def run_case(case_class: type[ValidationCase]) -> None:
                 "`pymufem case.py --rebuild-mesh`"
             )
         case.build_geometry_and_mesh()
-    case.run()
+    case.run(scenes=args.scenes)

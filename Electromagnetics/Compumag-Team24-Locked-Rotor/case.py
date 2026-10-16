@@ -242,7 +242,7 @@ class Team24LockedRotor(ValidationCase):
         return sim
 
     def solve(self):
-        # The fields of every time step for the scenes of create_scene.py (collective).
+        # The fields of every time step for the scenes of create_scenes() (collective).
         exporter = self.sim.get_field_exporter()
         exporter.set_output_directory(self.dir_path / "VisualizationOutput")
         exporter.add_field_outputs(["Electric Current Density", "Element Type"])
@@ -266,24 +266,10 @@ class Team24LockedRotor(ValidationCase):
         expect(self.rotor_torque[-1][1], 3.18, rel_tol=5e-2, label="rotor torque [Nm]")
         expect(self.hall_probe[-1][1], 1.245, rel_tol=5e-2, label="Hall probe B_y [T]")
 
-    def postprocess(self):
-        if not self.is_main():
-            return
-
+    def monitor_plots(self, coil_current, rotor_torque):
+        """The arguments of xy_plot / xy_axes for the coil current and the rotor torque over
+        time, shared by the plots of postprocess() and the animation of create_scenes()."""
         tables = self.dir_path / "data" / "tables"
-        current_ref = numpy.loadtxt(tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1)
-        torque_ref = numpy.loadtxt(tables / "Table_4_Torque.csv", delimiter=",", skiprows=1)
-        hall_probe_ref = numpy.loadtxt(
-            tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
-        )
-
-        # The input of the animation of create_scene.py.
-        numpy.savez(
-            self.scene_data_path,
-            coil_current=numpy.array(self.coil_current),
-            rotor_torque=numpy.array(self.rotor_torque),
-        )
-
         common = dict(
             style=PlotStyle.LINE_AND_POINTS,
             reference_style=PlotStyle.POINTS,
@@ -292,23 +278,45 @@ class Team24LockedRotor(ValidationCase):
             xlim=(0.0, 0.15),
             xticks=[0.0, 0.05, 0.1, 0.15],
         )
-        xy_plot(
-            values=self.coil_current,
-            reference_values=current_ref,
+        current = dict(
+            values=coil_current,
+            reference_values=numpy.loadtxt(
+                tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1
+            ),
             ylabel="Coil Current [A]",
             ylim=(0.0, 8.0),
-            path=f"{self.results_path / 'Coil_Current_vs_Time.png'}",
             **common,
         )
-        xy_plot(
-            values=self.rotor_torque,
-            reference_values=torque_ref,
+        torque = dict(
+            values=rotor_torque,
+            reference_values=numpy.loadtxt(
+                tables / "Table_4_Torque.csv", delimiter=",", skiprows=1
+            ),
             ylabel="Rotor Torque [Nm]",
             ylim=(0.0, 3.5),
-            path=f"{self.results_path / 'Rotor_Torque_vs_Time.png'}",
             **common,
         )
+        return current, torque
 
+    def postprocess(self):
+        if not self.is_main():
+            return
+
+        # The input of the animation of create_scenes().
+        numpy.savez(
+            self.scene_data_path,
+            coil_current=numpy.array(self.coil_current),
+            rotor_torque=numpy.array(self.rotor_torque),
+        )
+
+        current, torque = self.monitor_plots(self.coil_current, self.rotor_torque)
+        xy_plot(path=f"{self.results_path / 'Coil_Current_vs_Time.png'}", **current)
+        xy_plot(path=f"{self.results_path / 'Rotor_Torque_vs_Time.png'}", **torque)
+
+        tables = self.dir_path / "data" / "tables"
+        hall_probe_ref = numpy.loadtxt(
+            tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
+        )
         xy_plot(
             values=self.hall_probe,
             style=PlotStyle.LINE_AND_POINTS,
@@ -322,6 +330,72 @@ class Team24LockedRotor(ValidationCase):
             ylim=(0.0, 1.4),
             path=f"{self.results_path / 'Hall_Probe_vs_Time.png'}",
         )
+
+    def create_scenes(self):
+        import matplotlib.pyplot as plt
+        import pyvista as pv
+
+        from casekit import xy_axes
+        from casekit.pyvista_scene import (
+            add_chart,
+            add_colorbar,
+            output_files,
+            save,
+            save_gif,
+            theme,
+        )
+
+        files = output_files(self.dir_path)
+
+        def read_iron_and_coils(path):
+            bodies = pv.read(path)
+            del bodies["Air"]
+            return bodies
+
+        # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
+        # layers show as quads.
+        plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(2000, 1500))
+        actor = plotter.add_mesh(
+            read_iron_and_coils(files[0]),
+            scalars="Element Type",
+            clim=(4.0, 6.0),  # tetrahedra and prisms
+            show_edges=True,
+        )
+        plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
+        plotter.camera.parallel_scale = 0.0448
+        add_colorbar(plotter, actor, "Element Type", location="bottom").set_ticks([4, 5, 6])
+        save(plotter, self.results_path / "Scene_ElementType.png")
+
+        # Animation: the electric current density from +z with its color bar, and the coil
+        # current and the rotor torque up to the time step as a matplotlib chart on the right.
+        monitors = numpy.load(self.scene_data_path)
+        plotter = pv.Plotter(
+            theme=theme, off_screen=True, window_size=(1600, 800), shape=(1, 2), border=False
+        )
+        figure, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=100, layout="constrained")
+        add_chart(plotter, figure)
+
+        frames = []
+        for i, path in enumerate(files):
+            actor = plotter.add_mesh(
+                read_iron_and_coils(path),
+                scalars="Electric Current Density",
+                clim=(0.0, 3.0e5),
+                name="field",
+            )
+            if i == 0:
+                plotter.view_xy()
+                plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK)
+                add_colorbar(plotter, actor, "Current Density [A/m²]", dpi=100)
+            current, torque = self.monitor_plots(
+                monitors["coil_current"][: i + 1], monitors["rotor_torque"][: i + 1]
+            )
+            for ax, arguments in ((ax_current, current), (ax_torque, torque)):
+                ax.clear()
+                xy_axes(ax, legend_loc="upper left", **arguments)
+            frames.append(plotter.screenshot())
+        plotter.close()
+        save_gif(frames, self.results_path / "Result_Animation.gif")
 
 
 if __name__ == "__main__":
