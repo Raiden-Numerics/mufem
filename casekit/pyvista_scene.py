@@ -112,12 +112,14 @@ def color_by(
     label_size: int = 24,
     component: Optional[int] = None,
     edges: bool = False,
+    bar: bool = True,
 ):
     """Show `mesh` colored by the point array `array` (the magnitude of a vector array, or its
     `component`) with the coolwarm map and a color bar at `position` (fractions of the window).
 
     The color range is the first to the last label. A vertical bar has its title turned along
-    it, right of the labels, as in ParaView. Returns the actor.
+    it, right of the labels, as in ParaView. Without `bar`, draw the bar with colorbar in a
+    matplotlib figure instead. Returns the actor.
     """
     if array not in mesh.point_data:
         raise ValueError(f"no point array {array!r} in the shown data")
@@ -134,6 +136,7 @@ def color_by(
         line_width=2,
         ambient=0.3,
         diffuse=0.8,
+        show_scalar_bar=bar,
         scalar_bar_args=dict(
             title=title,
             vertical=vertical,
@@ -148,6 +151,8 @@ def color_by(
             fmt=label_format,
         ),
     )
+    if not bar:
+        return actor
     custom_labels = vtkDoubleArray()
     for label in labels:
         custom_labels.InsertNextValue(label)
@@ -256,10 +261,41 @@ def phase_field(mesh: pv.DataSet, field: str, phase_deg: float) -> np.ndarray:
     ] * math.sin(phase)
 
 
-def save(plotter: pv.Plotter, path: Path, crop: bool = True):
-    """Render `plotter` to `path` and, with `crop`, crop the white margins. The plotter stays
+def colorbar(
+    cax,
+    title: str,
+    labels: Sequence[float],
+    label_format: Optional[str] = None,
+    font_size: float = 15,
+):
+    """Color bar of color_by(..., bar=False) on the matplotlib axes `cax`: the coolwarm map from
+    the first to the last label, with the title along the bar. Without `label_format`, the
+    labels share a power of ten written above the bar."""
+    import matplotlib as mpl
+
+    norm = mpl.colors.Normalize(labels[0], labels[-1])
+    mappable = mpl.cm.ScalarMappable(norm=norm, cmap="coolwarm")
+    formatter = label_format
+    if formatter is None:
+        formatter = mpl.ticker.ScalarFormatter(useMathText=True)
+        formatter.set_powerlimits((0, 0))
+    bar = cax.figure.colorbar(mappable, cax=cax, ticks=labels, format=formatter)
+    bar.set_label(title, fontsize=font_size)
+    bar.ax.tick_params(labelsize=font_size - 2)
+    bar.ax.yaxis.get_offset_text().set_fontsize(font_size - 2)
+    bar.outline.set_visible(False)
+    return bar
+
+
+def render(plotter: pv.Plotter, crop: bool = True) -> Image.Image:
+    """The image of `plotter` and, with `crop`, without its white margins. The plotter stays
     open for further images."""
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
     _place_bar_titles(plotter)
     image = Image.fromarray(plotter.screenshot(return_img=True))
-    (trim(image) if crop else image).save(path)
+    return trim(image) if crop else image
+
+
+def save(plotter: pv.Plotter, path: Path, crop: bool = True):
+    """Render `plotter` to `path` and, with `crop`, crop the white margins."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    render(plotter, crop).save(path)

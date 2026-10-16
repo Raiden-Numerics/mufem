@@ -107,10 +107,10 @@ Run the case with `pymufem case.py`.
 
 Figure 1 is rendered from `geometry.step` with the netgen viewer by
 [create_geometry_image.py](create_geometry_image.py).
-Figure 3 and the animation (Figure 5) are rendered with ParaView by
-[create_scene.py](create_scene.py) from the fields of every time step and the coil current and
-rotor torque that every run of the case writes to `VisualizationOutput/`; run
-`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
+Figure 3 and the animation (Figure 5) are rendered with [PyVista](https://pyvista.org/) and
+matplotlib by [create_scene.py](create_scene.py) from the fields of every time step and the coil
+current and rotor torque that every run of the case writes to `VisualizationOutput/`; run
+`python create_scene.py` in the case directory after the case.
 
 ## Results
 
