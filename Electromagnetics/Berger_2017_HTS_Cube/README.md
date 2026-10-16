@@ -23,10 +23,10 @@ instantaneous dissipation $`p_{\mathrm{AC}}(t)`$ integrated over the cube.
 
 
 <div align="center">
-    <img src="./data/Geometry.png" alt="Geometry" width="600">
-    <br/>
-    <br/>
-    <em>Figure 1: A superconducting cube at the center of a spherical air domain. The case exploits the symmetry of the applied field to model one octant (not to scale).</em>
+<img src="./data/Geometry.png" alt="Geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: A superconducting cube (enlarged six times for visibility) at the center of a spherical air domain. The case exploits the symmetry of the applied field to model one octant.</em>
 </div>
 <br/>
 
@@ -118,6 +118,8 @@ The geometry is built with netgen in the `build_geometry` method of
 [case.py](case.py) (mesh size $`0.5\,\mathrm{mm}`$ in the cube) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with
 `pymufem case.py --rebuild-mesh`.
+Figure 1 is rendered from `geometry.step` with the netgen viewer by
+[create_geometry_image.py](create_geometry_image.py), with the cube enlarged six times.
 
 
 ## Running
@@ -153,10 +155,10 @@ The magnetic flux density and the current density are exported to
 `VisualizationOutput/` for ParaView.
 
 <div align="center">
-    <img src="./results/Ohmic_Heating.png" alt="AC loss" width="600">
-    <br/>
-    <br/>
-    <em>Figure 2: Instantaneous AC loss over one period compared against the Berger et al. (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
+<img src="./results/Ohmic_Heating.png" alt="AC loss" width="75%">
+<br/>
+<br/>
+<em>Figure 2: Instantaneous AC loss over one period compared against the Berger et al. (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
 </div>
 <br/>
 

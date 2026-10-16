@@ -1,6 +1,5 @@
 from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
-import matplotlib.pyplot as plt
 import numpy
 
 import mufem
@@ -20,8 +19,12 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     # 2 p = 10 sector magnets (grade N40) on the magnet-side back iron
     number_of_magnets = 10
 
-    # export the fields to VisualizationOutput/ and torque frames to vis/ for every time step
-    # (see create_animation.py)
+    # Slip speeds [rpm], each for steps_per_rpm time steps before the torque is evaluated.
+    rpms = [500, 1000, 2000]
+    steps_per_rpm = 20
+
+    # Export the eddy currents after every time step for the animation of create_scene.py; a
+    # separate run, since the export of all steps takes about 1 GB.
     output_for_animation = False
 
     def build_geometry(self):
@@ -41,7 +44,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         inner_radius_magnets = 30e-3  # R1
         outer_radius_magnets = 60e-3  # R2
         inner_radius_plate = 15e-3  # R0
-        outer_radius_plate = 75e-3
+        outer_radius_plate = 75e-3  # R3
 
         magnet_side_iron_thickness = 10e-3  # a
         magnet_thickness = 10e-3  # b
@@ -212,25 +215,22 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
     def solve(self):
         if self.output_for_animation:
-            field_exporter = self.sim.get_field_exporter()
-            field_exporter.add_field_output("Electric Current Density")
-            field_exporter.add_field_output("Magnetic Flux Density")
+            exporter = self.sim.get_field_exporter()
+            exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+            exporter.add_field_output("Electric Current Density")
 
         self.sim.initialize()
 
         self.torque_vs_rpm = []
-        self.torque_vs_rpm_step = []
 
-        for rpm in [500, 1000, 2000]:
+        for rpm in self.rpms:
             self.motion.set_rotation_rate(rpm / 60.0)  # rpm -> Hz
 
-            if self.output_for_animation:
-                for _ in range(30):
-                    self.runner.advance(1)
-                    field_exporter.save()
-                    self.torque_vs_rpm_step.append((rpm, self.plate_torque()))
-            else:
-                self.runner.advance(20)
+            # Single steps, so that the animation shows the time steps of the validated run.
+            for _ in range(self.steps_per_rpm):
+                self.runner.advance(1)
+                if self.output_for_animation:
+                    exporter.save()  # collective
 
             self.torque_vs_rpm.append((rpm, self.plate_torque()))
 
@@ -272,7 +272,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         xy_plot(
             values=self.torque_vs_rpm,
-            style=PlotStyle.LINE_AND_POINTS,
+            style=PlotStyle.POINTS,
             reference_values=reference,
             reference_style=PlotStyle.LINE,
             reference_label="Lubin (2015)",
@@ -283,38 +283,13 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             path=f"{self.results_path / 'Torque_vs_RPM.png'}",
         )
 
+        # The input of the animation of create_scene.py, besides the exported fields.
         if self.output_for_animation:
-            (self.dir_path / "vis").mkdir(exist_ok=True)
-            for n, (rpm, _) in enumerate(self.torque_vs_rpm_step):
-                self.plot_animation_frame(reference, rpm, n)
-
-    def plot_animation_frame(self, reference, rpm, n):
-        """Torque vs slip speed with an arrow at the current speed."""
-        plt.clf()
-
-        plt.plot(reference[:, 0], reference[:, 1], "k-", label="Lubin (2015)", linewidth=3.0)
-        plt.plot(*zip(*self.torque_vs_rpm), "ro", label="$\\mu$fem", markersize=10.0)
-
-        plt.xlabel("Slip Speed [rpm]", fontsize=16)
-        plt.ylabel("Torque [Nm]", fontsize=16)
-        plt.xlim((0, 3000))
-        plt.ylim((0, 35))
-
-        ax = plt.gca()
-        ax.tick_params(axis="both", labelsize=14)
-        ax.legend(loc="best", fontsize=16).get_frame().set_linewidth(2.0)
-
-        arrow_height = 6.0
-        ax.annotate(
-            "",
-            xy=(rpm, 0.1 + arrow_height),
-            xytext=(rpm, 0.1),
-            arrowprops=dict(arrowstyle="->", linewidth=2.5, color="k"),
-            clip_on=False,
-        )
-
-        plt.gcf().set_size_inches(7.5, 5.5)
-        plt.savefig(self.dir_path / "vis" / f"Torque_vs_RPM_{n:03d}.png", dpi=200)
+            numpy.savez(
+                self.scene_data_path,
+                torque_vs_rpm=numpy.array(self.torque_vs_rpm),
+                steps_per_rpm=self.steps_per_rpm,
+            )
 
 
 if __name__ == "__main__":

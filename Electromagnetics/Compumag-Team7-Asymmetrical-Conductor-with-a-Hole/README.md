@@ -9,11 +9,12 @@ and the eddy current density on its surfaces measured at $`50\,\mathrm{Hz}`$ and
 [2].
 
 <div align="center">
-<img src="./data/Geometry.png" alt="Geometry of the benchmark" width="600">
-</div>
-<div align="center">
+<img src="./data/Geometry.png" alt="Geometry of the benchmark" width="75%">
+<br/>
+<br/>
 <em>Figure 1: Geometry of the benchmark. A coil is placed above an aluminum plate with an off-centered hole.</em>
 </div>
+<br/>
 
 The $`294 \times 294 \times 19\,\mathrm{mm}`$ plate has a $`108 \times 108\,\mathrm{mm}`$ hole and an
 electrical conductivity of $`\sigma = 3.526 \times 10^7\,\mathrm{S/m}`$. The coil, $`100\,\mathrm{mm}`$
@@ -35,7 +36,7 @@ $`I(t) = I_0 \cos(\omega t)`$, so all fields oscillate at that frequency and the
 is used with third-order elements on a second-order (curved) mesh:
 
 ```python
-magnetic_model = TimeHarmonicMagneticModel(frequency=200, order=3)
+self.magnetic_model = TimeHarmonicMagneticModel(frequency=self.frequencies[0], order=3)
 ```
 
 The case solves $`200\,\mathrm{Hz}`$ first and then switches the model to $`50\,\mathrm{Hz}`$
@@ -63,12 +64,18 @@ and a [current excitation](https://raiden-numerics.github.io/mufem-doc/models/el
 of $`1\,\mathrm{A}`$:
 
 ```python
+# 2742 ampere turns (peak), maximum at wt = 0, flowing in +x at (0.2, 0.01, 0.07),
+# i.e. anticlockwise seen from +z as in the TEAM 7 description.
+coil_topology = CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0)
+coil_type = CoilTypeStranded(number_of_turns=2742)
+coil_excitation = CoilExcitationCurrent(current=(1.0, 0))
+
 coil = CoilSpecification(
     name="Coil",
     marker="Coil" @ Vol,
-    topology=CoilTopologyClosed(x=0.2, y=0.01, z=0.07, dx=1.0, dy=0.0, dz=0.0),
-    type=CoilTypeStranded(number_of_turns=2742),
-    excitation=CoilExcitationCurrent(current=(1.0, 0)),
+    topology=coil_topology,
+    type=coil_type,
+    excitation=coil_excitation,
 )
 ```
 
@@ -79,9 +86,10 @@ anticlockwise seen from $`+z`$ as in [1].
 
 Run the case with `pymufem case.py`.
 
-The animation (see Scenes) is generated with [`create_anim.sh`](create_anim.sh), which runs
-[`create_scene.py`](create_scene.py) in ParaView (`PARAVIEW_PATH` set to the ParaView installation)
-on the fields exported by the case.
+The animation (see Scenes) is rendered with ParaView by [create_scene.py](create_scene.py) from the
+fields exported by the case (run with `pvpython create_scene.py`, requires `ffmpeg`).
+The geometry image (Figure 1) is rendered from `geometry.step` with the netgen viewer by
+[create_geometry_image.py](create_geometry_image.py), in the view of the animation.
 
 ## Results
 
@@ -101,6 +109,11 @@ so the measurements at $`\omega t = 0°`$ and $`90°`$ compare with $`\vec{B}_r`
 | 50 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-50Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-50Hz.png" width="450"> |
 | 200 Hz | <img src="./results/Magnetic_Flux_Density-A1-B1-200Hz.png" width="450"> | <img src="./results/Magnetic_Flux_Density-A2-B2-200Hz.png" width="450"> |
 
+<div align="center">
+<em>Figure 2: <i>B<sub>z</sub></i> along the lines A1-B1 (left) and A2-B2 (right) at 50 Hz (top) and 200 Hz (bottom), compared with the measurement of [2].</em>
+</div>
+<br/>
+
 The relative $`L_2`$ error of $`B_z`$ over the 17 measured points and both phases of each line:
 
 | Line | Error at 50 Hz | Error at 200 Hz |
@@ -119,6 +132,11 @@ overestimates by about $`0.25\,\mathrm{mT}`$ above the coil.
 | ----- | ------ |
 | <img src="./results/Electric_Current_Density-Top-50Hz.png" width="450"> | <img src="./results/Electric_Current_Density-Top-200Hz.png" width="450"> |
 
+<div align="center">
+<em>Figure 3: Eddy current density <i>J<sub>y</sub></i> just below the top surface of the plate at 50 Hz (left) and 200 Hz (right), compared with Table 5(b) of [2].</em>
+</div>
+<br/>
+
 The eddy current density data of [2] cannot be used as printed. Following the NGSolve TEAM-7
 reference [3], $`J_y`$ just below the top surface of the plate ($`z = 19\,\mathrm{mm}`$) matches
 Table 5(b) of [2], which is labeled as line A4-B4 at the bottom surface ($`z = 0`$), after a phase
@@ -131,15 +149,15 @@ therefore shown, but not checked.
 ## Scenes
 
 The periodic evolution of the magnetic flux density and the induced currents can be visualized
-over one excitation cycle.
+over one excitation cycle (Figure 4).
 
 <div align="center">
-<img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="1200">
+<img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="100%">
+<br/>
+<br/>
+<em>Figure 4: Current density in the coil and eddy currents in the plate (50 Hz) over one period, with the coil current and B<sub>z</sub> along A1-B1.</em>
 </div>
-<div align="center">
-<em>Figure 2: Eddy current density in the plate (50 Hz) over one period, with the coil current and
-B<sub>z</sub> along A1-B1.</em>
-</div>
+<br/>
 
 ## References
 

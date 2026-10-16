@@ -180,7 +180,8 @@ class Ren2014MemsCombDrive(ValidationCase):
             for i in range(max_refinements):
                 self.runner.advance(2)
 
-                if i == 0:
+                # The initial mesh, shown in the mesh image of create_scene.py.
+                if i == 0 and xshift == self.xshifts[0]:
                     vis.save(order=2)
 
                 ncells = self.sim.get_domain().get_mesh().get_total_number_cells()

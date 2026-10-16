@@ -1,47 +1,56 @@
+"""Render results/Scene_Temperature.png and data/Mesh.png from the output of case.py.
+
+Run with `pvpython create_scene.py` after the case. The plate is seen from the front (onto the
+x-y plane), as data/Geometry.png.
+"""
+
+import sys
+from pathlib import Path
+
+case_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(case_dir.parents[1]))
+
 import paraview.simple as pvs
 
-field_name = "Temperature"
-field_unit = "K"
+from casekit.images import place
+from casekit.paraview_scene import (
+    color_by,
+    new_view,
+    read_output,
+    save,
+    scene,
+    set_camera,
+    show,
+)
 
-data = pvs.OpenDataFile("VisualizationOutput/Output_0.vtpc")
+view = new_view((1200, 1400))
+data = read_output(case_dir)
 
-display = pvs.Show()
+# Temperature, front view onto the plate (0.6 m x 1.0 m), shifted so that the color bar fits on
+# the right.
+with scene(view):
+    temperature = pvs.Calculator(Input=data)
+    temperature.ResultArrayName = "Temperature [°C]"
+    temperature.Function = '"Temperature" - 273.15'
 
-view = pvs.GetRenderView()
-view.UseColorPaletteForBackground = 0
-view.BackgroundColorMode = "Single Color"
-view.Background = (1, 1, 1)
-view.ViewSize = (1000, 1000)
-view.OrientationAxesVisibility = 1
-view.OrientationAxesLabelColor = (0, 0, 0)
+    display = show(temperature, view)
+    color_by(
+        display,
+        view,
+        "Temperature [°C]",
+        "Temperature [°C]",
+        [0.0, 25.0, 50.0, 75.0, 100.0],
+        orientation="Vertical",
+        position=(0.74, 0.3),
+    )
+    set_camera(view, (0, 0, 1), (0, 1, 0), (0.42, 0.5, 0.005), parallel_scale=0.55)
+    save(view, case_dir / "results" / "Scene_Temperature.png")
 
-pvs.Render()
-
-view.CameraViewUp = (0, 1, 0)
-view.CameraPosition = (0.3, 0.42, 2.2)
-view.CameraFocalPoint = (0.3, 0.42, 0)
-
-pvs.ColorBy(display, ("POINTS", field_name))
-
-ctf = pvs.GetColorTransferFunction(field_name)
-scalar_bar = pvs.GetScalarBar(ctf)
-scalar_bar.Orientation = "Horizontal"
-scalar_bar.WindowLocation = "Lower Center"
-scalar_bar.TitleColor = (0, 0, 0)
-scalar_bar.LabelColor = (0, 0, 0)
-scalar_bar.TitleFontSize = 32
-scalar_bar.LabelFontSize = 28
-scalar_bar.ScalarBarThickness = 32
-scalar_bar.ComponentTitle = ""
-scalar_bar.Title = f"{field_name} [{field_unit}]"
-scalar_bar.RangeLabelFormat = "%.0f"
-scalar_bar.LabelFormat = "%.0f"
-scalar_bar.LookupTable.RescaleTransferFunction(273, 373)
-
-pvs.Render()
-
-pvs.SaveScreenshot(f"results/Scene_{field_name}.png")
-
-pvs.Delete(view)
-pvs.Delete(data)
-pvs.Delete(display)
+# Mesh, in the flat color of the plate in data/Geometry.png and at the size and position of the
+# plate there (see create_geometry_image.py), so that both images of Figure 1 match.
+display = show(data, view, color=(0.02, 0.69, 0.5), edges=True)
+display.Ambient = 1.0
+display.Diffuse = 0.0
+set_camera(view, (0, 0, 1), (0, 1, 0), (0.3, 0.5, 0.005), parallel_scale=0.52)
+save(view, case_dir / "data" / "Mesh.png", crop=False)
+place(case_dir / "data" / "Mesh.png", (1390, 1520), left=250, top=110, width=780, height=1300)

@@ -1,77 +1,66 @@
-import paraview.simple as pvs
+"""Render results/Electric_Field.gif from the output of case.py.
 
-# **************************************************************************************
-# Setup the view
-# **************************************************************************************
+Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The frames show the
+magnitude of the electric field E(t) = E_r cos(wt) - E_i sin(wt) at 12 GHz (left) and 14 GHz
+(right) over half a period, after which the magnitude repeats.
+"""
 
+import sys
+from pathlib import Path
 
-def create_screenshot(input_file_name: str, scene_output_name: str):
+case_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(case_dir.parents[1]))
 
-    pvs.ResetSession()
-    view = pvs.CreateRenderView()
-    pvs.SetActiveView(view)
-    view.ViewSize = [1200, 650]
-    view.OrientationAxesVisibility = 0
-
-    # Need to call the render in advance to keep the camera properties, since if this is the
-    # first render and the view is a RenderView, the camera is reset:
-    # https://www.paraview.org/paraview-docs/nightly/python/paraview.simple.html#paraview.simple.Render
-    pvs.Render()
-
-    wr75_length = 20e-3
-    iris_length = 1e-3
-    cavity_length = 100e-3
-    total_length = wr75_length + iris_length + cavity_length + iris_length + wr75_length
-
-    camera = view.GetActiveCamera()
-    camera.SetFocalPoint(0, 0, total_length / 2)
-    camera.SetPosition(-0.6830, 0.2588, -0.6830)
-    camera.SetParallelProjection(1)
-    camera.SetParallelScale(0.03)  # zoom
-
-    data = pvs.OpenDataFile(f"VisualizationOutput/{input_file_name}")
-
-    blocks = pvs.ExtractBlock(Input=data)
-    blocks.Selectors = ["/Root/Domain"]
-    display = pvs.Show()
-
-    pvs.ColorBy(display, ("POINTS", "ElectricFieldReal", "Magnitude"))
-
-    ctf = pvs.GetColorTransferFunction("ElectricFieldReal")
-    ctf.ApplyPreset("Cool to Warm")
-    ctf.RescaleTransferFunction(0, 150)
-
-    scalar_bar = pvs.GetScalarBar(ctf)
-    scalar_bar.Orientation = "Horizontal"
-    scalar_bar.WindowLocation = "Lower Center"
-    scalar_bar.TitleColor = [0, 0, 0]
-    scalar_bar.LabelColor = [0, 0, 0]
-    scalar_bar.Title = "Electric Field [V/m]"
-    scalar_bar.ComponentTitle = ""
-    scalar_bar.UseCustomLabels = True
-    scalar_bar.CustomLabels = [0, 50, 100, 150]
-
-    pvs.Render()
-    pvs.SaveScreenshot(
-        f"results/{scene_output_name}.png",
-        OverrideColorPalette="WhiteBackground",
-    )
-
-
-# **************************************************************************************
-# Electric field at 12 GHz
-# **************************************************************************************
-
-create_screenshot(
-    input_file_name="Output_0.vtpc",
-    scene_output_name="scene_electric_field_12GHz",
+from casekit.images import combine_images, trim_frames, write_gif
+from casekit.paraview_scene import (
+    add_text,
+    color_by,
+    new_view,
+    phase_field,
+    read_output,
+    save,
+    scene,
+    set_camera,
+    show,
 )
 
+# Two WR75 waveguides of 20 mm, two irises of 1 mm and the cavity of 100 mm along z.
+total_length = 20e-3 + 1e-3 + 100e-3 + 1e-3 + 20e-3
+vis = case_dir / "vis"
 
-# **************************************************************************************
-# Electric field at 14 GHz
-# **************************************************************************************
-create_screenshot(
-    input_file_name="Output_1.vtpc",
-    scene_output_name="scene_electric_field_14GHz",
+view = new_view((1200, 650))
+# Onto the middle of the filter from 14 deg above the x-z plane, 48 deg from -x toward -z.
+set_camera(
+    view,
+    (-0.6830, 0.2588, -0.6830 - total_length / 2),
+    (0, 1, 0),
+    (0.0, 0.0, total_length / 2),
+    parallel_scale=0.03,
 )
+
+phases = range(0, 180, 5)
+renders = {}
+for index, frequency in enumerate(["12GHz", "14GHz"]):
+    data = read_output(case_dir, index)
+    renders[frequency] = []
+    for i, phase_deg in enumerate(phases):
+        with scene(view):
+            display = show(phase_field(data, "Electric Field", phase_deg), view)
+            color_by(
+                display,
+                view,
+                "Electric Field",
+                "Electric Field [V/m]",
+                [0.0, 1000.0, 2000.0, 3000.0],
+                component="Magnitude",
+            )
+            add_text(view, frequency.replace("GHz", " GHz"), position=(0.05, 0.85))
+            renders[frequency].append(vis / f"Scene_{frequency}_{i:03d}.png")
+            save(view, renders[frequency][-1], crop=False)
+
+# Both frequencies cropped alike, side by side.
+trim_frames(renders["12GHz"] + renders["14GHz"])
+frames = [vis / f"Scene_{i:03d}.png" for i in range(len(phases))]
+for left, right, frame in zip(renders["12GHz"], renders["14GHz"], frames):
+    combine_images(left, [right], frame, gap=150)
+write_gif(frames, case_dir / "results" / "Electric_Field.gif", fps=12, width=1200)

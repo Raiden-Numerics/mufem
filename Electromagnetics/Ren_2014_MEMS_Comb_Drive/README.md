@@ -7,10 +7,10 @@ Comb drives are capacitive actuators that utilize electrostatic forces generated
 In this test case, we monitor the capacitance of the comb drive described in [1, 2]. This comb drive consists of two comb conductors, one with four teeth and the other with three, positioned above a grounded plate. Figure 1 shows the geometry of the problem.
 
 <div align="center">
-    <img src="data/Geometry.png" width="600">
-    <br/>
-    <br/>
-    Figure 1: Electrostatic MEMS comb drive.
+<img src="data/Geometry.png" width="75%">
+<br/>
+<br/>
+<em>Figure 1: Electrostatic MEMS comb drive.</em>
 </div>
 <br/>
 
@@ -29,10 +29,10 @@ The dimensions follow Fig. 3 of [1]: both combs are 4 μm thick and have a 5 μm
 To simulate the entire system, we enclose the comb drive within a rectangular box, with one boundary serving as the ground plate. To generate the mesh, we utilize [Gmsh](https://gmsh.info/) mesh generator. To enhance simulation speed without compromising precision, we implement the adaptive mesh refinement algorithm. Figure 2 illustrates the initial mesh configuration.
 
 <div align="center">
-    <img src="data/Mesh.png" width="600">
-    <br/>
-    <br/>
-    Figure 2: The initial mesh configuration.
+<img src="data/Mesh.png" width="75%">
+<br/>
+<br/>
+<em>Figure 2: The initial mesh configuration.</em>
 </div>
 <br/>
 
@@ -71,7 +71,7 @@ We also assume that the computational domain is filled with air, which we model 
 
 To calculate the energy $`W`$ we use the Volume Integral Report, which integrates the Electric Energy Density over the computational domain:
 ```py
-report = VolumeIntegralReport(
+self.report = VolumeIntegralReport(
     name="Electric Energy Density Report",
     cff_name="Electric Energy Density",
 )
@@ -93,6 +93,7 @@ pymufem case.py
 ```
 
 Inside the `solve` method of [case.py](case.py) we have the following double loop:
+<!-- fmt: off -->
 ```py
 for xshift in self.xshifts:
     self.sim.get_domain().load_mesh(f"{self.mesh_path_for(xshift)}")
@@ -101,7 +102,8 @@ for xshift in self.xshifts:
     for i in range(max_refinements):
         self.runner.advance(2)
 
-        if i == 0:
+        # The initial mesh, shown in the mesh image of create_scene.py.
+        if i == 0 and xshift == self.xshifts[0]:
             vis.save(order=2)
 
         ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
@@ -113,16 +115,20 @@ for xshift in self.xshifts:
 
         self.refinement_model.refine_mesh()
     else:
-        raise RuntimeError(f"No {max_ncells:.0e} cells after {max_refinements} refinements.")
+        raise RuntimeError(
+            f"No {max_ncells:.0e} cells after {max_refinements} refinements."
+        )
 
     vis.save(order=2)
 ```
+<!-- fmt: on -->
 The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
-obtained from both the initial and final meshes in the [VTK](https://vtk.org/) file format, allowing for
-subsequent visualization using [ParaView](https://www.paraview.org/).
+obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format, allowing for
+subsequent visualization using [ParaView](https://www.paraview.org/) by [create_scene.py](create_scene.py)
+(run with `pvpython create_scene.py`, requires `ffmpeg`).
 
 
 ## Results
@@ -136,8 +142,8 @@ where it is essential to enhance the solution, while leaving the mesh in other r
 domain unaffected. The parameters of the mesh refinement algorithm can be adjusted using the model-specific 
 Mesh Refiner:
 ```py
-mesh_refiner = model.get_mesh_refiner()
-mesh_refiner.set_refinement_fraction(0.3)
+# Refine the 30% of the cells with the largest error estimate.
+model.get_mesh_refiner().set_refinement_fraction(0.3)
 ```
 For instance, in the code above, we set the mesh refinement fraction to 0.3, indicating that the top 30% of 
 elements with the highest error will be refined.
@@ -147,13 +153,11 @@ both the initial mesh and the mesh after several cycles of adaptive mesh refinem
 becomes denser near the edges of the combs, where the electric potential changes most significantly.
 
 <div align="center">
-  <img src="results/Scene_Electric_Potential_0_Mesh.png" width="450" />
-  <img src="results/Scene_Electric_Potential_1_Mesh.png" width="450" />
-  <br/>
-  <br/>
-  Figure 3: A slice of the computational domain displaying the calculated electric field potential along 
-  with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several 
-  cycles of adaptive mesh refinement. The images are obtained using <a href="paraview_mesh.py">paraview_mesh.py</a> file.
+<img src="results/Scene_Electric_Potential_0_Mesh.png" width="45%" />
+<img src="results/Scene_Electric_Potential_1_Mesh.png" width="45%" />
+<br/>
+<br/>
+<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement. The images are rendered by <a href="create_scene.py">create_scene.py</a>.</em>
 </div>
 <br/>
 
@@ -169,11 +173,10 @@ from below, so the exact value lies between them. On the finest mesh of [1], 152
 4.55 fF and 4.96 fF. mufem converges to 4.73 fF, and the case checks that it lies between these bounds.
 
 <div align="center">
-    <img src="results/Capacitance_Vs_Ncells.png" width="600">
-    <br/>
-    <br/>
-    Figure 4: The relationship between capacitance and the number of cells for various inter-comb shifts. 
-    The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.
+<img src="results/Capacitance_Vs_Ncells.png" width="75%">
+<br/>
+<br/>
+<em>Figure 4: The relationship between capacitance and the number of cells for various inter-comb shifts. The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.</em>
 </div>
 <br/>
 
@@ -197,11 +200,10 @@ F/m. Using this value in the formula provided earlier, we can estimate that the 
 force $`F`$ with an amplitude of 0.139 nN.
 
 <div align="center">
-    <img src="results/Capacitance_Vs_Xshift.png" width="600">
-    <br/>
-    <br/>
-    Figure 5: Dependence of the comb drive capacitance on the distance between the combs, along with its 
-    linear fit. The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.
+<img src="results/Capacitance_Vs_Xshift.png" width="75%">
+<br/>
+<br/>
+<em>Figure 5: Dependence of the comb drive capacitance on the distance between the combs, along with its linear fit. The plot is created in the <code>postprocess</code> method of <a href="case.py">case.py</a>.</em>
 </div>
 <br/>
 
@@ -213,11 +215,10 @@ The animation runs from the largest shift to zero shift, which mimics the action
 where the combs are pulled together when voltage is applied.
 
 <div align="center">
-    <img src="results/Electric_Potential.gif" width="600">
-    <br/>
-    <br/>
-    Figure 6: The distribution of electric potential for various shifts between the combs. The GIF 
-    animation is obtained using <a href="paraview_gif.py">paraview_gif.py</a> file.
+<img src="results/Electric_Potential.gif" width="75%">
+<br/>
+<br/>
+<em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is rendered by <a href="create_scene.py">create_scene.py</a>.</em>
 </div>
 <br/>
 

@@ -20,10 +20,10 @@ thin rectangular irises.
 Figure 1 shows the geometry of the filter.
 
 <div align="center">
-    <img src="data/Geometry.png" alt="drawing" width="50%">
-    <br/>
-    <br/>
-    Figure 1: Geometry of the waveguide circular cavity filter.
+<img src="data/Geometry.png" alt="drawing" width="45%">
+<br/>
+<br/>
+<em>Figure 1: Geometry of the waveguide circular cavity filter.</em>
 </div>
 <br/>
 
@@ -66,10 +66,10 @@ approximate a curved surface with flat finite elements.
 Figure 2 shows the resulting mesh.
 
 <div align="center">
-    <img src="data/Mesh.png" alt="Mesh" width="50%">
-    <br/>
-    <br/>
-    Figure 2: The mesh created by Gmsh mesh generator.
+<img src="data/Mesh.png" alt="Mesh" width="45%">
+<br/>
+<br/>
+<em>Figure 2: The mesh created by the Gmsh mesh generator.</em>
 </div>
 <br/>
 
@@ -158,6 +158,7 @@ The spectrum is therefore supplied precalculated in
 [case.py](case.py) solves only the five measured passband frequencies that the
 case checks and the two frequencies, 12 and 14 GHz, at which we visualize the
 electric field:
+<!-- fmt: off -->
 ```py
 if self.precalculate:
     self.frequencies = numpy.linspace(10e9, 15e9, 501)  # [Hz]
@@ -166,6 +167,7 @@ else:
         sorted(self.visualized_frequencies + self.checked_frequencies)
     )
 ```
+<!-- fmt: on -->
 
 Setting the class attribute `precalculate = True` scans the whole frequency range
 instead and regenerates the precalculated spectrum, skipping the field export.
@@ -173,6 +175,9 @@ instead and regenerates the precalculated spectrum, skipping the field export.
 For either choice of the frequencies we then use the same loop:
 ```py
 for i, frequency in enumerate(self.frequencies):
+    if self.is_main():
+        print(f"\nFrequency {i + 1}/{len(self.frequencies)}: {frequency / 1e9:.3f}GHz")
+
     self.model.set_frequency(frequency)
     self.runner.advance(1)
 
@@ -189,8 +194,8 @@ At the two visualized frequencies we also save the electric field in the
 [ParaView](https://www.paraview.org/).
 Please note that [ParaView](https://www.paraview.org/) is not supplied with
 mufem and must be installed separately.
-The scenes are rendered by [create_scene.py](create_scene.py); run it with
-`pvpython create_scene.py` in the case directory after the case.
+The animation of Figure 4 is rendered by [create_scene.py](create_scene.py); run it with
+`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
 
 
 ## Results
@@ -200,10 +205,10 @@ as a function of frequency, with the frequencies solved by the default run
 marked by stars.
 
 <div align="center">
-    <img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="50%">
-    <br/>
-    Figure 3: Transmission spectrum (the squared magnitude of S21 parameter as a
-              function of frequency) of the waveguide circular cavity filter.
+<img src="results/S21_vs_frequency.png" alt="S21 vs frequency" width="45%">
+<br/>
+<br/>
+<em>Figure 3: Transmission spectrum (the squared magnitude of the S21 parameter as a function of frequency) of the waveguide circular cavity filter.</em>
 </div>
 <br/>
 
@@ -226,22 +231,19 @@ up to 3 dB below the measurement, as does the finite element result of
 To illustrate the electric field configuration inside the filter at frequencies
 both within and outside the filter's bandwidth, during the simulation we export
 the electric field at 12 GHz and 14 GHz to a [VTK](https://vtk.org/) file.
-Figure 4 shows the distribution of the electric field inside the waveguide
-filter at both frequencies.
+Figure 4 shows the electric field inside the waveguide filter at both
+frequencies over half a period.
 
 <div align="center">
-  <img src="results/scene_electric_field_12GHz.png" alt="E at 12 GHz" width="49%" />
-  <img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="49%" />
-  <br/>
-  <br/>
-  Figure 4: Magnitude of the real part of the electric field (the field at
-            $`\omega t = 0`$) inside the waveguide filter at frequency 12 GHz (left)
-            and 14 GHz (right).
+<img src="results/Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
+<br/>
+<br/>
+<em>Figure 4: Magnitude of the electric field <i>E</i>(<i>t</i>) = <i>E</i><sub>r</sub> cos(<i>ωt</i>) − <i>E</i><sub>i</sub> sin(<i>ωt</i>) inside the waveguide filter at 12 GHz (left) and 14 GHz (right) over half a period.</em>
 </div>
 <br/>
 
 We see that at 12 GHz, most of the electric field entering through the input
-port is reflected back.
+port is reflected back and forms a standing wave in the input waveguide.
 At the same time, the electric field at the frequency of 14 GHz passes through
 the circular cavity without obstruction.
 This observation is in complete agreement with Figure 3.

@@ -10,12 +10,12 @@ We compare the Ohmic heating generated inside each conductor with the values pro
 
 
 <div align="center">
-<img src="./data/Geometry.png" alt="Geometry" width="600">
+<img src="./data/Geometry.png" alt="Geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modeled.</em>
 </div>
-<div align="center">
-<em>The geometry of the setup: a core and 25 solid coils. As in [1], one quarter of the device is modeled.</em>
-</div>
-<br /><br />
+<br/>
 
 ## Setup
 
@@ -38,6 +38,8 @@ $`y = 0`$ planes, and the losses of the quarter are multiplied by 4.
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+The geometry image above is rendered from `geometry.step` with the netgen viewer by
+[create_geometry_image.py](create_geometry_image.py), in the same view as the scenes.
 
 ## Running
 
@@ -90,27 +92,39 @@ Run the case with `pymufem case.py`; it prints the loss of each turn against the
 ## Scenes
 
 The magnetic flux density and the electric current density (real and imaginary parts) are exported to
-`VisualizationOutput/`; the scenes and the animation below are rendered from them in ParaView.
+`VisualizationOutput/`; the scenes and the animation below show their magnitude at the phase
+$`\phi`$, $`|\vec{F}_r \cos\phi - \vec{F}_i \sin\phi|`$, and are rendered from them with ParaView by
+[create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case; requires `ffmpeg`).
 
-* **Electric Current Density**
+Figure 2 shows the electric current density: strong eddy currents are created at the surface of each
+conductor. Figure 3 shows the magnetic flux density, and Figure 4 animates the electric current density
+over one period.
 
+| Electric Current Density ($`\phi=0`$) | Electric Current Density ($`\phi=90`$) |
+| ---- | ---- |
+| ![Re Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Real.png) | ![Im Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Imag.png) |
 
-  | Electric Current Density ($`\phi=0`$) | Electric Current Density ($`\phi=90`$) |
-  | ---- | ---- |
-  | ![Re Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Real.png) | ![Im Electric Current Density](./results/Scene_Electric_Current_Density_Phase_Imag.png) |
+<div align="center">
+<em>Figure 2: Electric current density at the phase <i>φ</i> = 0° (left) and <i>φ</i> = 90° (right).</em>
+</div>
+<br/>
 
+| Magnetic Flux Density ($`\phi=0`$) | Magnetic Flux Density ($`\phi=90`$) |
+| ---- | ---- |
+| ![Re Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Real.png) | ![Im Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Imag.png) |
 
-  Strong eddy currents are created at the surface of each conductor.
+<div align="center">
+<em>Figure 3: Magnetic flux density at the phase <i>φ</i> = 0° (left, up to 1.2 T) and <i>φ</i> = 90° (right, up to 0.1 T).</em>
+</div>
+<br/>
 
-* **Magnetic Flux Density**
-
-  | Magnetic Flux Density ($`\phi=0`$) | Magnetic Flux Density ($`\phi=90`$) |
-  | ---- | ---- |
-  | ![Re Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Real.png) | ![Im Magnetic Flux Density](./results/Scene_Magnetic_Flux_Density_Phase_Imag.png) |
-
-* **Animation**
-
-  ![Animation Electric Current Density](./results/animation.gif)
+<div align="center">
+<img src="./results/animation.gif" alt="Animation of the electric current density" width="75%">
+<br/>
+<br/>
+<em>Figure 4: Electric current density over one period.</em>
+</div>
+<br/>
 
 ## References
 

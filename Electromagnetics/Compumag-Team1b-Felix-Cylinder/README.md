@@ -5,10 +5,10 @@
 The *FELIX Short Cylinder* (Problem 1b of the Compumag TEAM benchmark suite [1]) is one of the founding eddy-current benchmarks, dating back to the Argonne National Lab *Fusion ELectromagnetic Induction eXperiment* (FELIX). It validates a code's ability to predict the time evolution of eddy currents, Ohmic losses, and stored magnetic energy in a conducting cylinder placed in a decaying transverse magnetic field [2].
 
 <div align="center">
-    <img src="./data/Geometry.png" alt="Geometry" width="600">
-    <br/>
-    <br/>
-    <em>Figure 1: The geometry of the benchmark: an aluminum short cylinder in air.</em>
+<img src="./data/Geometry.png" alt="Geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: The geometry of the benchmark: an aluminum short cylinder in air, with the direction of the applied field <i>B<sub>y</sub></i>(<i>t</i>).</em>
 </div>
 <br/>
 
@@ -46,7 +46,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 ## Running
 
-Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case).
+Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case). Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), in the same view as Figure 3.
 
 ## Results
 
@@ -75,10 +75,10 @@ The results are compared with the solutions of the 1988 eddy current workshop co
 Figure 2 shows the power loss over time, compared with the curve of Fig. 8 of [2] (the EDDYCUFF solution of Kameari, [PowerLoss.csv](data/PowerLoss.csv)).
 
 <div align="center">
-    <img src="results/OhmicHeating.png" alt="Ohmic heating loss" width="600">
-    <br/>
-    <br/>
-    <em>Figure 2: Power loss in the cylinder over time.</em>
+<img src="results/OhmicHeating.png" alt="Ohmic heating loss" width="75%">
+<br/>
+<br/>
+<em>Figure 2: Power loss in the cylinder over time.</em>
 </div>
 <br/>
 
@@ -87,10 +87,10 @@ Figure 2 shows the power loss over time, compared with the curve of Fig. 8 of [2
 The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; Figure 3 is rendered from them with ParaView by [create_scene.py](create_scene.py).
 
 <div align="center">
-    <img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="50%">
-    <br/>
-    <br/>
-    <em>Figure 3: Eddy currents inside the cylinder at the final time.</em>
+<img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="45%">
+<br/>
+<br/>
+<em>Figure 3: Eddy currents inside the cylinder at the final time.</em>
 </div>
 <br/>
 

@@ -193,7 +193,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
                 sorted(self.visualized_frequencies + self.checked_frequencies)
             )
             vis = self.sim.get_field_exporter()
-            vis.add_field_output("Electric Field-Real")
+            vis.add_field_outputs(["Electric Field-Real", "Electric Field-Imag"])
 
         self.s21 = numpy.zeros(len(self.frequencies), dtype=complex)
 

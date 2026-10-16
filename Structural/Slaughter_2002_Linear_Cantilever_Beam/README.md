@@ -5,12 +5,12 @@
 We model a linear elastic cantilever beam under an end load, following [1] and [2].
 
 <div align="center">
-<img src="./data/Geometry.png" alt="Cantilever beam geometry" width="600">
+<img src="./data/Geometry.png" alt="Cantilever beam geometry" width="75%">
+<br/>
+<br/>
+<em>Figure 1: 3D cantilever beam geometry.</em>
 </div>
-<div align="center">
-<em>3D cantilever beam geometry.</em>
-</div>
-<br />
+<br/>
 
 This validation case considers a **3D linear elastic cantilever beam** subjected to a transverse
 load at its free end. The problem is fully linear (small deformations, linear material law) and
@@ -30,6 +30,8 @@ field. Because the problem is linear, a single iteration suffices.
 
 The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
 `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+Figure 1 is rendered from `geometry.step` with the netgen viewer by
+[create_geometry_image.py](create_geometry_image.py), in the view of Figure 4.
 
 ## Running
 
@@ -64,13 +66,24 @@ $`|\sigma_{xx}| = P (L - x)\,(h/2) / I`$, i.e. $`60\,\mathrm{kPa}`$ at the clamp
 
 ### Comparison
 
-**Displacement** $`u_y`$ along the beam axis ($`y = 0`$):
+Figure 2 shows the displacement $`u_y`$ along the beam axis ($`y = 0`$) and Figure 3 the von Mises
+stress along the top fiber ($`y \approx h/2`$).
 
-![Displacement](./results/Displacement_vs_Position.png)
+<div align="center">
+<img src="./results/Displacement_vs_Position.png" alt="Displacement" width="75%">
+<br/>
+<br/>
+<em>Figure 2: Displacement <i>u<sub>y</sub></i> along the beam axis, mufem and analytical.</em>
+</div>
+<br/>
 
-**Von Mises Stress** along the top fiber ($`y \approx h/2`$):
-
-![Von Mises Stress](./results/Von_Mises_Stress_vs_Position.png)
+<div align="center">
+<img src="./results/Von_Mises_Stress_vs_Position.png" alt="Von Mises stress" width="75%">
+<br/>
+<br/>
+<em>Figure 3: Von Mises stress along the top fiber, mufem and analytical.</em>
+</div>
+<br/>
 
 The mufem solution matches the analytical result. The small deviation in the stress near the
 clamped end ($`x = 0`$) is the expected Saint-Venant boundary effect.
@@ -81,9 +94,17 @@ top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 
 ## Scenes
 
-The displacement and von Mises stress fields are exported to `VisualizationOutput/` for ParaView:
+The displacement and von Mises stress fields are exported to `VisualizationOutput/`. Figure 4
+is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with
+`pvpython create_scene.py` after the case), with the displacement scaled 50 times.
 
-![Von Mises Stress](./results/Scene_Von_Mises_Stress_0.png)
+<div align="center">
+<img src="./results/Scene_Deformation.png" alt="Deformed beam and von Mises stress" width="75%">
+<br/>
+<br/>
+<em>Figure 4: Deformed beam (displacement scaled 50 times) colored by the von Mises stress, with the edges of the undeformed beam.</em>
+</div>
+<br/>
 
 ## References
 

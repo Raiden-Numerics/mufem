@@ -193,6 +193,15 @@ class ValidationCase(ABC):
         return [self.mesh_path]
 
     @property
+    def scene_data_path(self) -> Path:
+        """Extra input of the scenes of create_scene.py that the field export does not hold
+        (e.g. monitor values), written with numpy.savez next to the exported fields; not shipped,
+        so that the scenes can be redrawn after one run of the case."""
+        path = self.dir_path / "VisualizationOutput" / "Scene_Data.npz"
+        path.parent.mkdir(exist_ok=True)
+        return path
+
+    @property
     def results_path(self) -> Path:
         """Output directory for plots / tables; created by `run()`."""
         return self.dir_path / "results"

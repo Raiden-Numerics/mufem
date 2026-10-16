@@ -9,14 +9,13 @@ and convective.
 The objective is to verify the temperature at a specified location.
 
 <div align="center">
-<img src="data/Geometry.jpg" alt="Geometry" width="40%">
-&nbsp;&nbsp;&nbsp;
-<img src="data/Mesh.jpg" alt="Mesh" width="40%">
+<img src="data/Geometry.png" alt="Geometry" width="45%">
+<img src="data/Mesh.png" alt="Mesh" width="45%">
+<br/>
+<br/>
+<em>Figure 1: The geometry of the computational domain with the boundary conditions and the evaluation point E (left), and the corresponding mesh (right).</em>
 </div>
-<div align="center">
-<em>The geometry of the computational domain and the corresponding mesh.</em>
-</div>
-<br />
+<br/>
 
 ## Setup
 
@@ -35,7 +34,9 @@ No internal heat generation is present.
 
 ## Running
 
-Run the case with `pymufem case.py`.
+Run the case with `pymufem case.py`. The geometry image of Figure 1 is rendered from `geometry.step`
+with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), the mesh image by
+[create_scene.py](create_scene.py).
 
 ## Results
 
@@ -45,18 +46,30 @@ The temperature is evaluated at point E of the benchmark, on the right edge, 0.2
 edge. mufem gives $`18.24\,{}^{\circ}\mathrm{C}`$ against the NAFEMS target of $`18.3\,{}^{\circ}\mathrm{C}`$, and the case checks
 this value.
 
-The figure below presents the temperature profile along the x-axis at a fixed
+Figure 2 presents the temperature profile along the x-axis at a fixed
 height of $`y = 0.5`$ m.
 
-![Temperature](results/Temperature.png)
+<div align="center">
+<img src="results/Temperature.png" alt="Temperature profile" width="75%">
+<br/>
+<br/>
+<em>Figure 2: Temperature along the x-axis at <i>y</i> = 0.5 m.</em>
+</div>
+<br/>
 
 ## Scenes
 
-The temperature is exported to `VisualizationOutput/`; the figure below, rendered from it with
+The temperature is exported to `VisualizationOutput/`; Figure 3, rendered from it with
 ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case),
 shows the temperature distribution over the computational domain.
 
-![Temperature](results/Scene_Temperature.png)
+<div align="center">
+<img src="results/Scene_Temperature.png" alt="Temperature scene" width="45%">
+<br/>
+<br/>
+<em>Figure 3: Temperature distribution over the computational domain.</em>
+</div>
+<br/>
 
 ## References
 
