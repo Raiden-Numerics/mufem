@@ -96,15 +96,13 @@ top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 
 The displacement and von Mises stress fields are exported to `VisualizationOutput/`. Figure 4
 is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case; requires `ffmpeg`), with the displacement scaled 50 times.
-Since the problem is linear, the animation scales the solution with the load from zero to its full
-value.
+`pvpython create_scene.py` after the case), with the displacement scaled 50 times.
 
 <div align="center">
-<img src="./results/Deformation.gif" alt="Deformation of the beam under increasing load" width="75%">
+<img src="./results/Scene_Deformation.png" alt="Deformed beam and von Mises stress" width="75%">
 <br/>
 <br/>
-<em>Figure 4: Deformation and von Mises stress of the beam as the load increases to its full value (displacement scaled 50 times).</em>
+<em>Figure 4: Deformed beam (displacement scaled 50 times) colored by the von Mises stress, with the edges of the undeformed beam.</em>
 </div>
 <br/>
 

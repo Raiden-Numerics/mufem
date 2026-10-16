@@ -1,7 +1,7 @@
-"""Render results/Deformation.gif from the output of case.py.
+"""Render results/Scene_Deformation.png from the output of case.py.
 
-Run with `pvpython create_scene.py` after the case (requires `ffmpeg`). The problem is linear,
-so the animation scales the computed solution with the load from zero to its full value.
+Run with `pvpython create_scene.py` after the case. The scene shows the deformed beam, colored by
+the von Mises stress, with the edges of the undeformed beam.
 """
 
 import sys
@@ -12,7 +12,6 @@ sys.path.insert(0, str(case_dir.parents[1]))
 
 import paraview.simple as pvs
 
-from casekit.images import write_gif
 from casekit.paraview_scene import (
     color_by,
     new_view,
@@ -22,19 +21,26 @@ from casekit.paraview_scene import (
     show,
 )
 
-# The tip deflection (1.9 mm) is invisible at true scale.
-displacement_scale = 50.0
-frames = 30
-
 view = new_view((1600, 900))
 data = read_output(case_dir)
 
-# Von Mises stress [kPa] at the load fraction of each frame (set in the loop below).
+# The undeformed beam as its edges.
+edges = pvs.FeatureEdges(Input=pvs.ExtractSurface(Input=pvs.MergeBlocks(Input=data)))
+edges.BoundaryEdges = 0
+edges.NonManifoldEdges = 0
+outline = pvs.Show(edges, view)
+pvs.ColorBy(outline, None)
+outline.AmbientColor = outline.DiffuseColor = [0.4, 0.4, 0.4]
+outline.LineWidth = 2.0
+
+# The deformed beam, the displacement scaled 50 times: the tip deflection (1.9 mm) is invisible
+# at true scale.
 stress = pvs.Calculator(Input=data)
 stress.ResultArrayName = "Stress"
-stress.Function = '"Von Mises Stress" / 1000'
+stress.Function = '"Von Mises Stress" / 1000'  # [kPa]
 warp = pvs.WarpByVector(Input=stress)
 warp.Vectors = ["POINTS", "Displacement"]
+warp.ScaleFactor = 50.0
 
 display = show(warp, view)
 color_by(
@@ -48,16 +54,6 @@ color_by(
 )
 
 # Mostly onto the side of the beam so that the bending shows, with the load direction (y) up,
-# as data/Geometry.png; the frame fits the beam at full load.
+# as data/Geometry.png.
 set_camera(view, (0.4, 0.3, 1.0), (0, 1, 0), (0.5, -0.03, 0.0), parallel_scale=0.36)
-
-paths = []
-for i in range(frames + 1):
-    load = i / frames
-    stress.Function = f'"Von Mises Stress" * {load} / 1000'
-    warp.ScaleFactor = displacement_scale * load
-    paths.append(case_dir / "vis" / f"Scene_{i:03d}.png")
-    save(view, paths[-1], crop=False)
-
-# Hold the full load for one second at the end of each cycle.
-write_gif(paths + 8 * [paths[-1]], case_dir / "results" / "Deformation.gif")
+save(view, case_dir / "results" / "Scene_Deformation.png")
