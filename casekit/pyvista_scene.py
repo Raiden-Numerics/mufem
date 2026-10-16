@@ -1,301 +1,76 @@
-"""PyVista helpers for the scene and animation scripts of the cases.
+"""PyVista support for the scene scripts (create_scene.py) of the cases.
 
-The PyVista counterpart of casekit.paraview_scene: the scripts run in the Python of the cases
-(`pip install pyvista`), render off screen and need no display. All scenes share the same look:
-a white background, the "coolwarm" color map, a color bar with fixed labels and a parallel
-projection.
+Importing this module teaches `pv.read` the `.vtpc` files of the field export and provides the
+common `theme` of the scenes; the scripts are otherwise plain PyVista:
+
+    bodies = pv.read(output_files(case_dir)[0])
+    plotter = pv.Plotter(theme=theme, off_screen=True)
+    plotter.add_mesh(bodies, scalars="Temperature", clim=(300, 400))
+    save(plotter, path)
 """
 
 import json
-import math
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import List, Sequence
 
 import numpy as np
 import pyvista as pv
 from PIL import Image
-from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
-from vtkmodules.vtkRenderingCore import vtkTextActor, vtkTextRenderer
 
+from casekit.images import save_gif as save_images_gif
 from casekit.images import trim
 
 
-class ScenePlotter(pv.Plotter):
-    """Plotter that keeps the titles of its vertical color bars, which save() places along the
-    bars once their size is known."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.bar_titles = []
-
-
-def new_plotter(size: Tuple[int, int] = (1600, 1200)) -> ScenePlotter:
-    """Off-screen plotter with a white background and anti-aliasing."""
-    plotter = ScenePlotter(off_screen=True, window_size=list(size))
-    plotter.set_background("white")
-    plotter.enable_anti_aliasing("ssaa")
-    return plotter
-
-
-def read_output(case_dir: Path, index: int = 0) -> pv.MultiBlock:
-    """The fields that case.py exports to VisualizationOutput/: output `index` of
-    Output.vtpc.series, as one block per body named as in case.py.
-
-    The partitions of a body (one per MPI rank) are combined without merging their points, so
-    that fields that are discontinuous between the cells stay so.
-    """
-    output_dir = Path(case_dir) / "VisualizationOutput"
-    series = json.loads((output_dir / "Output.vtpc.series").read_text())
+@pv.register_reader(".vtpc")
+def read_vtpc(path, **_) -> pv.MultiBlock:
+    """One block per body, named as in case.py. The partitions of a body (one per MPI rank)
+    are combined without merging their points, so that fields that are discontinuous between
+    the cells stay so."""
     reader = vtkXMLPartitionedDataSetCollectionReader()
-    reader.SetFileName(str(output_dir / series["files"][index]["name"]))
+    reader.SetFileName(str(path))
     reader.Update()
     collection = reader.GetOutput()
-
-    data = pv.MultiBlock()
+    bodies = pv.MultiBlock()
     for i in range(collection.GetNumberOfPartitionedDataSets()):
-        name = collection.GetMetaData(i).Get(collection.NAME())
-        partitions = collection.GetPartitionedDataSet(i)
-        parts = [
-            pv.wrap(partitions.GetPartition(j)) for j in range(partitions.GetNumberOfPartitions())
-        ]
-        data.append(pv.MultiBlock(parts).combine(), name)
-    return data
+        name = collection.GetMetaData(i).Get(vtkCompositeDataSet.NAME())
+        partitions = pv.MultiBlock(
+            [collection.GetPartition(i, j) for j in range(collection.GetNumberOfPartitions(i))]
+        )
+        bodies[name] = partitions.combine(merge_points=False)
+    return bodies
 
 
-def read_scene_data(case_dir: Path):
-    """The extra input of the scenes that case.py writes to ValidationCase.scene_data_path."""
-    return np.load(Path(case_dir) / "VisualizationOutput" / "Scene_Data.npz")
+def output_files(case_dir: Path) -> List[Path]:
+    """The files of VisualizationOutput/Output.vtpc.series that case.py exports, in time order."""
+    output_dir = Path(case_dir) / "VisualizationOutput"
+    series = json.loads((output_dir / "Output.vtpc.series").read_text())
+    return [output_dir / entry["name"] for entry in series["files"]]
 
 
-def bodies(data: pv.MultiBlock, names: Sequence[str]) -> pv.UnstructuredGrid:
-    """The bodies `names` of `data` as one mesh; raises if one does not exist, which would
-    silently leave it out of the image."""
-    missing = [name for name in names if name not in data.keys()]
-    if missing:
-        raise ValueError(f"no bodies {missing} in the output")
-    return pv.MultiBlock([data[name] for name in names]).combine()
-
-
-def show(
-    plotter: pv.Plotter,
-    mesh: pv.DataSet,
-    color: Optional[Sequence[float]] = None,
-    edges: bool = False,
-):
-    """Show `mesh` as a lit surface in a solid `color` (gray without one). Use color_by to show
-    a field instead."""
-    return plotter.add_mesh(
-        mesh,
-        color=color if color is not None else (0.8, 0.8, 0.8),
-        show_edges=edges,
-        edge_color="black",
-        line_width=2,
-        ambient=0.3,
-        diffuse=0.8,
-        show_scalar_bar=False,
-    )
-
-
-def color_by(
-    plotter: pv.Plotter,
-    mesh: pv.DataSet,
-    array: str,
-    title: str,
-    labels: Sequence[float],
-    label_format: str = "%.0f",
-    vertical: bool = False,
-    position: Tuple[float, float] = (0.3, 0.05),
-    length: float = 0.4,
-    thickness: float = 0.05,
-    title_size: int = 28,
-    label_size: int = 24,
-    component: Optional[int] = None,
-    edges: bool = False,
-    bar: bool = True,
-):
-    """Show `mesh` colored by the point array `array` (the magnitude of a vector array, or its
-    `component`) with the coolwarm map and a color bar at `position` (fractions of the window).
-
-    The color range is the first to the last label. A vertical bar has its title turned along
-    it, right of the labels, as in ParaView. Without `bar`, draw the bar with colorbar in a
-    matplotlib figure instead. Returns the actor.
-    """
-    if array not in mesh.point_data:
-        raise ValueError(f"no point array {array!r} in the shown data")
-    width, height = (thickness, length) if vertical else (length, thickness)
-    actor = plotter.add_mesh(
-        mesh,
-        scalars=array,
-        preference="point",
-        component=component,
-        cmap="coolwarm",
-        clim=(labels[0], labels[-1]),
-        show_edges=edges,
-        edge_color="black",
-        line_width=2,
-        ambient=0.3,
-        diffuse=0.8,
-        show_scalar_bar=bar,
-        scalar_bar_args=dict(
-            title=title,
-            vertical=vertical,
-            position_x=position[0],
-            position_y=position[1],
-            width=width,
-            height=height,
-            title_font_size=title_size,
-            label_font_size=label_size,
-            bold=True,
-            color="black",
-            fmt=label_format,
-        ),
-    )
-    if not bar:
-        return actor
-    custom_labels = vtkDoubleArray()
-    for label in labels:
-        custom_labels.InsertNextValue(label)
-    bar = plotter.scalar_bars[title]
-    bar.SetCustomLabels(custom_labels)
-    bar.SetUseCustomLabels(True)
-    bar.SetTextPad(6)
-    bar.SetUnconstrainedFontSize(True)
-    if vertical:
-        bar.SetTitle("")
-        plotter.bar_titles.append((bar, _bar_title(plotter, title, title_size)))
-    return actor
-
-
-def _bar_title(plotter: pv.Plotter, title: str, font_size: int) -> vtkTextActor:
-    actor = vtkTextActor()
-    actor.SetInput(title)
-    prop = actor.GetTextProperty()
-    prop.SetFontSize(font_size)
-    prop.SetBold(True)
-    prop.SetColor(0.0, 0.0, 0.0)
-    prop.SetOrientation(90.0)
-    prop.SetJustificationToCentered()
-    prop.SetVerticalJustificationToTop()
-    plotter.add_actor(actor)
-    return actor
-
-
-def _place_bar_titles(plotter: ScenePlotter):
-    """Put the titles of the vertical color bars right of the widest label of their bar."""
-    if not plotter.bar_titles:
-        return
-    plotter.render_window.Render()
-    text_renderer = vtkTextRenderer()
-    dpi = plotter.render_window.GetDPI()
-    for bar, title in plotter.bar_titles:
-        rect = [0] * 4
-        bar.GetScalarBarRect(rect, plotter.renderer)
-        label_width = 0
-        labels = bar.GetCustomLabels()
-        for i in range(labels.GetNumberOfTuples()):
-            box = [0] * 4
-            text = bar.GetLabelFormat() % labels.GetValue(i)
-            text_renderer.GetBoundingBox(bar.GetLabelTextProperty(), text, box, dpi)
-            label_width = max(label_width, box[1] - box[0])
-        gap = bar.GetTextPad() + label_width + title.GetTextProperty().GetFontSize() // 2
-        title.SetDisplayPosition(rect[0] + rect[2] + gap, rect[1] + rect[3] // 2)
-
-
-def set_camera(
-    plotter: pv.Plotter,
-    direction: Sequence[float],
-    up: Sequence[float],
-    focal_point: Optional[Sequence[float]] = None,
-    parallel_scale: Optional[float] = None,
-    bounds: Optional[Sequence[float]] = None,
-    shift_up: float = 0.0,
-):
-    """Look from `direction` (toward the viewer) with `up` up on the screen.
-
-    The projection is parallel, so vertical edges stay vertical. The camera looks at
-    `focal_point` with the visible half height `parallel_scale` [model units], or is fitted to
-    `bounds` (then centered on them). `shift_up` [model units] then moves the picture up on the
-    screen, e.g. to make room for a color bar below it.
-    """
-    if bounds is None and (focal_point is None or parallel_scale is None):
-        raise ValueError("set_camera needs focal_point and parallel_scale, or bounds")
-    if bounds is not None and (focal_point is not None or parallel_scale is not None):
-        raise ValueError("set_camera fits bounds itself: no focal_point or parallel_scale")
-
-    # Only the clipping depends on the distance in a parallel projection: keep the camera well
-    # outside the model.
-    focal_point = focal_point or [0.0, 0.0, 0.0]
-    distance = 100.0 * parallel_scale if parallel_scale is not None else 1.0
-    norm = math.sqrt(sum(d * d for d in direction))
-    camera = plotter.camera
-    camera.focal_point = list(focal_point)
-    camera.position = [f + distance * d / norm for f, d in zip(focal_point, direction)]
-    camera.up = list(up)
-    plotter.enable_parallel_projection()
-    if parallel_scale is not None:
-        camera.parallel_scale = parallel_scale
-        plotter.reset_camera_clipping_range()
-    else:
-        plotter.reset_camera(bounds=list(bounds))
-    if shift_up:
-        shift = [-shift_up * u for u in camera.up]
-        camera.focal_point = [f + d for f, d in zip(camera.focal_point, shift)]
-        camera.position = [p + d for p, d in zip(camera.position, shift)]
-
-
-def add_text(plotter: pv.Plotter, text: str, position: Tuple[float, float], font_size=40):
-    """Bold black text with its lower left corner at `position` (fractions of the window)."""
-    actor = plotter.add_text(
-        text, position=position, font_size=font_size, color="black", viewport=True
-    )
-    actor.GetTextProperty().SetBold(True)
-    return actor
-
-
-def phase_field(mesh: pv.DataSet, field: str, phase_deg: float) -> np.ndarray:
-    """Re(F e^{j phase}) = F_r cos(phase) - F_i sin(phase) of a complex point field."""
-    phase = math.radians(phase_deg)
-    return mesh.point_data[f"{field}-Real"] * math.cos(phase) - mesh.point_data[
-        f"{field}-Imag"
-    ] * math.sin(phase)
-
-
-def colorbar(
-    cax,
-    title: str,
-    labels: Sequence[float],
-    label_format: Optional[str] = None,
-    font_size: float = 15,
-):
-    """Color bar of color_by(..., bar=False) on the matplotlib axes `cax`: the coolwarm map from
-    the first to the last label, with the title along the bar. Without `label_format`, the
-    labels share a power of ten written above the bar."""
-    import matplotlib as mpl
-
-    norm = mpl.colors.Normalize(labels[0], labels[-1])
-    mappable = mpl.cm.ScalarMappable(norm=norm, cmap="coolwarm")
-    formatter = label_format
-    if formatter is None:
-        formatter = mpl.ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((0, 0))
-    bar = cax.figure.colorbar(mappable, cax=cax, ticks=labels, format=formatter)
-    bar.set_label(title, fontsize=font_size)
-    bar.ax.tick_params(labelsize=font_size - 2)
-    bar.ax.yaxis.get_offset_text().set_fontsize(font_size - 2)
-    bar.outline.set_visible(False)
-    return bar
-
-
-def render(plotter: pv.Plotter, crop: bool = True) -> Image.Image:
-    """The image of `plotter` and, with `crop`, without its white margins. The plotter stays
-    open for further images."""
-    _place_bar_titles(plotter)
-    image = Image.fromarray(plotter.screenshot(return_img=True))
-    return trim(image) if crop else image
-
-
-def save(plotter: pv.Plotter, path: Path, crop: bool = True):
-    """Render `plotter` to `path` and, with `crop`, crop the white margins."""
+def save(plotter: pv.Plotter, path: Path):
+    """Screenshot of `plotter` without its white margins."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    render(plotter, crop).save(path)
+    trim(Image.fromarray(plotter.screenshot())).save(path)
+
+
+def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):
+    """Animated GIF of the screenshots `frames`."""
+    save_images_gif([Image.fromarray(frame) for frame in frames], path, fps)
+
+
+theme = pv.themes.DocumentTheme()
+theme.window_size = [1600, 1200]
+theme.anti_aliasing = "ssaa"
+theme.cmap = "coolwarm"
+theme.edge_color = "black"
+theme.line_width = 2
+theme.lighting_params.ambient = 0.3
+theme.lighting_params.diffuse = 0.8
+theme.camera.parallel_projection = True
+theme.font.title_size = 28
+theme.font.label_size = 24
+theme.colorbar_orientation = "vertical"
+theme.colorbar_vertical.position_x = 0.8
+theme.colorbar_vertical.position_y = 0.3

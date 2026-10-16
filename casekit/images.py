@@ -132,15 +132,6 @@ def write_gif(frames: Sequence[Path], path: Path, fps: int = 8, width: int = 800
     shutil.rmtree(work)
 
 
-def figure_image(fig) -> Image.Image:
-    """The matplotlib figure `fig` drawn as an image, e.g. one frame of save_gif."""
-    fig.canvas.draw()
-    size = fig.canvas.get_width_height(physical=True)
-    return Image.frombuffer("RGBA", size, fig.canvas.buffer_rgba(), "raw", "RGBA", 0, 1).convert(
-        "RGB"
-    )
-
-
 def save_gif(frames: Sequence[Image.Image], path: Path, fps: int = 8):
     """Encode `frames` into an animated GIF with one palette for all of them. The dithering
     smooths the color gradients and, being deterministic, leaves the unchanged parts of the

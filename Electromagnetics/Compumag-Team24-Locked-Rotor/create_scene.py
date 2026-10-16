@@ -2,8 +2,8 @@
 
 Run with `python create_scene.py` after the case (needs PyVista). The case exports the fields
 of every time step to VisualizationOutput/ and writes the coil current and the rotor torque over
-time to VisualizationOutput/Scene_Data.npz. Each frame of the animation is one matplotlib
-figure: the scene, its color bar and the plots of case.py.
+time to VisualizationOutput/Scene_Data.npz. Each frame of the animation is one window: the
+scene on the left and the plots of case.py as a matplotlib chart on the right.
 """
 
 import sys
@@ -14,69 +14,62 @@ sys.path.insert(0, str(case_dir.parents[1]))
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pyvista as pv
 
 from casekit import PlotStyle, xy_axes
-from casekit.images import figure_image, save_gif
-from casekit.pyvista_scene import (
-    bodies,
-    color_by,
-    colorbar,
-    new_plotter,
-    read_output,
-    read_scene_data,
-    render,
-    save,
-    set_camera,
-)
+from casekit.pyvista_scene import output_files, save, save_gif, theme
 
 tables = case_dir / "data" / "tables"
-monitors = read_scene_data(case_dir)
+monitors = np.load(case_dir / "VisualizationOutput" / "Scene_Data.npz")
 current_ref = np.loadtxt(tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1)
 torque_ref = np.loadtxt(tables / "Table_4_Torque.csv", delimiter=",", skiprows=1)
+files = output_files(case_dir)
 
 
-def read_step(index):
-    return bodies(read_output(case_dir, index), ["Stator", "Rotor", "Lower Coil", "Upper Coil"])
+def read_iron_and_coils(path):
+    bodies = pv.read(path)
+    del bodies["Air"]
+    return bodies
 
 
 # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism layers
 # show as quads. The color bar sits in the free space to the right of the rotor.
-plotter = new_plotter((1989, 1471))
-color_by(
-    plotter,
-    read_step(0),
-    "Element Type",
-    "Element Type",
-    [4.0, 5.0, 6.0],  # tetrahedra and prisms
-    vertical=True,
-    position=(0.87, 0.05),
-    length=0.5,
-    thickness=0.054,
-    title_size=40,
-    label_size=36,
-    edges=True,
+plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1989, 1471))
+plotter.add_mesh(
+    read_iron_and_coils(files[0]),
+    scalars="Element Type",
+    clim=(4.0, 6.0),  # tetrahedra and prisms
+    show_edges=True,
+    scalar_bar_args=dict(
+        n_labels=3,
+        fmt=" %.0f",
+        position_x=0.88,
+        position_y=0.05,
+        title_font_size=40,
+        label_font_size=36,
+        unconstrained_font_size=True,
+    ),
 )
-set_camera(plotter, (-0.012, 0.015, 0.166), (0, 1, 0), (0.0, 0.045, -0.006), parallel_scale=0.0448)
+plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
+plotter.camera.parallel_scale = 0.0448
 save(plotter, case_dir / "results" / "Scene_ElementType.png")
 
-
-# Animation: the electric current density from +z with its color bar, and the coil current and
-# the rotor torque of case.py up to the time step on the right.
-def scene_image(index):
-    plotter = new_plotter((1400, 1400))
-    color_by(
-        plotter,
-        read_step(index),
-        "Electric Current Density",
-        "",
-        [0.0, 1.0e5, 2.0e5, 3.0e5],
-        bar=False,
-    )
-    set_camera(plotter, (0, 0, 1), (0, 1, 0), (0.0, 0.0, 0.0), parallel_scale=0.106)
-    image = render(plotter)
-    plotter.close()
-    return image
-
+# Animation: the electric current density from +z and the coil current and the rotor torque of
+# case.py up to the time step. The chart is drawn without anti-aliasing, with which VTK
+# misplaces it off screen.
+plotter = pv.Plotter(
+    theme=theme,
+    off_screen=True,
+    window_size=(1200, 540),
+    shape=(1, 2),
+    col_weights=[0.55, 0.45],
+    border=False,
+)
+plotter.subplot(0, 1)
+plotter.renderer.disable_anti_aliasing()
+fig, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=75, layout="constrained")
+plotter.add_chart(pv.ChartMPL(fig))
+plotter.subplot(0, 0)
 
 common = dict(
     style=PlotStyle.LINE_AND_POINTS,
@@ -87,21 +80,32 @@ common = dict(
     xticks=[0.0, 0.05, 0.1, 0.15],
     legend_loc="upper left",
 )
-
-fig = plt.figure(figsize=(16.0, 7.2), dpi=75, layout="constrained")
-grid = fig.add_gridspec(2, 3, width_ratios=[7.0, 0.25, 6.5], wspace=0.04)
-ax_scene = fig.add_subplot(grid[:, 0])
-ax_bar = fig.add_subplot(grid[:, 1])
-ax_current = fig.add_subplot(grid[0, 2])
-ax_torque = fig.add_subplot(grid[1, 2])
-colorbar(ax_bar, "Electric Current Density [A/m²]", [0.0, 1.0e5, 2.0e5, 3.0e5])
-
 frames = []
-for i in range(len(monitors["coil_current"])):
-    for ax in (ax_scene, ax_current, ax_torque):
+for i, path in enumerate(files):
+    plotter.add_mesh(
+        read_iron_and_coils(path),
+        scalars="Electric Current Density",
+        clim=(0.0, 3.0e5),
+        name="field",
+        scalar_bar_args=dict(
+            title="Current Density [A/m²]",
+            n_labels=4,
+            fmt=" %.0e",
+            height=0.7,
+            position_x=0.82,
+            position_y=0.12,
+            title_font_size=16,
+            label_font_size=14,
+            unconstrained_font_size=True,
+        ),
+    )
+    if i == 0:
+        plotter.view_xy()
+        plotter.camera.focal_point = (0.03, 0.0, 0.0)
+        plotter.camera.position = (0.03, 0.0, 1.0)
+        plotter.camera.parallel_scale = 0.11
+    for ax in (ax_current, ax_torque):
         ax.clear()
-    ax_scene.imshow(scene_image(i))
-    ax_scene.set_axis_off()
     xy_axes(
         ax_current,
         values=monitors["coil_current"][: i + 1],
@@ -118,7 +122,8 @@ for i in range(len(monitors["coil_current"])):
         ylim=(0.0, 3.5),
         **common,
     )
-    frames.append(figure_image(fig))
-plt.close(fig)
+    plotter.render()
+    frames.append(plotter.screenshot())
+plotter.close()
 
 save_gif(frames, case_dir / "results" / "Result_Animation.gif")

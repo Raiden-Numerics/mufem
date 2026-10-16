@@ -10,42 +10,28 @@ from pathlib import Path
 case_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(case_dir.parents[1]))
 
-from casekit.pyvista_scene import (
-    bodies,
-    color_by,
-    new_plotter,
-    read_output,
-    save,
-    set_camera,
-    show,
-)
+import pyvista as pv
 
-data = read_output(case_dir)
+from casekit.pyvista_scene import output_files, save, theme
 
-# Magnetic flux density in the yoke, the pole and the coil.
-plotter = new_plotter((1900, 1600))
-parts = bodies(data, ["Yoke", "Pole", "Coil"])
-color_by(
-    plotter,
-    parts,
-    "Magnetic Flux Density",
-    "Magnetic Flux Density [T]",
-    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5],
-    "%.1f",
-    vertical=True,
-    position=(0.78, 0.3),
-)
-set_camera(plotter, (-1, -1, 1), (0, 0, 1), bounds=parts.bounds)
-save(plotter, case_dir / "data" / "Vis_MagneticFluxDensity.png")
+bodies = pv.read(output_files(case_dir)[0])
 
 # Mesh of all bodies.
-plotter = new_plotter((1600, 1600))
-for name, color in [
-    ("Air", (0.96, 0.89, 0.83)),
-    ("Yoke", (0.6, 0.6, 0.6)),
-    ("Pole", (0.6, 0.6, 0.6)),
-    ("Coil", (0.72, 0.45, 0.2)),
-]:
-    show(plotter, bodies(data, [name]), color, edges=True)
-set_camera(plotter, (-1, -1, 1), (0, 0, 1), bounds=data.bounds)
+plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1600, 1600))
+iron, copper, air = (0.6, 0.6, 0.6), (0.72, 0.45, 0.2), (0.96, 0.89, 0.83)
+for name, color in {"Air": air, "Yoke": iron, "Pole": iron, "Coil": copper}.items():
+    plotter.add_mesh(bodies[name], color=color, show_edges=True)
+plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
 save(plotter, case_dir / "data" / "Mesh.png")
+
+# Magnetic flux density in the yoke, the pole and the coil.
+del bodies["Air"]
+plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1900, 1600))
+plotter.add_mesh(
+    bodies,
+    scalars="Magnetic Flux Density",
+    clim=(0.0, 2.5),
+    scalar_bar_args=dict(title="Magnetic Flux Density [T]", n_labels=6, fmt=" %.1f"),
+)
+plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
+save(plotter, case_dir / "data" / "Vis_MagneticFluxDensity.png")
