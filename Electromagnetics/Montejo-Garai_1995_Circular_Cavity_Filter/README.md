@@ -194,8 +194,8 @@ At the two visualized frequencies we also save the electric field in the
 [ParaView](https://www.paraview.org/).
 Please note that [ParaView](https://www.paraview.org/) is not supplied with
 mufem and must be installed separately.
-The scenes are rendered by [create_scene.py](create_scene.py); run it with
-`pvpython create_scene.py` in the case directory after the case.
+The animation of Figure 4 is rendered by [create_scene.py](create_scene.py); run it with
+`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
 
 
 ## Results
@@ -231,20 +231,19 @@ up to 3 dB below the measurement, as does the finite element result of
 To illustrate the electric field configuration inside the filter at frequencies
 both within and outside the filter's bandwidth, during the simulation we export
 the electric field at 12 GHz and 14 GHz to a [VTK](https://vtk.org/) file.
-Figure 4 shows the distribution of the electric field inside the waveguide
-filter at both frequencies.
+Figure 4 shows the electric field inside the waveguide filter at both
+frequencies over half a period.
 
 <div align="center">
-<img src="results/scene_electric_field_12GHz.png" alt="E at 12 GHz" width="45%" />
-<img src="results/scene_electric_field_14GHz.png" alt="E at 14 GHz" width="45%" />
+<img src="results/Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
 <br/>
 <br/>
-<em>Figure 4: Magnitude of the real part of the electric field (the field at <i>ωt</i> = 0) inside the waveguide filter at 12 GHz (left) and 14 GHz (right).</em>
+<em>Figure 4: Magnitude of the electric field <i>E</i>(<i>t</i>) = <i>E</i><sub>r</sub> cos(<i>ωt</i>) − <i>E</i><sub>i</sub> sin(<i>ωt</i>) inside the waveguide filter at 12 GHz (left) and 14 GHz (right) over half a period.</em>
 </div>
 <br/>
 
 We see that at 12 GHz, most of the electric field entering through the input
-port is reflected back.
+port is reflected back and forms a standing wave in the input waveguide.
 At the same time, the electric field at the frequency of 14 GHz passes through
 the circular cavity without obstruction.
 This observation is in complete agreement with Figure 3.
