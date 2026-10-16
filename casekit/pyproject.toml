@@ -10,6 +10,10 @@ requires-python = ">=3.10"
 # matplotlib/numpy for the plots; gmsh and netgen-mesher to build the case meshes
 dependencies = ["matplotlib", "numpy", "gmsh", "netgen-mesher"]
 
+[project.optional-dependencies]
+# PyVista scenes (casekit.pyvista_scene)
+scenes = ["pyvista", "pillow"]
+
 [tool.setuptools]
 packages = ["casekit"]
 package-dir = {"casekit" = "."}

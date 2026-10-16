@@ -119,8 +119,9 @@ of the force versus the coil current.
 
 Figures 1 and 2 and the scene of Figure 5 share the isometric view onto the symmetry planes. Figure 1
 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py);
-Figures 2 and 5 are rendered with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case).
+Figures 2 and 5 are rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
+[case.py](case.py) (run the case with `--scenes`, or with `--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 ## Results
 
@@ -157,7 +158,7 @@ As an outlook, the paper [3] suggests investigating the effect of model order an
 The case saves the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 
 <div align="center">
-<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="75%">
+<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="45%">
 <br/>
 <br/>
 <em>Figure 5: The magnetic flux density at I=5 A. At the corner of the center pole the magnitude of the magnetic flux density exceeds the values of the provided B-H table requiring extrapolation.</em>

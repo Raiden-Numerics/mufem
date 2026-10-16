@@ -9,7 +9,7 @@ mufem nor the other packages of the cases (casekit.plots imports numpy and matpl
 inside its functions).
 """
 
-from casekit.plots import PlotStyle, xy_plot
+from casekit.plots import PlotStyle, xy_axes, xy_plot
 from casekit.validation_case import ValidationCase, expect, run_case
 
-__all__ = ["PlotStyle", "ValidationCase", "expect", "run_case", "xy_plot"]
+__all__ = ["PlotStyle", "ValidationCase", "expect", "run_case", "xy_axes", "xy_plot"]
