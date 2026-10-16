@@ -17,7 +17,7 @@ import numpy as np
 import pyvista as pv
 
 from casekit import PlotStyle, xy_axes
-from casekit.pyvista_scene import output_files, save, save_gif, theme
+from casekit.pyvista_scene import output_files, save, save_gif, screenshot, theme
 
 tables = case_dir / "data" / "tables"
 monitors = np.load(case_dir / "VisualizationOutput" / "Scene_Data.npz")
@@ -34,7 +34,7 @@ def read_iron_and_coils(path):
 
 # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism layers
 # show as quads. The color bar sits in the free space to the right of the rotor.
-plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1989, 1471))
+plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(2000, 1500))
 plotter.add_mesh(
     read_iron_and_coils(files[0]),
     scalars="Element Type",
@@ -43,11 +43,10 @@ plotter.add_mesh(
     scalar_bar_args=dict(
         n_labels=3,
         fmt=" %.0f",
-        position_x=0.88,
-        position_y=0.05,
+        position_x=0.9,
+        position_y=0.01,
         title_font_size=40,
         label_font_size=36,
-        unconstrained_font_size=True,
     ),
 )
 plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
@@ -60,14 +59,14 @@ save(plotter, case_dir / "results" / "Scene_ElementType.png")
 plotter = pv.Plotter(
     theme=theme,
     off_screen=True,
-    window_size=(1200, 540),
+    window_size=(1800, 800),
     shape=(1, 2),
     col_weights=[0.55, 0.45],
     border=False,
 )
 plotter.subplot(0, 1)
 plotter.renderer.disable_anti_aliasing()
-fig, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=75, layout="constrained")
+fig, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=100, layout="constrained")
 plotter.add_chart(pv.ChartMPL(fig))
 plotter.subplot(0, 0)
 
@@ -92,11 +91,10 @@ for i, path in enumerate(files):
             n_labels=4,
             fmt=" %.0e",
             height=0.7,
-            position_x=0.82,
+            position_x=0.8,
             position_y=0.12,
-            title_font_size=16,
-            label_font_size=14,
-            unconstrained_font_size=True,
+            title_font_size=24,
+            label_font_size=20,
         ),
     )
     if i == 0:
@@ -122,8 +120,7 @@ for i, path in enumerate(files):
         ylim=(0.0, 3.5),
         **common,
     )
-    plotter.render()
-    frames.append(plotter.screenshot())
+    frames.append(screenshot(plotter))
 plotter.close()
 
 save_gif(frames, case_dir / "results" / "Result_Animation.gif")
