@@ -157,7 +157,7 @@ As an outlook, the paper [3] suggests investigating the effect of model order an
 The case saves the fields at $`I=5`$ A for further evaluation with e.g. [mufem-scenes](https://raiden-numerics.github.io/mufem-scenes/) or [ParaView](https://www.paraview.org/).
 
 <div align="center">
-<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="45%">
+<img src="data/Vis_MagneticFluxDensity.png" alt="drawing" width="75%">
 <br/>
 <br/>
 <em>Figure 5: The magnetic flux density at I=5 A. At the corner of the center pole the magnitude of the magnetic flux density exceeds the values of the provided B-H table requiring extrapolation.</em>
