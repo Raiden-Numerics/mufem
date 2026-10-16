@@ -3,7 +3,7 @@
 Run with `python create_scene.py` after the case (needs PyVista). The case exports the fields
 of every time step to VisualizationOutput/ and writes the coil current and the rotor torque over
 time to VisualizationOutput/Scene_Data.npz. Each frame of the animation is one window: the
-scene on the left and the plots of case.py as a matplotlib chart on the right.
+scene on the left and its color bar and the plots of case.py as a matplotlib chart on the right.
 """
 
 import sys
@@ -17,7 +17,14 @@ import numpy as np
 import pyvista as pv
 
 from casekit import PlotStyle, xy_axes
-from casekit.pyvista_scene import output_files, save, save_gif, screenshot, theme
+from casekit.pyvista_scene import (
+    add_chart,
+    add_colorbar,
+    output_files,
+    save,
+    save_gif,
+    theme,
+)
 
 tables = case_dir / "data" / "tables"
 monitors = np.load(case_dir / "VisualizationOutput" / "Scene_Data.npz")
@@ -33,42 +40,26 @@ def read_iron_and_coils(path):
 
 
 # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism layers
-# show as quads. The color bar sits in the free space to the right of the rotor.
+# show as quads.
 plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(2000, 1500))
-plotter.add_mesh(
+actor = plotter.add_mesh(
     read_iron_and_coils(files[0]),
     scalars="Element Type",
     clim=(4.0, 6.0),  # tetrahedra and prisms
     show_edges=True,
-    scalar_bar_args=dict(
-        n_labels=3,
-        fmt=" %.0f",
-        position_x=0.9,
-        position_y=0.01,
-        title_font_size=40,
-        label_font_size=36,
-    ),
 )
 plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
 plotter.camera.parallel_scale = 0.0448
+add_colorbar(plotter, actor, "Element Type", location="bottom").set_ticks([4, 5, 6])
 save(plotter, case_dir / "results" / "Scene_ElementType.png")
 
-# Animation: the electric current density from +z and the coil current and the rotor torque of
-# case.py up to the time step. The chart is drawn without anti-aliasing, with which VTK
-# misplaces it off screen.
+# Animation: the electric current density from +z with its color bar, and the coil current and
+# the rotor torque of case.py up to the time step as a matplotlib chart on the right.
 plotter = pv.Plotter(
-    theme=theme,
-    off_screen=True,
-    window_size=(1800, 800),
-    shape=(1, 2),
-    col_weights=[0.55, 0.45],
-    border=False,
+    theme=theme, off_screen=True, window_size=(1600, 800), shape=(1, 2), border=False
 )
-plotter.subplot(0, 1)
-plotter.renderer.disable_anti_aliasing()
-fig, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=100, layout="constrained")
-plotter.add_chart(pv.ChartMPL(fig))
-plotter.subplot(0, 0)
+figure, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=100, layout="constrained")
+add_chart(plotter, figure)
 
 common = dict(
     style=PlotStyle.LINE_AND_POINTS,
@@ -81,27 +72,16 @@ common = dict(
 )
 frames = []
 for i, path in enumerate(files):
-    plotter.add_mesh(
+    actor = plotter.add_mesh(
         read_iron_and_coils(path),
         scalars="Electric Current Density",
         clim=(0.0, 3.0e5),
         name="field",
-        scalar_bar_args=dict(
-            title="Current Density [A/m²]",
-            n_labels=4,
-            fmt=" %.0e",
-            height=0.7,
-            position_x=0.8,
-            position_y=0.12,
-            title_font_size=24,
-            label_font_size=20,
-        ),
     )
     if i == 0:
         plotter.view_xy()
-        plotter.camera.focal_point = (0.03, 0.0, 0.0)
-        plotter.camera.position = (0.03, 0.0, 1.0)
-        plotter.camera.parallel_scale = 0.11
+        plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK)
+        add_colorbar(plotter, actor, "Current Density [A/m²]", dpi=100)
     for ax in (ax_current, ax_torque):
         ax.clear()
     xy_axes(
@@ -120,7 +100,7 @@ for i, path in enumerate(files):
         ylim=(0.0, 3.5),
         **common,
     )
-    frames.append(screenshot(plotter))
+    frames.append(plotter.screenshot())
 plotter.close()
 
 save_gif(frames, case_dir / "results" / "Result_Animation.gif")

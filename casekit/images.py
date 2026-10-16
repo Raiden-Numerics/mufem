@@ -130,20 +130,3 @@ def write_gif(frames: Sequence[Path], path: Path, fps: int = 8, width: int = 800
         capture_output=True,
     )  # fmt: skip
     shutil.rmtree(work)
-
-
-def save_gif(frames: Sequence[Image.Image], path: Path, fps: int = 8):
-    """Encode `frames` into an animated GIF with one palette for all of them. The dithering
-    smooths the color gradients and, being deterministic, leaves the unchanged parts of the
-    frames still."""
-    stack = Image.new("RGB", (frames[0].width, frames[0].height * len(frames)))
-    for i, frame in enumerate(frames):
-        stack.paste(frame, (0, i * frame.height))
-    palette = stack.quantize(colors=256, method=Image.Quantize.FASTOCTREE)
-    quantized = [
-        frame.quantize(palette=palette, dither=Image.Dither.FLOYDSTEINBERG) for frame in frames
-    ]
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    quantized[0].save(
-        path, save_all=True, append_images=quantized[1:], duration=round(1000 / fps), loop=0
-    )

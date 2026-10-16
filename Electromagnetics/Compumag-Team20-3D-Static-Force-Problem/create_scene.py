@@ -12,7 +12,7 @@ sys.path.insert(0, str(case_dir.parents[1]))
 
 import pyvista as pv
 
-from casekit.pyvista_scene import output_files, save, theme
+from casekit.pyvista_scene import add_colorbar, output_files, save, theme
 
 bodies = pv.read(output_files(case_dir)[0])
 
@@ -26,12 +26,9 @@ save(plotter, case_dir / "data" / "Mesh.png")
 
 # Magnetic flux density in the yoke, the pole and the coil.
 del bodies["Air"]
-plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1900, 1600))
-plotter.add_mesh(
-    bodies,
-    scalars="Magnetic Flux Density",
-    clim=(0.0, 2.5),
-    scalar_bar_args=dict(title="Magnetic Flux Density [T]", n_labels=6, fmt=" %.1f"),
-)
+plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1100, 1600))
+actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
 plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
+plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK, no PyVista equivalent)
+add_colorbar(plotter, actor, "Magnetic Flux Density [T]")
 save(plotter, case_dir / "data" / "Vis_MagneticFluxDensity.png")
