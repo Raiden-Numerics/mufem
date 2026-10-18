@@ -14,53 +14,81 @@
   <link rel="apple-touch-icon" href="{{ '/favicon-180.png' | relative_url }}">
 
   <style>
-    .gh-view {
-      position: fixed; top: 12px; right: 12px; z-index: 1000;
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 6px 13px; background: #f6f6f6; color: #555;
-      border: 1px solid #dcdcdc; border-radius: 6px;
-      font: 500 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      text-decoration: none; transition: background .15s, border-color .15s;
+    /* "View on GitHub" pill, last item of the header nav. */
+    .site-nav .gh-view {
+      display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;
+      padding: 4px 12px; line-height: 1.5; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px; background: var(--subtle);
+      font-size: 14px; font-weight: 500; transition: background .15s, border-color .15s;
     }
-    .gh-view:hover { background: #ececec; border-color: #c8c8c8; color: #333; text-decoration: none; }
-    .gh-view svg { fill: #666; }
-    @media (max-width: 600px) { .gh-view .gh-txt { display: none; } }
+    .site-nav .gh-view:hover { background: #eef1f4; border-color: #c4ccd5; color: var(--fg); text-decoration: none; }
+    .site-nav .gh-view svg { fill: currentColor; }
+    @media (max-width: 600px) { .site-nav .gh-view { display: flex; justify-content: flex-end; border: 0; background: none; } }
 
-    /* Borderless content tables (the "Why mufem" feature grid and the gallery). */
-    .page-content table { border: 0; box-shadow: none; margin-bottom: 15px; }
-    .page-content table td, .page-content table th { border: 0; }
-    .page-content table tr:nth-child(even) { background-color: transparent; }
-
-    /* Bold headings, matching GitHub (minima renders h1-h6 too light). */
-    .page-content h1, .page-content h2, .page-content h3,
-    .page-content h4, .page-content h5, .page-content h6 { font-weight: 600; }
+    :root {
+      --fg: #1f2328; --muted: #59636e; --border: #d1d9e0;
+      --subtle: #f6f8fa; --accent: #0969da;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+    body { color: var(--fg); background: #fff; line-height: 1.6; }
 
     /* Wider content column (minima's default ~800px reads too narrow). */
-    .wrapper { max-width: 1080px; }
+    .wrapper { max-width: 1012px; padding-left: 24px; padding-right: 24px; }
+    .page-content { padding: 40px 0 56px; }
+    .page-content a, .page-content a:visited { color: var(--accent); }
+    .page-content a:hover { color: var(--accent); text-decoration: underline; }
+
+    /* Headings: GitHub-like weight and rhythm; offset anchors below the sticky header. */
+    .page-content h1, .page-content h2, .page-content h3,
+    .page-content h4, .page-content h5, .page-content h6 {
+      font-weight: 600; line-height: 1.25; scroll-margin-top: 72px;
+    }
+    .page-content h1 { font-size: 2.25rem; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .page-content h2 {
+      font-size: 1.6rem; margin: 48px 0 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-content h3 { font-size: 1.25rem; margin: 32px 0 12px; }
+    .page-content li { margin-bottom: 4px; }
+    .page-content li > ul { margin-top: 4px; }
+
+    /* Code: soft background, no border, monospace stack. */
+    .page-content code {
+      font-family: var(--mono); font-size: 85%; padding: .2em .4em;
+      background: rgba(129, 139, 152, .12); border: 0; border-radius: 6px;
+    }
+    .page-content pre, .page-content .highlight, .page-content .highlight pre {
+      background: var(--subtle); border: 0; border-radius: 8px;
+    }
+    .page-content pre { padding: 16px; font-size: 13.6px; line-height: 1.45; }
+    .page-content pre code { padding: 0; background: transparent; font-size: inherit; }
+
+    /* Borderless content tables (the "Why mufem" feature grid and the gallery). */
+    .page-content table { border: 0; box-shadow: none; margin-bottom: 24px; }
+    .page-content table td, .page-content table th {
+      border: 0; padding: 14px 16px; vertical-align: top;
+    }
+    .page-content table tr:nth-child(even) { background-color: transparent; }
+    .page-content table img[width="100%"] {
+      border-radius: 8px; box-shadow: 0 1px 3px rgba(31, 35, 40, .12);
+      transition: box-shadow .15s;
+    }
+    .page-content table a:hover img[width="100%"] { box-shadow: 0 4px 14px rgba(31, 35, 40, .18); }
+
+    /* CI badges: a little breathing room between wrapped rows. */
+    .page-content img[src*="img.shields.io"] { margin: 2px 0; }
 
     /* Keep the site header visible while scrolling. */
     .site-header {
-      position: sticky; top: 0; z-index: 100;
-      background: #fdfdfd; border-top: 0;
+      position: sticky; top: 0; z-index: 100; border-top: 0;
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
     }
+    .site-title, .site-title:visited { font-weight: 600; color: var(--fg); }
+    .site-nav .page-link { color: var(--muted); }
+    .site-nav .page-link:hover { color: var(--fg); text-decoration: none; }
+
+    .site-footer { border-top: 1px solid var(--border); }
   </style>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var a = document.createElement("a");
-      a.className = "gh-view";
-      a.href = "https://github.com/Raiden-Numerics/mufem";
-      a.rel = "noopener";
-      a.setAttribute("aria-label", "View on GitHub");
-      a.innerHTML =
-        '<svg height="18" width="18" viewBox="0 0 16 16" aria-hidden="true">' +
-        '<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38' +
-        ' 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53' +
-        '.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95' +
-        ' 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27' +
-        ' 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95' +
-        '.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>' +
-        "</svg><span class=\"gh-txt\">View on GitHub</span>";
-      document.body.appendChild(a);
-    });
-  </script>
 </head>

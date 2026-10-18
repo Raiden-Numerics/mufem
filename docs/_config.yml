@@ -21,10 +21,6 @@ lang: en_US
 author: Raiden Numerics
 theme: minima
 
-# Render Markdown inside HTML blocks (e.g. the Gallery <td> cells), as github.com does.
-kramdown:
-  parse_block_html: true
-
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap

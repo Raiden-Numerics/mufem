@@ -11,12 +11,9 @@ and **design optimization**, and a natural fit for **agentic workflows**. The mu
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
-- [Introduction](#introduction)
-- [Gallery](#gallery)
-- [Models](#models)
-- [Getting started](#getting-started)
-- [Validation cases](#validation-cases)
-- [Continuous Integration](#continuous-integration)
+**Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
+[Getting started](#getting-started) · [Validation cases](#validation-cases) ·
+[Continuous Integration](#continuous-integration)
 
 ## Introduction
 
@@ -112,35 +109,26 @@ vis.save()
 <table>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
-<td width="60%">
-
-**[Locked rotor (TEAM 24)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)**
-
-Study the transient rotor torque and coil currents of a rotating machine using the **Time-Domain Magnetic**
-model coupled to an **Excitation Coil**.
-
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md">Locked rotor (TEAM 24)</a></strong><br>
+Study the transient rotor torque and coil currents of a rotating machine using the <strong>Time-Domain Magnetic</strong>
+model coupled to an <strong>Excitation Coil</strong>.
 </td>
 </tr>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
-<td width="60%">
-
-**[Dipole antenna (Stutzman 2012)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)**
-
-Compute the full-wave radiation pattern and far-field of a dipole antenna using the **Time-Harmonic Maxwell**
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md">Dipole antenna (Stutzman 2012)</a></strong><br>
+Compute the full-wave radiation pattern and far-field of a dipole antenna using the <strong>Time-Harmonic Maxwell</strong>
 model.
-
 </td>
 </tr>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
-<td width="60%">
-
-**[FELIX cylinder (TEAM 1b)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
-
-Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the **Time-Domain
-Magnetic** model.
-
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">FELIX cylinder (TEAM 1b)</a></strong><br>
+Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the <strong>Time-Domain
+Magnetic</strong> model.
 </td>
 </tr>
 </table>
