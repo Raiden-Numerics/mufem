@@ -19,11 +19,11 @@ url: https://raiden-numerics.github.io
 baseurl: /mufem
 lang: en_US
 author: Raiden Numerics
-theme: minima
 
-# Render Markdown inside HTML blocks (e.g. the Gallery <td> cells), as github.com does.
-kramdown:
-  parse_block_html: true
+# Google Search Console ownership check (rendered as a meta tag by jekyll-seo-tag). Keep it.
+webmaster_verifications:
+  google: W7tH0CQt5gtTJE3gOkFaqUxyDCVWSQZnXre-8_esq5A
+theme: minima
 
 plugins:
   - jekyll-seo-tag
