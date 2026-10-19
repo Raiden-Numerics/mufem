@@ -362,7 +362,7 @@ class Team24LockedRotor(ValidationCase):
         )
         plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
         plotter.camera.parallel_scale = 0.0448
-        add_colorbar(plotter, actor, "Element Type", 2, "%.0f", location="bottom")
+        add_colorbar(plotter, actor, "Element Type", 2, "%.0f", "lower right", font_size=36)
         save(plotter, self.results_path / "Scene_ElementType.png")
 
         # Animation: the electric current density from +z with its color bar, and the coil
@@ -395,8 +395,9 @@ class Team24LockedRotor(ValidationCase):
             actor = plotter.add_mesh(bodies, scalars=title, clim=(0.0, 3.0), name="field")
             if i == 0:
                 plotter.view_xy()
-                plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK)
-                add_colorbar(plotter, actor, title, 7, font_size=19, gap=40, padding=60)
+                plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
+                plotter.camera.position = (0.03, 0.0, 1.0)
+                add_colorbar(plotter, actor, title, 7, font_size=19)
             for curve, values in curves:
                 # The last point twice: VTK leaves a single point out of the legend.
                 curve.update(*values[[*range(i + 1), i]].T)

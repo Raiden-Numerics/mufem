@@ -7,10 +7,10 @@ common `theme` of the scenes; the scripts are otherwise plain PyVista:
     plotter = pv.Plotter(theme=theme, off_screen=True)
     actor = plotter.add_mesh(bodies, scalars="Temperature", clim=(300, 400))
     add_colorbar(plotter, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
+    plotter.camera.zoom(0.85)  # room for the color bar
     save(plotter, path)
 """
 
-import itertools
 import json
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
@@ -22,7 +22,6 @@ from vtkmodules.vtkChartsCore import vtkChartLegend, vtkPlotPoints
 from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
-from vtkmodules.vtkRenderingCore import vtkRenderer
 
 from casekit.images import trim
 from casekit.plots import PlotStyle
@@ -60,49 +59,6 @@ def output_files(case_dir: Path) -> List[Path]:
     return [output_dir / entry["name"] for entry in series["files"]]
 
 
-def _content_margins(renderer) -> Tuple[float, float, float, float]:
-    """Empty margins (left, bottom, right, top) in pixels around the visible props of
-    `renderer`, from the corners of their bounds; negative where they reach beyond."""
-    renderer.GetRenderWindow().Render()  # the projection of the current window size
-    bounds = renderer.ComputeVisiblePropBounds()
-    points = []
-    for corner in itertools.product(bounds[0:2], bounds[2:4], bounds[4:6]):
-        renderer.SetWorldPoint(*corner, 1.0)
-        renderer.WorldToDisplay()
-        points.append(renderer.GetDisplayPoint()[:2])
-    (x0, y0), (x1, y1) = np.min(points, axis=0), np.max(points, axis=0)
-    (left, bottom), (width, height) = renderer.GetOrigin(), renderer.GetSize()
-    return x0 - left, y0 - bottom, left + width - x1, bottom + height - y1
-
-
-def _insert_strip(plotter: pv.Plotter, strip: float, margin: float, vertical: bool) -> vtkRenderer:
-    """A renderer in a strip of `strip` pixels right of (`vertical`) or below the active
-    renderer; the renderers beside it move along and the window grows. On the right, the
-    active renderer first loses the empty space beside its content down to `margin` pixels (the
-    camera stays centered), so that the strip follows the content."""
-    scene = plotter.renderer
-    size = np.array([*plotter.window_size] * 2, dtype=float)
-    x0, y0, x1, y1 = np.multiply(scene.GetViewport(), size)
-    cut = 2 * max(min(_content_margins(scene)[0::2]) - margin, 0.0) if vertical else 0.0
-    axis, edge = (0, x1) if vertical else (1, y0)  # everything from `edge` on moves
-    rects = {r: np.multiply(r.GetViewport(), size) for r in plotter.render_window.GetRenderers()}
-    for rect in rects.values():
-        rect[axis::2] += np.where(rect[axis::2] >= edge - 0.5, strip - cut, 0.0)
-    if vertical:
-        rects[scene][2] = x1 - cut
-    size[axis::2] += strip - cut
-    for renderer, rect in rects.items():
-        renderer.SetViewport(*(rect / size))
-    plotter.window_size = size[:2].round().astype(int).tolist()
-
-    renderer = vtkRenderer()  # a plain one: no SSAA, and alive as long as the window is
-    rect = (x1 - cut, y0, x1 - cut + strip, y1) if vertical else (x0, y0, x1, y0 + strip)
-    renderer.SetViewport(*(np.array(rect) / size))
-    renderer.SetBackground(plotter.background_color.float_rgb)
-    plotter.render_window.AddRenderer(renderer)
-    return renderer
-
-
 def add_colorbar(
     plotter: pv.Plotter,
     actor: pv.Actor,
@@ -111,31 +67,25 @@ def add_colorbar(
     label_format: str = "%.1f",
     location: str = "right",
     font_size: int = 26,
-    gap: int = 60,
-    padding: int = 90,
 ) -> vtkScalarBarActor:
-    """Color bar of `actor` with `n_labels` labels from the lowest to the highest value of its
-    range (the clim of the mesh) in a strip added on the `location` ("right"
-    or "bottom") of the active renderer; the window grows by the strip, so that the scene keeps
-    its view (set the camera before). On the right, the scene first loses its empty margins
-    beside the content. The strip fits the bar, its labels and its title, with `gap` pixels
-    toward the scene and `padding` pixels on the other side, e.g. toward a chart beside it."""
-    if location not in ("right", "bottom"):
-        raise ValueError(f"location {location!r} is neither 'right' nor 'bottom'")
-    vertical = location == "right"
+    """Vertical color bar of `actor` in the active renderer with `n_labels` labels from the
+    lowest to the highest value of its range (the clim of the mesh), the title along the bar.
+    It is half as high as the renderer, at its right edge, centered ("right") or at the bottom
+    ("lower right"); its box fits the labels and the title. Move the camera to keep the content
+    clear of it."""
+    if location not in ("right", "lower right"):
+        raise ValueError(f"location {location!r} is neither 'right' nor 'lower right'")
     title_size = font_size + 4
 
-    # The extent of the texts, measured in the font of the bar.
-    # A leading space keeps the labels off a vertical bar (VTK's text pad also shifts them along).
-    label_format = f" {label_format}" if vertical else label_format
+    # The width of the box from the texts, measured in the font of the bar. A leading space
+    # keeps the labels off the bar (VTK's text pad also shifts them along the bar).
+    label_format = f" {label_format}"
     low, high = actor.mapper.scalar_range
     labels = [label_format % value for value in np.linspace(low, high, n_labels)]
-    label_font = ImageFont.truetype(FONT_FILE, font_size)
-    label_width = max(label_font.getbbox(label)[2] for label in labels)
+    label_width = max(ImageFont.truetype(FONT_FILE, font_size).getbbox(t)[2] for t in labels)
     title_height = ImageFont.truetype(FONT_FILE, title_size).getbbox(title)[3]
     thickness = round(1.6 * font_size)
-    content = thickness + (label_width if vertical else font_size) + font_size + title_height
-    strip = gap + content + padding
+    width = thickness + label_width + font_size + title_height
 
     # The range of the mapper: the lookup table of a MultiBlock keeps (0, 1).
     lookup_table = actor.mapper.lookup_table
@@ -150,24 +100,18 @@ def add_colorbar(
     _font(bar.GetLabelTextProperty(), font_size)
     bar.SetUnconstrainedFontSize(True)
     bar.SetDrawFrame(False)
-    bar.SetBarRatio(thickness / content)
+    bar.SetOrientationToVertical()
+    bar.SetForceVerticalTitle(True)
+    bar.SetVerticalTitleSeparation(font_size)
+    bar.SetBarRatio(thickness / width)
 
-    # The bar at the gap from the scene: half as long as the scene is high, or 40 % of the
-    # strip wide.
-    if vertical:
-        bar.SetOrientationToVertical()
-        bar.SetForceVerticalTitle(True)
-        bar.SetVerticalTitleSeparation(font_size)
-        bar.SetPosition(gap / strip, 0.25)
-        bar.SetWidth(content / strip)
-        bar.SetHeight(0.5)
-    else:
-        bar.SetOrientationToHorizontal()
-        bar.SetTextPositionToPrecedeScalarBar()  # the labels below the bar
-        bar.SetPosition(0.3, padding / strip)
-        bar.SetWidth(0.4)
-        bar.SetHeight(content / strip)
-    _insert_strip(plotter, strip, 15, vertical).AddViewProp(bar)
+    renderer_width = plotter.renderer.GetViewport()[2] - plotter.renderer.GetViewport()[0]
+    width /= renderer_width * plotter.window_size[0]  # in fractions of the renderer
+    margin = font_size / (renderer_width * plotter.window_size[0])
+    bar.SetPosition(1.0 - width - margin, 0.25 if location == "right" else 0.05)
+    bar.SetWidth(width)
+    bar.SetHeight(0.5)
+    plotter.renderer.add_actor(bar)
     return bar
 
 

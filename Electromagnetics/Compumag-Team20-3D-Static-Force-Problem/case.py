@@ -284,7 +284,7 @@ class Team20StaticForce(ValidationCase):
         plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1100, 1600))
         actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
-        plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK, no PyVista)
+        plotter.camera.zoom(0.85)  # room for the color bar
         add_colorbar(plotter, actor, "Magnetic Flux Density [T]", n_labels=6)
         save(plotter, self.dir_path / "data" / "Vis_MagneticFluxDensity.png")
 
