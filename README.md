@@ -1,15 +1,21 @@
 # mufem: fast and accurate simulations
 
-mufem (pronounced /ˈmjuːfɛm/) is a finite-element simulation code for
+mufem (pronounced /ˈmjuːfɛm/) is an API-first finite-element simulation code for
 **electromagnetics**, **photonics**, and **plasmas**, and their **coupled multi-physics problems**,
 built for **industry-relevant** engineering applications.
 
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
-and **design optimization**, and a natural fit for **agentic workflows**. mufem is
+and **design optimization**, and a natural fit for **agentic workflows**. The mufem Community version is
 **free for both academic and commercial use**.
 
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
+
+**Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
+[Getting started](#getting-started) · [Validation cases](#validation-cases) ·
+[Continuous Integration](#continuous-integration)
+
+## Introduction
 
 This repository hosts a quick introduction to mufem together with a collection of validation and example
 cases. For platform-specific setup see the
@@ -103,35 +109,26 @@ vis.save()
 <table>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
-<td width="60%">
-
-**[Locked rotor (TEAM 24)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)**
-
-Study the transient rotor torque and coil currents of a rotating machine using the **Time-Domain Magnetic**
-model coupled to an **Excitation Coil**.
-
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md">Locked rotor (TEAM 24)</a></strong><br>
+Study the transient rotor torque and coil currents of a rotating machine using the <strong>Time-Domain Magnetic</strong>
+model coupled to an <strong>Excitation Coil</strong>.
 </td>
 </tr>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
-<td width="60%">
-
-**[Dipole antenna (Stutzman 2012)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)**
-
-Compute the full-wave radiation pattern and far-field of a dipole antenna using the **Time-Harmonic Maxwell**
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md">Dipole antenna (Stutzman 2012)</a></strong><br>
+Compute the full-wave radiation pattern and far-field of a dipole antenna using the <strong>Time-Harmonic Maxwell</strong>
 model.
-
 </td>
 </tr>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
-<td width="60%">
-
-**[FELIX cylinder (TEAM 1b)](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)**
-
-Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the **Time-Domain
-Magnetic** model.
-
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">FELIX cylinder (TEAM 1b)</a></strong><br>
+Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the <strong>Time-Domain
+Magnetic</strong> model.
 </td>
 </tr>
 </table>
@@ -230,18 +227,23 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 
 ### Structural
 
+* [**NAFEMS Benchmark Suite**](https://www.nafems.org/publications/resource_center/r0006/) \
+  A long-standing set of reference problems from the NAFEMS simulation community
+  covering structural, thermal, fluid, and multi-physics analyses. Available cases:
+
+  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
+
 * **[Time-Domain Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)**
   - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
 
-### Thermal
-
 * **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)**
-  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
   - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
   - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 
 ## Continuous Integration
+
+### Community version
 
 [![Validations · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_mpi.yml?label=Validations%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_mpi.yml)
 [![Smoke · Linux x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml)
@@ -252,3 +254,9 @@ and high-frequency (full-wave Maxwell) electromagnetics.
 [![Validations · macOS arm64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_macos_py312.yml?label=Validations%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_macos_py312.yml)
 [![Smoke · macOS arm64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py313.yml?label=Smoke%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py313.yml)
 [![Smoke · macOS arm64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py314.yml?label=Smoke%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py314.yml)
+
+### End-to-End (Geometry, Mesh, Scenes)
+
+All validation cases with every geometry and mesh regenerated from scratch.
+
+[![End-to-End · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_rebuild_mesh.yml?label=End-to-End%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_rebuild_mesh.yml)
