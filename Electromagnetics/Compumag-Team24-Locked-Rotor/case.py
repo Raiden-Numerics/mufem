@@ -332,17 +332,15 @@ class Team24LockedRotor(ValidationCase):
         )
 
     def create_scenes(self):
-        import matplotlib.pyplot as plt
         import pyvista as pv
 
-        from casekit import xy_axes
         from casekit.pyvista_scene import (
-            add_chart,
             add_colorbar,
             output_files,
             save,
             save_gif,
             theme,
+            xy_chart,
         )
 
         files = output_files(self.dir_path)
@@ -359,40 +357,49 @@ class Team24LockedRotor(ValidationCase):
             read_iron_and_coils(files[0]),
             scalars="Element Type",
             clim=(4.0, 6.0),  # tetrahedra and prisms
+            n_colors=2,
             show_edges=True,
         )
         plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
         plotter.camera.parallel_scale = 0.0448
-        add_colorbar(plotter, actor, "Element Type", location="bottom").set_ticks([4, 5, 6])
+        add_colorbar(plotter, actor, "Element Type", 2, "%.0f", location="bottom")
         save(plotter, self.results_path / "Scene_ElementType.png")
 
         # Animation: the electric current density from +z with its color bar, and the coil
-        # current and the rotor torque up to the time step as a matplotlib chart on the right.
+        # current and the rotor torque up to the time step in two charts on the right.
         monitors = numpy.load(self.scene_data_path)
         plotter = pv.Plotter(
-            theme=theme, off_screen=True, window_size=(1600, 800), shape=(1, 2), border=False
+            theme=theme,
+            off_screen=True,
+            window_size=(1600, 800),
+            shape="1|2",
+            splitting_position=0.5,
+            border=False,
         )
-        figure, (ax_current, ax_torque) = plt.subplots(2, 1, dpi=100, layout="constrained")
-        add_chart(plotter, figure)
+        current, torque = self.monitor_plots(monitors["coil_current"], monitors["rotor_torque"])
+        curves = []
+        for row, arguments in enumerate((current, torque)):
+            chart, curve = xy_chart(**arguments)
+            plotter.subplot(row + 1)
+            plotter.renderer.disable_anti_aliasing()  # VTK misplaces charts with it
+            plotter.add_chart(chart)
+            curves.append((curve, arguments["values"]))
+        plotter.subplot(0)
 
+        title = "Current Density [10⁵ A/m²]"
         frames = []
         for i, path in enumerate(files):
-            actor = plotter.add_mesh(
-                read_iron_and_coils(path),
-                scalars="Electric Current Density",
-                clim=(0.0, 3.0e5),
-                name="field",
-            )
+            bodies = read_iron_and_coils(path)
+            for body in bodies:
+                body[title] = numpy.linalg.norm(body["Electric Current Density"], axis=1) / 1e5
+            actor = plotter.add_mesh(bodies, scalars=title, clim=(0.0, 3.0), name="field")
             if i == 0:
                 plotter.view_xy()
                 plotter.renderer.ResetCameraScreenSpace()  # tight fit on screen (VTK)
-                add_colorbar(plotter, actor, "Current Density [A/m²]", dpi=100)
-            current, torque = self.monitor_plots(
-                monitors["coil_current"][: i + 1], monitors["rotor_torque"][: i + 1]
-            )
-            for ax, arguments in ((ax_current, current), (ax_torque, torque)):
-                ax.clear()
-                xy_axes(ax, legend_loc="upper left", **arguments)
+                add_colorbar(plotter, actor, title, 7, font_size=19, gap=40, padding=60)
+            for curve, values in curves:
+                # The last point twice: VTK leaves a single point out of the legend.
+                curve.update(*values[[*range(i + 1), i]].T)
             frames.append(plotter.screenshot())
         plotter.close()
         save_gif(frames, self.results_path / "Result_Animation.gif")

@@ -11,9 +11,13 @@ requires-python = ">=3.10"
 dependencies = ["matplotlib", "numpy", "gmsh", "netgen-mesher"]
 
 [project.optional-dependencies]
-# PyVista scenes (casekit.pyvista_scene)
+# PyVista scenes (casekit.pyvista_scene; pillow measures the texts)
 scenes = ["pyvista", "pillow"]
 
 [tool.setuptools]
 packages = ["casekit"]
 package-dir = {"casekit" = "."}
+
+[tool.setuptools.package-data]
+# the font of the scenes
+casekit = ["fonts/*"]
