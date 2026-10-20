@@ -1,0 +1,89 @@
+name: Smoke (Linux distros, Python 3.12)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 16 * * *'  # daily 01:00 JST (16:00 UTC)
+  workflow_dispatch:
+
+# Smoke test across common Linux distributions: runs Team1b inside each distro's
+# container to confirm the manylinux wheel installs and runs there. Ubuntu 24.04 is
+# covered by smoke_py3xx.yml. The wheel is manylinux_2_39, so only distros with
+# glibc >= 2.39 are listed; Ubuntu 22.04, Debian 12, RHEL/Rocky/Alma 8-9 and
+# openSUSE Leap 15 need a wheel built against an older manylinux in mufem-dev.
+#
+# setup-python's interpreters are built for Ubuntu and do not run on every distro,
+# so the interpreter comes from uv (python-build-standalone, portable across glibc).
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu:26.04
+            install: apt-get update && apt-get install -y ca-certificates tar gzip libgomp1
+          - image: debian:13
+            install: apt-get update && apt-get install -y ca-certificates tar gzip libgomp1
+          - image: fedora:43
+            install: dnf install -y tar gzip libgomp libstdc++
+          - image: almalinux:10
+            install: dnf install -y tar gzip libgomp libstdc++
+          - image: opensuse/tumbleweed
+            install: zypper -n install tar gzip libgomp1 libstdc++6
+          - image: archlinux:latest
+            install: pacman -Syu --noconfirm tar gzip gcc-libs
+    container:
+      image: ${{ matrix.image }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.image }}
+      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      UV_PYTHON_PREFERENCE: only-managed
+
+    steps:
+      - name: Install system dependencies
+        shell: sh
+        run: ${{ matrix.install }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set MUFEM version from VERSION file
+        run: echo "MUFEM_VERSION=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Create the Python 3.12 environment
+        run: |
+          uv venv --python 3.12 /opt/venv
+          echo "VIRTUAL_ENV=/opt/venv" >> $GITHUB_ENV
+          echo "/opt/venv/bin" >> $GITHUB_PATH
+
+      - name: Install Python dependencies
+        run: |
+          uv pip install --reinstall --no-cache --no-deps mufem==$MUFEM_VERSION
+          uv pip install --no-cache --index-url https://gmsh.info/python-packages-dev-nox gmsh
+          uv pip install --no-cache -e ./casekit
+
+      - name: Verify install
+        run: python -c "import mufem; print('mufem import OK:', getattr(mufem, '__version__', '?'))"
+
+      - name: Run Team1b
+        env:
+          # See run_validations.yaml: gmsh's initial-exec TLS after OpenMPI.
+          GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+        run: python ./run_cases.py Electromagnetics/Compumag-Team1b-Felix-Cylinder
