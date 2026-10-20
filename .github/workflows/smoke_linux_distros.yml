@@ -39,7 +39,7 @@ jobs:
           - image: almalinux:10
             install: dnf install -y tar gzip libgomp libstdc++
           - image: opensuse/tumbleweed
-            install: zypper -n install bash tar gzip libgomp1 libstdc++6
+            install: zypper -n install bash gawk tar gzip libgomp1 libstdc++6
           - image: archlinux:latest
             install: pacman -Syu --noconfirm tar gzip gcc-libs
     container:
