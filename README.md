@@ -13,7 +13,7 @@ or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
 [Getting started](#getting-started) · [Validation cases](#validation-cases) ·
-[Continuous Integration](#continuous-integration)
+[Tested Platforms](#tested-platforms)
 
 ## Introduction
 
@@ -241,22 +241,20 @@ and high-frequency (full-wave Maxwell) electromagnetics.
   - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 
-## Continuous Integration
+## Tested Platforms
 
-### Community version
+[![tested version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FRaiden-Numerics%2Fmufem%2Fmain%2FVERSION&query=%24&label=tested%20version)](https://pypi.org/project/mufem/)
 
-[![Validations · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_mpi.yml?label=Validations%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_mpi.yml)
-[![Smoke · Linux x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml)
-[![Smoke · Linux x86-64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py314.yml?label=Smoke%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py314.yml)
-[![Validations · Windows x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_windows_py312.yml?label=Validations%20%C2%B7%20Windows%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_windows_py312.yml)
-[![Smoke · Windows x86-64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py313.yml?label=Smoke%20%C2%B7%20Windows%20x86-64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py313.yml)
-[![Smoke · Windows x86-64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py314.yml?label=Smoke%20%C2%B7%20Windows%20x86-64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py314.yml)
-[![Validations · macOS arm64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_macos_py312.yml?label=Validations%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_macos_py312.yml)
-[![Smoke · macOS arm64 · Python 3.13](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py313.yml?label=Smoke%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.13)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py313.yml)
-[![Smoke · macOS arm64 · Python 3.14](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py314.yml?label=Smoke%20%C2%B7%20macOS%20arm64%20%C2%B7%20Python%203.14)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py314.yml)
+|  | Python 3.12 | Python 3.13 | Python 3.14 | Python 3.15 |
+|---|---|---|---|---|
+| **Linux** x86-64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_mpi.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_mpi.yml) [![e2e](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_rebuild_mesh.yml?branch=main&label=e2e)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_rebuild_mesh.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py315.yml) |
+| **Windows** x86-64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_windows_py312.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_windows_py312.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py315.yml) |
+| **macOS** arm64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_macos_py312.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_macos_py312.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py315.yml) |
+| **Linux distros**¹ | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_linux_distros.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_linux_distros.yml) |  |  |  |
 
-### End-to-End (Geometry, Mesh, Scenes)
+- **validations**: all validation cases on Linux; the moderate tier on macOS and Windows (without the `long`, `eternal` and `mumps` cases).
+- **smoke**: a single case (Team1b), confirming that the release installs and runs.
+- **e2e**: weekly; all validation cases with every geometry, mesh and scene regenerated from scratch.
 
-All validation cases with every geometry and mesh regenerated from scratch.
-
-[![End-to-End · Linux x86-64 · Python 3.12](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_rebuild_mesh.yml?label=End-to-End%20%C2%B7%20Linux%20x86-64%20%C2%B7%20Python%203.12)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_rebuild_mesh.yml)
+¹ Ubuntu 26.04, Debian 13, Fedora 43, AlmaLinux 10, openSUSE Tumbleweed and Arch Linux.
+Linux requires glibc ≥ 2.39; Ubuntu 22.04, Debian 12, RHEL 8/9 and SLES 15 are not yet supported.
