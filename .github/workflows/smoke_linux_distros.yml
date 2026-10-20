@@ -39,7 +39,7 @@ jobs:
           - image: almalinux:10
             install: dnf install -y tar gzip libgomp libstdc++
           - image: opensuse/tumbleweed
-            install: zypper -n install tar gzip libgomp1 libstdc++6
+            install: zypper -n install bash tar gzip libgomp1 libstdc++6
           - image: archlinux:latest
             install: pacman -Syu --noconfirm tar gzip gcc-libs
     container:
@@ -59,13 +59,13 @@ jobs:
         run: ${{ matrix.install }}
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set MUFEM version from VERSION file
         run: echo "MUFEM_VERSION=$(cat VERSION)" >> $GITHUB_ENV
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Create the Python 3.12 environment
         run: |
