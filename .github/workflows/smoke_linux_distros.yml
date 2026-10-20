@@ -44,6 +44,10 @@ jobs:
             install: pacman -Syu --noconfirm tar gzip gcc-libs
     container:
       image: ${{ matrix.image }}
+      # Some images (opensuse/tumbleweed) define no PATH; the runner then builds PATH
+      # from the GITHUB_PATH entries alone and loses /usr/bin once setup-uv adds one.
+      env:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.image }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
