@@ -140,8 +140,9 @@ The case checks the temperature at $`x = 15`$ and $`20\,\mathrm{mm}`$ against th
 ## Scenes
 
 The temperature and the heat source are exported to `VisualizationOutput/`; Figure 3 shows them at
-the final time, rendered with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case).
+the final time, rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
+[case.py](case.py) (run the case with `--scenes`, or with `--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 | Temperature | Goldak Heat Source |
 | :---: | :---: |

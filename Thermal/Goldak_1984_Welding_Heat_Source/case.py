@@ -230,11 +230,56 @@ class Goldak1984WeldingHeatSource(ValidationCase):
                 path=f"{self.results_path / 'Temperature_vs_Position.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.add_field_output("VolumetricHeatSource")
         vis.save(order=2)
+
+    def create_scenes(self):
+        # The modeled half plate at the final time, onto the symmetry plane x = 0 (weld path)
+        # and the top surface y = 0.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        piece = FieldExportReader(self.dir_path).read()["Piece"]
+        piece["Temperature [°C]"] = piece["Temperature"] - 273.15
+
+        for array, clim, title, n_labels, scale, name in [
+            (
+                "Temperature [°C]",
+                (0.0, 2500.0),
+                "Temperature [°C]",
+                6,
+                1.0,
+                "Scene_Temperature.png",
+            ),
+            (
+                "VolumetricHeatSource",
+                (0.0, 8.0e9),
+                "Heat Source [10⁹ W/m³]",
+                5,
+                1e-9,
+                "Scene_Goldak_Heat_Source.png",
+            ),
+        ]:
+            scene = create_scene((1000, 900))
+            actor = scene.add_mesh(piece, scalars=array, clim=clim)
+            scene.view_vector((-0.25, 0.17, -0.15), viewup=(0, 1, 0))
+            scene.camera.zoom(1.12)
+            # Room for the color bar below: the camera moves down along its up direction.
+            shift = -0.03 * numpy.array(scene.camera.up)
+            scene.camera.focal_point += shift
+            scene.camera.position += shift
+            add_colorbar(
+                scene,
+                actor,
+                title,
+                n_labels=n_labels,
+                label_format="%.0f",
+                location="bottom",
+                scale=scale,
+            )
+            scene.show(screenshot=self.results_path / name)
 
 
 if __name__ == "__main__":
