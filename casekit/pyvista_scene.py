@@ -84,6 +84,15 @@ class FieldExportReader:
         return pv.MultiBlock({name: bodies[name] for name in bodies.keys() if name not in hide})
 
 
+def at_phase(bodies: pv.MultiBlock, field: str, phase_deg: float) -> pv.MultiBlock:
+    """`bodies` with the time-harmonic `field` at the phase, Re(F e^{j phase}) = F_r cos(phase)
+    - F_i sin(phase), from its parts "<field>-Real" and "<field>-Imag"; changes `bodies`."""
+    phase = np.radians(phase_deg)
+    for body in bodies:
+        body[field] = body[f"{field}-Real"] * np.cos(phase) - body[f"{field}-Imag"] * np.sin(phase)
+    return bodies
+
+
 def add_colorbar(
     scene: pv.Plotter,
     actor: pv.Actor,

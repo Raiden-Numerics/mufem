@@ -93,8 +93,10 @@ Run the case with `pymufem case.py`; it prints the loss of each turn against the
 
 The magnetic flux density and the electric current density (real and imaginary parts) are exported to
 `VisualizationOutput/`; the scenes and the animation below show their magnitude at the phase
-$`\phi`$, $`|\vec{F}_r \cos\phi - \vec{F}_i \sin\phi|`$, and are rendered from them with ParaView by
-[create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case; requires `ffmpeg`).
+$`\phi`$, $`|\vec{F}_r \cos\phi - \vec{F}_i \sin\phi|`$, and are rendered from them with
+[PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py) (run the case with `--scenes`,
+or with `--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 Figure 2 shows the electric current density: strong eddy currents are created at the surface of each
 conductor. Figure 3 shows the magnetic flux density, and Figure 4 animates the electric current density
