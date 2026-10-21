@@ -1,18 +1,18 @@
 """PyVista support for the scenes of the cases (ValidationCase.create_scenes()).
 
 Importing this module teaches `pv.read` the `.vtpc` files of the field export, and
-`create_plotter` gives a plotter in the common style of the scenes; the scripts are otherwise
+`create_scene` gives a scene (a PyVista plotter) in their common style; the scripts are otherwise
 plain PyVista:
 
     reader = FieldExportReader(case_dir)
-    plotter = create_plotter()
+    scene = create_scene()
     field = dict(scalars="Temperature", clim=(300, 400), name="field")
-    actor = plotter.add_mesh(reader.read(hide=["Air"]), **field)
-    plotter.camera.zoom(0.85)  # room for the color bar
-    add_colorbar(plotter, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
-    with gif(plotter, path) as write_frame:
+    actor = scene.add_mesh(reader.read(hide=["Air"]), **field)
+    scene.camera.zoom(0.85)  # room for the color bar
+    add_colorbar(scene, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
+    with gif(scene, path) as write_frame:
         for time_step in range(reader.number_time_steps):
-            plotter.add_mesh(reader.read(time_step, hide=["Air"]), **field)
+            scene.add_mesh(reader.read(time_step, hide=["Air"]), **field)
             write_frame()
 
 `add_mesh` with the `name` of an existing actor only swaps that actor: the camera, the color bar
@@ -85,7 +85,7 @@ class FieldExportReader:
 
 
 def add_colorbar(
-    plotter: pv.Plotter,
+    scene: pv.Plotter,
     actor: pv.Actor,
     title: str,
     *,
@@ -135,8 +135,8 @@ def add_colorbar(
     bar.SetBarRatio(thickness / box)
 
     # The size of the renderer in pixels, for the box in fractions of it.
-    x0, y0, x1, y1 = plotter.renderer.GetViewport()
-    width, height = (x1 - x0) * plotter.window_size[0], (y1 - y0) * plotter.window_size[1]
+    x0, y0, x1, y1 = scene.renderer.GetViewport()
+    width, height = (x1 - x0) * scene.window_size[0], (y1 - y0) * scene.window_size[1]
     if vertical:
         bar.SetOrientationToVertical()
         bar.SetForceVerticalTitle(True)
@@ -154,7 +154,7 @@ def add_colorbar(
         bar.SetPosition(0.25, font_size / height)
         bar.SetWidth(0.5)
         bar.SetHeight(box / height)
-    plotter.renderer.add_actor(bar)
+    scene.renderer.add_actor(bar)
     return bar
 
 
@@ -246,14 +246,14 @@ def update_curve(curve, points):
 
 
 @contextmanager
-def gif(plotter: pv.Plotter, path: Path, fps: int = 8):
-    """Animated GIF of `plotter` (save_gif): call the yielded `write_frame()` after each frame
-    is drawn. Closes the plotter; writes the GIF only if the block completes."""
+def gif(scene: pv.Plotter, path: Path, fps: int = 8):
+    """Animated GIF of `scene` (save_gif): call the yielded `write_frame()` after each frame
+    is drawn. Closes the scene; writes the GIF only if the block completes."""
     frames = []
     try:
-        yield lambda: frames.append(plotter.screenshot())
+        yield lambda: frames.append(scene.screenshot())
     finally:
-        plotter.close()
+        scene.close()
     save_gif(frames, path, fps)
 
 
@@ -276,8 +276,8 @@ def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):
     )
 
 
-def create_plotter(window_size: Tuple[int, int] = (1600, 1200), **kwargs) -> pv.Plotter:
-    """Off-screen plotter in the style of the scenes; `kwargs` go to pv.Plotter (e.g. shape)."""
+def create_scene(window_size: Tuple[int, int] = (1600, 1200), **kwargs) -> pv.Plotter:
+    """Off-screen pv.Plotter in the style of the scenes; `kwargs` go to it (e.g. shape)."""
     theme = pv.themes.DocumentTheme()
     theme.anti_aliasing = "msaa"
     theme.cmap = "coolwarm"

@@ -306,7 +306,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             FONT_FILE,
             FieldExportReader,
             add_colorbar,
-            create_plotter,
+            create_scene,
             gif,
             update_curve,
             xy_chart,
@@ -333,38 +333,36 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         )
 
         def draw(bodies):
-            plotter.add_mesh(bodies["Copper Plate"], color=(205, 112, 43), name="plate")
+            scene.add_mesh(bodies["Copper Plate"], color=(205, 112, 43), name="plate")
             # The magnets with alternating axial magnetization: N red, S blue.
             for first, color in [(0, "red"), (1, "blue")]:
                 magnets = [bodies[f"Magnet::{k}"] for k in range(first, 10, 2)]
-                plotter.add_mesh(pv.MultiBlock(magnets), color=color, name=f"magnets {color}")
+                scene.add_mesh(pv.MultiBlock(magnets), color=color, name=f"magnets {color}")
             arrows = grid.sample(bodies["Copper Plate"]).glyph(
                 orient="Electric Current Density", scale=False, factor=spacing, geom=arrow
             )
             arrows.translate((0.0, 0.0, -0.7e-3), inplace=True)
             # The glyphs keep the current density as GlyphVector.
-            return plotter.add_mesh(
-                arrows, scalars="GlyphVector", clim=(0.0, 5.0e7), name="arrows"
-            )
+            return scene.add_mesh(arrows, scalars="GlyphVector", clim=(0.0, 5.0e7), name="arrows")
 
         # The scene on the left, oblique from the magnet side (the magnets lie below the plate),
         # 50 deg from below as data/Geometry.png; the torque against the slip speed on the right,
         # with the mufem point of the current slip speed.
-        plotter = create_plotter((1600, 700), shape=(1, 2), border=False)
-        plotter.subplot(0, 1)
+        scene = create_scene((1600, 700), shape=(1, 2), border=False)
+        scene.subplot(0, 1)
         chart, curve = xy_chart(**self.torque_vs_rpm_plot(torque_vs_rpm[:1]))
-        plotter.add_chart(chart)
-        plotter.subplot(0, 0)
+        scene.add_chart(chart)
+        scene.subplot(0, 0)
 
         actor = draw(reader.read())
-        plotter.view_vector((0.0, -0.6428, -0.7660), viewup=(0, 0, 1))
-        plotter.camera.zoom(1.2)
+        scene.view_vector((0.0, -0.6428, -0.7660), viewup=(0, 0, 1))
+        scene.camera.zoom(1.2)
         # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.012 * numpy.array(plotter.camera.up)
-        plotter.camera.focal_point += shift
-        plotter.camera.position += shift
+        shift = -0.012 * numpy.array(scene.camera.up)
+        scene.camera.focal_point += shift
+        scene.camera.position += shift
         add_colorbar(
-            plotter,
+            scene,
             actor,
             "Electric Current Density [10⁷ A/m²]",
             n_labels=6,
@@ -373,11 +371,11 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             scale=1e-7,
         )
 
-        with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
+        with gif(scene, self.results_path / "Result_Animation.gif") as write_frame:
             for time_step in range(reader.number_time_steps):
                 rpm, torque = torque_vs_rpm[time_step // steps_per_rpm]
                 draw(reader.read(time_step))
-                plotter.add_text(
+                scene.add_text(
                     f"RPM: {rpm:.0f}",
                     position=(0.03, 0.92),
                     font_size=11.5,

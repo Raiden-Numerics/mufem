@@ -335,7 +335,7 @@ class Team24LockedRotor(ValidationCase):
         from casekit.pyvista_scene import (
             FieldExportReader,
             add_colorbar,
-            create_plotter,
+            create_scene,
             gif,
             update_curve,
             xy_chart,
@@ -345,18 +345,18 @@ class Team24LockedRotor(ValidationCase):
 
         # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
         # layers show as quads.
-        plotter = create_plotter((2000, 1500))
-        actor = plotter.add_mesh(
+        scene = create_scene((2000, 1500))
+        actor = scene.add_mesh(
             reader.read(hide=["Air"]),
             scalars="Element Type",
             clim=(4.0, 6.0),  # tetrahedra and prisms
             n_colors=2,
             show_edges=True,
         )
-        plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
-        plotter.camera.parallel_scale = 0.0448
+        scene.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
+        scene.camera.parallel_scale = 0.0448
         add_colorbar(
-            plotter,
+            scene,
             actor,
             "Element Type",
             n_labels=2,
@@ -364,33 +364,33 @@ class Team24LockedRotor(ValidationCase):
             location="lower right",
             font_size=36,
         )
-        plotter.show(screenshot=self.results_path / "Scene_ElementType.png")
+        scene.show(screenshot=self.results_path / "Scene_ElementType.png")
 
         # Animation: the electric current density from +z with its color bar, and the coil
         # current and the rotor torque up to the time step in two charts on the right.
         monitors = numpy.load(self.scene_data_path)
-        plotter = create_plotter((1600, 800), shape="1|2", splitting_position=0.5, border=False)
+        scene = create_scene((1600, 800), shape="1|2", splitting_position=0.5, border=False)
         current, torque = self.monitor_plots(monitors["coil_current"], monitors["rotor_torque"])
         curves = []
         for row, arguments in enumerate((current, torque)):
             chart, curve = xy_chart(**arguments)
-            plotter.subplot(row + 1)
-            plotter.add_chart(chart)
+            scene.subplot(row + 1)
+            scene.add_chart(chart)
             curves.append((curve, arguments["values"]))
-        plotter.subplot(0)
+        scene.subplot(0)
 
         field = dict(scalars="Electric Current Density", clim=(0.0, 3.0e5), name="field")
-        actor = plotter.add_mesh(reader.read(hide=["Air"]), **field)
-        plotter.view_xy()
-        plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
-        plotter.camera.position = (0.03, 0.0, 1.0)
+        actor = scene.add_mesh(reader.read(hide=["Air"]), **field)
+        scene.view_xy()
+        scene.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
+        scene.camera.position = (0.03, 0.0, 1.0)
         add_colorbar(
-            plotter, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
+            scene, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
         )
 
-        with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
+        with gif(scene, self.results_path / "Result_Animation.gif") as write_frame:
             for time_step in range(reader.number_time_steps):
-                plotter.add_mesh(reader.read(time_step, hide=["Air"]), **field)
+                scene.add_mesh(reader.read(time_step, hide=["Air"]), **field)
                 for curve, values in curves:
                     update_curve(curve, values[: time_step + 1])
                 write_frame()
