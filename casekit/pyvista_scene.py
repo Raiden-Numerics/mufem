@@ -7,12 +7,12 @@ plain PyVista:
     reader = FieldExportReader(case_dir)
     plotter = create_plotter()
     field = dict(scalars="Temperature", clim=(300, 400), name="field")
-    actor = plotter.add_mesh(reader.read(include=["Core", "Coil"]), **field)
+    actor = plotter.add_mesh(reader.read(hide=["Air"]), **field)
     plotter.camera.zoom(0.85)  # room for the color bar
     add_colorbar(plotter, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
     with gif(plotter, path) as write_frame:
         for time_step in range(reader.number_time_steps):
-            plotter.add_mesh(reader.read(time_step, include=["Core", "Coil"]), **field)
+            plotter.add_mesh(reader.read(time_step, hide=["Air"]), **field)
             write_frame()
 
 `add_mesh` with the `name` of an existing actor only swaps that actor: the camera, the color bar
@@ -75,13 +75,13 @@ class FieldExportReader:
     def number_time_steps(self) -> int:
         return len(self.time_values)
 
-    def read(self, time_step: int = 0, include: Optional[Sequence[str]] = None) -> pv.MultiBlock:
-        """The bodies at `time_step`: all of them, or those named in `include` (as ParaView's
-        block selectors)."""
+    def read(self, time_step: int = 0, hide: Sequence[str] = ()) -> pv.MultiBlock:
+        """The bodies at `time_step`, all but those named in `hide` (e.g. the air)."""
         bodies = read_vtpc(self._files[time_step])
-        if include is None:
-            return bodies
-        return pv.MultiBlock({name: bodies[name] for name in include})
+        missing = set(hide) - set(bodies.keys())
+        if missing:
+            raise KeyError(f"no bodies {sorted(missing)} in {self._files[time_step]}")
+        return pv.MultiBlock({name: bodies[name] for name in bodies.keys() if name not in hide})
 
 
 def add_colorbar(

@@ -282,7 +282,7 @@ class Team20StaticForce(ValidationCase):
         # Magnetic flux density in the yoke, the pole and the coil.
         # The window leaves room on both sides, for the color bar on the right.
         plotter = create_plotter((1100, 1200))
-        bodies = reader.read(include=["Yoke", "Pole", "Coil"])
+        bodies = reader.read(hide=["Air"])
         actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         add_colorbar(plotter, actor, "Magnetic Flux Density [T]", n_labels=6)
