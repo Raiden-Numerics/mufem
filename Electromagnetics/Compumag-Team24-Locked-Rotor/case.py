@@ -355,7 +355,15 @@ class Team24LockedRotor(ValidationCase):
         )
         plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
         plotter.camera.parallel_scale = 0.0448
-        add_colorbar(plotter, actor, "Element Type", 2, "%.0f", "lower right", font_size=36)
+        add_colorbar(
+            plotter,
+            actor,
+            "Element Type",
+            n_labels=2,
+            label_format="%.0f",
+            location="lower right",
+            font_size=36,
+        )
         plotter.show(screenshot=self.results_path / "Scene_ElementType.png")
 
         # Animation: the electric current density from +z with its color bar, and the coil
@@ -376,7 +384,9 @@ class Team24LockedRotor(ValidationCase):
         plotter.view_xy()
         plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
         plotter.camera.position = (0.03, 0.0, 1.0)
-        add_colorbar(plotter, actor, "Current Density [10⁵ A/m²]", 7, font_size=19, scale=1e-5)
+        add_colorbar(
+            plotter, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
+        )
 
         with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
             for time_step in range(reader.number_time_steps):

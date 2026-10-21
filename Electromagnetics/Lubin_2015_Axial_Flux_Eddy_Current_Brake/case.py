@@ -364,7 +364,13 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         plotter.camera.focal_point += shift
         plotter.camera.position += shift
         add_colorbar(
-            plotter, actor, "Electric Current Density [10⁷ A/m²]", 6, "%.1f", "bottom", 19, 1e-7
+            plotter,
+            actor,
+            "Electric Current Density [10⁷ A/m²]",
+            n_labels=6,
+            location="bottom",
+            font_size=19,
+            scale=1e-7,
         )
 
         with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
@@ -372,9 +378,13 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
                 rpm, torque = torque_vs_rpm[time_step // steps_per_rpm]
                 draw(reader.read(time_step))
                 plotter.add_text(
-                    f"RPM: {rpm:.0f}", position=(0.03, 0.92), font_size=11.5, color="black",
-                    font_file=FONT_FILE, viewport=True, name="rpm",
-                )  # fmt: skip
+                    f"RPM: {rpm:.0f}",
+                    position=(0.03, 0.92),
+                    font_size=11.5,
+                    font_file=FONT_FILE,
+                    viewport=True,
+                    name="rpm",
+                )
                 update_curve(curve, [(rpm, torque)])
                 write_frame()
 

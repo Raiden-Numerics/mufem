@@ -88,6 +88,7 @@ def add_colorbar(
     plotter: pv.Plotter,
     actor: pv.Actor,
     title: str,
+    *,
     n_labels: int = 5,
     label_format: str = "%.1f",
     location: str = "right",
