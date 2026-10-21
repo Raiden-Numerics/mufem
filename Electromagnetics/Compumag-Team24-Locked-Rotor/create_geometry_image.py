@@ -1,7 +1,7 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer and label the bodies.
 
-The view looks along -z with y up, as the animation of create_scene.py, turned by 20 deg about
-y to show the depth of the air volume. Needs a display; headless:
+The view looks along -z with y up, as the animation of create_scenes() in case.py, turned by
+20 deg about y to show the depth of the air volume. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """

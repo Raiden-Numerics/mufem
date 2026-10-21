@@ -1,7 +1,7 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The view is the isometric view of create_scene.py onto the symmetry planes x = 0 and y = 0,
-with the bodies labeled. Needs a display; headless:
+The view is the isometric view of create_scenes() in case.py onto the symmetry planes x = 0
+and y = 0, with the bodies labeled. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """

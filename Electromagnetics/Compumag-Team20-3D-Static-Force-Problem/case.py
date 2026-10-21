@@ -256,7 +256,7 @@ class Team20StaticForce(ValidationCase):
                 path=f"{self.results_path / 'Force_vs_Current.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density")
         vis.add_field_output("Electric Current Density")
