@@ -249,10 +249,7 @@ class Guenin2011ElectronicDesign(ValidationCase):
             scene = create_scene((1000, 1100))
             actor = scene.add_mesh(bodies, scalars=array, clim=clim)
             scene.view_vector((1, 1, 1), viewup=(0, 1, 0))
-            # Room for the color bar below: the camera moves down along its up direction.
-            shift = -1.5e-3 * numpy.array(scene.camera.up)
-            scene.camera.focal_point += shift
-            scene.camera.position += shift
+            scene.camera.SetWindowCenter(0.0, -0.11)  # room for the color bar below
             add_colorbar(
                 scene,
                 actor,

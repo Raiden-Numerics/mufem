@@ -304,10 +304,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         )
         scene.view_vector((4, 4, 3), viewup=(0, 0, 1))
         scene.camera.zoom(1.35)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.8 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
         add_colorbar(scene, actor, "Radiation Pattern [dB]", n_labels=6, **colorbar)
         scene.show(screenshot=self.results_path / "Scene_Radiation_Pattern.png")
 
@@ -324,9 +321,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         actor = scene.add_mesh(section(0.0), **field)
         scene.view_yz()
         scene.camera.zoom(1.15)
-        # Room for the color bar below: the camera moves down (-z).
-        scene.camera.focal_point += numpy.array([0.0, 0.0, -1.0])
-        scene.camera.position += numpy.array([0.0, 0.0, -1.0])
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
         add_colorbar(scene, actor, "Electric Field [V/m]", n_labels=4, **colorbar)
         with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
             for phase_deg in range(0, 180, 5):

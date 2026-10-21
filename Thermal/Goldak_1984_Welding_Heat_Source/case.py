@@ -243,41 +243,19 @@ class Goldak1984WeldingHeatSource(ValidationCase):
 
         piece = FieldExportReader(self.dir_path).read()["Piece"]
         piece["Temperature [°C]"] = piece["Temperature"] - 273.15
+        piece["Heat Source [10⁹ W/m³]"] = 1e-9 * piece["VolumetricHeatSource"]
 
-        for array, clim, title, n_labels, scale, name in [
-            (
-                "Temperature [°C]",
-                (0.0, 2500.0),
-                "Temperature [°C]",
-                6,
-                1.0,
-                "Scene_Temperature.png",
-            ),
-            (
-                "VolumetricHeatSource",
-                (0.0, 8.0e9),
-                "Heat Source [10⁹ W/m³]",
-                5,
-                1e-9,
-                "Scene_Goldak_Heat_Source.png",
-            ),
+        for title, clim, n_labels, name in [
+            ("Temperature [°C]", (0.0, 2500.0), 6, "Scene_Temperature.png"),
+            ("Heat Source [10⁹ W/m³]", (0.0, 8.0), 5, "Scene_Goldak_Heat_Source.png"),
         ]:
             scene = create_scene((1000, 900))
-            actor = scene.add_mesh(piece, scalars=array, clim=clim)
+            actor = scene.add_mesh(piece, scalars=title, clim=clim)
             scene.view_vector((-0.25, 0.17, -0.15), viewup=(0, 1, 0))
             scene.camera.zoom(1.12)
-            # Room for the color bar below: the camera moves down along its up direction.
-            shift = -0.03 * numpy.array(scene.camera.up)
-            scene.camera.focal_point += shift
-            scene.camera.position += shift
+            scene.camera.SetWindowCenter(0.0, -0.17)  # room for the color bar below
             add_colorbar(
-                scene,
-                actor,
-                title,
-                n_labels=n_labels,
-                label_format="%.0f",
-                location="bottom",
-                scale=scale,
+                scene, actor, title, n_labels=n_labels, label_format="%.0f", location="bottom"
             )
             scene.show(screenshot=self.results_path / name)
 

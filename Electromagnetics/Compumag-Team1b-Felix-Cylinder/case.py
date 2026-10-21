@@ -165,7 +165,6 @@ class Team1bFelixCylinder(ValidationCase):
     def create_scenes(self):
         # The eddy currents in the cylinder at the final time as arrows, in the horizontal view
         # along (-1, 0, 1) with y up of data/Geometry.png.
-        import numpy
 
         from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
 
@@ -180,9 +179,7 @@ class Team1bFelixCylinder(ValidationCase):
         actor = scene.add_mesh(arrows, scalars="GlyphVector", clim=(0.0, 3.0e6))
         scene.view_vector((-1, 0, 1), viewup=(0, 1, 0))
         scene.camera.zoom(1.35)
-        # Room for the color bar below: the camera moves down (-y).
-        scene.camera.focal_point += numpy.array([0.0, -0.02, 0.0])
-        scene.camera.position += numpy.array([0.0, -0.02, 0.0])
+        scene.camera.SetWindowCenter(0.0, -0.18)  # room for the color bar below
         add_colorbar(
             scene,
             actor,

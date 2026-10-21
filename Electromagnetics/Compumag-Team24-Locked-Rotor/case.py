@@ -382,8 +382,7 @@ class Team24LockedRotor(ValidationCase):
         field = dict(scalars="Electric Current Density", clim=(0.0, 3.0e5), name="field")
         actor = scene.add_mesh(reader.read(hide=["Air"]), **field)
         scene.view_xy()
-        scene.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
-        scene.camera.position = (0.03, 0.0, 1.0)
+        scene.camera.SetWindowCenter(0.2, 0.0)  # room for the color bar on the right
         add_colorbar(
             scene, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
         )

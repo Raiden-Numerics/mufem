@@ -306,10 +306,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         scene.link_views()
         scene.view_vector((-0.683, 0.2588, -0.754), viewup=(0, 1, 0))
         scene.camera.zoom(1.8)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.006 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
 
         with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
             for phase_deg in range(0, 180, 5):

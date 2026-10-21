@@ -298,12 +298,8 @@ class Team7AsymmetricalConductor(ValidationCase):
         measured = numpy.loadtxt(self.dir_path / "data" / "Bz_A1-B1.csv", delimiter=",")
 
         def flux_density(phase):
-            measured_bz = 0.1 * (
-                measured[:, 2] * numpy.cos(phase) + measured[:, 3] * numpy.sin(phase)
-            )
-            computed_bz = computed["bz"].real * numpy.cos(phase) + computed["bz"].imag * numpy.sin(
-                phase
-            )
+            measured_bz = 0.1 * measured[:, 2:4] @ (numpy.cos(phase), numpy.sin(phase))
+            computed_bz = (computed["bz"] * numpy.exp(-1j * phase)).real
             return numpy.c_[measured[:, 1], measured_bz], numpy.c_[computed["x"], computed_bz]
 
         scene = create_scene((1600, 800), shape="1|2", splitting_position=0.6, border=False)
@@ -365,10 +361,7 @@ class Team7AsymmetricalConductor(ValidationCase):
         # The direction of the view of data/Geometry.png, fitted to the coil and the plate.
         scene.view_vector((-0.0656, 0.0281, 0.0254), viewup=(0, 0, 1))
         scene.camera.zoom(1.25)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.03 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.15)  # room for the color bar below
         add_colorbar(
             scene,
             actor,

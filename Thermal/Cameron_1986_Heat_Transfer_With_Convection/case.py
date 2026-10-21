@@ -125,7 +125,6 @@ class Cameron1986(ValidationCase):
     def create_scenes(self):
         # The plate (0.6 m x 1.0 m) seen from the front (onto the x-y plane), as
         # data/Geometry.png.
-        import numpy as np
 
         from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
 
@@ -137,9 +136,7 @@ class Cameron1986(ValidationCase):
         actor = scene.add_mesh(plate, scalars="Temperature [°C]", clim=(0.0, 100.0))
         scene.view_xy()
         scene.camera.zoom(1.3)
-        # Room for the color bar on the right: the camera moves right (+x).
-        scene.camera.focal_point += np.array([0.1, 0.0, 0.0])
-        scene.camera.position += np.array([0.1, 0.0, 0.0])
+        scene.camera.SetWindowCenter(0.22, 0.0)  # room for the color bar on the right
         add_colorbar(scene, actor, "Temperature [°C]", label_format="%.0f")
         scene.show(screenshot=self.results_path / "Scene_Temperature.png")
 

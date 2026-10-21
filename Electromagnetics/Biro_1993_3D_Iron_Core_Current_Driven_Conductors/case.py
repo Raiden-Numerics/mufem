@@ -229,22 +229,20 @@ class Biro1993IronCore(ValidationCase):
         conductors = pv.MultiBlock({f"Coil {k}": bodies[f"Coil {k}"] for k in range(1, 26)})
         current = "Electric Current Density"
 
-        def new_scene(field, clim, n_labels, label_format):
+        def new_scene(field, clim, label_format):
             scene = create_scene((1100, 1100))
             if field == current:
                 scene.add_mesh(bodies["Core"], color="gray")
-            shown = conductors if field == current else bodies
+                shown, title, scale = conductors, f"{field} [10⁷ A/m²]", 1e-7
+            else:
+                shown, title, scale = bodies, f"{field} [T]", 1.0
             actor = scene.add_mesh(shown, scalars=field, clim=clim, name="field")
             scene.view_vector((-0.0725, -0.088, -0.061), viewup=(0, 0, 1))
-            if field == current:
-                title, scale = f"{field} [10⁷ A/m²]", 1e-7
-            else:
-                title, scale = f"{field} [T]", 1.0
             add_colorbar(
                 scene,
                 actor,
                 title,
-                n_labels=n_labels,
+                n_labels=3,
                 label_format=label_format,
                 location="bottom",
                 scale=scale,
@@ -261,12 +259,12 @@ class Biro1993IronCore(ValidationCase):
                 ("Magnetic Flux Density", (0.0, b_max), b_format),
             ]:
                 at_phase(bodies, field, phase_deg)
-                scene, _ = new_scene(field, clim, 3, label_format)
+                scene, _ = new_scene(field, clim, label_format)
                 file = f"Scene_{field.replace(' ', '_')}_Phase_{name}.png"
                 scene.show(screenshot=self.results_path / file)
 
         # The current density over one period.
-        scene, shown = new_scene(current, (0.0, 1.0e8), 3, "%.0f")
+        scene, shown = new_scene(current, (0.0, 1.0e8), "%.0f")
         with gif(scene, self.results_path / "animation.gif", fps=12) as write_frame:
             for phase_deg in range(0, 360, 5):
                 at_phase(bodies, current, phase_deg)

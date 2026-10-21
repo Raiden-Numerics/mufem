@@ -175,7 +175,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
         edges = feature_edges(beam)
 
         scene = create_scene((1600, 650))
-        scene.add_mesh(edges, color=(0.4, 0.4, 0.4), line_width=2)
+        scene.add_mesh(edges, color=(0.4, 0.4, 0.4))
         # The displacement scaled 50 times: the tip deflection (1.9 mm) is invisible at true
         # scale.
         actor = scene.add_mesh(
@@ -185,10 +185,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
         )
         scene.view_vector((0.4, 0.3, 1.0), viewup=(0, 1, 0))
         scene.camera.zoom(2.3)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.05 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.21)  # room for the color bar below
         add_colorbar(
             scene,
             actor,

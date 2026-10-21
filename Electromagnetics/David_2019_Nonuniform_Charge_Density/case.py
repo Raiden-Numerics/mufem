@@ -144,9 +144,7 @@ class David2019ChargeDensity(ValidationCase):
         )
         scene.view_xy()
         scene.camera.zoom(1.25)
-        # Room for the color bar below: the camera moves down (-y).
-        scene.camera.focal_point += np.array([0.0, -2.0, 0.0])
-        scene.camera.position += np.array([0.0, -2.0, 0.0])
+        scene.camera.SetWindowCenter(0.0, -0.16)  # room for the color bar below
         add_colorbar(
             scene,
             actor,

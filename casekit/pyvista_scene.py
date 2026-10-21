@@ -1,8 +1,7 @@
 """PyVista support for the scenes of the cases (ValidationCase.create_scenes()).
 
-Importing this module teaches `pv.read` the `.vtpc` files of the field export, and
-`create_scene` gives a scene (a PyVista plotter) in their common style; the scripts are otherwise
-plain PyVista:
+`FieldExportReader` reads the `.vtpc` files of the field export, and `create_scene` gives a
+scene (a PyVista plotter) in their common style; the scripts are otherwise plain PyVista:
 
     reader = FieldExportReader(case_dir)
     scene = create_scene()
@@ -29,6 +28,7 @@ import numpy as np
 import pyvista as pv
 from PIL import Image, ImageFont
 from vtkmodules.vtkChartsCore import vtkChartLegend, vtkPlotPoints
+from vtkmodules.vtkCommonCore import VTK_FONT_FILE
 from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
@@ -43,8 +43,7 @@ if not Path(FONT_FILE).is_file():  # VTK would fall back to its own font silentl
     raise FileNotFoundError(FONT_FILE)
 
 
-@pv.register_reader(".vtpc")
-def read_vtpc(path, **_) -> pv.MultiBlock:
+def read_vtpc(path) -> pv.MultiBlock:
     """One block per body, named as in case.py. The partitions of a body (one per MPI rank)
     are combined without merging their points, so that fields that are discontinuous between
     the cells stay so."""
@@ -63,8 +62,8 @@ def read_vtpc(path, **_) -> pv.MultiBlock:
 
 
 class FieldExportReader:
-    """The fields that a case exports over time (VisualizationOutput/Output.vtpc.series); PyVista
-    has no reader for ParaView's .series files."""
+    """The fields that a case exports over time (VisualizationOutput/Output.vtpc.series);
+    pv.SeriesReader cannot read the .vtpc files of the series."""
 
     def __init__(self, case_dir: Path):
         path = Path(case_dir) / "VisualizationOutput" / "Output.vtpc.series"
@@ -182,9 +181,7 @@ def add_colorbar(
         # the bar has no padding.
         (x, y), (w, h) = bar.GetPosition(), (bar.GetWidth(), bar.GetHeight())
         pad_x, pad_y = (label_width / 2 + font_size) / width, font_size / height
-        scene.renderer.add_actor(
-            _rectangle(x - pad_x, y - pad_y, x + w + pad_x, y + h + pad_y), reset_camera=False
-        )
+        scene.renderer.add_actor(_rectangle(x - pad_x, y - pad_y, x + w + pad_x, y + h + pad_y))
     scene.renderer.add_actor(bar)
     return bar
 
@@ -205,7 +202,7 @@ def _rectangle(x0: float, y0: float, x1: float, y1: float) -> vtkActor2D:
 
 def _font(text_property, size: int):
     """`text_property` in black DejaVu Sans (FONT_FILE) of `size` pixels."""
-    text_property.SetFontFamily(pv._vtk.VTK_FONT_FILE)
+    text_property.SetFontFamily(VTK_FONT_FILE)
     text_property.SetFontFile(FONT_FILE)
     text_property.SetFontSize(size)
     text_property.SetColor(0.0, 0.0, 0.0)

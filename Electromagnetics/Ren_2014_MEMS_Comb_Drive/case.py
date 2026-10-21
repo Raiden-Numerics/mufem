@@ -317,10 +317,7 @@ class Ren2014MemsCombDrive(ValidationCase):
         actor = scene.add_mesh(clipped(last), name="field", **field)
         scene.view_vector((1, 1, 1), viewup=(0, 1, 0))
         scene.camera.zoom(1.15)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -8e-6 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.12)  # room for the color bar below
         add_colorbar(scene, actor, "Electric Potential [V]", **colorbar)
         with gif(scene, self.results_path / "Electric_Potential.gif", fps=5) as write_frame:
             for shift in reversed(range(len(self.xshifts))):

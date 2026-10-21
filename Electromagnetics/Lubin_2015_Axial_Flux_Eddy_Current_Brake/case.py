@@ -357,10 +357,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         actor = draw(reader.read())
         scene.view_vector((0.0, -0.6428, -0.7660), viewup=(0, 0, 1))
         scene.camera.zoom(1.2)
-        # Room for the color bar below: the camera moves down along its up direction.
-        shift = -0.012 * numpy.array(scene.camera.up)
-        scene.camera.focal_point += shift
-        scene.camera.position += shift
+        scene.camera.SetWindowCenter(0.0, -0.09)  # room for the color bar below
         add_colorbar(
             scene,
             actor,
