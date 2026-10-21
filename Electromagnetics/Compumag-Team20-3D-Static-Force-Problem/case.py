@@ -267,7 +267,8 @@ class Team20StaticForce(ValidationCase):
         # and y = 0, with z up, as data/Geometry.png.
         from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_plotter
 
-        bodies = FieldExportReader(self.dir_path).read()
+        reader = FieldExportReader(self.dir_path)
+        bodies = reader.read()
 
         # Mesh of all bodies.
         plotter = create_plotter((1100, 1600))
@@ -279,9 +280,9 @@ class Team20StaticForce(ValidationCase):
         plotter.show(screenshot=self.dir_path / "data" / "Mesh.png")
 
         # Magnetic flux density in the yoke, the pole and the coil.
-        del bodies["Air"]
         # The window leaves room on both sides, for the color bar on the right.
         plotter = create_plotter((1100, 1200))
+        bodies = reader.read(include=["Yoke", "Pole", "Coil"])
         actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         add_colorbar(plotter, actor, "Magnetic Flux Density [T]", n_labels=6)

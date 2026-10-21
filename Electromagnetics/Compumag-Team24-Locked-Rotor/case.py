@@ -342,12 +342,13 @@ class Team24LockedRotor(ValidationCase):
         )
 
         reader = FieldExportReader(self.dir_path)
+        iron_and_coils = ["Stator", "Rotor", "Upper Coil", "Lower Coil"]
 
         # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
         # layers show as quads.
         plotter = create_plotter((2000, 1500))
         actor = plotter.add_mesh(
-            reader.read(exclude=["Air"]),
+            reader.read(include=iron_and_coils),
             scalars="Element Type",
             clim=(4.0, 6.0),  # tetrahedra and prisms
             n_colors=2,
@@ -372,7 +373,7 @@ class Team24LockedRotor(ValidationCase):
         plotter.subplot(0)
 
         field = dict(scalars="Electric Current Density", clim=(0.0, 3.0e5), name="field")
-        actor = plotter.add_mesh(reader.read(exclude=["Air"]), **field)
+        actor = plotter.add_mesh(reader.read(include=iron_and_coils), **field)
         plotter.view_xy()
         plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
         plotter.camera.position = (0.03, 0.0, 1.0)
@@ -380,7 +381,7 @@ class Team24LockedRotor(ValidationCase):
 
         with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
             for time_step in range(reader.number_time_steps):
-                plotter.add_mesh(reader.read(time_step, exclude=["Air"]), **field)
+                plotter.add_mesh(reader.read(time_step, include=iron_and_coils), **field)
                 for curve, values in curves:
                     update_curve(curve, values[: time_step + 1])
                 write_frame()
