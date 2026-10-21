@@ -1,7 +1,7 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The package is shown in the isometric view of the scenes of create_scene.py, with the layers
-labeled. Needs a display; headless:
+The package is shown in the isometric view of the scenes of create_scenes() in case.py, with
+the layers labeled. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """
