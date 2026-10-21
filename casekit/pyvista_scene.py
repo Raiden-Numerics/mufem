@@ -94,25 +94,27 @@ def add_colorbar(
     font_size: int = 26,
     scale: float = 1.0,
 ) -> vtkScalarBarActor:
-    """Vertical color bar of `actor` in the active renderer with `n_labels` labels from the
-    lowest to the highest value of its range (the clim of the mesh), the title along the bar.
-    It is half as high as the renderer, at its right edge, centered ("right") or at the bottom
-    ("lower right"); its box fits the labels and the title. The labels show the values times
-    `scale`, e.g. 1e-5 with a title in 10⁵ units. Move the camera to keep the content clear of
-    it."""
-    if location not in ("right", "lower right"):
-        raise ValueError(f"location {location!r} is neither 'right' nor 'lower right'")
+    """Color bar of `actor` in the active renderer with `n_labels` labels from the lowest to the
+    highest value of its range (the clim of the mesh). Vertical with the title along it, half as
+    high as the renderer, at its right edge, centered ("right") or at the bottom ("lower
+    right"); or horizontal with the labels and the title above it, half as wide as the renderer,
+    centered at its bottom edge ("bottom"). Its box fits the labels and the title. The labels
+    show the values times `scale`, e.g. 1e-5 with a title in 10⁵ units. Move the camera to keep
+    the content clear of it."""
+    if location not in ("right", "lower right", "bottom"):
+        raise ValueError(f"location {location!r} is not 'right', 'lower right' or 'bottom'")
+    vertical = location != "bottom"
     title_size = font_size + 4
 
-    # The width of the box from the texts, measured in the font of the bar. A leading space
-    # keeps the labels off the bar (VTK's text pad also shifts them along the bar).
-    label_format = f" {label_format}"
+    # The thickness of the box from the texts, measured in the font of the bar. A leading space
+    # keeps the labels off a vertical bar (VTK's text pad also shifts them along the bar).
+    label_format = f" {label_format}" if vertical else label_format
     low, high = scale * np.asarray(actor.mapper.scalar_range)
     labels = [label_format % value for value in np.linspace(low, high, n_labels)]
     label_width = max(ImageFont.truetype(FONT_FILE, font_size).getbbox(t)[2] for t in labels)
     title_height = ImageFont.truetype(FONT_FILE, title_size).getbbox(title)[3]
     thickness = round(1.6 * font_size)
-    width = thickness + label_width + font_size + title_height
+    box = thickness + (label_width if vertical else font_size) + font_size + title_height
 
     # A copy of the colors with the scaled range of the mapper (the lookup table of a MultiBlock
     # keeps (0, 1)); the mesh keeps its own.
@@ -129,17 +131,28 @@ def add_colorbar(
     _font(bar.GetLabelTextProperty(), font_size)
     bar.SetUnconstrainedFontSize(True)
     bar.SetDrawFrame(False)
-    bar.SetOrientationToVertical()
-    bar.SetForceVerticalTitle(True)
-    bar.SetVerticalTitleSeparation(font_size)
-    bar.SetBarRatio(thickness / width)
+    bar.SetBarRatio(thickness / box)
 
-    renderer_width = plotter.renderer.GetViewport()[2] - plotter.renderer.GetViewport()[0]
-    width /= renderer_width * plotter.window_size[0]  # in fractions of the renderer
-    margin = font_size / (renderer_width * plotter.window_size[0])
-    bar.SetPosition(1.0 - width - margin, 0.25 if location == "right" else 0.05)
-    bar.SetWidth(width)
-    bar.SetHeight(0.5)
+    # The size of the renderer in pixels, for the box in fractions of it.
+    x0, y0, x1, y1 = plotter.renderer.GetViewport()
+    width, height = (x1 - x0) * plotter.window_size[0], (y1 - y0) * plotter.window_size[1]
+    if vertical:
+        bar.SetOrientationToVertical()
+        bar.SetForceVerticalTitle(True)
+        bar.SetVerticalTitleSeparation(font_size)
+        bar.SetPosition(1.0 - (box + font_size) / width, 0.25 if location == "right" else 0.05)
+        bar.SetWidth(box / width)
+        bar.SetHeight(0.5)
+    else:
+        # The texts above the bar, as in ParaView; below it VTK lets the labels overlap the bar
+        # and the title. The line break after the title is the gap to the labels.
+        bar.SetOrientationToHorizontal()
+        bar.SetTextPositionToSucceedScalarBar()
+        bar.SetTitle(f"{title}\n")
+        bar.SetTextPad(font_size // 3)
+        bar.SetPosition(0.25, font_size / height)
+        bar.SetWidth(0.5)
+        bar.SetHeight(box / height)
     plotter.renderer.add_actor(bar)
     return bar
 
@@ -151,6 +164,15 @@ def _font(text_property, size: int):
     text_property.SetFontSize(size)
     text_property.SetColor(0.0, 0.0, 0.0)
     text_property.SetShadow(False)
+
+
+def _markers(plot, marker_style: int, size: int, style: PlotStyle):
+    """Markers of `size` pixels on `plot`. Without a line, the pen width is free: VTK draws the
+    legend marker 2.3 times as wide as the pen, so that it matches the markers of the plot."""
+    plot.SetMarkerStyle(marker_style)
+    plot.SetMarkerSize(size)
+    if not style.has_line:
+        plot.GetPen().SetWidth(size / 2.3)
 
 
 def xy_chart(
@@ -165,6 +187,7 @@ def xy_chart(
     xlim: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[float, float]] = None,
     xticks: Optional[Sequence[float]] = None,
+    yticks: Optional[Sequence[float]] = None,
     font_size: int = 18,
 ) -> Tuple[pv.Chart2D, "pv.charts.LinePlot2D"]:
     """PyVista chart in the style of xy_plot (same arguments): the reference black underneath,
@@ -173,30 +196,37 @@ def xy_chart(
     chart = pv.Chart2D(x_label=xlabel, y_label=ylabel, grid=False)
     if reference_values is not None:
         x, y = np.asarray(reference_values).T
-        plot = chart.line if reference_style.has_line else chart.scatter
-        reference = plot(x, y, color="black", label=reference_label)
+        if reference_style.has_line:
+            reference = chart.line(x, y, color="black", width=4.0, label=reference_label)
+        else:
+            reference = chart.scatter(x, y, color="black", label=reference_label)
         if reference_style.has_markers:
-            reference.SetMarkerStyle(vtkPlotPoints.CIRCLE)
-            reference.SetMarkerSize(10)
+            _markers(reference, vtkPlotPoints.CIRCLE, 10, reference_style)
     x, y = np.asarray(values).T
     if style.has_line:
         curve = chart.line(x, y, color="red", width=3.0, label="mufem")
     else:
         curve = chart.scatter(x, y, color="red", label="mufem")
     if style.has_markers:
-        curve.SetMarkerStyle(vtkPlotPoints.SQUARE)
-        curve.SetMarkerSize(7)
+        _markers(curve, vtkPlotPoints.SQUARE, 7 if style.has_line else 12, style)
 
     if xlim is not None:
         chart.x_range = list(xlim)
     if ylim is not None:
         chart.y_range = list(ylim)
-    if xticks is not None:
-        chart.x_axis.tick_locations = list(xticks)
-        chart.x_axis.tick_labels = "2f"
+    for axis, ticks in ((chart.x_axis, xticks), (chart.y_axis, yticks)):
+        if ticks is not None:
+            # As matplotlib: the decimals that the ticks need, the same for all of them.
+            decimals = max(len(f"{tick:g}".partition(".")[2]) for tick in ticks)
+            axis.tick_locations = list(ticks)
+            axis.tick_labels = [f"{tick:.{decimals}f}" for tick in ticks]
     for axis in (chart.x_axis, chart.y_axis):
         _font(axis.GetTitleProperties(), font_size + 2)
         _font(axis.GetLabelProperties(), font_size)
+    # A margin on the right for the last tick label, which VTK centers on the end of the axis;
+    # the border of the chart, drawn at its new edge, hidden.
+    chart.size = (0.97, 1.0)
+    chart.border_color = "white"
     chart.legend.SetHorizontalAlignment(vtkChartLegend.LEFT)
     chart.legend.SetVerticalAlignment(vtkChartLegend.TOP)
     chart.legend.SetPadding(15)  # away from the axes

@@ -23,7 +23,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     rpms = [500, 1000, 2000]
     steps_per_rpm = 20
 
-    # Export the eddy currents after every time step for the animation of create_scene.py; a
+    # Export the eddy currents after every time step for the animation of create_scenes(); a
     # separate run, since the export of all steps takes about 1 GB.
     output_for_animation = False
 
@@ -266,30 +266,117 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             path=f"{self.results_path / 'Torque_vs_Time.png'}",
         )
 
-        reference = numpy.loadtxt(
-            self.dir_path / "data" / "Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
-        )
-
         xy_plot(
-            values=self.torque_vs_rpm,
-            style=PlotStyle.POINTS,
-            reference_values=reference,
-            reference_style=PlotStyle.LINE,
-            reference_label="Lubin (2015)",
-            xlabel="Slip Speed [rpm]",
-            ylabel="Torque [Nm]",
-            xlim=(0, 3000),
-            ylim=(0, 35),
             path=f"{self.results_path / 'Torque_vs_RPM.png'}",
+            **self.torque_vs_rpm_plot(self.torque_vs_rpm),
         )
 
-        # The input of the animation of create_scene.py, besides the exported fields.
+        # The input of the animation of create_scenes(), besides the exported fields.
         if self.output_for_animation:
             numpy.savez(
                 self.scene_data_path,
                 torque_vs_rpm=numpy.array(self.torque_vs_rpm),
                 steps_per_rpm=self.steps_per_rpm,
             )
+
+    def torque_vs_rpm_plot(self, values):
+        """The arguments of xy_plot / xy_chart for the torque against the slip speed, shared by
+        the plot of postprocess() and the animation of create_scenes()."""
+        return dict(
+            values=values,
+            style=PlotStyle.POINTS,
+            reference_values=numpy.loadtxt(
+                self.dir_path / "data" / "Torque_Vs_Slip_speed.csv", delimiter=",", skiprows=1
+            ),
+            reference_style=PlotStyle.LINE,
+            reference_label="Lubin (2015)",
+            xlabel="Slip Speed [rpm]",
+            ylabel="Torque [Nm]",
+            xlim=(0, 3000),
+            ylim=(0, 35),
+            xticks=[0, 500, 1000, 1500, 2000, 2500, 3000],
+            yticks=[0, 5, 10, 15, 20, 25, 30, 35],
+        )
+
+    def create_scenes(self):
+        # Needs the fields of a run with output_for_animation = True.
+        import pyvista as pv
+
+        from casekit.pyvista_scene import (
+            FONT_FILE,
+            FieldExportReader,
+            add_colorbar,
+            create_plotter,
+            gif,
+            update_curve,
+            xy_chart,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+        scene_data = numpy.load(self.scene_data_path)
+        torque_vs_rpm = scene_data["torque_vs_rpm"]
+        steps_per_rpm = int(scene_data["steps_per_rpm"])
+
+        # Arrows of equal length on rings on the magnet-side face of the plate (radii 15-75 mm,
+        # z = 23 mm), 3.5 mm apart, the same in all frames; just inside the plate, so that they
+        # sample its eddy currents, and moved into the gap afterwards, so that the plate does
+        # not hide them.
+        spacing = 3.5e-3
+        points = [
+            (r * numpy.cos(phi), r * numpy.sin(phi), 0.0232)
+            for r in numpy.arange(15.0e-3 + spacing / 2, 75.0e-3, spacing)
+            for phi in numpy.linspace(0.0, 2 * numpy.pi, round(2 * numpy.pi * r / spacing), False)
+        ]
+        grid = pv.PolyData(numpy.array(points))
+        arrow = pv.Arrow(
+            tip_radius=0.19, shaft_radius=0.08, tip_resolution=12, shaft_resolution=12
+        )
+
+        def draw(bodies):
+            plotter.add_mesh(bodies["Copper Plate"], color=(205, 112, 43), name="plate")
+            # The magnets with alternating axial magnetization: N red, S blue.
+            for first, color in [(0, "red"), (1, "blue")]:
+                magnets = [bodies[f"Magnet::{k}"] for k in range(first, 10, 2)]
+                plotter.add_mesh(pv.MultiBlock(magnets), color=color, name=f"magnets {color}")
+            arrows = grid.sample(bodies["Copper Plate"]).glyph(
+                orient="Electric Current Density", scale=False, factor=spacing, geom=arrow
+            )
+            arrows.translate((0.0, 0.0, -0.7e-3), inplace=True)
+            # The glyphs keep the current density as GlyphVector.
+            return plotter.add_mesh(
+                arrows, scalars="GlyphVector", clim=(0.0, 5.0e7), name="arrows"
+            )
+
+        # The scene on the left, oblique from the magnet side (the magnets lie below the plate),
+        # 50 deg from below as data/Geometry.png; the torque against the slip speed on the right,
+        # with the mufem point of the current slip speed.
+        plotter = create_plotter((1600, 700), shape=(1, 2), border=False)
+        plotter.subplot(0, 1)
+        chart, curve = xy_chart(**self.torque_vs_rpm_plot(torque_vs_rpm[:1]))
+        plotter.add_chart(chart)
+        plotter.subplot(0, 0)
+
+        actor = draw(reader.read())
+        plotter.view_vector((0.0, -0.6428, -0.7660), viewup=(0, 0, 1))
+        plotter.camera.zoom(1.2)
+        # Room for the color bar below: the camera moves down along its up direction.
+        shift = -0.012 * numpy.array(plotter.camera.up)
+        plotter.camera.focal_point += shift
+        plotter.camera.position += shift
+        add_colorbar(
+            plotter, actor, "Electric Current Density [10⁷ A/m²]", 6, "%.1f", "bottom", 19, 1e-7
+        )
+
+        with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
+            for time_step in range(reader.number_time_steps):
+                rpm, torque = torque_vs_rpm[time_step // steps_per_rpm]
+                draw(reader.read(time_step))
+                plotter.add_text(
+                    f"RPM: {rpm:.0f}", position=(0.03, 0.92), font_size=11.5, color="black",
+                    font_file=FONT_FILE, viewport=True, name="rpm",
+                )  # fmt: skip
+                update_curve(curve, [(rpm, torque)])
+                write_frame()
 
 
 if __name__ == "__main__":
