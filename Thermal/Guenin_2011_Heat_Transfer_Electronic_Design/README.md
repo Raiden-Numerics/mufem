@@ -9,7 +9,7 @@ column [1] and set up as a validation case by SimScale [2]; we follow the setup 
 
 <div align="center">
 <img src="./data/Geometry.png" alt="Package geometry" width="45%">
-<img src="./data/Mesh.png" alt="Package mesh" width="45%">
+<img src="./results/Scene_Mesh.png" alt="Package mesh" width="45%">
 <br/>
 <br/>
 <em>Figure 1: Geometry of the layered package (left) and the corresponding mesh (right).</em>

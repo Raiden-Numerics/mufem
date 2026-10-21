@@ -279,7 +279,7 @@ class Guenin2011ElectronicDesign(ValidationCase):
         focal_point = numpy.array([1.115e-3, 2.383e-3, -3.498e-3])
         scene.camera_position = [focal_point + 0.1, focal_point, (0, 1, 0)]
         scene.camera.parallel_scale = 8.421e-3  # half the image height in meters
-        scene.show(screenshot=self.dir_path / "data" / "Mesh.png")
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
 
     def plot_evolution(self, monitor, reference_file, ylabel, output):
         evolution = [(t, T - 273.15) for t, T in monitor.get_values()]  # K -> °C

@@ -10,7 +10,7 @@ The objective is to verify the temperature at a specified location.
 
 <div align="center">
 <img src="data/Geometry.png" alt="Geometry" width="45%">
-<img src="data/Mesh.png" alt="Mesh" width="45%">
+<img src="results/Scene_Mesh.png" alt="Mesh" width="45%">
 <br/>
 <br/>
 <em>Figure 1: The geometry of the computational domain with the boundary conditions and the evaluation point E (left), and the corresponding mesh (right).</em>

@@ -277,7 +277,7 @@ class Team20StaticForce(ValidationCase):
             scene.add_mesh(bodies[name], color=color, show_edges=True)
         scene.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         scene.camera.zoom(1.4)  # the default fit leaves room for any rotation
-        scene.show(screenshot=self.dir_path / "data" / "Mesh.png")
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
 
         # Magnetic flux density in the yoke, the pole and the coil.
         # The window leaves room on both sides, for the color bar on the right.
@@ -286,7 +286,7 @@ class Team20StaticForce(ValidationCase):
         actor = scene.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         scene.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         add_colorbar(scene, actor, "Magnetic Flux Density [T]", n_labels=6)
-        scene.show(screenshot=self.dir_path / "data" / "Vis_MagneticFluxDensity.png")
+        scene.show(screenshot=self.results_path / "Scene_Magnetic_Flux_Density.png")
 
 
 if __name__ == "__main__":

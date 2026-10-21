@@ -150,7 +150,7 @@ class Cameron1986(ValidationCase):
         scene.add_mesh(plate, color=(0.02, 0.69, 0.5), show_edges=True, lighting=False)
         scene.camera_position = [(0.3423, 0.5, 1.0), (0.3423, 0.5, 0.005), (0, 1, 0)]
         scene.camera.parallel_scale = 760 / 1300  # half the image height in meters
-        scene.show(screenshot=self.dir_path / "data" / "Mesh.png")
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
 
 
 if __name__ == "__main__":
