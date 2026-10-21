@@ -3,17 +3,26 @@
 Importing this module teaches `pv.read` the `.vtpc` files of the field export and provides the
 common `theme` of the scenes; the scripts are otherwise plain PyVista:
 
-    bodies = pv.read(output_files(case_dir)[0])
+    reader = FieldExportReader(case_dir)
     plotter = pv.Plotter(theme=theme, off_screen=True)
-    actor = plotter.add_mesh(bodies, scalars="Temperature", clim=(300, 400))
-    add_colorbar(plotter, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
+    field = dict(scalars="Temperature", clim=(300, 400), name="field")
+    actor = plotter.add_mesh(reader.read(exclude=["Air"]), **field)
     plotter.camera.zoom(0.85)  # room for the color bar
-    save(plotter, path)
+    add_colorbar(plotter, actor, "Temperature [K]", n_labels=3, label_format="%.0f")
+    with gif(plotter, path) as write_frame:
+        for time_step in range(reader.number_time_steps):
+            plotter.add_mesh(reader.read(time_step, exclude=["Air"]), **field)  # replaces it
+            write_frame()
+
+`add_mesh` with the `name` of an existing actor only swaps that actor: the camera, the color bar
+and any charts stay. (Assigning new arrays to the first mesh would not show: `add_mesh` draws
+surface copies of a MultiBlock.)
 """
 
 import json
+from contextlib import contextmanager
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import pyvista as pv
@@ -52,11 +61,26 @@ def read_vtpc(path, **_) -> pv.MultiBlock:
     return bodies
 
 
-def output_files(case_dir: Path) -> List[Path]:
-    """The files of VisualizationOutput/Output.vtpc.series that case.py exports, in time order."""
-    output_dir = Path(case_dir) / "VisualizationOutput"
-    series = json.loads((output_dir / "Output.vtpc.series").read_text())
-    return [output_dir / entry["name"] for entry in series["files"]]
+class FieldExportReader:
+    """The fields that a case exports over time (VisualizationOutput/Output.vtpc.series); PyVista
+    has no reader for ParaView's .series files."""
+
+    def __init__(self, case_dir: Path):
+        path = Path(case_dir) / "VisualizationOutput" / "Output.vtpc.series"
+        entries = json.loads(path.read_text())["files"]
+        self._files = [path.parent / entry["name"] for entry in entries]
+        self.time_values = [entry["time"] for entry in entries]
+
+    @property
+    def number_time_steps(self) -> int:
+        return len(self.time_values)
+
+    def read(self, time_step: int = 0, exclude: Sequence[str] = ()) -> pv.MultiBlock:
+        """The bodies at `time_step`, without those named in `exclude`."""
+        bodies = read_vtpc(self._files[time_step])
+        for name in exclude:
+            del bodies[name]
+        return bodies
 
 
 def add_colorbar(
@@ -67,12 +91,14 @@ def add_colorbar(
     label_format: str = "%.1f",
     location: str = "right",
     font_size: int = 26,
+    scale: float = 1.0,
 ) -> vtkScalarBarActor:
     """Vertical color bar of `actor` in the active renderer with `n_labels` labels from the
     lowest to the highest value of its range (the clim of the mesh), the title along the bar.
     It is half as high as the renderer, at its right edge, centered ("right") or at the bottom
-    ("lower right"); its box fits the labels and the title. Move the camera to keep the content
-    clear of it."""
+    ("lower right"); its box fits the labels and the title. The labels show the values times
+    `scale`, e.g. 1e-5 with a title in 10⁵ units. Move the camera to keep the content clear of
+    it."""
     if location not in ("right", "lower right"):
         raise ValueError(f"location {location!r} is neither 'right' nor 'lower right'")
     title_size = font_size + 4
@@ -80,16 +106,18 @@ def add_colorbar(
     # The width of the box from the texts, measured in the font of the bar. A leading space
     # keeps the labels off the bar (VTK's text pad also shifts them along the bar).
     label_format = f" {label_format}"
-    low, high = actor.mapper.scalar_range
+    low, high = scale * np.asarray(actor.mapper.scalar_range)
     labels = [label_format % value for value in np.linspace(low, high, n_labels)]
     label_width = max(ImageFont.truetype(FONT_FILE, font_size).getbbox(t)[2] for t in labels)
     title_height = ImageFont.truetype(FONT_FILE, title_size).getbbox(title)[3]
     thickness = round(1.6 * font_size)
     width = thickness + label_width + font_size + title_height
 
-    # The range of the mapper: the lookup table of a MultiBlock keeps (0, 1).
-    lookup_table = actor.mapper.lookup_table
-    lookup_table.scalar_range = actor.mapper.scalar_range
+    # A copy of the colors with the scaled range of the mapper (the lookup table of a MultiBlock
+    # keeps (0, 1)); the mesh keeps its own.
+    lookup_table = pv.LookupTable()
+    lookup_table.DeepCopy(actor.mapper.lookup_table)
+    lookup_table.scalar_range = (low, high)
     bar = vtkScalarBarActor()
     bar.SetLookupTable(lookup_table)
     bar.SetMaximumNumberOfColors(lookup_table.n_values)
@@ -181,6 +209,27 @@ def save(plotter: pv.Plotter, path: Path):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     trim(Image.fromarray(plotter.screenshot())).save(path)
     plotter.close()
+
+
+def update_curve(curve, points):
+    """`curve.update` with the (x, y) `points`. A single point is drawn twice, because VTK
+    leaves a curve with a single point out of the legend."""
+    x, y = np.asarray(points).T
+    if len(x) == 1:
+        x, y = np.repeat(x, 2), np.repeat(y, 2)
+    curve.update(x, y)
+
+
+@contextmanager
+def gif(plotter: pv.Plotter, path: Path, fps: int = 8):
+    """Animated GIF of `plotter` (save_gif): call the yielded `write_frame()` after each frame
+    is drawn. Closes the plotter; writes the GIF only if the block completes."""
+    frames = []
+    try:
+        yield lambda: frames.append(plotter.screenshot())
+    finally:
+        plotter.close()
+    save_gif(frames, path, fps)
 
 
 def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):

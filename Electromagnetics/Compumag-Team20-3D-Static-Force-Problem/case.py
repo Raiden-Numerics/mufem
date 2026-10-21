@@ -267,9 +267,9 @@ class Team20StaticForce(ValidationCase):
         # and y = 0, with z up, as data/Geometry.png.
         import pyvista as pv
 
-        from casekit.pyvista_scene import add_colorbar, output_files, save, theme
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, save, theme
 
-        bodies = pv.read(output_files(self.dir_path)[0])
+        bodies = FieldExportReader(self.dir_path).read()
 
         # Mesh of all bodies.
         plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1600, 1600))

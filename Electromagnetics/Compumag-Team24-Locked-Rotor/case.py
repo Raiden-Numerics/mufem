@@ -335,26 +335,22 @@ class Team24LockedRotor(ValidationCase):
         import pyvista as pv
 
         from casekit.pyvista_scene import (
+            FieldExportReader,
             add_colorbar,
-            output_files,
+            gif,
             save,
-            save_gif,
             theme,
+            update_curve,
             xy_chart,
         )
 
-        files = output_files(self.dir_path)
-
-        def read_iron_and_coils(path):
-            bodies = pv.read(path)
-            del bodies["Air"]
-            return bodies
+        reader = FieldExportReader(self.dir_path)
 
         # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
         # layers show as quads.
         plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(2000, 1500))
         actor = plotter.add_mesh(
-            read_iron_and_coils(files[0]),
+            reader.read(exclude=["Air"]),
             scalars="Element Type",
             clim=(4.0, 6.0),  # tetrahedra and prisms
             n_colors=2,
@@ -386,24 +382,19 @@ class Team24LockedRotor(ValidationCase):
             curves.append((curve, arguments["values"]))
         plotter.subplot(0)
 
-        title = "Current Density [10⁵ A/m²]"
-        frames = []
-        for i, path in enumerate(files):
-            bodies = read_iron_and_coils(path)
-            for body in bodies:
-                body[title] = numpy.linalg.norm(body["Electric Current Density"], axis=1) / 1e5
-            actor = plotter.add_mesh(bodies, scalars=title, clim=(0.0, 3.0), name="field")
-            if i == 0:
-                plotter.view_xy()
-                plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
-                plotter.camera.position = (0.03, 0.0, 1.0)
-                add_colorbar(plotter, actor, title, 7, font_size=19)
-            for curve, values in curves:
-                # The last point twice: VTK leaves a single point out of the legend.
-                curve.update(*values[[*range(i + 1), i]].T)
-            frames.append(plotter.screenshot())
-        plotter.close()
-        save_gif(frames, self.results_path / "Result_Animation.gif")
+        field = dict(scalars="Electric Current Density", clim=(0.0, 3.0e5), name="field")
+        actor = plotter.add_mesh(reader.read(exclude=["Air"]), **field)
+        plotter.view_xy()
+        plotter.camera.focal_point = (0.03, 0.0, 0.0)  # room for the color bar
+        plotter.camera.position = (0.03, 0.0, 1.0)
+        add_colorbar(plotter, actor, "Current Density [10⁵ A/m²]", 7, font_size=19, scale=1e-5)
+
+        with gif(plotter, self.results_path / "Result_Animation.gif") as write_frame:
+            for time_step in range(reader.number_time_steps):
+                plotter.add_mesh(reader.read(time_step, exclude=["Air"]), **field)
+                for curve, values in curves:
+                    update_curve(curve, values[: time_step + 1])
+                write_frame()
 
 
 if __name__ == "__main__":
