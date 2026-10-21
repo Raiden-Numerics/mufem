@@ -205,12 +205,12 @@ class Team7AsymmetricalConductor(ValidationCase):
                     self.plot_flux_density(frequency, name, lines[name])
                 self.plot_current_density(frequency, lines["Top"])
 
-            # The input of the animation of create_scene.py: B_z [mT] along A1-B1 at 50 Hz,
+            # The input of the animation of create_scenes(): B_z [mT] along A1-B1 at 50 Hz,
             # over x [mm], as compared with the measurement (conjugated, see evaluate_lines).
             x, b = numpy.array(self.results[50]["A1-B1"]).T
             numpy.savez(self.scene_data_path, x=x.real, bz=b)
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the animation of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density-Real")
         vis.add_field_output("Magnetic Flux Density-Imag")
@@ -270,6 +270,127 @@ class Team7AsymmetricalConductor(ValidationCase):
 
     def load_csv(self, file_name):
         return numpy.loadtxt(self.dir_path / "data" / file_name, delimiter=",", comments="#")
+
+    def create_scenes(self):
+        # The current density J(t) = J_r cos(wt) - J_i sin(wt) in the coil and the plate at
+        # 50 Hz over one period as arrows, next to the coil current and B_z along A1-B1 at the
+        # same time.
+        import pyvista as pv
+
+        from casekit import PlotStyle
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+            update_curve,
+            xy_chart,
+        )
+
+        frames_per_period = 40
+        period_ms = 1e3 / 50
+
+        # B_z along A1-B1 as in postprocess(): x [mm] and the complex B_z [mT], which holds Re
+        # and -Im of the solution, and x, wt = 0 and 90 deg of the measurement [G], so that
+        # B_z(t) = Re cos(wt) + Im sin(wt) for both.
+        computed = numpy.load(self.scene_data_path)
+        measured = numpy.loadtxt(self.dir_path / "data" / "Bz_A1-B1.csv", delimiter=",")
+
+        def flux_density(phase):
+            measured_bz = 0.1 * (
+                measured[:, 2] * numpy.cos(phase) + measured[:, 3] * numpy.sin(phase)
+            )
+            computed_bz = computed["bz"].real * numpy.cos(phase) + computed["bz"].imag * numpy.sin(
+                phase
+            )
+            return numpy.c_[measured[:, 1], measured_bz], numpy.c_[computed["x"], computed_bz]
+
+        scene = create_scene((1600, 800), shape="1|2", splitting_position=0.6, border=False)
+
+        # The coil current cos(wt) over the period, with the current time marked.
+        t = numpy.linspace(0.0, period_ms, 200)
+        current_chart, current_point, _ = xy_chart(
+            values=[(0.0, 1.0)],
+            label="Current Time",
+            style=PlotStyle.POINTS,
+            reference_values=numpy.c_[t, numpy.cos(2 * numpy.pi * t / period_ms)],
+            reference_label="Applied Current",
+            reference_style=PlotStyle.LINE,
+            xlabel="Cycle Time [ms]",
+            ylabel="Coil Current [A]",
+            xlim=(0, period_ms),
+            ylim=(-1.1, 1.1),
+            xticks=[0, 5, 10, 15, 20],
+            yticks=[-1, 0, 1],
+            legend_loc="lower left",
+        )
+        measured_bz, computed_bz = flux_density(0.0)
+        flux_chart, computed_curve, measured_curve = xy_chart(
+            values=computed_bz,
+            style=PlotStyle.LINE,
+            reference_values=measured_bz,
+            reference_label="Fujiwara (1990)",
+            reference_style=PlotStyle.LINE_AND_POINTS,
+            xlabel="Position [mm]",
+            ylabel="Bz along A1-B1 [mT]",
+            xlim=(0, 288),
+            ylim=(-9, 9),
+            xticks=[0, 72, 144, 216, 288],
+            yticks=[-9, -6, -3, 0, 3, 6, 9],
+        )
+        for subplot, chart in ((1, current_chart), (2, flux_chart)):
+            scene.subplot(subplot)
+            scene.add_chart(chart)
+        scene.subplot(0)
+
+        bodies = FieldExportReader(self.dir_path).read(hide=["Air"])
+        arrow = pv.Arrow(
+            shaft_radius=0.07,
+            shaft_resolution=16,
+            tip_radius=0.12,
+            tip_length=0.15,
+            tip_resolution=16,
+        )
+
+        def arrows(phase_deg):
+            conductors = at_phase(bodies, "Electric Current Density", phase_deg).combine()
+            field = "Electric Current Density"
+            return conductors.glyph(orient=field, scale=field, factor=2e-8, geom=arrow)
+
+        scene.add_mesh(bodies, color=(0.9, 0.9, 0.9))
+        # The glyphs keep the current density as GlyphVector.
+        field = dict(scalars="GlyphVector", clim=(0.0, 2.0e6), name="arrows")
+        actor = scene.add_mesh(arrows(0.0), **field)
+        # The direction of the view of data/Geometry.png, fitted to the coil and the plate.
+        scene.view_vector((-0.0656, 0.0281, 0.0254), viewup=(0, 0, 1))
+        scene.camera.zoom(1.25)
+        # Room for the color bar below: the camera moves down along its up direction.
+        shift = -0.03 * numpy.array(scene.camera.up)
+        scene.camera.focal_point += shift
+        scene.camera.position += shift
+        add_colorbar(
+            scene,
+            actor,
+            "Electric Current Density [10⁶ A/m²]",
+            n_labels=3,
+            label_format="%.0f",
+            location="bottom",
+            font_size=19,
+            scale=1e-6,
+        )
+
+        with gif(scene, self.results_path / "Team7_Animation.gif") as write_frame:
+            for i in range(frames_per_period):
+                phase = 2 * numpy.pi * i / frames_per_period
+                scene.add_mesh(arrows(numpy.degrees(phase)), **field)
+                update_curve(
+                    current_point, [(period_ms * i / frames_per_period, numpy.cos(phase))]
+                )
+                measured_bz, computed_bz = flux_density(phase)
+                update_curve(measured_curve, measured_bz)
+                update_curve(computed_curve, computed_bz)
+                write_frame()
 
 
 if __name__ == "__main__":

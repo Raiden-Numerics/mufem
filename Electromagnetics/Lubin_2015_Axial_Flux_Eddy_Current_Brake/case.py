@@ -350,7 +350,7 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         # with the mufem point of the current slip speed.
         scene = create_scene((1600, 700), shape=(1, 2), border=False)
         scene.subplot(0, 1)
-        chart, curve = xy_chart(**self.torque_vs_rpm_plot(torque_vs_rpm[:1]))
+        chart, curve, _ = xy_chart(**self.torque_vs_rpm_plot(torque_vs_rpm[:1]))
         scene.add_chart(chart)
         scene.subplot(0, 0)
 

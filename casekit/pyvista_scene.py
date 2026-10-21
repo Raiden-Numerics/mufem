@@ -23,7 +23,7 @@ surface copies of a MultiBlock.)
 import json
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple
 
 import numpy as np
 import pyvista as pv
@@ -33,7 +33,7 @@ from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
 
-from casekit.plots import PlotStyle
+from casekit.plots import MUFEM_LABEL, PlotStyle
 
 # DejaVu Sans (see fonts/LICENSE_DEJAVU), the font of the matplotlib plots; VTK's own fonts
 # lack square brackets and superscripts.
@@ -190,6 +190,7 @@ def xy_chart(
     values,
     xlabel: str,
     ylabel: str,
+    label: str = MUFEM_LABEL,
     reference_values=None,
     reference_label: str = "Reference",
     style: PlotStyle = PlotStyle.LINE_AND_POINTS,
@@ -198,12 +199,16 @@ def xy_chart(
     ylim: Optional[Tuple[float, float]] = None,
     xticks: Optional[Sequence[float]] = None,
     yticks: Optional[Sequence[float]] = None,
+    legend_loc: str = "upper left",
     font_size: int = 18,
-) -> Tuple[pv.Chart2D, "pv.charts.LinePlot2D"]:
+) -> Tuple[pv.Chart2D, Any, Any]:
     """PyVista chart in the style of xy_plot (same arguments): the reference black underneath,
-    the mufem curve red on top, the legend top left. Returns the chart and the mufem curve,
-    whose points an animation updates with `curve.update(x, y)`."""
+    the mufem curve red on top, the legend at `legend_loc` ("upper left", "lower right", ...).
+    Returns the chart, the mufem curve and the
+    reference curve (None without reference_values), whose points an animation updates with
+    update_curve."""
     chart = pv.Chart2D(x_label=xlabel, y_label=ylabel, grid=False)
+    reference = None
     if reference_values is not None:
         x, y = np.asarray(reference_values).T
         if reference_style.has_line:
@@ -214,9 +219,9 @@ def xy_chart(
             _markers(reference, vtkPlotPoints.CIRCLE, 10, reference_style)
     x, y = np.asarray(values).T
     if style.has_line:
-        curve = chart.line(x, y, color="red", width=3.0, label="mufem")
+        curve = chart.line(x, y, color="red", width=3.0, label=label)
     else:
-        curve = chart.scatter(x, y, color="red", label="mufem")
+        curve = chart.scatter(x, y, color="red", label=label)
     if style.has_markers:
         _markers(curve, vtkPlotPoints.SQUARE, 7 if style.has_line else 12, style)
 
@@ -237,12 +242,18 @@ def xy_chart(
     # the border of the chart, drawn at its new edge, hidden.
     chart.size = (0.97, 1.0)
     chart.border_color = "white"
-    chart.legend.SetHorizontalAlignment(vtkChartLegend.LEFT)
-    chart.legend.SetVerticalAlignment(vtkChartLegend.TOP)
+    vertical, horizontal = legend_loc.split()
+    chart.legend.SetVerticalAlignment(
+        {"upper": vtkChartLegend.TOP, "lower": vtkChartLegend.BOTTOM}[vertical]
+    )
+    chart.legend.SetHorizontalAlignment(
+        {"left": vtkChartLegend.LEFT, "right": vtkChartLegend.RIGHT}[horizontal]
+    )
     chart.legend.SetPadding(15)  # away from the axes
-    chart.legend.GetPen().SetOpacity(0)
+    chart.legend.GetPen().SetOpacity(0)  # no frame and no background, as in xy_plot
+    chart.legend.GetBrush().SetOpacity(0)
     _font(chart.legend.GetLabelProperties(), font_size)
-    return chart, curve
+    return chart, curve, reference
 
 
 def update_curve(curve, points):

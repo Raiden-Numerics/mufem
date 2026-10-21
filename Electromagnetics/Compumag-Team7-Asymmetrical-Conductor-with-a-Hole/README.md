@@ -86,8 +86,10 @@ anticlockwise seen from $`+z`$ as in [1].
 
 Run the case with `pymufem case.py`.
 
-The animation (see Scenes) is rendered with ParaView by [create_scene.py](create_scene.py) from the
-fields exported by the case (run with `pvpython create_scene.py`, requires `ffmpeg`).
+The animation (see Scenes) is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
+[case.py](case.py) from the fields exported by the case (run the case with `--scenes`, or with
+`--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 The geometry image (Figure 1) is rendered from `geometry.step` with the netgen viewer by
 [create_geometry_image.py](create_geometry_image.py), in the view of the animation.
 

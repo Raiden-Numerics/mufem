@@ -373,7 +373,7 @@ class Team24LockedRotor(ValidationCase):
         current, torque = self.monitor_plots(monitors["coil_current"], monitors["rotor_torque"])
         curves = []
         for row, arguments in enumerate((current, torque)):
-            chart, curve = xy_chart(**arguments)
+            chart, curve, _ = xy_chart(**arguments)
             scene.subplot(row + 1)
             scene.add_chart(chart)
             curves.append((curve, arguments["values"]))
