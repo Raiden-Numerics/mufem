@@ -32,7 +32,6 @@ from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
 
-from casekit.images import trim
 from casekit.plots import PlotStyle
 
 # DejaVu Sans (see fonts/LICENSE_DEJAVU), the font of the matplotlib plots; VTK's own fonts
@@ -205,9 +204,9 @@ def xy_chart(
 
 
 def save(plotter: pv.Plotter, path: Path):
-    """Screenshot of `plotter` without its white margins; closes the plotter."""
+    """Screenshot of `plotter` (the size of its window); closes the plotter."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    trim(Image.fromarray(plotter.screenshot())).save(path)
+    plotter.screenshot(path)
     plotter.close()
 
 
