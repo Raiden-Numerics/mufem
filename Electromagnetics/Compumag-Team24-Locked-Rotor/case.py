@@ -337,7 +337,6 @@ class Team24LockedRotor(ValidationCase):
             add_colorbar,
             create_plotter,
             gif,
-            save,
             update_curve,
             xy_chart,
         )
@@ -357,7 +356,7 @@ class Team24LockedRotor(ValidationCase):
         plotter.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
         plotter.camera.parallel_scale = 0.0448
         add_colorbar(plotter, actor, "Element Type", 2, "%.0f", "lower right", font_size=36)
-        save(plotter, self.results_path / "Scene_ElementType.png")
+        plotter.show(screenshot=self.results_path / "Scene_ElementType.png")
 
         # Animation: the electric current density from +z with its color bar, and the coil
         # current and the rotor torque up to the time step in two charts on the right.

@@ -265,7 +265,7 @@ class Team20StaticForce(ValidationCase):
     def create_scenes(self):
         # Both images use the isometric view along (-1, -1, 1) onto the symmetry planes x = 0
         # and y = 0, with z up, as data/Geometry.png.
-        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_plotter, save
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_plotter
 
         bodies = FieldExportReader(self.dir_path).read()
 
@@ -276,7 +276,7 @@ class Team20StaticForce(ValidationCase):
             plotter.add_mesh(bodies[name], color=color, show_edges=True)
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         plotter.camera.zoom(1.4)  # the default fit leaves room for any rotation
-        save(plotter, self.dir_path / "data" / "Mesh.png")
+        plotter.show(screenshot=self.dir_path / "data" / "Mesh.png")
 
         # Magnetic flux density in the yoke, the pole and the coil.
         del bodies["Air"]
@@ -285,7 +285,7 @@ class Team20StaticForce(ValidationCase):
         actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         add_colorbar(plotter, actor, "Magnetic Flux Density [T]", n_labels=6)
-        save(plotter, self.dir_path / "data" / "Vis_MagneticFluxDensity.png")
+        plotter.show(screenshot=self.dir_path / "data" / "Vis_MagneticFluxDensity.png")
 
 
 if __name__ == "__main__":

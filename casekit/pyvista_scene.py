@@ -204,13 +204,6 @@ def xy_chart(
     return chart, curve
 
 
-def save(plotter: pv.Plotter, path: Path):
-    """Screenshot of `plotter` (the size of its window); closes the plotter."""
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    plotter.screenshot(path)
-    plotter.close()
-
-
 def update_curve(curve, points):
     """`curve.update` with the (x, y) `points`. A single point is drawn twice, because VTK
     leaves a curve with a single point out of the legend."""
