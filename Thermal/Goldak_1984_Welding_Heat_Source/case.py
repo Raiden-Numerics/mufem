@@ -239,24 +239,10 @@ class Goldak1984WeldingHeatSource(ValidationCase):
     def create_scenes(self):
         # The modeled half plate at the final time, onto the symmetry plane x = 0 (weld path)
         # and the top surface y = 0.
-        from casekit.pyvista_scene import (
-            FieldExportReader,
-            add_colorbar,
-            create_scene,
-            feature_edges,
-        )
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
 
         piece = FieldExportReader(self.dir_path).read()["Piece"]
         piece["Temperature [°C]"] = piece["Temperature"] - 273.15
-
-        # The geometry: the plate in gray with its edges, in the view of the scenes.
-        scene = create_scene((1100, 750))
-        # The surface pushed back a little, so that it does not hide the edges on it.
-        scene.add_mesh(piece, color=(0.6, 0.6, 0.6)).mapper.resolve = "polygon_offset"
-        scene.add_mesh(feature_edges(piece), color="black", line_width=2)
-        scene.view_vector((-0.25, 0.17, -0.15), viewup=(0, 1, 0))
-        scene.camera.zoom(1.4)
-        scene.show(screenshot=self.dir_path / "data" / "Geometry.png")
 
         for array, clim, title, n_labels, scale, name in [
             (
