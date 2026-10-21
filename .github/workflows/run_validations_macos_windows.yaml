@@ -57,11 +57,14 @@ jobs:
           allow-prereleases: true
 
       - name: Install mufem (alpha wheel)
+        shell: bash
         env:
           CI: '1'
           PIP_IS_CI: '1'
         run: |
-          pip install --pre --force-reinstall --no-cache-dir mufem
+          # The VERSION release or one of its pre-releases (e.g. 0.7.3a0 .. 0.7.3).
+          MUFEM_VERSION=$(cat VERSION)
+          pip install --pre --force-reinstall --no-cache-dir "mufem>=${MUFEM_VERSION}a0,<=${MUFEM_VERSION}"
           pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
       - name: Run the cases (serial; no MPI/pymufem)

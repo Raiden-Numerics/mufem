@@ -1,0 +1,25 @@
+name: Smoke (Windows x86-64, Python 3.15)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 16 * * *'  # daily 01:00 JST (16:00 UTC)
+  workflow_dispatch:
+
+# Smoke test on Python 3.15: runs a single representative case (Team1b) to confirm
+# the release imports and runs on this Python version. See run_validations_macos_windows.yaml.
+jobs:
+  smoke:
+    uses: ./.github/workflows/run_validations_macos_windows.yaml
+    with:
+      runner: windows-latest
+      python-version: '3.15'
+      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
