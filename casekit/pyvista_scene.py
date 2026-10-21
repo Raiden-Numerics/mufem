@@ -32,6 +32,7 @@ from vtkmodules.vtkChartsCore import vtkChartLegend, vtkPlotPoints
 from vtkmodules.vtkCommonDataModel import vtkCompositeDataSet
 from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetCollectionReader
 from vtkmodules.vtkRenderingAnnotation import vtkScalarBarActor
+from vtkmodules.vtkRenderingCore import vtkActor2D, vtkCoordinate, vtkPolyDataMapper2D
 
 from casekit.plots import MUFEM_LABEL, PlotStyle
 
@@ -103,13 +104,15 @@ def add_colorbar(
     location: str = "right",
     font_size: int = 26,
     scale: float = 1.0,
+    boxed: bool = False,
 ) -> vtkScalarBarActor:
     """Color bar of `actor` in the active renderer with `n_labels` labels from the lowest to the
     highest value of its range (the clim of the mesh). Vertical with the title along it, half as
     high as the renderer, at its right edge, centered ("right") or at the bottom ("lower
     right"); or horizontal with the labels and the title above it, half as wide as the renderer,
     centered at its bottom edge ("bottom"). Its box fits the labels and the title. The labels
-    show the values times `scale`, e.g. 1e-5 with a title in 10⁵ units. Move the camera to keep
+    show the values times `scale`, e.g. 1e-5 with a title in 10⁵ units; `boxed` draws it on a
+    white box, for a bar over the content. Move the camera to keep
     the content clear of it."""
     if location not in ("right", "lower right", "bottom"):
         raise ValueError(f"location {location!r} is not 'right', 'lower right' or 'bottom'")
@@ -163,8 +166,31 @@ def add_colorbar(
         bar.SetPosition(0.25, font_size / height)
         bar.SetWidth(0.5)
         bar.SetHeight(box / height)
+    if boxed:
+        # A white box behind the bar and its texts, padded by half a label width (the end
+        # labels stand out of the bar by that much) and the font size; VTK's own background of
+        # the bar has no padding.
+        (x, y), (w, h) = bar.GetPosition(), (bar.GetWidth(), bar.GetHeight())
+        pad_x, pad_y = (label_width / 2 + font_size) / width, font_size / height
+        scene.renderer.add_actor(
+            _rectangle(x - pad_x, y - pad_y, x + w + pad_x, y + h + pad_y), reset_camera=False
+        )
     scene.renderer.add_actor(bar)
     return bar
+
+
+def _rectangle(x0: float, y0: float, x1: float, y1: float) -> vtkActor2D:
+    """A white rectangle in fractions of the renderer, drawn over the scene."""
+    corners = [(x0, y0, 0.0), (x1, y0, 0.0), (x1, y1, 0.0), (x0, y1, 0.0)]
+    mapper = vtkPolyDataMapper2D()
+    mapper.SetInputData(pv.PolyData(np.array(corners), faces=[4, 0, 1, 2, 3]))
+    coordinate = vtkCoordinate()
+    coordinate.SetCoordinateSystemToNormalizedViewport()
+    mapper.SetTransformCoordinate(coordinate)
+    actor = vtkActor2D()
+    actor.SetMapper(mapper)
+    actor.GetProperty().SetColor(1.0, 1.0, 1.0)
+    return actor
 
 
 def _font(text_property, size: int):
