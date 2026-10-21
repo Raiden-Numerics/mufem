@@ -95,8 +95,10 @@ top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 ## Scenes
 
 The displacement and von Mises stress fields are exported to `VisualizationOutput/`. Figure 4
-is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case), with the displacement scaled 50 times.
+is rendered from them with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py)
+(run the case with `--scenes`, or with `--scenes-only` after a run; see
+[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)), with the
+displacement scaled 50 times.
 
 <div align="center">
 <img src="./results/Scene_Deformation.png" alt="Deformed beam and von Mises stress" width="75%">

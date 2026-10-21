@@ -1,7 +1,7 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The geometry is shown in the view of the animation of create_scene.py, with the clamped and
-the loaded end labeled. Needs a display; headless:
+The geometry is shown in the view of the scene of create_scenes() in case.py, with the clamped
+and the loaded end labeled. Needs a display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """

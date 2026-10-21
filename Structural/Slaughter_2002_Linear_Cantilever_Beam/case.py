@@ -154,11 +154,53 @@ class Slaughter2002CantileverBeam(ValidationCase):
                 path=f"{self.results_path / 'Von_Mises_Stress_vs_Position.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scene of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Displacement")
         vis.add_field_output("Von Mises Stress")
         vis.save(order=1)
+
+    def create_scenes(self):
+        # The deformed beam colored by the von Mises stress, with the edges of the undeformed
+        # beam; mostly onto the side of the beam so that the bending shows, with the load
+        # direction (y) up, as data/Geometry.png.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        beam = FieldExportReader(self.dir_path).read()["Beam"]
+        # The points merged: the exported cells do not share theirs.
+        edges = (
+            beam.extract_surface(algorithm=None)
+            .clean()
+            .extract_feature_edges(
+                boundary_edges=False, non_manifold_edges=False, manifold_edges=False
+            )
+        )
+
+        scene = create_scene((1600, 650))
+        scene.add_mesh(edges, color=(0.4, 0.4, 0.4), line_width=2)
+        # The displacement scaled 50 times: the tip deflection (1.9 mm) is invisible at true
+        # scale.
+        actor = scene.add_mesh(
+            beam.warp_by_vector("Displacement", factor=50.0),
+            scalars="Von Mises Stress",
+            clim=(0.0, 6.0e4),
+        )
+        scene.view_vector((0.4, 0.3, 1.0), viewup=(0, 1, 0))
+        scene.camera.zoom(2.3)
+        # Room for the color bar below: the camera moves down along its up direction.
+        shift = -0.05 * numpy.array(scene.camera.up)
+        scene.camera.focal_point += shift
+        scene.camera.position += shift
+        add_colorbar(
+            scene,
+            actor,
+            "Von Mises Stress [kPa]",
+            n_labels=4,
+            label_format="%.0f",
+            location="bottom",
+            scale=1e-3,
+        )
+        scene.show(screenshot=self.results_path / "Scene_Deformation.png")
 
 
 if __name__ == "__main__":
