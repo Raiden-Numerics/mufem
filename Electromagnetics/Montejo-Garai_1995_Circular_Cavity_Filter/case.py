@@ -263,6 +263,61 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         plt.ylabel("|S21|$^2$ [dB]")
         plt.savefig(self.results_path / "S21_vs_frequency.png", bbox_inches="tight")
 
+    def create_scenes(self):
+        # The magnitude of the electric field E(t) = E_r cos(wt) - E_i sin(wt) at the two
+        # visualized frequencies side by side over half a period, after which the magnitude
+        # repeats; onto the middle of the filter from 14 deg above the x-z plane, 48 deg from -x
+        # toward -z.
+        from casekit.pyvista_scene import (
+            FONT_FILE,
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+        domains = [reader.read(i) for i in range(reader.number_time_steps)]
+        field = dict(scalars="Electric Field", clim=(0.0, 3000.0), name="field")
+
+        scene = create_scene((1600, 500), shape=(1, 2), border=False)
+        for column, (bodies, frequency) in enumerate(zip(domains, self.visualized_frequencies)):
+            scene.subplot(0, column)
+            actor = scene.add_mesh(at_phase(bodies, "Electric Field", 0.0), **field)
+            scene.add_text(
+                f"{frequency / 1e9:.0f} GHz",
+                position=(0.04, 0.85),
+                font_size=11.5,
+                font_file=FONT_FILE,
+                viewport=True,
+            )
+            add_colorbar(
+                scene,
+                actor,
+                "Electric Field [V/m]",
+                n_labels=4,
+                label_format="%.0f",
+                location="bottom",
+                font_size=19,
+            )
+
+        # One camera for both views.
+        scene.link_views()
+        scene.view_vector((-0.683, 0.2588, -0.754), viewup=(0, 1, 0))
+        scene.camera.zoom(1.8)
+        # Room for the color bar below: the camera moves down along its up direction.
+        shift = -0.006 * numpy.array(scene.camera.up)
+        scene.camera.focal_point += shift
+        scene.camera.position += shift
+
+        with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
+            for phase_deg in range(0, 180, 5):
+                for column, bodies in enumerate(domains):
+                    scene.subplot(0, column)
+                    scene.add_mesh(at_phase(bodies, "Electric Field", phase_deg), **field)
+                write_frame()
+
     def load_precalculated(self):
         return numpy.loadtxt(
             self.dir_path / "data" / "S21_precalculated.csv", delimiter=",", comments="#"

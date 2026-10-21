@@ -190,12 +190,10 @@ for i, frequency in enumerate(self.frequencies):
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
 At the two visualized frequencies we also save the electric field in the
-[VTK](https://vtk.org/) file format for subsequent visualization with
-[ParaView](https://www.paraview.org/).
-Please note that [ParaView](https://www.paraview.org/) is not supplied with
-mufem and must be installed separately.
-The animation of Figure 4 is rendered by [create_scene.py](create_scene.py); run it with
-`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
+[VTK](https://vtk.org/) file format for subsequent visualization.
+The animation of Figure 4 is rendered from it with [PyVista](https://pyvista.org/) by
+`create_scenes()` in [case.py](case.py) (run the case with `--scenes`, or with `--scenes-only`
+after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 
 ## Results
