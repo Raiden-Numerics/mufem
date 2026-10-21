@@ -377,7 +377,6 @@ class Team24LockedRotor(ValidationCase):
         for row, arguments in enumerate((current, torque)):
             chart, curve = xy_chart(**arguments)
             plotter.subplot(row + 1)
-            plotter.renderer.disable_anti_aliasing()  # VTK misplaces charts with it
             plotter.add_chart(chart)
             curves.append((curve, arguments["values"]))
         plotter.subplot(0)

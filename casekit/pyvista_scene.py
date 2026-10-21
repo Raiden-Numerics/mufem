@@ -253,7 +253,7 @@ def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):
 
 theme = pv.themes.DocumentTheme()
 theme.window_size = [1600, 1200]
-theme.anti_aliasing = "ssaa"
+theme.anti_aliasing = "msaa"
 theme.cmap = "coolwarm"
 theme.edge_color = "black"
 theme.line_width = 2
