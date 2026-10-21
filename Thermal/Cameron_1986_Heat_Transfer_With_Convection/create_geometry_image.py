@@ -1,7 +1,8 @@
 """Render data/Geometry.png from geometry.step with the netgen viewer.
 
-The plate is seen from the front (onto the x-y plane), as the scene of create_scene.py, with
-the boundary conditions of the benchmark and the evaluation point E. Needs a display; headless:
+The plate is seen from the front (onto the x-y plane), as the scenes of create_scenes() in
+case.py, with the boundary conditions of the benchmark and the evaluation point E. Needs a
+display; headless:
 
     xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
 """

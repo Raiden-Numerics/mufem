@@ -117,10 +117,40 @@ class Cameron1986(ValidationCase):
                 path=f"{self.results_path}/Temperature.png",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.save()
+
+    def create_scenes(self):
+        # The plate (0.6 m x 1.0 m) seen from the front (onto the x-y plane), as
+        # data/Geometry.png.
+        import numpy as np
+
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        plate = FieldExportReader(self.dir_path).read()["Plate"]
+
+        # The temperature, with the color bar on the right.
+        plate["Temperature [°C]"] = plate["Temperature"] - 273.15
+        scene = create_scene((1000, 1300))
+        actor = scene.add_mesh(plate, scalars="Temperature [°C]", clim=(0.0, 100.0))
+        scene.view_xy()
+        scene.camera.zoom(1.3)
+        # Room for the color bar on the right: the camera moves right (+x).
+        scene.camera.focal_point += np.array([0.1, 0.0, 0.0])
+        scene.camera.position += np.array([0.1, 0.0, 0.0])
+        add_colorbar(scene, actor, "Temperature [°C]", label_format="%.0f")
+        scene.show(screenshot=self.results_path / "Scene_Temperature.png")
+
+        # The mesh in the flat color of the plate in data/Geometry.png and at the size and
+        # position of the plate there (1300 px high, its center at (640, 760) px of the 1390 x
+        # 1520 px image, see create_geometry_image.py), so that both images of Figure 1 match.
+        scene = create_scene((1390, 1520))
+        scene.add_mesh(plate, color=(0.02, 0.69, 0.5), show_edges=True, lighting=False)
+        scene.camera_position = [(0.3423, 0.5, 1.0), (0.3423, 0.5, 0.005), (0, 1, 0)]
+        scene.camera.parallel_scale = 760 / 1300  # half the image height in meters
+        scene.show(screenshot=self.dir_path / "data" / "Mesh.png")
 
 
 if __name__ == "__main__":
