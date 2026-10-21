@@ -164,17 +164,15 @@ class Slaughter2002CantileverBeam(ValidationCase):
         # The deformed beam colored by the von Mises stress, with the edges of the undeformed
         # beam; mostly onto the side of the beam so that the bending shows, with the load
         # direction (y) up, as data/Geometry.png.
-        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            create_scene,
+            feature_edges,
+        )
 
         beam = FieldExportReader(self.dir_path).read()["Beam"]
-        # The points merged: the exported cells do not share theirs.
-        edges = (
-            beam.extract_surface(algorithm=None)
-            .clean()
-            .extract_feature_edges(
-                boundary_edges=False, non_manifold_edges=False, manifold_edges=False
-            )
-        )
+        edges = feature_edges(beam)
 
         scene = create_scene((1600, 650))
         scene.add_mesh(edges, color=(0.4, 0.4, 0.4), line_width=2)

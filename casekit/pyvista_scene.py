@@ -85,6 +85,16 @@ class FieldExportReader:
         return pv.MultiBlock({name: bodies[name] for name in bodies.keys() if name not in hide})
 
 
+def feature_edges(mesh: pv.DataSet, angle: float = 30.0) -> pv.PolyData:
+    """The edges of the outer surface of `mesh` where it bends by more than `angle` [deg], e.g.
+    the outline of a body. The points of the cells are merged first: the exported cells do not
+    share theirs, and their surface would hold all their faces."""
+    surface = mesh.clean().extract_surface(algorithm=None, nonlinear_subdivision=0)
+    return surface.extract_feature_edges(
+        feature_angle=angle, boundary_edges=False, non_manifold_edges=False, manifold_edges=False
+    )
+
+
 def at_phase(bodies: pv.MultiBlock, field: str, phase_deg: float) -> pv.MultiBlock:
     """`bodies` with the time-harmonic `field` at the phase, Re(F e^{j phase}) = F_r cos(phase)
     - F_i sin(phase), from its parts "<field>-Real" and "<field>-Imag"; changes `bodies`."""
