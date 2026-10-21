@@ -332,14 +332,12 @@ class Team24LockedRotor(ValidationCase):
         )
 
     def create_scenes(self):
-        import pyvista as pv
-
         from casekit.pyvista_scene import (
             FieldExportReader,
             add_colorbar,
+            create_plotter,
             gif,
             save,
-            theme,
             update_curve,
             xy_chart,
         )
@@ -348,7 +346,7 @@ class Team24LockedRotor(ValidationCase):
 
         # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
         # layers show as quads.
-        plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(2000, 1500))
+        plotter = create_plotter((2000, 1500))
         actor = plotter.add_mesh(
             reader.read(exclude=["Air"]),
             scalars="Element Type",
@@ -364,14 +362,7 @@ class Team24LockedRotor(ValidationCase):
         # Animation: the electric current density from +z with its color bar, and the coil
         # current and the rotor torque up to the time step in two charts on the right.
         monitors = numpy.load(self.scene_data_path)
-        plotter = pv.Plotter(
-            theme=theme,
-            off_screen=True,
-            window_size=(1600, 800),
-            shape="1|2",
-            splitting_position=0.5,
-            border=False,
-        )
+        plotter = create_plotter((1600, 800), shape="1|2", splitting_position=0.5, border=False)
         current, torque = self.monitor_plots(monitors["coil_current"], monitors["rotor_torque"])
         curves = []
         for row, arguments in enumerate((current, torque)):

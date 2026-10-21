@@ -1,10 +1,11 @@
 """PyVista support for the scenes of the cases (ValidationCase.create_scenes()).
 
-Importing this module teaches `pv.read` the `.vtpc` files of the field export and provides the
-common `theme` of the scenes; the scripts are otherwise plain PyVista:
+Importing this module teaches `pv.read` the `.vtpc` files of the field export, and
+`create_plotter` gives a plotter in the common style of the scenes; the scripts are otherwise
+plain PyVista:
 
     reader = FieldExportReader(case_dir)
-    plotter = pv.Plotter(theme=theme, off_screen=True)
+    plotter = create_plotter()
     field = dict(scalars="Temperature", clim=(300, 400), name="field")
     actor = plotter.add_mesh(reader.read(exclude=["Air"]), **field)
     plotter.camera.zoom(0.85)  # room for the color bar
@@ -250,13 +251,15 @@ def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):
     )
 
 
-theme = pv.themes.DocumentTheme()
-theme.window_size = [1600, 1200]
-theme.anti_aliasing = "msaa"
-theme.cmap = "coolwarm"
-theme.edge_color = "black"
-theme.line_width = 2
-theme.lighting_params.ambient = 0.3
-theme.lighting_params.diffuse = 0.8
-theme.camera.parallel_projection = True
-theme.show_scalar_bar = False
+def create_plotter(window_size: Tuple[int, int] = (1600, 1200), **kwargs) -> pv.Plotter:
+    """Off-screen plotter in the style of the scenes; `kwargs` go to pv.Plotter (e.g. shape)."""
+    theme = pv.themes.DocumentTheme()
+    theme.anti_aliasing = "msaa"
+    theme.cmap = "coolwarm"
+    theme.edge_color = "black"
+    theme.line_width = 2
+    theme.lighting_params.ambient = 0.3
+    theme.lighting_params.diffuse = 0.8
+    theme.camera.parallel_projection = True
+    theme.show_scalar_bar = False
+    return pv.Plotter(theme=theme, off_screen=True, window_size=window_size, **kwargs)

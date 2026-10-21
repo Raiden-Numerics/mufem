@@ -265,14 +265,12 @@ class Team20StaticForce(ValidationCase):
     def create_scenes(self):
         # Both images use the isometric view along (-1, -1, 1) onto the symmetry planes x = 0
         # and y = 0, with z up, as data/Geometry.png.
-        import pyvista as pv
-
-        from casekit.pyvista_scene import FieldExportReader, add_colorbar, save, theme
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_plotter, save
 
         bodies = FieldExportReader(self.dir_path).read()
 
         # Mesh of all bodies.
-        plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1100, 1600))
+        plotter = create_plotter((1100, 1600))
         iron, copper, air = (0.6, 0.6, 0.6), (0.72, 0.45, 0.2), (0.96, 0.89, 0.83)
         for name, color in {"Air": air, "Yoke": iron, "Pole": iron, "Coil": copper}.items():
             plotter.add_mesh(bodies[name], color=color, show_edges=True)
@@ -283,7 +281,7 @@ class Team20StaticForce(ValidationCase):
         # Magnetic flux density in the yoke, the pole and the coil.
         del bodies["Air"]
         # The window leaves room on both sides, for the color bar on the right.
-        plotter = pv.Plotter(theme=theme, off_screen=True, window_size=(1100, 1200))
+        plotter = create_plotter((1100, 1200))
         actor = plotter.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
         plotter.view_vector((-1, -1, 1), viewup=(0, 0, 1))
         add_colorbar(plotter, actor, "Magnetic Flux Density [T]", n_labels=6)
