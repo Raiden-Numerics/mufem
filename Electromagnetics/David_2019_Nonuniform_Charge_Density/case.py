@@ -124,11 +124,38 @@ class David2019ChargeDensity(ValidationCase):
                 path=f"{self.results_path / 'Electric_Field.png'}",
             )
 
-        # Export the electric field data to a VTK file (collective).
+        # Field export for the scene of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Electric Field")
         vis.add_field_output("Electric Potential")
         vis.save(order=2)
+
+    def create_scenes(self):
+        # The x-component of the electric field in the cross-section z = 0 of the spherical
+        # domain, seen from the front.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        domain = FieldExportReader(self.dir_path).read()["Domain"]
+        section = domain.slice(normal="z", origin=(0.0, 0.0, 0.0))
+
+        scene = create_scene((900, 1000))
+        actor = scene.add_mesh(
+            section, scalars="Electric Field", component=0, clim=(-1.0e9, 1.0e9)
+        )
+        scene.view_xy()
+        scene.camera.zoom(1.25)
+        # Room for the color bar below: the camera moves down (-y).
+        scene.camera.focal_point += np.array([0.0, -2.0, 0.0])
+        scene.camera.position += np.array([0.0, -2.0, 0.0])
+        add_colorbar(
+            scene,
+            actor,
+            "Electric Field, x-Component [GV/m]",
+            label_format="%.1f",
+            location="bottom",
+            scale=1e-9,
+        )
+        scene.show(screenshot=self.results_path / "Scene_Electric_Field.png")
 
 
 if __name__ == "__main__":
