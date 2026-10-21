@@ -10,8 +10,7 @@ from pathlib import Path
 
 from netgen.occ import OCCGeometry
 
-from casekit.images import pad, trim
-from casekit.netgen_image import Labels, snapshot
+from casekit.netgen_image import Labels, pad, snapshot, trim
 
 case_dir = Path(__file__).resolve().parent
 
