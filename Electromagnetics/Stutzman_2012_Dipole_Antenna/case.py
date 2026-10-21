@@ -228,7 +228,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         if not self.is_main():
             return
 
-        # The 3D pattern for the scene of create_scene.py.
+        # The 3D pattern for the scene of create_scenes().
         numpy.savez(
             self.scene_data_path,
             thetas=self.thetas,
@@ -265,6 +265,73 @@ class Stutzman2012DipoleAntenna(ValidationCase):
             ax.set_title(title, fontweight="bold")
             fig.savefig(self.results_path / f"Far_Field_{title}.png", bbox_inches="tight")
             plt.close(fig)
+
+    def create_scenes(self):
+        import pyvista as pv
+
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+        )
+
+        colorbar = dict(label_format="%.0f", location="bottom", font_size=24)
+
+        # The far-field radiation pattern as the surface at the radius 4.5 pattern(theta, phi),
+        # with the pattern in dB (20 log10: the pattern is a field amplitude) on it.
+        far_field = numpy.load(self.scene_data_path)
+        theta, phi = numpy.meshgrid(far_field["thetas"], far_field["phis"], indexing="ij")
+        pattern = far_field["radiation_pattern"]
+        radius = 4.5 * pattern
+        surface = pv.StructuredGrid(
+            radius * numpy.sin(theta) * numpy.cos(phi),
+            radius * numpy.sin(theta) * numpy.sin(phi),
+            radius * numpy.cos(theta),
+        )
+        decibel = 20 * numpy.log10(numpy.maximum(pattern, 1e-6))
+        surface["Radiation Pattern"] = decibel.ravel(order="F")
+
+        scene = create_scene((1000, 1000))
+        actor = scene.add_mesh(
+            surface,
+            scalars="Radiation Pattern",
+            clim=(-10.0, 0.0),
+            show_edges=True,
+            edge_color=(0.1, 0.1, 0.1),
+            line_width=1,
+        )
+        scene.view_vector((4, 4, 3), viewup=(0, 0, 1))
+        scene.camera.zoom(1.35)
+        # Room for the color bar below: the camera moves down along its up direction.
+        shift = -0.8 * numpy.array(scene.camera.up)
+        scene.camera.focal_point += shift
+        scene.camera.position += shift
+        add_colorbar(scene, actor, "Radiation Pattern [dB]", n_labels=6, **colorbar)
+        scene.show(screenshot=self.results_path / "Scene_Radiation_Pattern.png")
+
+        # The magnitude of the electric field E(t) = E_r cos(wt) - E_i sin(wt) in the yz-plane
+        # over half a period, after which the magnitude repeats.
+        bodies = FieldExportReader(self.dir_path).read()
+
+        def section(phase_deg):
+            domain = at_phase(bodies, "Electric Field", phase_deg)["Domain"]
+            return domain.slice(normal="x", origin=(0.0, 0.0, 0.0))
+
+        field = dict(scalars="Electric Field", clim=(0.0, 30.0), name="field")
+        scene = create_scene((1000, 1000))
+        actor = scene.add_mesh(section(0.0), **field)
+        scene.view_yz()
+        scene.camera.zoom(1.15)
+        # Room for the color bar below: the camera moves down (-z).
+        scene.camera.focal_point += numpy.array([0.0, 0.0, -1.0])
+        scene.camera.position += numpy.array([0.0, 0.0, -1.0])
+        add_colorbar(scene, actor, "Electric Field [V/m]", n_labels=4, **colorbar)
+        with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
+            for phase_deg in range(0, 180, 5):
+                scene.add_mesh(section(phase_deg), **field)
+                write_frame()
 
 
 if __name__ == "__main__":

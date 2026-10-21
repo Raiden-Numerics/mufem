@@ -310,6 +310,13 @@ def save_gif(frames: Sequence[np.ndarray], path: Path, fps: int = 8):
     images = [Image.fromarray(frame) for frame in frames]
     palette = Image.fromarray(np.vstack(frames)).quantize(method=Image.Quantize.MAXCOVERAGE)
     indices = [np.array(image.quantize(palette=palette)) for image in images]
+    # Pillow looks up the palette approximately, which can turn the white background into a
+    # near-white color of the palette: white stays white.
+    colors = np.frombuffer(palette.palette.tobytes(), np.uint8).reshape(-1, 3)
+    white = np.flatnonzero((colors == 255).all(axis=1))
+    if len(white):
+        for frame, index in zip(frames, indices):
+            index[(frame == 255).all(axis=2)] = white[0]
     for i in range(1, len(frames)):
         still = (frames[i] == frames[i - 1]).all(axis=2)
         indices[i][still] = indices[i - 1][still]
