@@ -53,7 +53,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
 
         # Materials --------------------------------------------------------------------
         material = LinearElasticMaterial(
-            name="Steel",
+            name="Beam Material",
             marker=Vol.Everywhere,
             youngs_modulus=210.0e6,
             poissons_ratio=0.3,
