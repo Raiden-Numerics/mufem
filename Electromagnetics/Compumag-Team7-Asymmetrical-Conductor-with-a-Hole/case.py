@@ -78,6 +78,16 @@ class Team7AsymmetricalConductor(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path, second_order=True)
 
+    def create_geometry_image(self):
+        # The view of the animation of create_scenes().
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(shapes=solids, direction=(-0.0656, 0.0281, 0.0254), up=(0, 0, 1))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

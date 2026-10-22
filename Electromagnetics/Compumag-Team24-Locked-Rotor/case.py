@@ -136,6 +136,38 @@ class Team24LockedRotor(ValidationCase):
             self.step_path, basesize=1.0, path=self.mesh_path, boundary_layers=boundary_layers
         )
 
+    def create_geometry_image(self):
+        # The view looks along -z with y up, turned by 20 deg about y to show the depth of the
+        # air volume.
+        import math
+
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        turn = math.radians(20.0)
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(
+            shapes=solids,
+            direction=(-math.sin(turn), 0.0, math.cos(turn)),
+            up=(0, 1, 0),
+            zoom=-15,
+            size=(1969, 1135),
+        )
+
+        labels = Labels(image=image, font_size=38)
+        labels.text(position=(1060, 290), text="Air")
+        for text, position, anchor, start, end in [
+            ("Upper Coil", (860, 395), "rm", (870, 400), (972, 440)),
+            ("Lower Coil", (860, 745), "rm", (870, 740), (972, 695)),
+            ("Stator", (1330, 470), "lm", (1318, 475), (1228, 520)),
+            ("Rotor", (1330, 620), "lm", (1318, 620), (1120, 575)),
+        ]:
+            labels.text(position=position, text=text, anchor=anchor)
+            labels.arrow(start=start, end=end, head=22)
+
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

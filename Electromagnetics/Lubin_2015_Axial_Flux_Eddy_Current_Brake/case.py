@@ -119,6 +119,42 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=5e-3, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # Both images look from the side of the animation of create_scenes(), 50 deg from below
+        # as there, so that the edge of the air domain clears the magnets. The magnet-side back
+        # iron covers the magnets in this view, so the second image leaves it out.
+        import math
+
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import content_box, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+
+        # The faces between the magnets and their back iron carry no color in the STEP file:
+        # give them the color of their magnet.
+        for solid in solids:
+            if solid.name.startswith("Magnet"):
+                color = next(face.col for face in solid.faces if face.col is not None)
+                for face in solid.faces:
+                    if face.col is None:
+                        face.col = color
+
+        # From -y, 50 deg below the horizontal, with z up.
+        elevation = math.radians(50.0)
+        view = dict(direction=(0.0, -math.cos(elevation), -math.sin(elevation)), up=(0, 0, 1))
+        images = {
+            "Geometry.png": snapshot(shapes=solids, **view),
+            "Geometry_Magnets.png": snapshot(
+                shapes=[s for s in solids if s.name != "Back Iron::Magnet Side"], **view
+            ),
+        }
+
+        # Crop both images to the same box, so that they show the brake at the same scale.
+        box = content_box(*images.values())
+        for name, image in images.items():
+            trim(image=image, box=box).save(self.dir_path / "data" / name)
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

@@ -121,6 +121,28 @@ class Team20StaticForce(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The isometric view of create_scenes() onto the symmetry planes x = 0 and y = 0, with
+        # the bodies labeled.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(-1, -1, 1), up=(0, 0, 1)))
+
+        labels = Labels(image=image)
+        labels.text(position=(200, 300), text="Air")
+        for text, position, anchor, start, end in [
+            ("Coil", (280, 690), "rm", (290, 690), (352, 690)),
+            ("Yoke", (590, 600), "lm", (580, 600), (512, 620)),
+            ("Pole", (625, 880), "lm", (615, 875), (420, 760)),
+        ]:
+            labels.text(position=position, text=text, anchor=anchor)
+            labels.arrow(start=start, end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

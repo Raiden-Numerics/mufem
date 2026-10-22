@@ -58,6 +58,31 @@ class Team1bFelixCylinder(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The view of the scene of create_scenes(), horizontal along (-1, 0, 1) so that the
+        # applied field (y) stays vertical; three arrows show the applied field.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(-1, 0, 1), up=(0, 1, 0)))
+
+        # The applied field B_y(t): three arrows along -y with a label.
+        labels = Labels(image=image)
+        x, top, length = 90, 360, 200
+        for dx in (0, 45, 90):
+            labels.arrow(
+                start=(x + dx, top),
+                end=(x + dx, top + length + 10),
+                width=9,
+                head=26,
+                spread=0.46,
+            )
+        labels.formula(position=(x - 10, top - 75), tex="$B_y(t)$")
+
+        image.save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

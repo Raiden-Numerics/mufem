@@ -60,6 +60,31 @@ class Guenin2011ElectronicDesign(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The isometric view of the scenes of create_scenes() along (1, 1, 1) with the stacking
+        # direction of the layers (y) up, with the layers labeled.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(1, 1, 1), up=(0, 1, 0)))
+
+        # Room on the right for the labels.
+        image = pad(image=image, right=330)
+        labels = Labels(image=image, font_size=28)
+        for text, label_y, end in [
+            ("Heat sink", 380, (915, 380)),
+            ("TIM 2", 455, (906, 503)),
+            ("Lid", 515, (906, 513)),
+            ("TIM 1", 575, (906, 525)),
+            ("Die", 635, (906, 536)),
+        ]:
+            labels.text(position=(1010, label_y), text=text, anchor="lm")
+            labels.line(start=(1000, label_y), end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,

@@ -83,6 +83,17 @@ class Goldak1984WeldingHeatSource(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=1.0e-2, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes(): onto the symmetry plane x = 0 and the top
+        # surface.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(shapes=solids, direction=(-0.25, 0.17, -0.15), up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,
