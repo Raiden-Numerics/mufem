@@ -78,10 +78,10 @@ stress along the top fiber ($`y \approx h/2`$).
 <br/>
 
 <div align="center">
-<img src="./results/Von_Mises_Stress_vs_Position.png" alt="Von Mises stress" width="75%">
+<img src="./results/Von_Mises_Stress_vs_Position.png" alt="von Mises stress" width="75%">
 <br/>
 <br/>
-<em>Figure 3: Von Mises stress along the top fiber, mufem and analytical.</em>
+<em>Figure 3: von Mises stress along the top fiber, mufem and analytical.</em>
 </div>
 <br/>
 

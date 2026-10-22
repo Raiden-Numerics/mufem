@@ -87,7 +87,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
         )
         self.displacement = [(p.x, d.y) for p, d in displacement_report.evaluate_all()]
 
-        # Von Mises stress along the top fiber.
+        # von Mises stress along the top fiber.
         vm_stress_report = mufem.ProbeReport.Line(
             name="VonMisesStressReport",
             cff_name="Von Mises Stress",
@@ -189,7 +189,7 @@ class Slaughter2002CantileverBeam(ValidationCase):
         add_colorbar(
             scene,
             actor,
-            "Von Mises Stress [kPa]",
+            "von Mises Stress [kPa]",
             n_labels=4,
             label_format="%.0f",
             location="bottom",
