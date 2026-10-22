@@ -24,13 +24,8 @@ class Team13NonLinearMagnetostatic(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Box, Glue, Pnt, Vec, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_steel,
-            name_body,
-            racetrack_face,
-        )
+        from casekit.colors import color_air, color_copper, color_steel
+        from casekit.netgen_geometry import name_body, racetrack_face
 
         # The plates use a 5 mm face mesh size: coarser elements at the plate edges
         # under-resolve B in the air gap along the measurement line.

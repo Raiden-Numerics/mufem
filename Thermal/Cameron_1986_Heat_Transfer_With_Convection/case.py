@@ -18,7 +18,8 @@ class Cameron1986(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.netgen_geometry import color_green, name_body
+        from casekit.colors import color_green
+        from casekit.netgen_geometry import name_body
 
         plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
 

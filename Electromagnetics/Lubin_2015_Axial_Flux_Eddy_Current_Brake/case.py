@@ -30,15 +30,8 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Cylinder, Glue, Pnt, Vec, Z
 
-        from casekit.netgen_geometry import (
-            annular_sector,
-            color_air,
-            color_blue,
-            color_copper,
-            color_iron,
-            color_red,
-            name_body,
-        )
+        from casekit.colors import color_air, color_blue, color_copper, color_iron, color_red
+        from casekit.netgen_geometry import annular_sector, name_body
 
         # Dimensions of Table I in Lubin (2015).
         inner_radius_magnets = 30e-3  # R1

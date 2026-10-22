@@ -18,7 +18,8 @@ class Team1bFelixCylinder(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, Pnt, Z, gp_Ax2
 
-        from casekit.netgen_geometry import color_air, color_copper, name_body
+        from casekit.colors import color_air, color_copper
+        from casekit.netgen_geometry import name_body
 
         cylinder_length = 0.20
         cylinder_inner_radius = 0.05715

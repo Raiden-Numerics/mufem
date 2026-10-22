@@ -22,7 +22,8 @@ class David2019ChargeDensity(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Glue, Pnt, Sphere
 
-        from casekit.netgen_geometry import color_air, name_body
+        from casekit.colors import color_air
+        from casekit.netgen_geometry import name_body
 
         domain = Sphere(Pnt(0, 0, 0), self.sphere_radius)
         name_body(domain, "Domain", color=color_air, individual_names=False)

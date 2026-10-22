@@ -19,7 +19,8 @@ class Guenin2011ElectronicDesign(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, Y
 
-        from casekit.netgen_geometry import hex_to_float, name_body
+        from casekit.colors import hex_to_float
+        from casekit.netgen_geometry import name_body
 
         # Name, thickness [mm], color
         parts = [

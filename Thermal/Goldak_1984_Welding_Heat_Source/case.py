@@ -60,7 +60,8 @@ class Goldak1984WeldingHeatSource(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.netgen_geometry import color_aluminum, name_body
+        from casekit.colors import color_aluminum
+        from casekit.netgen_geometry import name_body
 
         # Half of the plate, using the symmetry at x = 0.
         width = 0.3

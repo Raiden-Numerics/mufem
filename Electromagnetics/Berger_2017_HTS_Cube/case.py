@@ -22,7 +22,8 @@ class Berger2017HtsCube(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, Sphere, X, Y, Z
 
-        from casekit.netgen_geometry import color_air, color_hts, name_body
+        from casekit.colors import color_air, color_hts
+        from casekit.netgen_geometry import name_body
 
         length_cube = 0.01
         # The 100 mm air radius matches the paper's air box and keeps the dipole

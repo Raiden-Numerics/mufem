@@ -26,13 +26,8 @@ class Team20StaticForce(ValidationCase):
     def build_geometry(self):
         from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
-            name_body,
-            polygon_face,
-        )
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import name_body, polygon_face
 
         # Quarter model: X = 0 and Y = 0 are symmetry planes.
 

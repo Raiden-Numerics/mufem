@@ -27,7 +27,8 @@ class Team24LockedRotor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z, gp_Ax1, gp_Ax2, gp_Dir, gp_Pnt
 
-        from casekit.netgen_geometry import color_air, color_copper, color_iron, name_body
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import name_body
 
         # Half model: the midplane z = 0 is a symmetry plane; the lower half z <= 0 is modeled.
         axis_length = 0.0254 / 2.0

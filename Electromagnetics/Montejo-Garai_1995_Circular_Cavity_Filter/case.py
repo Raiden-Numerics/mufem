@@ -117,7 +117,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         gmsh.finalize()
 
         from casekit.gmsh_meshing import color_step
-        from casekit.netgen_geometry import color_aluminum, color_copper
+        from casekit.colors import color_aluminum, color_copper
 
         color_step(
             self.step_path,

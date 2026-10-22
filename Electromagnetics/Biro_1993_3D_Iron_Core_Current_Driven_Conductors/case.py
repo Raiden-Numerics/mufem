@@ -29,13 +29,8 @@ class Biro1993IronCore(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
-            hollow_cylinder,
-            name_body,
-        )
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import hollow_cylinder, name_body
 
         # Core -------------------------------------------------------------------------
         box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))

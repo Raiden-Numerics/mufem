@@ -19,7 +19,8 @@ class Slaughter2002CantileverBeam(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X
 
-        from casekit.netgen_geometry import color_iron, name_body
+        from casekit.colors import color_iron
+        from casekit.netgen_geometry import name_body
 
         # Length 1.0 m, height 0.1 m, width 0.2 m.
         beam_body = Box((0.0, -0.05, -0.1), (1.0, 0.05, 0.10))

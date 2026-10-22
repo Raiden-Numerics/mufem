@@ -35,10 +35,8 @@ class Team36InductionHeating(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Cylinder, Glue, Vec, X, Y, Z
 
+        from casekit.colors import color_air, color_copper, color_iron
         from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
             name_body,
             polygon_face,
             revolve_rotate_cut,

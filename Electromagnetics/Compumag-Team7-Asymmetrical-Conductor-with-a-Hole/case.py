@@ -36,7 +36,8 @@ class Team7AsymmetricalConductor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axes, Box, Glue, Pnt, WorkPlane, X, Y, Z
 
-        from casekit.netgen_geometry import color_air, color_aluminum, color_copper, name_body
+        from casekit.colors import color_air, color_aluminum, color_copper
+        from casekit.netgen_geometry import name_body
 
         # Plate with an off-center hole --------------------------------------------------
         wp_plate = WorkPlane(Axes((0, 0, 0), Z, X))
