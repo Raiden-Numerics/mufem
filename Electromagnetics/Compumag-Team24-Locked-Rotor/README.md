@@ -22,8 +22,6 @@ and the flux density at a Hall probe in the air gap [1, 2]. It is solved using [
   The midplane $`z = 0`$ of the $`25.4\,\mathrm{mm}`$ long rig is a symmetry plane, which [1] suggests
   exploiting: only the half $`z \le 0`$ is modeled (Figure 1), with a tangential-flux condition on
   the midplane.
-* The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
-  with `pymufem case.py --rebuild-mesh`.
 * Rotor and stator are solid EN9 steel with $`\sigma = 4.54 \times 10^6\,\mathrm{S/m}`$ and the
   nonlinear $`B(H)`$ curve described below. The coils are stranded (350 turns each), without eddy
   currents.
@@ -105,13 +103,8 @@ air gap, offset by $`(-6.5, -1.3, -7.7)\,\mathrm{mm}`$ from the stator pole corn
 
 Run the case with `pymufem case.py`.
 
-Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py).
-Figure 3 and the animation (Figure 5) are rendered with [PyVista](https://pyvista.org/)
-by `create_scenes()` in [case.py](case.py) from the fields of every time step and the
-coil current and rotor torque that every run of the case writes to `VisualizationOutput/`; run
-the case with `--render-scenes`, or with `--render-scenes-only` after a run (see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+Figure 3 and the animation (Figure 5) show the fields of every time step and the coil current and
+rotor torque that every run of the case writes to `VisualizationOutput/`.
 
 ## Results
 

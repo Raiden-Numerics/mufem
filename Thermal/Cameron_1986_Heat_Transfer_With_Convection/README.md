@@ -34,9 +34,7 @@ No internal heat generation is present.
 
 ## Running
 
-Run the case with `pymufem case.py`. The geometry image of Figure 1 is rendered from `geometry.step`
-with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), the mesh image by
-`create_scenes()` in [case.py](case.py).
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -59,9 +57,8 @@ height of $`y = 0.5`$ m.
 
 ## Scenes
 
-The temperature is exported to `VisualizationOutput/`; Figure 3, rendered from it with
-[PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)),
-shows the temperature distribution over the computational domain.
+The temperature is exported to `VisualizationOutput/`; Figure 3 shows the temperature distribution over
+the computational domain.
 
 <div align="center">
 <img src="results/Scene_Temperature.png" alt="Temperature scene" width="45%">

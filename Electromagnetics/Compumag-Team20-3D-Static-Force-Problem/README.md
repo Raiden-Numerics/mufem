@@ -19,7 +19,7 @@ When current is flowing through the coil, a magnetic field is generated which is
 
 ### Mesh
 
-The geometry follows Fig. 1 of [1] and is built with netgen in the `build_geometry` method of [case.py](case.py); `generate_mesh` meshes it (mesh size 1 mm on the pole and 2.5 mm on the yoke and coil) and saves it in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries. Both methods run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
+The geometry follows Fig. 1 of [1]. The mesh (mesh size 1 mm on the pole and 2.5 mm on the yoke and coil) is saved in the [mfem v13 format](https://mfem.org/mesh-format-v1.0/#mfem-mesh-v13) using named attributes for the volume bodies (Coil, Air, Yoke, and Pole) and boundaries.
 
 <div align="center">
 <img src="results/Scene_Mesh.png" alt="drawing" width="45%">
@@ -117,11 +117,7 @@ It sets the current, runs five nonlinear iterations and stores the force on the 
 quarter model, attractive in $`-z`$) and $`B_z`$ in the gap. Finally, we generate a plot showing the dependency
 of the force versus the coil current.
 
-Figures 1 and 2 and the scene of Figure 5 share the isometric view onto the symmetry planes. Figure 1
-is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py);
-Figures 2 and 5 are rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
-[case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+Figures 1 and 2 and the scene of Figure 5 share the isometric view onto the symmetry planes.
 
 ## Results
 

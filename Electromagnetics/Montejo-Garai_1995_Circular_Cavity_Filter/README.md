@@ -56,10 +56,6 @@ height of 3 mm, and a length of 1 mm.
 To generate the mesh we use [Gmsh](https://gmsh.info/) mesh generator (please
 note that [Gmsh](https://gmsh.info/) is not supplied with mufem; it is installed
 with the shared helpers of this repository).
-The geometry is built in the `build_geometry` method of [case.py](case.py) and
-meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`pymufem case.py --rebuild-mesh`. Figure 1 is rendered from `geometry.step` with the netgen
-viewer by `create_geometry_image()` in [case.py](case.py).
 To improve the accuracy of modeling, we use the mesh with second-order finite
 elements.
 By using such a mesh, we can avoid artifacts that arise when trying to
@@ -191,10 +187,7 @@ for i, frequency in enumerate(self.frequencies):
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
 At the two visualized frequencies we also save the electric field in the
-[VTK](https://vtk.org/) file format for subsequent visualization.
-The animation of Figure 4 is rendered from it with [PyVista](https://pyvista.org/) by
-`create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only`
-after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+[VTK](https://vtk.org/) file format for the animation of Figure 4.
 
 
 ## Results

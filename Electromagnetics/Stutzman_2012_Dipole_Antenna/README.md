@@ -51,9 +51,6 @@ is applied to the sphere's boundary to simulate an infinite domain.
 
 The problem geometry and corresponding mesh are generated with the
 [Gmsh](https://gmsh.info/) mesh generator.
-The geometry is built in the `build_geometry` method of [case.py](case.py) and
-meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`pymufem case.py --rebuild-mesh`.
 The maximum element size is one fifth of the wavelength $`\lambda`$, curved
 surfaces such as the arms get at least 12 elements per $`2\pi`$ of curvature,
 and the elements are second order (curved), so that they follow the cylindrical
@@ -128,9 +125,6 @@ To visualize the resulting electric field, we export it to a VTK file, as
 outlined in the
 [Visualization](https://raiden-numerics.github.io/mufem-doc/framework/visualization.html)
 section of the documentation.
-It is then plotted with [PyVista](https://pyvista.org/) by `create_scenes()` in
-[case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 
 ## Results
@@ -140,7 +134,6 @@ It is then plotted with [PyVista](https://pyvista.org/) by `create_scenes()` in
 To visualize the antenna's radiation pattern, we employ the
 [Far-Field Radiation Sensor](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/reports/far_field_radiation_sensor.html)
 to generate the far-field data.
-Subsequently, it is plotted by `create_scenes()` in [case.py](case.py).
 As shown in Figure 3, the resulting radiation pattern exhibits a donut-like shape,
 characteristic of dipole radiation.
 

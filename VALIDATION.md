@@ -19,14 +19,32 @@ for the installation and a first run.
 | `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case before running it |
-| `--render-geometry` | also creates the geometry image of each case (`data/Geometry.png`, netgen viewer; needs a display, e.g. `xvfb-run`) |
+| `--render-geometry` | also creates the geometry image of each case (see [Geometry images](#geometry-images)) |
 | `--render-scenes` | also creates the scenes of each case (see [Scenes](#scenes)) |
 
-## Scenes
+## Images
 
-Some cases render images and animations of their fields (the scenes) with
-[PyVista](https://pyvista.org/) in `create_scenes()`. They need the optional dependencies and are
-created only on request, after the run or from the output of a previous one:
+### Geometry images
+
+The geometry image of a case, `data/Geometry.png`, is taken from its `geometry.step` with the
+[netgen](https://ngsolve.org/) viewer by `create_geometry_image()` (`--render-geometry`), in the
+view of the scenes of the case. The viewer needs a display; on a machine without one, run it in a
+virtual X server:
+
+```bash
+(mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python Structural/Slaughter_2002_Linear_Cantilever_Beam/case.py --render-geometry
+```
+
+`--rebuild-mesh --render-geometry` builds `geometry.step` first. The colors of the bodies come from
+the STEP file: the cases built with netgen set them in `build_geometry()`, and those built with
+gmsh, which writes no colors, add them with `color_step()` of `casekit/gmsh_meshing.py`.
+
+### Scenes
+
+The scenes and animations of a case, `results/Scene_*.png` and `results/Animation_*.gif`, are
+rendered from the fields exported to `VisualizationOutput/` with [PyVista](https://pyvista.org/) by
+`create_scenes()`. They need the optional dependencies and are created after the run
+(`--render-scenes`), or from the output of a previous one (`--render-scenes-only`):
 
 ```bash
 (mufem-venv) pip install "./casekit[scenes]"

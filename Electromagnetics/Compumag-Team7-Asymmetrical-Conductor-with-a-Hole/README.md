@@ -42,8 +42,7 @@ self.magnetic_model = TimeHarmonicMagneticModel(frequency=self.frequencies[0], o
 The case solves $`200\,\mathrm{Hz}`$ first and then switches the model to $`50\,\mathrm{Hz}`$
 (`set_frequency`), so the exported fields belong to $`50\,\mathrm{Hz}`$.
 
-The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
-with `pymufem case.py --rebuild-mesh`. The [mesh](geometry.mesh) (Gmsh 2.2 format, for the curved
+The [mesh](geometry.mesh) (Gmsh 2.2 format, for the curved
 elements) contains the bodies **Air**, **Coil**, and **Plate**. Only the aluminum plate conducts:
 
 ```python
@@ -85,13 +84,6 @@ anticlockwise seen from $`+z`$ as in [1].
 ## Running
 
 Run the case with `pymufem case.py`.
-
-The animation (see Scenes) is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
-[case.py](case.py) from the fields exported by the case (run the case with `--render-scenes`, or with
-`--render-scenes-only` after a run; see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
-The geometry image (Figure 1) is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the view of the animation.
 
 ## Results
 

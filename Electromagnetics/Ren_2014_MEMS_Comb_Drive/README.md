@@ -126,10 +126,7 @@ The external `for` loop iterates through all inter-comb shifts. At the start of 
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
-obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format, allowing for
-subsequent visualization with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py)
-(run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format for the images of the Results section.
 
 
 ## Results
@@ -158,7 +155,7 @@ becomes denser near the edges of the combs, where the electric potential changes
 <img src="results/Scene_Electric_Potential_1_Mesh.png" width="45%" />
 <br/>
 <br/>
-<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement. The images are rendered by <code>create_scenes</code> in <a href="case.py">case.py</a>.</em>
+<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement.</em>
 </div>
 <br/>
 
@@ -219,7 +216,7 @@ where the combs are pulled together when voltage is applied.
 <img src="results/Animation_Electric_Potential.gif" width="75%">
 <br/>
 <br/>
-<em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is rendered by <code>create_scenes</code> in <a href="case.py">case.py</a>.</em>
+<em>Figure 6: The distribution of electric potential for various shifts between the combs.</em>
 </div>
 <br/>
 

@@ -93,11 +93,6 @@ q = H\,(T - T_0), \qquad H = 24.1 \cdot 10^{-4}\, \varepsilon\, T^{1.61}\ \mathr
 with $`T`$ in $`{}^{\circ}\mathrm{C}`$. As in [1], the surface under the arc is insulated while the arc
 passes; the case insulates the footprint of the double ellipsoid ($`|x| < a`$, $`-c_r < z - v t - z_0 < c_f`$).
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-The geometry image above is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the view of the scenes.
-
 ## Running
 
 Run the case with `pymufem case.py`.
@@ -140,9 +135,7 @@ The case checks the temperature at $`x = 15`$ and $`20\,\mathrm{mm}`$ against th
 ## Scenes
 
 The temperature and the heat source are exported to `VisualizationOutput/`; Figure 3 shows them at
-the final time, rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in
-[case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
-[Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+the final time.
 
 | Temperature | Goldak Heat Source |
 | :---: | :---: |
