@@ -16,6 +16,11 @@ case overrides `mesh_path` with a .msh file:
             path=self.mesh_path,
             options={"Mesh.MeshSizeMax": 4e-3, "Mesh.ElementOrder": 2},
         )
+
+gmsh writes no colors into a STEP file either; `color_step` adds them for the geometry image
+(casekit.netgen_image), at the end of `build_geometry()`:
+
+        color_step(self.step_path, self.physical_groups, {"Walls": color_steel})
 """
 
 from collections import defaultdict
@@ -65,3 +70,26 @@ def mesh_and_save(
     gmsh.write(str(path))
 
     gmsh.finalize()
+
+
+def color_step(
+    step_path: Union[str, Path],
+    physical_groups: Dict[str, Tuple[int, List[int]]],
+    colors: Dict[str, Tuple[float, ...]],
+) -> None:
+    """Give the faces of the physical groups (of a volume group: all its faces) their color,
+    RGB or RGBA, in the STEP file; later groups override earlier ones.
+
+    netgen reads the file, its faces in the order of gmsh's face tags, and writes it again
+    with the colors; gmsh numbers the entities of the written file the same way, so the
+    physical groups still apply.
+    """
+    from netgen.occ import OCCGeometry
+
+    shape = OCCGeometry(str(step_path)).shape
+    for name, color in colors.items():
+        dim, tags = physical_groups[name]
+        for tag in tags:
+            for face in shape.solids[tag - 1].faces if dim == 3 else [shape.faces[tag - 1]]:
+                face.col = color
+    shape.WriteStep(str(step_path))

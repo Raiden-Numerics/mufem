@@ -20,7 +20,7 @@ thin rectangular irises.
 Figure 1 shows the geometry of the filter.
 
 <div align="center">
-<img src="data/Geometry.png" alt="drawing" width="45%">
+<img src="data/Geometry.png" alt="Geometry" width="45%">
 <br/>
 <br/>
 <em>Figure 1: Geometry of the waveguide circular cavity filter.</em>
@@ -58,7 +58,8 @@ note that [Gmsh](https://gmsh.info/) is not supplied with mufem; it is installed
 with the shared helpers of this repository).
 The geometry is built in the `build_geometry` method of [case.py](case.py) and
 meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`pymufem case.py --rebuild-mesh`.
+`pymufem case.py --rebuild-mesh`. Figure 1 is rendered from `geometry.step` with the netgen
+viewer by `create_geometry_image()` in [case.py](case.py).
 To improve the accuracy of modeling, we use the mesh with second-order finite
 elements.
 By using such a mesh, we can avoid artifacts that arise when trying to

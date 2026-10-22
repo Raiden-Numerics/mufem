@@ -116,6 +116,19 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
         gmsh.finalize()
 
+        from casekit.gmsh_meshing import color_step
+        from casekit.netgen_geometry import color_aluminum, color_copper
+
+        color_step(
+            self.step_path,
+            self.physical_groups,
+            {
+                "Walls": color_aluminum + (0.4,),
+                "InputPort": color_copper,
+                "OutputPort": color_copper,
+            },
+        )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -132,6 +145,34 @@ class MontejoGarai1995CavityFilter(ValidationCase):
                 "Mesh.HighOrderOptimize": 1,
             },
         )
+
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes() and of data/Mesh.png, the walls
+        # transparent, labeled as in Montejo-Garai (1995), Fig. 1.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(
+            image=snapshot(shapes=solids, direction=(-0.683, 0.2588, -0.754), up=(0, 1, 0))
+        )
+
+        # Room above and below the filter for the labels.
+        image = pad(image=image, top=90, bottom=120)
+        labels = Labels(image=image)
+        for text, position, start, end in [
+            ("Circular cavity", (500, 60), (500, 85), (500, 202)),
+            ("Iris", (290, 580), (285, 555), (252, 408)),
+            ("Output port", (965, 60), (979, 85), (979, 140)),
+            ("Input port", (90, 580), (87, 555), (87, 432)),
+            ("WR75 waveguide", (150, 200), (150, 225), (150, 366)),
+            ("WR75 waveguide", (920, 405), (1012, 380), (1012, 220)),
+        ]:
+            labels.text(position=position, text=text)
+            labels.arrow(start=start, end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(
