@@ -192,7 +192,7 @@ store it in a separate array.
 At the two visualized frequencies we also save the electric field in the
 [VTK](https://vtk.org/) file format for subsequent visualization.
 The animation of Figure 4 is rendered from it with [PyVista](https://pyvista.org/) by
-`create_scenes()` in [case.py](case.py) (run the case with `--scenes`, or with `--scenes-only`
+`create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only`
 after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 

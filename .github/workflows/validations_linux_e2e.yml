@@ -14,4 +14,4 @@ jobs:
       python-version: '3.12'
       case-path: '.'
       run-cases-args: '--rebuild-mesh'
-      scenes: true
+      render-scenes: true

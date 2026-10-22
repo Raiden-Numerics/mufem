@@ -19,7 +19,7 @@ for the installation and a first run.
 | `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case before running it |
-| `--scenes` | also creates the scenes of each case (see [Scenes](#scenes)) |
+| `--render-scenes` | also creates the scenes of each case (see [Scenes](#scenes)) |
 
 ## Scenes
 
@@ -29,8 +29,8 @@ created only on request, after the run or from the output of a previous one:
 
 ```bash
 (mufem-venv) pip install "./casekit[scenes]"
-(mufem-venv) pymufem Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --scenes
-(mufem-venv) python Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --scenes-only
+(mufem-venv) pymufem Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes
+(mufem-venv) python Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes-only
 ```
 
 The scenes render off screen and need no display; in a bare Linux container install the EGL

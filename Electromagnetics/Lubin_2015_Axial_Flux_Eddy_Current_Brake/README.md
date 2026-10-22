@@ -85,7 +85,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 Run the case with `pymufem case.py`.
 
-The animation shown in the Scenes section is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py). Its input comes from a separate run with `output_for_animation = True` in [case.py](case.py), which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds. Run that case with `--scenes`, or with `--scenes-only` afterwards to redraw the scene without running the case again (see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+The animation shown in the Scenes section is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py). Its input comes from a separate run with `output_for_animation = True` in [case.py](case.py), which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds. Run that case with `--render-scenes`, or with `--render-scenes-only` afterwards to redraw the scene without running the case again (see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 ## Results
 

@@ -46,7 +46,7 @@ The geometry is built with netgen in the `build_geometry` method of [case.py](ca
 
 ## Running
 
-Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py) (run the case with `--scenes`, or with `--scenes-only` after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)). Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), in the same view as Figure 3.
+Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)). Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), in the same view as Figure 3.
 
 ## Results
 

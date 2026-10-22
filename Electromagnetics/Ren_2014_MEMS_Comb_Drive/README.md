@@ -128,7 +128,7 @@ established mesh refinement algorithm. This loop continues until the number of m
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
 obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format, allowing for
 subsequent visualization with [PyVista](https://pyvista.org/) by `create_scenes()` in [case.py](case.py)
-(run the case with `--scenes`, or with `--scenes-only` after a run; see
+(run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
 [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 

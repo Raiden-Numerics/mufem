@@ -110,7 +110,7 @@ Figure 1 is rendered from `geometry.step` with the netgen viewer by
 Figure 3 and the animation (Figure 5) are rendered with [PyVista](https://pyvista.org/)
 by `create_scenes()` in [case.py](case.py) from the fields of every time step and the
 coil current and rotor torque that every run of the case writes to `VisualizationOutput/`; run
-the case with `--scenes`, or with `--scenes-only` after a run (see
+the case with `--render-scenes`, or with `--render-scenes-only` after a run (see
 [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 ## Results

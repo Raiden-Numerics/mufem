@@ -29,7 +29,7 @@ on:
         required: false
         type: string
         default: ''
-      scenes:
+      render-scenes:
         description: Also create the scenes of the cases (PyVista, rendered off screen)
         required: false
         type: boolean
@@ -58,7 +58,7 @@ jobs:
         # build, which is compiled with OpenMP and links libgomp.so.1.
         apt-get install -y libgomp1
         # The scenes render off screen with VTK through EGL (Mesa).
-        if [ "${{ inputs.scenes }}" = "true" ]; then apt-get install -y libegl1; fi
+        if [ "${{ inputs.render-scenes }}" = "true" ]; then apt-get install -y libegl1; fi
 
     - name: Set MUFEM version from VERSION file
       run: |
@@ -88,7 +88,7 @@ jobs:
         python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
         # Headless gmsh first, so that casekit's gmsh requirement is already satisfied.
         python -m pip install -i https://gmsh.info/python-packages-dev-nox --no-cache-dir gmsh
-        if [ "${{ inputs.scenes }}" = "true" ]; then
+        if [ "${{ inputs.render-scenes }}" = "true" ]; then
           python -m pip install -e "./casekit[scenes]"
         else
           python -m pip install -e ./casekit
@@ -116,4 +116,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }} ${{ inputs.scenes && '--scenes' || '' }}
+        python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }} ${{ inputs.render-scenes && '--render-scenes' || '' }}

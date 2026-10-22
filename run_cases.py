@@ -48,7 +48,7 @@ def run_cases(
     launcher: str,
     exclude_tags: Set[str],
     rebuild_mesh: bool = False,
-    scenes: bool = False,
+    render_scenes: bool = False,
 ) -> None:
 
     failed_cases: List[str] = []
@@ -86,7 +86,7 @@ def run_cases(
                 subprocess.run(
                     args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
                 )
-            run_args = " --scenes" if scenes else ""
+            run_args = " --render-scenes" if render_scenes else ""
             subprocess.run(args=f"{launcher} case.py{run_args}", shell=True, check=True, text=True)
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         help="rebuild each case's geometry and mesh (serially) before running it",
     )
     parser.add_argument(
-        "--scenes",
+        "--render-scenes",
         action="store_true",
         help="also create each case's scenes (needs casekit[scenes])",
     )
@@ -147,5 +147,5 @@ if __name__ == "__main__":
         launcher=args.launcher,
         exclude_tags=set(args.exclude_tag),
         rebuild_mesh=args.rebuild_mesh,
-        scenes=args.scenes,
+        render_scenes=args.render_scenes,
     )

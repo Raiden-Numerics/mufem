@@ -129,7 +129,7 @@ outlined in the
 [Visualization](https://raiden-numerics.github.io/mufem-doc/framework/visualization.html)
 section of the documentation.
 It is then plotted with [PyVista](https://pyvista.org/) by `create_scenes()` in
-[case.py](case.py) (run the case with `--scenes`, or with `--scenes-only` after a run; see
+[case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only` after a run; see
 [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 
 

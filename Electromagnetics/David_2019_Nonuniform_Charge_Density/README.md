@@ -431,7 +431,7 @@ analytical value (the mesh size of 0.5 m equals the width $`a`$ of the charge
 distribution), and at $`r = 5`$ m, outside the charge, where it is 0.5 % below.
 
 The exported electric field is visualized with [PyVista](https://pyvista.org/) by
-`create_scenes()` in [case.py](case.py) (run the case with `--scenes`, or with `--scenes-only`
+`create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only`
 after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
 Figure 2 illustrates the distribution of the $`x`$-component of the
 electric field in the $`z=0`$ cross-section.
