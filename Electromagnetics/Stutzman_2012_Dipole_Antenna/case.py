@@ -84,6 +84,19 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
         gmsh.finalize()
 
+        from casekit.colors import hex_to_float
+        from casekit.gmsh_meshing import color_step
+
+        color_step(
+            self.step_path,
+            self.physical_groups,
+            {
+                "BoundaryTopArm": hex_to_float("c8c8c8"),
+                "BoundaryBotArm": hex_to_float("c8c8c8"),
+                "Port": hex_to_float("ff6464"),
+            },
+        )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -100,6 +113,38 @@ class Stutzman2012DipoleAntenna(ValidationCase):
                 "Mesh.HighOrderOptimize": 1,
             },
         )
+
+    def create_geometry_image(self):
+        # The dipole in the view of data/Mesh.png, 5 deg from above. The arms are holes in the
+        # air, and netgen draws a body in one transparency, so the image shows them as bodies
+        # of their own, without the air, and the port (a face) as a thin plate.
+        import math
+
+        from netgen.occ import Box, OCCGeometry, Pnt, Sphere
+
+        from casekit.netgen_image import pad, snapshot, trim
+
+        shape = OCCGeometry(f"{self.step_path}").shape
+        air = shape.solids[0]
+        arms = (Sphere(Pnt(0, 0, 0), self.outer_boundary_radius) - air).solids
+        port_face = next(face for face in shape.faces if face.col and face.col[0] == 1.0)
+        low, high = port_face.bounding_box
+        port = Box(Pnt(low.x, -1e-6, low.z), Pnt(high.x, 1e-6, high.z))
+        port.faces.col = port_face.col
+
+        azimuth, elevation = math.radians(30.0), math.radians(5.0)
+        direction = (
+            -math.sin(azimuth) * math.cos(elevation),
+            -math.cos(azimuth) * math.cos(elevation),
+            math.sin(elevation),
+        )
+        image = snapshot(
+            shapes=[*arms, port], direction=direction, up=(0, 0, 1), zoom=0, size=(1200, 1600)
+        )
+
+        # Room beside the thin dipole, so that the README shows it at a readable size.
+        image = pad(image=trim(image=image), left=540, right=540)
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(

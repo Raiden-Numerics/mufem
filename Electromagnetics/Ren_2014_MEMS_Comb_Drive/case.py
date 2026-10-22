@@ -41,8 +41,16 @@ class Ren2014MemsCombDrive(ValidationCase):
     def mesh_paths(self):
         return [self.mesh_path_for(x) for x in self.xshifts]
 
+    @property
+    def step_path(self):
+        # The geometry of [1], shown in data/Geometry.png.
+        return self.step_path_for(self.xshifts[0])
+
     def build_geometry(self):
         import gmsh
+
+        from casekit.colors import hex_to_float
+        from casekit.gmsh_meshing import color_step
 
         self.physical_groups = {}
 
@@ -105,6 +113,16 @@ class Ren2014MemsCombDrive(ValidationCase):
 
             gmsh.finalize()
 
+            color_step(
+                self.step_path_for(xshift),
+                self.physical_groups[xshift],
+                {
+                    "Comb1": hex_to_float("f0a051"),
+                    "Comb2": hex_to_float("aaf8c6"),
+                    "Ground": hex_to_float("646464"),
+                },
+            )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -115,6 +133,25 @@ class Ren2014MemsCombDrive(ValidationCase):
                 path=self.mesh_path_for(xshift),
                 options={"Mesh.MeshSizeMax": 4},  # [um]; refined adaptively at run time
             )
+
+    def create_geometry_image(self):
+        # The combs over the ground, in the view of the scenes of create_scenes(). The combs
+        # are holes in the air, and netgen draws a body in one transparency, so the image
+        # shows them as bodies of their own, without the air. The ground is the bottom face of
+        # the air (a boundary condition); netgen draws only bodies, so it is a plate about one
+        # pixel thick.
+        from netgen.occ import Box, OCCGeometry, Pnt, Y
+
+        from casekit.netgen_image import snapshot, trim
+
+        air = OCCGeometry(f"{self.step_path}").shape.solids[0]
+        low, high = air.bounding_box
+        combs = (Box(low, high) - air).solids
+        ground = Box(Pnt(low.x, low.y - 0.1, low.z), Pnt(high.x, low.y, high.z))
+        ground.faces.col = air.faces.Min(Y).col
+
+        image = snapshot(shapes=[ground, *combs], direction=(1, 1, 1), up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(name=self.name)

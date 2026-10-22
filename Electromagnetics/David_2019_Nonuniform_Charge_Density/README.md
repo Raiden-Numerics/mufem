@@ -123,6 +123,14 @@ sphere_radius = 10.0  # [m] radius of the spherical domain
 domain = Sphere(Pnt(0, 0, 0), sphere_radius)
 ```
 
+<div align="center">
+<img src="data/Geometry.png" alt="Geometry" width="45%">
+<br/>
+<br/>
+<em>Figure 1: The computational domain, a sphere of radius <i>R</i> = 10 m, with the charge density <i>ρ</i>(<i>r</i>) at its center and the potential <i>φ</i> = 0 on its boundary <i>Γ</i>.</em>
+</div>
+<br/>
+
 We will now assign name attributes to the geometry for reference in the mufem
 code.
 This will help us mark the computational domain and its boundary for applying
@@ -132,7 +140,8 @@ to the sphere and, with `individual_names=False`, the name "Domain::Boundary" to
 all of its faces, which for a sphere is its single surface:
 
 ```python
-from casekit.netgen_geometry import color_air, name_body
+from casekit.colors import color_air
+from casekit.netgen_geometry import name_body
 
 name_body(domain, "Domain", color=color_air, individual_names=False)
 ```
@@ -415,14 +424,14 @@ and `generate_mesh` create the mesh, `setup_case` sets up the simulation, `valid
 compares the electric field with the theory at two points, and `postprocess` plots
 the field along the x-axis and exports it.
 
-Figure 1 demonstrates that the electric field obtained from the mufem
+Figure 2 demonstrates that the electric field obtained from the mufem
 simulation closely matches the field calculated using the analytical formula.
 
 <div align="center">
 <img src="results/Electric_Field.png" alt="Electric field" width="75%">
 <br/>
 <br/>
-<em>Figure 1: Electric field along the x-axis: mufem and the analytical solution.</em>
+<em>Figure 2: Electric field along the x-axis: mufem and the analytical solution.</em>
 </div>
 <br/>
 
@@ -433,14 +442,14 @@ distribution), and at $`r = 5`$ m, outside the charge, where it is 0.5 % below.
 The exported electric field is visualized with [PyVista](https://pyvista.org/) by
 `create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only`
 after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
-Figure 2 illustrates the distribution of the $`x`$-component of the
+Figure 3 illustrates the distribution of the $`x`$-component of the
 electric field in the $`z=0`$ cross-section.
 
 <div align="center">
 <img src="results/Scene_Electric_Field.png" alt="Electric field scene" width="75%">
 <br/>
 <br/>
-<em>Figure 2: The <i>x</i>-component of the electric field in the cross-section <i>z</i> = 0.</em>
+<em>Figure 3: The <i>x</i>-component of the electric field in the cross-section <i>z</i> = 0.</em>
 </div>
 <br/>
 

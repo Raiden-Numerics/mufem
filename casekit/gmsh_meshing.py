@@ -23,6 +23,7 @@ gmsh writes no colors into a STEP file either; `color_step` adds them for the ge
         color_step(self.step_path, self.physical_groups, {"Walls": color_steel})
 """
 
+import math
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -30,18 +31,9 @@ from typing import Dict, List, Optional, Tuple, Union
 import gmsh
 
 
-def mesh_and_save(
-    step_path: Union[str, Path],
-    physical_groups: Dict[str, Tuple[int, List[int]]],
-    path: Union[str, Path] = "geometry.msh",
-    options: Optional[Dict[str, float]] = None,
-) -> None:
-    """Mesh the STEP file with gmsh and write it as Gmsh 2.2 to `path` (a .msh file).
-
-    Physical groups are numbered from 1 per dimension in the given order.
-    """
-    gmsh.initialize()
-
+def _import(step_path: Union[str, Path]) -> None:
+    """Import the STEP file into the current gmsh model, numbering its entities as the
+    physical groups of a case do."""
     gmsh.model.occ.importShapes(str(step_path), highestDimOnly=False)
     gmsh.model.occ.synchronize()
 
@@ -55,6 +47,20 @@ def mesh_and_save(
     if free_faces:
         gmsh.model.occ.fragment(gmsh.model.getEntities(3), free_faces)
         gmsh.model.occ.synchronize()
+
+
+def mesh_and_save(
+    step_path: Union[str, Path],
+    physical_groups: Dict[str, Tuple[int, List[int]]],
+    path: Union[str, Path] = "geometry.msh",
+    options: Optional[Dict[str, float]] = None,
+) -> None:
+    """Mesh the STEP file with gmsh and write it as Gmsh 2.2 to `path` (a .msh file).
+
+    Physical groups are numbered from 1 per dimension in the given order.
+    """
+    gmsh.initialize()
+    _import(step_path)
 
     next_tag = defaultdict(lambda: 1)
     for name, (dim, tags) in physical_groups.items():
@@ -72,6 +78,19 @@ def mesh_and_save(
     gmsh.finalize()
 
 
+def _point_on(tag: int) -> List[float]:
+    """A point on the face `tag` of the current model, searched in its parameter domain: the
+    middle can lie in a hole (e.g. of an annulus)."""
+    low, high = gmsh.model.getParametrizationBounds(2, tag)
+    for fu in (0.5, 0.25, 0.75, 0.1, 0.9):
+        for fv in (0.5, 0.25, 0.75, 0.1, 0.9):
+            uv = [low[0] + fu * (high[0] - low[0]), low[1] + fv * (high[1] - low[1])]
+            point = list(gmsh.model.getValue(2, tag, uv))
+            if gmsh.model.isInside(2, tag, point):
+                return point
+    raise ValueError(f"no point found on face {tag}")
+
+
 def color_step(
     step_path: Union[str, Path],
     physical_groups: Dict[str, Tuple[int, List[int]]],
@@ -80,16 +99,44 @@ def color_step(
     """Give the faces of the physical groups (of a volume group: all its faces) their color,
     RGB or RGBA, in the STEP file; later groups override earlier ones.
 
-    netgen reads the file, its faces in the order of gmsh's face tags, and writes it again
-    with the colors; gmsh numbers the entities of the written file the same way, so the
-    physical groups still apply.
+    The groups number the faces as mesh_and_save imports the file, which can differ from
+    their order in the file (e.g. after embedding a port face). So each face of a group is
+    found in the file by a point on it; netgen reads the file, its faces in that order, and
+    writes it again with the colors, which gmsh ignores.
     """
     from netgen.occ import OCCGeometry
 
+    gmsh.initialize()
+    gmsh.model.add("written")
+    gmsh.model.occ.importShapes(str(step_path), highestDimOnly=False)
+    gmsh.model.occ.synchronize()
+    written = [tag for _, tag in gmsh.model.getEntities(2)]
+    gmsh.model.add("imported")
+    _import(step_path)
+
+    def written_faces(dim: int, tags: List[int]) -> List[int]:
+        """The indices in the file of the faces of the imported entities `tags`."""
+        gmsh.model.setCurrent("imported")
+        if dim == 3:
+            boundary = gmsh.model.getBoundary([(3, tag) for tag in tags], combined=False)
+            tags = sorted({abs(tag) for _, tag in boundary})
+        points = [_point_on(tag) for tag in tags]
+        gmsh.model.setCurrent("written")
+        return [
+            min(
+                (i for i, face in enumerate(written) if gmsh.model.isInside(2, face, point)),
+                key=lambda i: math.dist(
+                    point, gmsh.model.getClosestPoint(2, written[i], point)[0]
+                ),
+            )
+            for point in points
+        ]
+
+    faces = {name: written_faces(*physical_groups[name]) for name in colors}
+    gmsh.finalize()
+
     shape = OCCGeometry(str(step_path)).shape
     for name, color in colors.items():
-        dim, tags = physical_groups[name]
-        for tag in tags:
-            for face in shape.solids[tag - 1].faces if dim == 3 else [shape.faces[tag - 1]]:
-                face.col = color
+        for index in faces[name]:
+            shape.faces[index].col = color
     shape.WriteStep(str(step_path))
