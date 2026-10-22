@@ -93,6 +93,18 @@ class Biro1993IronCore(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=0.05, path=self.mesh_path, second_order=True)
 
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes(): the core and the conductors seen from below.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(
+            shapes=solids, direction=(-0.0725, -0.088, -0.061), up=(0, 0, 1), zoom=-35
+        )
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,
