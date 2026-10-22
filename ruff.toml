@@ -12,5 +12,3 @@ select = ["E", "W", "F"]
 # casekit helpers, so their imports intentionally follow a
 # statement (E402).
 "**/case.py" = ["E402"]
-# The scene scripts run under pvpython and make casekit importable the same way.
-"**/create_scene.py" = ["E402"]

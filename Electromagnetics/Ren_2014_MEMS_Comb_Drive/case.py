@@ -41,8 +41,16 @@ class Ren2014MemsCombDrive(ValidationCase):
     def mesh_paths(self):
         return [self.mesh_path_for(x) for x in self.xshifts]
 
+    @property
+    def step_path(self):
+        # The geometry of [1], shown in data/Geometry.png.
+        return self.step_path_for(self.xshifts[0])
+
     def build_geometry(self):
         import gmsh
+
+        from casekit.colors import hex_to_float
+        from casekit.gmsh_meshing import color_step
 
         self.physical_groups = {}
 
@@ -105,6 +113,16 @@ class Ren2014MemsCombDrive(ValidationCase):
 
             gmsh.finalize()
 
+            color_step(
+                step_path=self.step_path_for(xshift),
+                physical_groups=self.physical_groups[xshift],
+                colors={
+                    "Comb1": hex_to_float("f0a051"),
+                    "Comb2": hex_to_float("aaf8c6"),
+                    "Ground": hex_to_float("646464"),
+                },
+            )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -115,6 +133,25 @@ class Ren2014MemsCombDrive(ValidationCase):
                 path=self.mesh_path_for(xshift),
                 options={"Mesh.MeshSizeMax": 4},  # [um]; refined adaptively at run time
             )
+
+    def create_geometry_image(self):
+        # The combs over the ground, in the view of the scenes of create_scenes(). The combs
+        # are holes in the air, and netgen draws a body in one transparency, so the image
+        # shows them as bodies of their own, without the air. The ground is the bottom face of
+        # the air (a boundary condition); netgen draws only bodies, so it is a plate about one
+        # pixel thick.
+        from netgen.occ import Box, OCCGeometry, Pnt, Y
+
+        from casekit.netgen_image import snapshot, trim
+
+        air = OCCGeometry(f"{self.step_path}").shape.solids[0]
+        low, high = air.bounding_box
+        combs = (Box(low, high) - air).solids
+        ground = Box(Pnt(low.x, low.y - 0.1, low.z), Pnt(high.x, low.y, high.z))
+        ground.faces.col = air.faces.Min(Y).col
+
+        image = snapshot(shapes=[ground, *combs], direction=(1, 1, 1), up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(name=self.name)
@@ -180,7 +217,7 @@ class Ren2014MemsCombDrive(ValidationCase):
             for i in range(max_refinements):
                 self.runner.advance(2)
 
-                # The initial mesh, shown in the mesh image of create_scene.py.
+                # The initial mesh, shown in the mesh image of create_scenes().
                 if i == 0 and xshift == self.xshifts[0]:
                     vis.save(order=2)
 
@@ -276,6 +313,55 @@ class Ren2014MemsCombDrive(ValidationCase):
             ylabel="Capacitance [fF]",
             path=f"{self.results_path / 'Capacitance_Vs_Xshift.png'}",
         )
+
+    def create_scenes(self):
+        # The fields exported by solve(): the potential on the initial (0) and the refined (1)
+        # mesh of the zero shift, then on the refined mesh of every further shift i (i + 1).
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene, gif
+
+        reader = FieldExportReader(self.dir_path)
+        field = dict(scalars="Electric Potential", clim=(0.0, 1.0))
+        colorbar = dict(n_labels=6, location="bottom", font_size=20)
+        # The plane through the combs.
+        origin, normal = (11e-6, 2e-6, 17e-6), (0.0, 1.0, 0.0)
+
+        # The section through the combs at the zero shift with the mesh edges, on the initial
+        # and the refined mesh, seen from above.
+        for index in (0, 1):
+            domain = reader.read(index)["Domain"]
+            scene = create_scene((1100, 800))
+            actor = scene.add_mesh(
+                domain.slice(normal=normal, origin=origin),
+                show_edges=True,
+                edge_color=(0.1, 0.1, 0.1),
+                line_width=1,
+                **field,
+            )
+            scene.camera_position = [(15e-6, 1.0, 17e-6), (15e-6, 2e-6, 17e-6), (-1, 0, 0)]
+            scene.camera.parallel_scale = 2e-5
+            add_colorbar(scene, actor, "Electric Potential [V]", boxed=True, **colorbar)
+            scene.show(screenshot=self.results_path / f"Scene_Electric_Potential_{index}_Mesh.png")
+
+        # Animation: the potential on the refined mesh, clipped through the combs, from the
+        # largest shift to zero, as the combs are pulled together when the voltage is applied.
+        scene = create_scene((1100, 800))
+
+        def clipped(shift):
+            domain = reader.read(shift + 1)["Domain"]
+            return domain.clip(normal=normal, origin=origin, invert=True)
+
+        last = len(self.xshifts) - 1
+        actor = scene.add_mesh(clipped(last), name="field", **field)
+        scene.view_vector((1, 1, 1), viewup=(0, 1, 0))
+        scene.camera.zoom(1.15)
+        scene.camera.SetWindowCenter(0.0, -0.12)  # room for the color bar below
+        add_colorbar(scene, actor, "Electric Potential [V]", **colorbar)
+        with gif(
+            scene, self.results_path / "Animation_Electric_Potential.gif", fps=5
+        ) as write_frame:
+            for shift in reversed(range(len(self.xshifts))):
+                scene.add_mesh(clipped(shift), name="field", **field)
+                write_frame()
 
 
 if __name__ == "__main__":

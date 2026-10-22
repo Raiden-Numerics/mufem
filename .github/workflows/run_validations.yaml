@@ -29,6 +29,16 @@ on:
         required: false
         type: string
         default: ''
+      render-geometry:
+        description: Also create the geometry images of the cases (netgen viewer, under Xvfb)
+        required: false
+        type: boolean
+        default: false
+      render-scenes:
+        description: Also create the scenes of the cases (PyVista, rendered off screen)
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   run-examples:
@@ -52,6 +62,12 @@ jobs:
         # only glibc + libstdc++ which ship in ubuntu:24.04). libgomp1 is for the gmsh -nox
         # build, which is compiled with OpenMP and links libgomp.so.1.
         apt-get install -y libgomp1
+        # The scenes render off screen with VTK through EGL (Mesa).
+        if [ "${{ inputs.render-scenes }}" = "true" ]; then apt-get install -y libegl1; fi
+        # The netgen viewer (Tk and OpenGL) of the geometry images needs an X server: Xvfb.
+        if [ "${{ inputs.render-geometry }}" = "true" ]; then
+          apt-get install -y xvfb xauth libgl1 libglu1-mesa libtk8.6 libsm6 libice6 libxext6
+        fi
 
     - name: Set MUFEM version from VERSION file
       run: |
@@ -81,7 +97,11 @@ jobs:
         python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
         # Headless gmsh first, so that casekit's gmsh requirement is already satisfied.
         python -m pip install -i https://gmsh.info/python-packages-dev-nox --no-cache-dir gmsh
-        python -m pip install -e ./casekit
+        if [ "${{ inputs.render-scenes }}" = "true" ]; then
+          python -m pip install -e "./casekit[scenes]"
+        else
+          python -m pip install -e ./casekit
+        fi
 
     - name: Verify install
       run: |
@@ -105,4 +125,4 @@ jobs:
         # with "cannot allocate memory in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
-        python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }}
+        ${{ inputs.render-geometry && 'xvfb-run -a -s "-screen 0 2400x1600x24"' || '' }} python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }} ${{ inputs.render-geometry && '--render-geometry' || '' }} ${{ inputs.render-scenes && '--render-scenes' || '' }}

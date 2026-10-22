@@ -79,13 +79,11 @@ For our setup ($`p = 5`$, $`d = 5\,\mathrm{mm}`$ copper), with $`N = 40`$ and $`
 
 We use $`\Delta t = 0.5\,\mathrm{ms}`$ throughout, coarser than both estimates: about 3 times $`\Delta t_e`$ at 2000 rpm and about 6 times $`\Delta t_d`$. The case simulates the slip speeds 500, 1000 and 2000 rpm; after each rotation-rate change, we advance for 20 time steps before evaluating the quasi-steady torque. First-order elements are used.
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`. Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py).
-
 ## Running
 
 Run the case with `pymufem case.py`.
 
-The animation shown in the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py). Its input comes from a separate run with `output_for_animation = True` in [case.py](case.py), which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds. Afterwards run `pvpython create_scene.py` in the case directory (requires `ffmpeg`); the scene can then be redrawn without running the case again.
+The input of the animation shown in the Scenes section comes from a separate run with `output_for_animation = True` in [case.py](case.py), which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds.
 
 ## Results
 
@@ -133,7 +131,7 @@ The braking torque initially increases with slip speed because the induced elect
 An animation of the brake is shown below.
 
 <div align="center">
-<img src="./results/Result_Animation.gif" alt="drawing">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="drawing">
 <br/>
 <br/>
 <em>Figure 4: Time evolution of the axial-flux eddy current brake simulation. The rotating magnets induce eddy currents in the copper plate that interact with the magnetic field of the permanent magnets and produce a braking torque, while transient electromagnetic diffusion and skin effects develop over time.</em>

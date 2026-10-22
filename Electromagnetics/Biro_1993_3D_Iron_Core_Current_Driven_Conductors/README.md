@@ -36,11 +36,6 @@ We use second-order elements. Note that we impose the current inside the coil th
 **source** constraint; each turn is a solid coil whose quarter is driven between its faces on the $`x = 0`$ and
 $`y = 0`$ planes, and the losses of the quarter are multiplied by 4.
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-The geometry image above is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the same view as the scenes.
-
 ## Running
 
 Run the case with `pymufem case.py`; it prints the loss of each turn against the reference (the table of the Results section).
@@ -93,8 +88,7 @@ Run the case with `pymufem case.py`; it prints the loss of each turn against the
 
 The magnetic flux density and the electric current density (real and imaginary parts) are exported to
 `VisualizationOutput/`; the scenes and the animation below show their magnitude at the phase
-$`\phi`$, $`|\vec{F}_r \cos\phi - \vec{F}_i \sin\phi|`$, and are rendered from them with ParaView by
-[create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case; requires `ffmpeg`).
+$`\phi`$, $`|\vec{F}_r \cos\phi - \vec{F}_i \sin\phi|`$.
 
 Figure 2 shows the electric current density: strong eddy currents are created at the surface of each
 conductor. Figure 3 shows the magnetic flux density, and Figure 4 animates the electric current density
@@ -119,7 +113,7 @@ over one period.
 <br/>
 
 <div align="center">
-<img src="./results/animation.gif" alt="Animation of the electric current density" width="75%">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="Animation of the electric current density" width="75%">
 <br/>
 <br/>
 <em>Figure 4: Electric current density over one period.</em>

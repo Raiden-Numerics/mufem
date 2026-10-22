@@ -35,10 +35,8 @@ class Team36InductionHeating(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Cylinder, Glue, Vec, X, Y, Z
 
+        from casekit.colors import color_air, color_copper, color_iron
         from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
             name_body,
             polygon_face,
             revolve_rotate_cut,
@@ -125,6 +123,17 @@ class Team36InductionHeating(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.015, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The modeled sector in the isometric view along (-1, 1, 1) with the axis of the device
+        # (y) up.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(shapes=solids, direction=(-1, 1, 1), up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(name=self.name)

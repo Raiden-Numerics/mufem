@@ -102,7 +102,7 @@ for xshift in self.xshifts:
     for i in range(max_refinements):
         self.runner.advance(2)
 
-        # The initial mesh, shown in the mesh image of create_scene.py.
+        # The initial mesh, shown in the mesh image of create_scenes().
         if i == 0 and xshift == self.xshifts[0]:
             vis.save(order=2)
 
@@ -126,9 +126,7 @@ The external `for` loop iterates through all inter-comb shifts. At the start of 
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
-obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format, allowing for
-subsequent visualization using [ParaView](https://www.paraview.org/) by [create_scene.py](create_scene.py)
-(run with `pvpython create_scene.py`, requires `ffmpeg`).
+obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format for the images of the Results section.
 
 
 ## Results
@@ -157,7 +155,7 @@ becomes denser near the edges of the combs, where the electric potential changes
 <img src="results/Scene_Electric_Potential_1_Mesh.png" width="45%" />
 <br/>
 <br/>
-<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement. The images are rendered by <a href="create_scene.py">create_scene.py</a>.</em>
+<em>Figure 3: A slice of the computational domain displaying the calculated electric field potential along with the mesh edges for two different meshes: (left) the initial mesh and (right) the mesh after several cycles of adaptive mesh refinement.</em>
 </div>
 <br/>
 
@@ -215,10 +213,10 @@ The animation runs from the largest shift to zero shift, which mimics the action
 where the combs are pulled together when voltage is applied.
 
 <div align="center">
-<img src="results/Electric_Potential.gif" width="75%">
+<img src="results/Animation_Electric_Potential.gif" width="75%">
 <br/>
 <br/>
-<em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is rendered by <a href="create_scene.py">create_scene.py</a>.</em>
+<em>Figure 6: The distribution of electric potential for various shifts between the combs.</em>
 </div>
 <br/>
 

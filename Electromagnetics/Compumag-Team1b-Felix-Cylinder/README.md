@@ -42,11 +42,9 @@ We use an [unsteady run](https://raiden-numerics.github.io/mufem-doc/models/elec
 ```
 on the boundary of a cubic air box of $`0.4\,\mathrm{m}`$ edge length around the full cylinder (length $`0.2\,\mathrm{m}`$, inner and outer radii $`0.05715\,\mathrm{m}`$ and $`0.06985\,\mathrm{m}`$).
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-
 ## Running
 
-Run the case with `pymufem case.py`. The scene of the Scenes section is rendered with ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case). Figure 1 is rendered from `geometry.step` with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), in the same view as Figure 3.
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -84,10 +82,10 @@ Figure 2 shows the power loss over time, compared with the curve of Fig. 8 of [2
 
 ## Scenes
 
-The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; Figure 3 is rendered from them with ParaView by [create_scene.py](create_scene.py).
+The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; Figure 3 shows the eddy currents.
 
 <div align="center">
-<img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="45%">
+<img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="75%">
 <br/>
 <br/>
 <em>Figure 3: Eddy currents inside the cylinder at the final time.</em>

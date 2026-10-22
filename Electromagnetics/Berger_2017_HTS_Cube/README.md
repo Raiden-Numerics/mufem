@@ -114,12 +114,7 @@ $`0.4\,\mathrm{ms}`$ and up to 10 nonlinear iterations each, starting from a
 zero field. A Newton iteration with a three-point quadratic line search
 stabilizes the $`n=25`$ power-law nonlinearity.
 
-The geometry is built with netgen in the `build_geometry` method of
-[case.py](case.py) (mesh size $`0.5\,\mathrm{mm}`$ in the cube) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with
-`pymufem case.py --rebuild-mesh`.
-Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), with the cube enlarged six times.
+The mesh size is $`0.5\,\mathrm{mm}`$ in the cube. Figure 1 shows the cube enlarged six times.
 
 
 ## Running

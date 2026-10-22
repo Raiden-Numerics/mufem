@@ -42,8 +42,7 @@ self.magnetic_model = TimeHarmonicMagneticModel(frequency=self.frequencies[0], o
 The case solves $`200\,\mathrm{Hz}`$ first and then switches the model to $`50\,\mathrm{Hz}`$
 (`set_frequency`), so the exported fields belong to $`50\,\mathrm{Hz}`$.
 
-The geometry is built with netgen in `build_geometry` and meshed in `generate_mesh`; both run only
-with `pymufem case.py --rebuild-mesh`. The [mesh](geometry.mesh) (Gmsh 2.2 format, for the curved
+The [mesh](geometry.mesh) (Gmsh 2.2 format, for the curved
 elements) contains the bodies **Air**, **Coil**, and **Plate**. Only the aluminum plate conducts:
 
 ```python
@@ -85,11 +84,6 @@ anticlockwise seen from $`+z`$ as in [1].
 ## Running
 
 Run the case with `pymufem case.py`.
-
-The animation (see Scenes) is rendered with ParaView by [create_scene.py](create_scene.py) from the
-fields exported by the case (run with `pvpython create_scene.py`, requires `ffmpeg`).
-The geometry image (Figure 1) is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the view of the animation.
 
 ## Results
 
@@ -152,7 +146,7 @@ The periodic evolution of the magnetic flux density and the induced currents can
 over one excitation cycle (Figure 4).
 
 <div align="center">
-<img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="100%">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="Eddy current density animation" width="100%">
 <br/>
 <br/>
 <em>Figure 4: Current density in the coil and eddy currents in the plate (50 Hz) over one period, with the coil current and B<sub>z</sub> along A1-B1.</em>

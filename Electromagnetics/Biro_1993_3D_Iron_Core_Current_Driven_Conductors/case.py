@@ -29,13 +29,8 @@ class Biro1993IronCore(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
-            hollow_cylinder,
-            name_body,
-        )
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import hollow_cylinder, name_body
 
         # Core -------------------------------------------------------------------------
         box_1 = Box((0, 0, 0.000), (0.025, 0.01, 0.018))
@@ -97,6 +92,18 @@ class Biro1993IronCore(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.05, path=self.mesh_path, second_order=True)
+
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes(): the core and the conductors seen from below.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(
+            shapes=solids, direction=(-0.0725, -0.088, -0.061), up=(0, 0, 1), zoom=-35
+        )
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -203,13 +210,83 @@ class Biro1993IronCore(ValidationCase):
         )
 
     def postprocess(self):
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density-Real")
         vis.add_field_output("Magnetic Flux Density-Imag")
         vis.add_field_output("Electric Current Density-Real")
         vis.add_field_output("Electric Current Density-Imag")
         vis.save(order=2)
+
+    def create_scenes(self):
+        # The magnitude of the fields at the phase, with the core and the conductors seen from
+        # below; the current density in the conductors with the core in gray.
+        import pyvista as pv
+
+        from casekit.pyvista_scene import (
+            FONT_FILE,
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+        )
+
+        bodies = FieldExportReader(self.dir_path).read(hide=["Air"])
+        conductors = pv.MultiBlock({f"Coil {k}": bodies[f"Coil {k}"] for k in range(1, 26)})
+        current = "Electric Current Density"
+
+        def new_scene(field, clim, label_format):
+            scene = create_scene((1100, 1100))
+            if field == current:
+                scene.add_mesh(bodies["Core"], color="gray")
+                shown, title, scale = conductors, f"{field} [10⁷ A/m²]", 1e-7
+            else:
+                shown, title, scale = bodies, f"{field} [T]", 1.0
+            actor = scene.add_mesh(shown, scalars=field, clim=clim, name="field")
+            scene.view_vector((-0.0725, -0.088, -0.061), viewup=(0, 0, 1))
+            add_colorbar(
+                scene,
+                actor,
+                title,
+                n_labels=3,
+                label_format=label_format,
+                location="bottom",
+                scale=scale,
+            )
+            return scene, shown
+
+        # The phases 0 and 90 deg; the imaginary part of B is much smaller than the real part.
+        for phase_deg, name, b_max, b_format in [
+            (0, "Real", 1.2, "%.1f"),
+            (90, "Imag", 0.1, "%.2f"),
+        ]:
+            for field, clim, label_format in [
+                (current, (0.0, 1.0e8), "%.0f"),
+                ("Magnetic Flux Density", (0.0, b_max), b_format),
+            ]:
+                at_phase(bodies, field, phase_deg)
+                scene, _ = new_scene(field, clim, label_format)
+                file = f"Scene_{field.replace(' ', '_')}_Phase_{name}.png"
+                scene.show(screenshot=self.results_path / file)
+
+        # The current density over one period.
+        scene, shown = new_scene(current, (0.0, 1.0e8), "%.0f")
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif", fps=12
+        ) as write_frame:
+            for phase_deg in range(0, 360, 5):
+                at_phase(bodies, current, phase_deg)
+                scene.add_mesh(shown, scalars=current, clim=(0.0, 1.0e8), name="field")
+                scene.add_text(
+                    f"Phase = {phase_deg}°",
+                    position=(0.65, 0.92),
+                    font_size=15,
+                    font_file=FONT_FILE,
+                    viewport=True,
+                    name="phase",
+                )
+                write_frame()
 
 
 if __name__ == "__main__":

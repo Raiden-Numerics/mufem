@@ -20,7 +20,7 @@ thin rectangular irises.
 Figure 1 shows the geometry of the filter.
 
 <div align="center">
-<img src="data/Geometry.png" alt="drawing" width="45%">
+<img src="data/Geometry.png" alt="Geometry" width="45%">
 <br/>
 <br/>
 <em>Figure 1: Geometry of the waveguide circular cavity filter.</em>
@@ -56,9 +56,6 @@ height of 3 mm, and a length of 1 mm.
 To generate the mesh we use [Gmsh](https://gmsh.info/) mesh generator (please
 note that [Gmsh](https://gmsh.info/) is not supplied with mufem; it is installed
 with the shared helpers of this repository).
-The geometry is built in the `build_geometry` method of [case.py](case.py) and
-meshed in `generate_mesh`; both run only when the mesh is regenerated with
-`pymufem case.py --rebuild-mesh`.
 To improve the accuracy of modeling, we use the mesh with second-order finite
 elements.
 By using such a mesh, we can avoid artifacts that arise when trying to
@@ -190,12 +187,7 @@ for i, frequency in enumerate(self.frequencies):
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
 At the two visualized frequencies we also save the electric field in the
-[VTK](https://vtk.org/) file format for subsequent visualization with
-[ParaView](https://www.paraview.org/).
-Please note that [ParaView](https://www.paraview.org/) is not supplied with
-mufem and must be installed separately.
-The animation of Figure 4 is rendered by [create_scene.py](create_scene.py); run it with
-`pvpython create_scene.py` in the case directory after the case (requires `ffmpeg`).
+[VTK](https://vtk.org/) file format for the animation of Figure 4.
 
 
 ## Results
@@ -235,7 +227,7 @@ Figure 4 shows the electric field inside the waveguide filter at both
 frequencies over half a period.
 
 <div align="center">
-<img src="results/Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
+<img src="results/Animation_Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
 <br/>
 <br/>
 <em>Figure 4: Magnitude of the electric field <i>E</i>(<i>t</i>) = <i>E</i><sub>r</sub> cos(<i>ωt</i>) − <i>E</i><sub>i</sub> sin(<i>ωt</i>) inside the waveguide filter at 12 GHz (left) and 14 GHz (right) over half a period.</em>

@@ -60,7 +60,8 @@ class Goldak1984WeldingHeatSource(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.netgen_geometry import color_aluminum, name_body
+        from casekit.colors import color_aluminum
+        from casekit.netgen_geometry import name_body
 
         # Half of the plate, using the symmetry at x = 0.
         width = 0.3
@@ -81,6 +82,17 @@ class Goldak1984WeldingHeatSource(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0e-2, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes(): onto the symmetry plane x = 0 and the top
+        # surface.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(shapes=solids, direction=(-0.25, 0.17, -0.15), up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -230,11 +242,34 @@ class Goldak1984WeldingHeatSource(ValidationCase):
                 path=f"{self.results_path / 'Temperature_vs_Position.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.add_field_output("VolumetricHeatSource")
         vis.save(order=2)
+
+    def create_scenes(self):
+        # The modeled half plate at the final time, onto the symmetry plane x = 0 (weld path)
+        # and the top surface y = 0.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        piece = FieldExportReader(self.dir_path).read()["Piece"]
+        piece["Temperature [°C]"] = piece["Temperature"] - 273.15
+        piece["Heat Source [10⁹ W/m³]"] = 1e-9 * piece["VolumetricHeatSource"]
+
+        for title, clim, n_labels, name in [
+            ("Temperature [°C]", (0.0, 2500.0), 6, "Scene_Temperature.png"),
+            ("Heat Source [10⁹ W/m³]", (0.0, 8.0), 5, "Scene_Goldak_Heat_Source.png"),
+        ]:
+            scene = create_scene((1000, 900))
+            actor = scene.add_mesh(piece, scalars=title, clim=clim)
+            scene.view_vector((-0.25, 0.17, -0.15), viewup=(0, 1, 0))
+            scene.camera.zoom(1.12)
+            scene.camera.SetWindowCenter(0.0, -0.17)  # room for the color bar below
+            add_colorbar(
+                scene, actor, title, n_labels=n_labels, label_format="%.0f", location="bottom"
+            )
+            scene.show(screenshot=self.results_path / name)
 
 
 if __name__ == "__main__":

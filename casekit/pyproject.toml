@@ -12,6 +12,14 @@ requires-python = ">=3.10"
 # when a mesh is rebuilt, so cases with a committed mesh still run without it.
 dependencies = ["matplotlib", "numpy", "gmsh", "netgen-mesher; python_version < '3.15'"]
 
+[project.optional-dependencies]
+# PyVista scenes (casekit.pyvista_scene; pillow measures the texts)
+scenes = ["pyvista", "pillow"]
+
 [tool.setuptools]
 packages = ["casekit"]
 package-dir = {"casekit" = "."}
+
+[tool.setuptools.package-data]
+# the font of the scenes
+casekit = ["fonts/*"]

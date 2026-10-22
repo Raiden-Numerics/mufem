@@ -27,7 +27,8 @@ class Team24LockedRotor(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, X, Y, Z, gp_Ax1, gp_Ax2, gp_Dir, gp_Pnt
 
-        from casekit.netgen_geometry import color_air, color_copper, color_iron, name_body
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import name_body
 
         # Half model: the midplane z = 0 is a symmetry plane; the lower half z <= 0 is modeled.
         axis_length = 0.0254 / 2.0
@@ -134,6 +135,38 @@ class Team24LockedRotor(ValidationCase):
         mesh_and_save(
             self.step_path, basesize=1.0, path=self.mesh_path, boundary_layers=boundary_layers
         )
+
+    def create_geometry_image(self):
+        # The view looks along -z with y up, turned by 20 deg about y to show the depth of the
+        # air volume.
+        import math
+
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        turn = math.radians(20.0)
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(
+            shapes=solids,
+            direction=(-math.sin(turn), 0.0, math.cos(turn)),
+            up=(0, 1, 0),
+            zoom=-15,
+            size=(1969, 1135),
+        )
+
+        labels = Labels(image=image, font_size=38)
+        labels.text(position=(1060, 290), text="Air")
+        for text, position, anchor, start, end in [
+            ("Upper Coil", (860, 395), "rm", (870, 400), (972, 440)),
+            ("Lower Coil", (860, 745), "rm", (870, 740), (972, 695)),
+            ("Stator", (1330, 470), "lm", (1318, 475), (1228, 520)),
+            ("Rotor", (1330, 620), "lm", (1318, 620), (1120, 575)),
+        ]:
+            labels.text(position=position, text=text, anchor=anchor)
+            labels.arrow(start=start, end=end, head=22)
+
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -242,7 +275,7 @@ class Team24LockedRotor(ValidationCase):
         return sim
 
     def solve(self):
-        # The fields of every time step for the scenes of create_scene.py (collective).
+        # The fields of every time step for the scenes of create_scenes() (collective).
         exporter = self.sim.get_field_exporter()
         exporter.set_output_directory(self.dir_path / "VisualizationOutput")
         exporter.add_field_outputs(["Electric Current Density", "Element Type"])
@@ -266,24 +299,10 @@ class Team24LockedRotor(ValidationCase):
         expect(self.rotor_torque[-1][1], 3.18, rel_tol=5e-2, label="rotor torque [Nm]")
         expect(self.hall_probe[-1][1], 1.245, rel_tol=5e-2, label="Hall probe B_y [T]")
 
-    def postprocess(self):
-        if not self.is_main():
-            return
-
+    def monitor_plots(self, coil_current, rotor_torque):
+        """The arguments of xy_plot / xy_axes for the coil current and the rotor torque over
+        time, shared by the plots of postprocess() and the animation of create_scenes()."""
         tables = self.dir_path / "data" / "tables"
-        current_ref = numpy.loadtxt(tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1)
-        torque_ref = numpy.loadtxt(tables / "Table_4_Torque.csv", delimiter=",", skiprows=1)
-        hall_probe_ref = numpy.loadtxt(
-            tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
-        )
-
-        # The input of the animation of create_scene.py.
-        numpy.savez(
-            self.scene_data_path,
-            coil_current=numpy.array(self.coil_current),
-            rotor_torque=numpy.array(self.rotor_torque),
-        )
-
         common = dict(
             style=PlotStyle.LINE_AND_POINTS,
             reference_style=PlotStyle.POINTS,
@@ -292,23 +311,45 @@ class Team24LockedRotor(ValidationCase):
             xlim=(0.0, 0.15),
             xticks=[0.0, 0.05, 0.1, 0.15],
         )
-        xy_plot(
-            values=self.coil_current,
-            reference_values=current_ref,
+        current = dict(
+            values=coil_current,
+            reference_values=numpy.loadtxt(
+                tables / "Table_3_Coil_Current.csv", delimiter=",", skiprows=1
+            ),
             ylabel="Coil Current [A]",
             ylim=(0.0, 8.0),
-            path=f"{self.results_path / 'Coil_Current_vs_Time.png'}",
             **common,
         )
-        xy_plot(
-            values=self.rotor_torque,
-            reference_values=torque_ref,
+        torque = dict(
+            values=rotor_torque,
+            reference_values=numpy.loadtxt(
+                tables / "Table_4_Torque.csv", delimiter=",", skiprows=1
+            ),
             ylabel="Rotor Torque [Nm]",
             ylim=(0.0, 3.5),
-            path=f"{self.results_path / 'Rotor_Torque_vs_Time.png'}",
             **common,
         )
+        return current, torque
 
+    def postprocess(self):
+        if not self.is_main():
+            return
+
+        # The input of the animation of create_scenes().
+        numpy.savez(
+            self.scene_data_path,
+            coil_current=numpy.array(self.coil_current),
+            rotor_torque=numpy.array(self.rotor_torque),
+        )
+
+        current, torque = self.monitor_plots(self.coil_current, self.rotor_torque)
+        xy_plot(path=f"{self.results_path / 'Coil_Current_vs_Time.png'}", **current)
+        xy_plot(path=f"{self.results_path / 'Rotor_Torque_vs_Time.png'}", **torque)
+
+        tables = self.dir_path / "data" / "tables"
+        hall_probe_ref = numpy.loadtxt(
+            tables / "Table_6_Hall_Probe_Flux_Density.csv", delimiter=",", skiprows=1
+        )
         xy_plot(
             values=self.hall_probe,
             style=PlotStyle.LINE_AND_POINTS,
@@ -322,6 +363,71 @@ class Team24LockedRotor(ValidationCase):
             ylim=(0.0, 1.4),
             path=f"{self.results_path / 'Hall_Probe_vs_Time.png'}",
         )
+
+    def create_scenes(self):
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            create_scene,
+            gif,
+            update_curve,
+            xy_chart,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+
+        # Element types: the camera looks from +z at the symmetry plane z = 0, where the prism
+        # layers show as quads.
+        scene = create_scene((2000, 1500))
+        actor = scene.add_mesh(
+            reader.read(hide=["Air"]),
+            scalars="Element Type",
+            clim=(4.0, 6.0),  # tetrahedra and prisms
+            n_colors=2,
+            show_edges=True,
+        )
+        scene.camera_position = [(-0.012, 0.06, 0.16), (0.0, 0.045, -0.006), (0, 1, 0)]
+        scene.camera.parallel_scale = 0.0448
+        add_colorbar(
+            scene,
+            actor,
+            "Element Type",
+            n_labels=2,
+            label_format="%.0f",
+            location="lower right",
+            font_size=36,
+        )
+        scene.show(screenshot=self.results_path / "Scene_ElementType.png")
+
+        # Animation: the electric current density from +z with its color bar, and the coil
+        # current and the rotor torque up to the time step in two charts on the right.
+        monitors = numpy.load(self.scene_data_path)
+        scene = create_scene((1600, 800), shape="1|2", splitting_position=0.5, border=False)
+        current, torque = self.monitor_plots(monitors["coil_current"], monitors["rotor_torque"])
+        curves = []
+        for row, arguments in enumerate((current, torque)):
+            chart, curve, _ = xy_chart(**arguments)
+            scene.subplot(row + 1)
+            scene.add_chart(chart)
+            curves.append((curve, arguments["values"]))
+        scene.subplot(0)
+
+        field = dict(scalars="Electric Current Density", clim=(0.0, 3.0e5), name="field")
+        actor = scene.add_mesh(reader.read(hide=["Air"]), **field)
+        scene.view_xy()
+        scene.camera.SetWindowCenter(0.2, 0.0)  # room for the color bar on the right
+        add_colorbar(
+            scene, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
+        )
+
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif"
+        ) as write_frame:
+            for time_step in range(reader.number_time_steps):
+                scene.add_mesh(reader.read(time_step, hide=["Air"]), **field)
+                for curve, values in curves:
+                    update_curve(curve, values[: time_step + 1])
+                write_frame()
 
 
 if __name__ == "__main__":

@@ -116,6 +116,19 @@ class MontejoGarai1995CavityFilter(ValidationCase):
 
         gmsh.finalize()
 
+        from casekit.gmsh_meshing import color_step
+        from casekit.colors import color_copper, hex_to_float
+
+        color_step(
+            step_path=self.step_path,
+            physical_groups=self.physical_groups,
+            colors={
+                "Walls": hex_to_float("848789", transparency=0.6),
+                "InputPort": color_copper,
+                "OutputPort": color_copper,
+            },
+        )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -132,6 +145,34 @@ class MontejoGarai1995CavityFilter(ValidationCase):
                 "Mesh.HighOrderOptimize": 1,
             },
         )
+
+    def create_geometry_image(self):
+        # The view of the scenes of create_scenes() and of data/Mesh.png, the walls
+        # transparent, labeled as in Montejo-Garai (1995), Fig. 1.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(
+            image=snapshot(shapes=solids, direction=(-0.683, 0.2588, -0.754), up=(0, 1, 0))
+        )
+
+        # Room above and below the filter for the labels.
+        image = pad(image=image, top=90, bottom=120)
+        labels = Labels(image=image)
+        for text, position, start, end in [
+            ("Circular cavity", (500, 60), (500, 85), (500, 202)),
+            ("Iris", (290, 580), (285, 555), (252, 408)),
+            ("Output port", (965, 60), (979, 85), (979, 140)),
+            ("Input port", (90, 580), (87, 555), (87, 432)),
+            ("WR75 waveguide", (150, 200), (150, 225), (150, 366)),
+            ("WR75 waveguide", (920, 405), (1012, 380), (1012, 220)),
+        ]:
+            labels.text(position=position, text=text)
+            labels.arrow(start=start, end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(
@@ -262,6 +303,58 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         plt.xlabel("Frequency [GHz]")
         plt.ylabel("|S21|$^2$ [dB]")
         plt.savefig(self.results_path / "S21_vs_frequency.png", bbox_inches="tight")
+
+    def create_scenes(self):
+        # The magnitude of the electric field E(t) = E_r cos(wt) - E_i sin(wt) at the two
+        # visualized frequencies side by side over half a period, after which the magnitude
+        # repeats; onto the middle of the filter from 14 deg above the x-z plane, 48 deg from -x
+        # toward -z.
+        from casekit.pyvista_scene import (
+            FONT_FILE,
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+        domains = [reader.read(i) for i in range(reader.number_time_steps)]
+        field = dict(scalars="Electric Field", clim=(0.0, 3000.0), name="field")
+
+        scene = create_scene((1600, 500), shape=(1, 2), border=False)
+        for column, (bodies, frequency) in enumerate(zip(domains, self.visualized_frequencies)):
+            scene.subplot(0, column)
+            actor = scene.add_mesh(at_phase(bodies, "Electric Field", 0.0), **field)
+            scene.add_text(
+                f"{frequency / 1e9:.0f} GHz",
+                position=(0.04, 0.85),
+                font_size=11.5,
+                font_file=FONT_FILE,
+                viewport=True,
+            )
+            add_colorbar(
+                scene,
+                actor,
+                "Electric Field [V/m]",
+                n_labels=4,
+                label_format="%.0f",
+                location="bottom",
+                font_size=19,
+            )
+
+        # One camera for both views.
+        scene.link_views()
+        scene.view_vector((-0.683, 0.2588, -0.754), viewup=(0, 1, 0))
+        scene.camera.zoom(1.8)
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
+
+        with gif(scene, self.results_path / "Animation_Electric_Field.gif", fps=12) as write_frame:
+            for phase_deg in range(0, 180, 5):
+                for column, bodies in enumerate(domains):
+                    scene.subplot(0, column)
+                    scene.add_mesh(at_phase(bodies, "Electric Field", phase_deg), **field)
+                write_frame()
 
     def load_precalculated(self):
         return numpy.loadtxt(

@@ -59,11 +59,6 @@ Figure 2 shows the temperature-dependent steel properties.
 (Note: the electrical-resistivity data point at $`700\,{}^{\circ}\mathrm{C}`$ has been changed from
 $`9.50 \times 10^{-6}`$ to $`9.50 \times 10^{-7}`$, which we believe is a print error in Table 2 of [3].)
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py).
-
 ## Running
 
 The case is run with `pymufem case.py`; it exports the temperature, the magnetic flux density and the

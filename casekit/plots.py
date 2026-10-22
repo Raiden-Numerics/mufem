@@ -20,7 +20,10 @@ line with square markers. Line/marker rendering is chosen with the `PlotStyle` e
 """
 
 from enum import Enum
-from typing import Iterable, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 # NOTE: numpy is imported lazily inside the functions below, NOT at module top.
 # On the Windows wheel, importing numpy (its OpenBLAS) *after* mufem corrupts
@@ -67,10 +70,18 @@ class PlotStyle(Enum):
         return self in (PlotStyle.POINTS, PlotStyle.LINE_AND_POINTS)
 
 
-def _draw(values, style, color, label, marker, *, linewidth, markersize):
-    import matplotlib.pyplot as plt
-
-    plt.plot(
+def _draw(
+    ax: "Axes",
+    values: Sequence[Tuple[float, float]],
+    style: PlotStyle,
+    color: str,
+    label: str,
+    marker: str,
+    *,
+    linewidth: float,
+    markersize: float,
+) -> None:
+    ax.plot(
         [x for x, _ in values],
         [y for _, y in values],
         color=color,
@@ -82,12 +93,12 @@ def _draw(values, style, color, label, marker, *, linewidth, markersize):
     )
 
 
-def xy_plot(
+def xy_axes(
+    ax: "Axes",
     *,
     values: Iterable[Tuple[float, float]],
     xlabel: str,
     ylabel: str,
-    path: str,
     # computed curve (always mufem red, line + square markers)
     style: PlotStyle = PlotStyle.LINE_AND_POINTS,
     label: str = MUFEM_LABEL,
@@ -109,16 +120,15 @@ def xy_plot(
     xticks: Optional[Sequence[float]] = None,
     yticks: Optional[Sequence[float]] = None,
     title: Optional[str] = None,
+    # a fixed location keeps the legend in place over the frames of an animation
+    legend_loc: str = "best",
     # black arrows as (start, end) points in data coordinates, e.g. one marking the current
     # value in an animation frame
     arrows: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]] = (),
 ) -> None:
-    """Plot `values` (and an optional `reference_file`) to `path`, with a
-    consistent style (best-loc legend, no frame)."""
-    import matplotlib.pyplot as plt
+    """Draw `values` (and an optional reference) on the matplotlib axes `ax` in the style of
+    xy_plot, e.g. as one panel of a larger figure."""
     import numpy
-
-    fig = plt.figure(figsize=_FIGSIZE, layout="constrained")
 
     # reference first, drawn as a thicker line/marker underneath ...
     ref = None
@@ -134,6 +144,7 @@ def xy_plot(
         ref = [(reference_xscale * x, reference_yscale * y) for x, y in reference_values]
     if ref is not None:
         _draw(
+            ax,
             ref,
             reference_style,
             REFERENCE_COLOR,
@@ -146,6 +157,7 @@ def xy_plot(
     # ... then the computed mufem curve on top (red line + square markers).
     scaled = [(xscale * x, yscale * y) for x, y in values]
     _draw(
+        ax,
         scaled,
         style,
         MUFEM_COLOR,
@@ -155,22 +167,22 @@ def xy_plot(
         markersize=_MARKERSIZE,
     )
 
-    plt.xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
-    plt.ylabel(ylabel, fontsize=_LABEL_FONTSIZE)
+    ax.set_xlabel(xlabel, fontsize=_LABEL_FONTSIZE)
+    ax.set_ylabel(ylabel, fontsize=_LABEL_FONTSIZE)
     if title:
-        plt.title(title, fontsize=_LABEL_FONTSIZE)
+        ax.set_title(title, fontsize=_LABEL_FONTSIZE)
     if xlim:
-        plt.xlim(*xlim)
+        ax.set_xlim(*xlim)
     if ylim:
-        plt.ylim(*ylim)
+        ax.set_ylim(*ylim)
     if xticks is not None:
-        plt.xticks(xticks)
+        ax.set_xticks(xticks)
     if yticks is not None:
-        plt.yticks(yticks)
-    plt.tick_params(labelsize=_TICK_FONTSIZE)
+        ax.set_yticks(yticks)
+    ax.tick_params(labelsize=_TICK_FONTSIZE)
 
     for start, end in arrows:
-        plt.annotate(
+        ax.annotate(
             "",
             xy=end,
             xytext=start,
@@ -178,6 +190,15 @@ def xy_plot(
             annotation_clip=False,
         )
 
-    plt.legend(loc="best", frameon=False, fontsize=_LEGEND_FONTSIZE)
+    ax.legend(loc=legend_loc, frameon=False, fontsize=_LEGEND_FONTSIZE)
+
+
+def xy_plot(*, path: str, **kwargs) -> None:
+    """Plot `values` (and an optional `reference_file`) to `path`, with a
+    consistent style (best-loc legend, no frame). Takes the arguments of xy_axes."""
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=_FIGSIZE, layout="constrained")
+    xy_axes(ax, **kwargs)
     fig.savefig(path, dpi=_DPI, metadata={"Software": None})
     plt.close(fig)

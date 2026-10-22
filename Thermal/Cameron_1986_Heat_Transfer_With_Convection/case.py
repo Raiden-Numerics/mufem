@@ -18,7 +18,8 @@ class Cameron1986(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, X, Y
 
-        from casekit.netgen_geometry import color_green, name_body
+        from casekit.colors import color_green
+        from casekit.netgen_geometry import name_body
 
         plate_body = Box((0, 0, 0), (0.6, 1.0, 0.01))
 
@@ -38,6 +39,42 @@ class Cameron1986(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=0.02, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The plate seen from the front (onto the x-y plane), as the scenes of create_scenes(),
+        # with the boundary conditions of the benchmark and the evaluation point E.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(
+            shapes=solids, direction=(0, 0, 1), up=(0, 1, 0), zoom=0, size=(1200, 1600)
+        )
+
+        # The plate, 0.6 m x 1.0 m, with room around it for the boundary conditions.
+        plate = trim(image=image, border=0)
+        scale = plate.height / 1.0  # [px/m]
+        left, top, right, bottom = 250, 110, 360, 110
+        image = pad(image=plate, left=left, top=top, right=right, bottom=bottom)
+
+        labels = Labels(image=image, font_size=32)
+        x0, x1 = left, left + plate.width
+        y0, y1 = top, top + plate.height
+        xm, ym = (x0 + x1) / 2, (y0 + y1) / 2
+        labels.text(position=(xm, y1 + 55), text="T = 100 °C")
+        labels.text(position=(x0 - 25, ym), text="Adiabatic", anchor="rm")
+        labels.text(position=(xm, y0 - 55), text="Convection")
+        labels.text(position=(x1 + 25, ym - 25), text="Convection", anchor="lm")
+        labels.text(position=(x1 + 25, ym + 25), text="h = 750 W/(m² K)", anchor="lm")
+        labels.text(position=(x1 + 25, ym + 75), text="T∞ = 0 °C", anchor="lm")
+
+        # Point E on the right edge, 0.2 m above the bottom edge.
+        e = (x1, y1 - 0.2 * scale)
+        labels.dot(center=e)
+        labels.text(position=(e[0] + 25, e[1]), text="E", anchor="lm")
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -117,10 +154,37 @@ class Cameron1986(ValidationCase):
                 path=f"{self.results_path}/Temperature.png",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.save()
+
+    def create_scenes(self):
+        # The plate (0.6 m x 1.0 m) seen from the front (onto the x-y plane), as
+        # data/Geometry.png.
+
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        plate = FieldExportReader(self.dir_path).read()["Plate"]
+
+        # The temperature, with the color bar on the right.
+        plate["Temperature [°C]"] = plate["Temperature"] - 273.15
+        scene = create_scene((1000, 1300))
+        actor = scene.add_mesh(plate, scalars="Temperature [°C]", clim=(0.0, 100.0))
+        scene.view_xy()
+        scene.camera.zoom(1.3)
+        scene.camera.SetWindowCenter(0.22, 0.0)  # room for the color bar on the right
+        add_colorbar(scene, actor, "Temperature [°C]", label_format="%.0f")
+        scene.show(screenshot=self.results_path / "Scene_Temperature.png")
+
+        # The mesh in the flat color of the plate in data/Geometry.png and at the size and
+        # position of the plate there (1300 px high, its center at (640, 760) px of the 1390 x
+        # 1520 px image, see create_geometry_image()), so that both images of Figure 1 match.
+        scene = create_scene((1390, 1520))
+        scene.add_mesh(plate, color=(0.02, 0.69, 0.5), show_edges=True, lighting=False)
+        scene.camera_position = [(0.3423, 0.5, 1.0), (0.3423, 0.5, 0.005), (0, 1, 0)]
+        scene.camera.parallel_scale = 760 / 1300  # half the image height in meters
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
 
 
 if __name__ == "__main__":

@@ -19,7 +19,8 @@ class Guenin2011ElectronicDesign(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Glue, Y
 
-        from casekit.netgen_geometry import hex_to_float, name_body
+        from casekit.colors import hex_to_float
+        from casekit.netgen_geometry import name_body
 
         # Name, thickness [mm], color
         parts = [
@@ -58,6 +59,31 @@ class Guenin2011ElectronicDesign(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=1.0, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The isometric view of the scenes of create_scenes() along (1, 1, 1) with the stacking
+        # direction of the layers (y) up, with the layers labeled.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(1, 1, 1), up=(0, 1, 0)))
+
+        # Room on the right for the labels.
+        image = pad(image=image, right=330)
+        labels = Labels(image=image, font_size=28)
+        for text, label_y, end in [
+            ("Heat sink", 380, (915, 380)),
+            ("TIM 2", 455, (906, 503)),
+            ("Lid", 515, (906, 513)),
+            ("TIM 1", 575, (906, 525)),
+            ("Die", 635, (906, 536)),
+        ]:
+            labels.text(position=(1010, label_y), text=text, anchor="lm")
+            labels.line(start=(1000, label_y), end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -207,13 +233,76 @@ class Guenin2011ElectronicDesign(ValidationCase):
                 "Lid_Temperature_Evolution.png",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Temperature")
         vis.add_field_output("Density")
         vis.add_field_output("Thermal Conductivity")
         vis.add_field_output("Specific Heat Capacity")
         vis.save()
+
+    def create_scenes(self):
+        # All images use the isometric view along (1, 1, 1) with the stacking direction of the
+        # layers (y) up, as data/Geometry.png.
+        import pyvista as pv
+
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        bodies = FieldExportReader(self.dir_path).read()
+        for body in bodies:
+            body["Temperature Rise"] = body["Temperature"] - 273.15
+
+        for array, title, clim, n_labels, label_format, name in [
+            ("Temperature Rise", "Temperature Rise [K]", (0.0, 1.0), 6, "%.1f", "Temperature"),
+            (
+                "Specific Heat Capacity",
+                "Specific Heat Capacity [J/(kg K)]",
+                (300.0, 900.0),
+                4,
+                "%.0f",
+                "Heat_Capacity",
+            ),
+            ("Density", "Density [kg/m³]", (0.0, 9000.0), 4, "%.0f", "Density"),
+            (
+                "Thermal Conductivity",
+                "Thermal Conductivity [W/(m K)]",
+                (0.0, 400.0),
+                5,
+                "%.0f",
+                "Thermal_Conductivity",
+            ),
+        ]:
+            scene = create_scene((1000, 1100))
+            actor = scene.add_mesh(bodies, scalars=array, clim=clim)
+            scene.view_vector((1, 1, 1), viewup=(0, 1, 0))
+            scene.camera.SetWindowCenter(0.0, -0.11)  # room for the color bar below
+            add_colorbar(
+                scene,
+                actor,
+                title,
+                n_labels=n_labels,
+                label_format=label_format,
+                location="bottom",
+            )
+            scene.show(screenshot=self.results_path / f"Scene_{name}.png")
+
+        # The mesh: the layers in their colors of data/Geometry.png with the edges in black, at
+        # the size and position of the package there (930 px wide from 20 px on the left,
+        # centered vertically in the 1300 x 852 px image), so that both images of Figure 1 show
+        # the package at the same scale.
+        scene = create_scene((1300, 852))
+        for name, color in [
+            ("Die", "7f8d9b"),
+            ("TIM1", "b1b159"),
+            ("Lid", "b55b00"),
+            ("TIM2", "27386d"),
+            ("Heat Sink", "627862"),
+        ]:
+            scene.add_mesh(bodies[name], color=pv.Color(f"#{color}"), show_edges=True)
+        focal_point = numpy.array([1.115e-3, 2.383e-3, -3.498e-3])
+        scene.camera_position = [focal_point + 0.1, focal_point, (0, 1, 0)]
+        scene.camera.parallel_scale = 8.421e-3  # half the image height in meters
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
 
     def plot_evolution(self, monitor, reference_file, ylabel, output):
         evolution = [(t, T - 273.15) for t, T in monitor.get_values()]  # K -> °C

@@ -9,7 +9,7 @@ column [1] and set up as a validation case by SimScale [2]; we follow the setup 
 
 <div align="center">
 <img src="./data/Geometry.png" alt="Package geometry" width="45%">
-<img src="./data/Mesh.png" alt="Package mesh" width="45%">
+<img src="./results/Scene_Mesh.png" alt="Package mesh" width="45%">
 <br/>
 <br/>
 <em>Figure 1: Geometry of the layered package (left) and the corresponding mesh (right).</em>
@@ -36,10 +36,7 @@ lid.
 
 ## Running
 
-Run the case with `pymufem case.py`. Figure 1 shows the geometry rendered from `geometry.step` with
-the netgen viewer by [create_geometry_image.py](create_geometry_image.py); the mesh image and the
-scenes of Figure 3 are rendered from the case output with ParaView by [create_scene.py](create_scene.py)
-(run with `pvpython create_scene.py` after the case). All use the same isometric view.
+Run the case with `pymufem case.py`.
 
 ## Results
 

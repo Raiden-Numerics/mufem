@@ -28,11 +28,6 @@ face at $`x = L`$ (`Beam::Loaded`) is loaded with a `TractionBoundaryCondition` 
 $`(0, -1000, 0)\,\mathrm{N/m^2}`$. A second-order field solution is used to obtain a smooth stress
 field. Because the problem is linear, a single iteration suffices.
 
-The geometry is built with netgen in the `build_geometry` method of [case.py](case.py) and meshed in
-`generate_mesh`; both run only when the mesh is regenerated with `pymufem case.py --rebuild-mesh`.
-Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the view of Figure 4.
-
 ## Running
 
 Run the case with `pymufem case.py`.
@@ -78,10 +73,10 @@ stress along the top fiber ($`y \approx h/2`$).
 <br/>
 
 <div align="center">
-<img src="./results/Von_Mises_Stress_vs_Position.png" alt="Von Mises stress" width="75%">
+<img src="./results/Von_Mises_Stress_vs_Position.png" alt="von Mises stress" width="75%">
 <br/>
 <br/>
-<em>Figure 3: Von Mises stress along the top fiber, mufem and analytical.</em>
+<em>Figure 3: von Mises stress along the top fiber, mufem and analytical.</em>
 </div>
 <br/>
 
@@ -95,8 +90,7 @@ top fiber against $`60\,\mathrm{kPa} \cdot (1 - x/L)`$.
 ## Scenes
 
 The displacement and von Mises stress fields are exported to `VisualizationOutput/`. Figure 4
-is rendered from them with ParaView by [create_scene.py](create_scene.py) (run with
-`pvpython create_scene.py` after the case), with the displacement scaled 50 times.
+shows them with the displacement scaled 50 times.
 
 <div align="center">
 <img src="./results/Scene_Deformation.png" alt="Deformed beam and von Mises stress" width="75%">

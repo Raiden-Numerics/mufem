@@ -24,13 +24,8 @@ class Team13NonLinearMagnetostatic(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Axis, Box, Glue, Pnt, Vec, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_steel,
-            name_body,
-            racetrack_face,
-        )
+        from casekit.colors import color_air, color_copper, color_steel
+        from casekit.netgen_geometry import name_body, racetrack_face
 
         # The plates use a 5 mm face mesh size: coarser elements at the plate edges
         # under-resolve B in the air gap along the measurement line.
@@ -96,6 +91,16 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=2.5e-1, path=self.mesh_path, second_order=True)
+
+    def create_geometry_image(self):
+        # The isometric view along (1, 1, 1) with z up of the scene results/TEAM-13-Results.png.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = snapshot(shapes=solids, direction=(1, 1, 1), up=(0, 0, 1))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(

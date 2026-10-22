@@ -10,7 +10,7 @@ The objective is to verify the temperature at a specified location.
 
 <div align="center">
 <img src="data/Geometry.png" alt="Geometry" width="45%">
-<img src="data/Mesh.png" alt="Mesh" width="45%">
+<img src="results/Scene_Mesh.png" alt="Mesh" width="45%">
 <br/>
 <br/>
 <em>Figure 1: The geometry of the computational domain with the boundary conditions and the evaluation point E (left), and the corresponding mesh (right).</em>
@@ -34,9 +34,7 @@ No internal heat generation is present.
 
 ## Running
 
-Run the case with `pymufem case.py`. The geometry image of Figure 1 is rendered from `geometry.step`
-with the netgen viewer by [create_geometry_image.py](create_geometry_image.py), the mesh image by
-[create_scene.py](create_scene.py).
+Run the case with `pymufem case.py`.
 
 ## Results
 
@@ -59,9 +57,8 @@ height of $`y = 0.5`$ m.
 
 ## Scenes
 
-The temperature is exported to `VisualizationOutput/`; Figure 3, rendered from it with
-ParaView by [create_scene.py](create_scene.py) (run with `pvpython create_scene.py` after the case),
-shows the temperature distribution over the computational domain.
+The temperature is exported to `VisualizationOutput/`; Figure 3 shows the temperature distribution over
+the computational domain.
 
 <div align="center">
 <img src="results/Scene_Temperature.png" alt="Temperature scene" width="45%">

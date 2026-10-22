@@ -84,6 +84,19 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
         gmsh.finalize()
 
+        from casekit.colors import hex_to_float
+        from casekit.gmsh_meshing import color_step
+
+        color_step(
+            step_path=self.step_path,
+            physical_groups=self.physical_groups,
+            colors={
+                "BoundaryTopArm": hex_to_float("c8c8c8"),
+                "BoundaryBotArm": hex_to_float("c8c8c8"),
+                "Port": hex_to_float("ff6464"),
+            },
+        )
+
     def generate_mesh(self):
         from casekit.gmsh_meshing import mesh_and_save
 
@@ -100,6 +113,38 @@ class Stutzman2012DipoleAntenna(ValidationCase):
                 "Mesh.HighOrderOptimize": 1,
             },
         )
+
+    def create_geometry_image(self):
+        # The dipole in the view of data/Mesh.png, 5 deg from above. The arms are holes in the
+        # air, and netgen draws a body in one transparency, so the image shows them as bodies
+        # of their own, without the air, and the port (a face) as a thin plate.
+        import math
+
+        from netgen.occ import Box, OCCGeometry, Pnt, Sphere
+
+        from casekit.netgen_image import pad, snapshot, trim
+
+        shape = OCCGeometry(f"{self.step_path}").shape
+        air = shape.solids[0]
+        arms = (Sphere(Pnt(0, 0, 0), self.outer_boundary_radius) - air).solids
+        port_face = next(face for face in shape.faces if face.col and face.col[0] == 1.0)
+        low, high = port_face.bounding_box
+        port = Box(Pnt(low.x, -1e-6, low.z), Pnt(high.x, 1e-6, high.z))
+        port.faces.col = port_face.col
+
+        azimuth, elevation = math.radians(30.0), math.radians(5.0)
+        direction = (
+            -math.sin(azimuth) * math.cos(elevation),
+            -math.cos(azimuth) * math.cos(elevation),
+            math.sin(elevation),
+        )
+        image = snapshot(
+            shapes=[*arms, port], direction=direction, up=(0, 0, 1), zoom=0, size=(1200, 1600)
+        )
+
+        # Room beside the thin dipole, so that the README shows it at a readable size.
+        image = pad(image=trim(image=image), left=540, right=540)
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = Simulation.New(
@@ -228,7 +273,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         if not self.is_main():
             return
 
-        # The 3D pattern for the scene of create_scene.py.
+        # The 3D pattern for the scene of create_scenes().
         numpy.savez(
             self.scene_data_path,
             thetas=self.thetas,
@@ -265,6 +310,68 @@ class Stutzman2012DipoleAntenna(ValidationCase):
             ax.set_title(title, fontweight="bold")
             fig.savefig(self.results_path / f"Far_Field_{title}.png", bbox_inches="tight")
             plt.close(fig)
+
+    def create_scenes(self):
+        import pyvista as pv
+
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            at_phase,
+            create_scene,
+            gif,
+        )
+
+        colorbar = dict(label_format="%.0f", location="bottom", font_size=24)
+
+        # The far-field radiation pattern as the surface at the radius 4.5 pattern(theta, phi),
+        # with the pattern in dB (20 log10: the pattern is a field amplitude) on it.
+        far_field = numpy.load(self.scene_data_path)
+        theta, phi = numpy.meshgrid(far_field["thetas"], far_field["phis"], indexing="ij")
+        pattern = far_field["radiation_pattern"]
+        radius = 4.5 * pattern
+        surface = pv.StructuredGrid(
+            radius * numpy.sin(theta) * numpy.cos(phi),
+            radius * numpy.sin(theta) * numpy.sin(phi),
+            radius * numpy.cos(theta),
+        )
+        decibel = 20 * numpy.log10(numpy.maximum(pattern, 1e-6))
+        surface["Radiation Pattern"] = decibel.ravel(order="F")
+
+        scene = create_scene((1000, 1000))
+        actor = scene.add_mesh(
+            surface,
+            scalars="Radiation Pattern",
+            clim=(-10.0, 0.0),
+            show_edges=True,
+            edge_color=(0.1, 0.1, 0.1),
+            line_width=1,
+        )
+        scene.view_vector((4, 4, 3), viewup=(0, 0, 1))
+        scene.camera.zoom(1.35)
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
+        add_colorbar(scene, actor, "Radiation Pattern [dB]", n_labels=6, **colorbar)
+        scene.show(screenshot=self.results_path / "Scene_Radiation_Pattern.png")
+
+        # The magnitude of the electric field E(t) = E_r cos(wt) - E_i sin(wt) in the yz-plane
+        # over half a period, after which the magnitude repeats.
+        bodies = FieldExportReader(self.dir_path).read()
+
+        def section(phase_deg):
+            domain = at_phase(bodies, "Electric Field", phase_deg)["Domain"]
+            return domain.slice(normal="x", origin=(0.0, 0.0, 0.0))
+
+        field = dict(scalars="Electric Field", clim=(0.0, 30.0), name="field")
+        scene = create_scene((1000, 1000))
+        actor = scene.add_mesh(section(0.0), **field)
+        scene.view_yz()
+        scene.camera.zoom(1.15)
+        scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
+        add_colorbar(scene, actor, "Electric Field [V/m]", n_labels=4, **colorbar)
+        with gif(scene, self.results_path / "Animation_Electric_Field.gif", fps=12) as write_frame:
+            for phase_deg in range(0, 180, 5):
+                scene.add_mesh(section(phase_deg), **field)
+                write_frame()
 
 
 if __name__ == "__main__":

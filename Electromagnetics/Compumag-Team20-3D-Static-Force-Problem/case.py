@@ -26,13 +26,8 @@ class Team20StaticForce(ValidationCase):
     def build_geometry(self):
         from netgen.occ import ArcOfCircle, Box, Face, Glue, Pnt, Segment, Vec, Wire, X, Y, Z
 
-        from casekit.netgen_geometry import (
-            color_air,
-            color_copper,
-            color_iron,
-            name_body,
-            polygon_face,
-        )
+        from casekit.colors import color_air, color_copper, color_iron
+        from casekit.netgen_geometry import name_body, polygon_face
 
         # Quarter model: X = 0 and Y = 0 are symmetry planes.
 
@@ -125,6 +120,28 @@ class Team20StaticForce(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The isometric view of create_scenes() onto the symmetry planes x = 0 and y = 0, with
+        # the bodies labeled.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(-1, -1, 1), up=(0, 0, 1)))
+
+        labels = Labels(image=image)
+        labels.text(position=(200, 300), text="Air")
+        for text, position, anchor, start, end in [
+            ("Coil", (280, 690), "rm", (290, 690), (352, 690)),
+            ("Yoke", (590, 600), "lm", (580, 600), (512, 620)),
+            ("Pole", (625, 880), "lm", (615, 875), (420, 760)),
+        ]:
+            labels.text(position=position, text=text, anchor=anchor)
+            labels.arrow(start=start, end=end)
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -256,11 +273,37 @@ class Team20StaticForce(ValidationCase):
                 path=f"{self.results_path / 'Force_vs_Current.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density")
         vis.add_field_output("Electric Current Density")
         vis.save(order=1)
+
+    def create_scenes(self):
+        # Both images use the isometric view along (-1, -1, 1) onto the symmetry planes x = 0
+        # and y = 0, with z up, as data/Geometry.png.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        reader = FieldExportReader(self.dir_path)
+        bodies = reader.read()
+
+        # Mesh of all bodies.
+        scene = create_scene((1100, 1600))
+        iron, copper, air = (0.6, 0.6, 0.6), (0.72, 0.45, 0.2), (0.96, 0.89, 0.83)
+        for name, color in {"Air": air, "Yoke": iron, "Pole": iron, "Coil": copper}.items():
+            scene.add_mesh(bodies[name], color=color, show_edges=True)
+        scene.view_vector((-1, -1, 1), viewup=(0, 0, 1))
+        scene.camera.zoom(1.4)  # the default fit leaves room for any rotation
+        scene.show(screenshot=self.results_path / "Scene_Mesh.png")
+
+        # Magnetic flux density in the yoke, the pole and the coil.
+        # The window leaves room on both sides, for the color bar on the right.
+        scene = create_scene((1100, 1200))
+        bodies = reader.read(hide=["Air"])
+        actor = scene.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.5))
+        scene.view_vector((-1, -1, 1), viewup=(0, 0, 1))
+        add_colorbar(scene, actor, "Magnetic Flux Density [T]", n_labels=6)
+        scene.show(screenshot=self.results_path / "Scene_Magnetic_Flux_Density.png")
 
 
 if __name__ == "__main__":

@@ -54,12 +54,6 @@ parts, which contains a sharp Rayleigh region followed by deep saturation (Figur
 * A Newton line search on the variational functional is enabled for the
   first six iterations to stabilize the iterates through the saturation knee.
 
-The geometry is built with netgen in the `build_geometry` method of
-[case.py](case.py) and meshed in `generate_mesh`; both run only when the mesh is
-regenerated with `pymufem case.py --rebuild-mesh`.
-Figure 1 is rendered from `geometry.step` with the netgen viewer by
-[create_geometry_image.py](create_geometry_image.py), in the view of Figure 4.
-
 
 ## Running
 

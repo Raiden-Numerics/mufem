@@ -48,6 +48,8 @@ def run_cases(
     launcher: str,
     exclude_tags: Set[str],
     rebuild_mesh: bool = False,
+    render_geometry: bool = False,
+    render_scenes: bool = False,
 ) -> None:
 
     failed_cases: List[str] = []
@@ -81,11 +83,20 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
+            geometry_args = " --render-geometry" if render_geometry else ""
             if build_mesh:
+                geometry_args = " --rebuild-mesh" + geometry_args
+            if geometry_args:
                 subprocess.run(
-                    args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
+                    args=f"{launcher} case.py{geometry_args}", shell=True, check=True, text=True
                 )
             subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
+            if render_scenes:
+                # Serially after the run: the scenes read the complete export, and VTK stays
+                # out of the MPI processes.
+                subprocess.run(
+                    args=[sys.executable, "case.py", "--render-scenes-only"], check=True, text=True
+                )
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
             print(f"Error running {case_path}: {e}")
@@ -132,6 +143,16 @@ if __name__ == "__main__":
         action="store_true",
         help="rebuild each case's geometry and mesh (serially) before running it",
     )
+    parser.add_argument(
+        "--render-geometry",
+        action="store_true",
+        help="also create each case's geometry image (needs a display, e.g. xvfb-run)",
+    )
+    parser.add_argument(
+        "--render-scenes",
+        action="store_true",
+        help="also create each case's scenes (needs casekit[scenes])",
+    )
     args = parser.parse_args()
 
     print(f"Running cases in directory: {args.base_directory}")
@@ -140,4 +161,6 @@ if __name__ == "__main__":
         launcher=args.launcher,
         exclude_tags=set(args.exclude_tag),
         rebuild_mesh=args.rebuild_mesh,
+        render_geometry=args.render_geometry,
+        render_scenes=args.render_scenes,
     )

@@ -18,7 +18,8 @@ class Team1bFelixCylinder(ValidationCase):
     def build_geometry(self):
         from netgen.occ import Box, Cylinder, Glue, Pnt, Z, gp_Ax2
 
-        from casekit.netgen_geometry import color_air, color_copper, name_body
+        from casekit.colors import color_air, color_copper
+        from casekit.netgen_geometry import name_body
 
         cylinder_length = 0.20
         cylinder_inner_radius = 0.05715
@@ -56,6 +57,31 @@ class Team1bFelixCylinder(ValidationCase):
         from casekit.netgen_meshing import mesh_and_save
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
+
+    def create_geometry_image(self):
+        # The view of the scene of create_scenes(), horizontal along (-1, 0, 1) so that the
+        # applied field (y) stays vertical; three arrows show the applied field.
+        from netgen.occ import OCCGeometry
+
+        from casekit.netgen_image import Labels, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(-1, 0, 1), up=(0, 1, 0)))
+
+        # The applied field B_y(t): three arrows along -y with a label.
+        labels = Labels(image=image)
+        x, top, length = 90, 360, 200
+        for dx in (0, 45, 90):
+            labels.arrow(
+                start=(x + dx, top),
+                end=(x + dx, top + length + 10),
+                width=9,
+                head=26,
+                spread=0.46,
+            )
+        labels.formula(position=(x - 10, top - 75), tex="$B_y(t)$")
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(
@@ -156,11 +182,40 @@ class Team1bFelixCylinder(ValidationCase):
                 path=f"{self.results_path / 'OhmicHeating.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scene of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density")
         vis.add_field_output("Electric Current Density")
         vis.save()
+
+    def create_scenes(self):
+        # The eddy currents in the cylinder at the final time as arrows, in the horizontal view
+        # along (-1, 0, 1) with y up of data/Geometry.png.
+
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        cylinder = FieldExportReader(self.dir_path).read()["Cylinder"]
+        arrows = cylinder.glyph(
+            orient="Electric Current Density", scale="Electric Current Density", factor=1e-8
+        )
+
+        scene = create_scene((1300, 1100))
+        scene.add_mesh(cylinder, color=(0.69, 0.69, 0.69))
+        # The glyphs keep the current density as GlyphVector.
+        actor = scene.add_mesh(arrows, scalars="GlyphVector", clim=(0.0, 3.0e6))
+        scene.view_vector((-1, 0, 1), viewup=(0, 1, 0))
+        scene.camera.zoom(1.35)
+        scene.camera.SetWindowCenter(0.0, -0.18)  # room for the color bar below
+        add_colorbar(
+            scene,
+            actor,
+            "Electric Current Density [10⁶ A/m²]",
+            n_labels=4,
+            label_format="%.0f",
+            location="bottom",
+            scale=1e-6,
+        )
+        scene.show(screenshot=self.results_path / "Scene_Electric_Current_Density.png")
 
 
 if __name__ == "__main__":
