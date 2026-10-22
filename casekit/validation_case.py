@@ -3,7 +3,7 @@
 A case implements the steps of two separate workflows:
 
     build_geometry_and_mesh():  build_geometry -> generate_mesh    (--rebuild-mesh)
-                                [-> create_geometry_image, warns without PyVista]
+                                [-> create_geometry_image, warns without a display]
     create_geometry_image():    from the committed geometry.step   (--render-geometry)
     run():                      setup_case -> solve -> validate -> postprocess
                                 [-> create_scenes                  (--render-scenes)]
@@ -118,17 +118,14 @@ class ValidationCase(ABC):
         self.generate_mesh()
 
     def try_create_geometry_image(self) -> None:
-        """Create the geometry image after a rebuild of the mesh; without the optional
-        dependencies only warn, the mesh is usable without it."""
+        """Create the geometry image after a rebuild of the mesh; without a display only warn,
+        the mesh is usable without it."""
+        import tkinter
+
         try:
             self.create_geometry_image()
-        except ModuleNotFoundError as error:
-            if (error.name or "").partition(".")[0] not in ("pyvista", "vtkmodules", "PIL"):
-                raise
-            warnings.warn(
-                f"{self.name}: geometry image not rendered, {error.name} is missing "
-                "(pip install ./casekit[scenes])"
-            )
+        except tkinter.TclError as error:
+            warnings.warn(f"{self.name}: geometry image not rendered ({error}); use xvfb-run")
 
     # --- steps ----------------------------------------------------------------
     def build_geometry(self) -> None:
@@ -173,11 +170,13 @@ class ValidationCase(ABC):
         """
 
     def create_geometry_image(self) -> None:
-        """The image of `self.step_path` in data/ (casekit.geometry_view). Optional.
+        """The image of `self.step_path` in data/, taken with the netgen viewer
+        (casekit.netgen_image). Optional.
 
-        Runs after `--rebuild-mesh` (only warning without PyVista) and alone with
-        `--render-geometry`, not when a missing mesh is built before a run. Import
-        casekit.geometry_view inside, like PyVista for the scenes.
+        Runs after `--rebuild-mesh` (only warning without a display) and alone with
+        `--render-geometry`, not when a missing mesh is built before a run. It needs a display;
+        headless: `xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry`.
+        Import netgen inside, as in `build_geometry()`.
         """
 
     # --- helpers --------------------------------------------------------------

@@ -40,18 +40,21 @@ class Slaughter2002CantileverBeam(ValidationCase):
 
     def create_geometry_image(self):
         # The view of the scene of create_scenes(), with the clamped and the loaded end labeled.
-        from casekit.geometry_view import Label, save_geometry_image
+        from netgen.occ import OCCGeometry
 
-        save_geometry_image(
-            step_path=self.step_path,
-            image_path=self.dir_path / "data" / "Geometry.png",
-            direction=(0.4, 0.3, 1.0),
-            up=(0, 1, 0),
-            labels=[
-                Label(text="Clamped (x = 0)", at=(0.0, 0.05, 0.0), offset=(0, 150)),
-                Label(text="Loaded (x = L)", at=(1.0, 0.0, 0.0), offset=(0, 385)),
-            ],
-        )
+        from casekit.netgen_image import Labels, pad, snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+        image = trim(image=snapshot(shapes=solids, direction=(0.4, 0.3, 1.0), up=(0, 1, 0)))
+
+        # Room above the beam for the labels.
+        image = pad(image=image, left=150, top=110, right=150)
+        labels = Labels(image=image)
+        for text, x, tip in [("Clamped (x = 0)", 235, 152), ("Loaded (x = L)", 1453, 345)]:
+            labels.text(position=(x, 40), text=text)
+            labels.arrow(start=(x, 65), end=(x, tip))
+
+        image.save(self.dir_path / "data" / "Geometry.png")
 
     def setup_case(self):
         sim = mufem.Simulation.New(

@@ -1,8 +1,9 @@
-"""Helpers for the geometry images of the cases (create_geometry_image.py), drawn by netgen.
+"""Helpers for the geometry images of the cases (ValidationCase.create_geometry_image()), drawn
+by netgen.
 
 The image is taken with the netgen viewer, so it needs a display; headless:
 
-    xvfb-run -a -s "-screen 0 2400x1600x24" python create_geometry_image.py
+    xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry
 
 The view is given like a camera, by the direction toward the viewer and the up direction, so
 that a geometry image can share the view of the scenes of the case; the snapshot is then cropped
