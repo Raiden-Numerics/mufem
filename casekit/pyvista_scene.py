@@ -149,8 +149,8 @@ def add_colorbar(
     bar.SetNumberOfLabels(n_labels)
     bar.SetLabelFormat(label_format)
     bar.SetTitle(title)
-    _font(bar.GetTitleTextProperty(), title_size)
-    _font(bar.GetLabelTextProperty(), font_size)
+    set_font(bar.GetTitleTextProperty(), title_size)
+    set_font(bar.GetLabelTextProperty(), font_size)
     bar.SetUnconstrainedFontSize(True)
     bar.SetDrawFrame(False)
     bar.SetBarRatio(thickness / box)
@@ -188,19 +188,29 @@ def add_colorbar(
 
 def _rectangle(x0: float, y0: float, x1: float, y1: float) -> vtkActor2D:
     """A white rectangle in fractions of the renderer, drawn over the scene."""
-    corners = [(x0, y0, 0.0), (x1, y0, 0.0), (x1, y1, 0.0), (x0, y1, 0.0)]
+    return polygon_2d([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], color="white", normalized=True)
+
+
+def polygon_2d(points, color="black", normalized: bool = False) -> vtkActor2D:
+    """A filled polygon drawn over the scene, its `points` in pixels (or, `normalized`, in
+    fractions of the renderer)."""
+    points = np.asarray(points, float)
+    polygon = pv.PolyData(
+        np.column_stack([points, np.zeros(len(points))]), faces=[len(points), *range(len(points))]
+    )
     mapper = vtkPolyDataMapper2D()
-    mapper.SetInputData(pv.PolyData(np.array(corners), faces=[4, 0, 1, 2, 3]))
-    coordinate = vtkCoordinate()
-    coordinate.SetCoordinateSystemToNormalizedViewport()
-    mapper.SetTransformCoordinate(coordinate)
+    mapper.SetInputData(polygon)
+    if normalized:
+        coordinate = vtkCoordinate()
+        coordinate.SetCoordinateSystemToNormalizedViewport()
+        mapper.SetTransformCoordinate(coordinate)
     actor = vtkActor2D()
     actor.SetMapper(mapper)
-    actor.GetProperty().SetColor(1.0, 1.0, 1.0)
+    actor.GetProperty().SetColor(pv.Color(color).float_rgb)
     return actor
 
 
-def _font(text_property, size: int):
+def set_font(text_property, size: int):
     """`text_property` in black DejaVu Sans (FONT_FILE) of `size` pixels."""
     text_property.SetFontFamily(VTK_FONT_FILE)
     text_property.SetFontFile(FONT_FILE)
@@ -269,8 +279,8 @@ def xy_chart(
             axis.tick_locations = list(ticks)
             axis.tick_labels = [f"{tick:.{decimals}f}" for tick in ticks]
     for axis in (chart.x_axis, chart.y_axis):
-        _font(axis.GetTitleProperties(), font_size + 2)
-        _font(axis.GetLabelProperties(), font_size)
+        set_font(axis.GetTitleProperties(), font_size + 2)
+        set_font(axis.GetLabelProperties(), font_size)
     # A margin on the right for the last tick label, which VTK centers on the end of the axis;
     # the border of the chart, drawn at its new edge, hidden.
     chart.size = (0.97, 1.0)
@@ -285,7 +295,7 @@ def xy_chart(
     chart.legend.SetPadding(15)  # away from the axes
     chart.legend.GetPen().SetOpacity(0)  # no frame and no background, as in xy_plot
     chart.legend.GetBrush().SetOpacity(0)
-    _font(chart.legend.GetLabelProperties(), font_size)
+    set_font(chart.legend.GetLabelProperties(), font_size)
     return chart, curve, reference
 
 

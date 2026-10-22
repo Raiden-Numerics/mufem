@@ -3,15 +3,17 @@
 A case implements the steps of two separate workflows:
 
     build_geometry_and_mesh():  build_geometry -> generate_mesh    (--rebuild-mesh)
+                                [-> create_geometry_image, warns without PyVista]
+    create_geometry_image():    from the committed geometry.step   (--render-geometry)
     run():                      setup_case -> solve -> validate -> postprocess
                                 [-> create_scenes                  (--render-scenes)]
     create_scenes():            from the output of a run           (--render-scenes-only)
 
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
-the simulation, `postprocess()` and `create_scenes()` to doing nothing. `build_geometry()` and
-`generate_mesh()` default to doing nothing; they regenerate the mesh with
-`pymufem case.py --rebuild-mesh`, and a mesh that is not committed is built with them
-before the first run (by run_cases.py, or by a serial `python case.py`). netgen is
+the simulation, `postprocess()`, `create_scenes()` and `create_geometry_image()` to doing
+nothing. `build_geometry()` and `generate_mesh()` default to doing nothing; they regenerate
+the mesh with `pymufem case.py --rebuild-mesh`, and a mesh that is not committed is built with
+them before the first run (by run_cases.py, or by a serial `python case.py`). netgen is
 imported inside those methods, so normal runs do not load it.
 
 Because the metadata lives as class attributes, a runner can read the tags without
@@ -57,6 +59,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
@@ -114,6 +117,19 @@ class ValidationCase(ABC):
         self.build_geometry()
         self.generate_mesh()
 
+    def try_create_geometry_image(self) -> None:
+        """Create the geometry image after a rebuild of the mesh; without the optional
+        dependencies only warn, the mesh is usable without it."""
+        try:
+            self.create_geometry_image()
+        except ModuleNotFoundError as error:
+            if (error.name or "").partition(".")[0] not in ("pyvista", "vtkmodules", "PIL"):
+                raise
+            warnings.warn(
+                f"{self.name}: geometry image not rendered, {error.name} is missing "
+                "(pip install ./casekit[scenes])"
+            )
+
     # --- steps ----------------------------------------------------------------
     def build_geometry(self) -> None:
         """Create the geometry and write it to `self.step_path`.
@@ -154,6 +170,14 @@ class ValidationCase(ABC):
         exported to VisualizationOutput/ and `self.scene_data_path`), so that the scenes can be
         redrawn without solving again (`--render-scenes-only`); there is no Simulation then. Import
         PyVista inside: it is an optional dependency (`pip install ./casekit[scenes]`).
+        """
+
+    def create_geometry_image(self) -> None:
+        """The image of `self.step_path` in data/ (casekit.geometry_view). Optional.
+
+        Runs after `--rebuild-mesh` (only warning without PyVista) and alone with
+        `--render-geometry`, not when a missing mesh is built before a run. Import
+        casekit.geometry_view inside, like PyVista for the scenes.
         """
 
     # --- helpers --------------------------------------------------------------
@@ -222,8 +246,8 @@ class ValidationCase(ABC):
 
 
 def run_case(case_class: type[ValidationCase]) -> None:
-    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh | --render-scenes |
-    --render-scenes-only]`."""
+    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh | --render-geometry |
+    --render-scenes | --render-scenes-only]`."""
     parser = argparse.ArgumentParser(
         description=case_class.name,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -232,6 +256,11 @@ def run_case(case_class: type[ValidationCase]) -> None:
         "--rebuild-mesh",
         action="store_true",
         help="rebuild geometry and mesh instead of running the case",
+    )
+    parser.add_argument(
+        "--render-geometry",
+        action="store_true",
+        help="only create the geometry image, from the committed geometry.step",
     )
     scenes = parser.add_mutually_exclusive_group()
     scenes.add_argument(
@@ -249,6 +278,12 @@ def run_case(case_class: type[ValidationCase]) -> None:
     case = case_class()
     if args.rebuild_mesh:
         case.build_geometry_and_mesh()
+        if case._is_launcher_main_process():
+            case.try_create_geometry_image()
+        return
+    if args.render_geometry:
+        if case._is_launcher_main_process():
+            case.create_geometry_image()
         return
     if args.render_scenes_only:
         if case._is_launcher_main_process():

@@ -38,6 +38,21 @@ class Slaughter2002CantileverBeam(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The view of the scene of create_scenes(), with the clamped and the loaded end labeled.
+        from casekit.geometry_view import Label, save_geometry_image
+
+        save_geometry_image(
+            step_path=self.step_path,
+            image_path=self.dir_path / "data" / "Geometry.png",
+            direction=(0.4, 0.3, 1.0),
+            up=(0, 1, 0),
+            labels=[
+                Label(text="Clamped (x = 0)", at=(0.0, 0.05, 0.0), offset=(0, 150)),
+                Label(text="Loaded (x = L)", at=(1.0, 0.0, 0.0), offset=(0, 385)),
+            ],
+        )
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,
