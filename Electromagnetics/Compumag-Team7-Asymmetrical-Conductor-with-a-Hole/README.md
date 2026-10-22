@@ -154,7 +154,7 @@ The periodic evolution of the magnetic flux density and the induced currents can
 over one excitation cycle (Figure 4).
 
 <div align="center">
-<img src="./results/Team7_Animation.gif" alt="Eddy current density animation" width="100%">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="Eddy current density animation" width="100%">
 <br/>
 <br/>
 <em>Figure 4: Current density in the coil and eddy currents in the plate (50 Hz) over one period, with the coil current and B<sub>z</sub> along A1-B1.</em>

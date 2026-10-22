@@ -265,7 +265,9 @@ class Biro1993IronCore(ValidationCase):
 
         # The current density over one period.
         scene, shown = new_scene(current, (0.0, 1.0e8), "%.0f")
-        with gif(scene, self.results_path / "animation.gif", fps=12) as write_frame:
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif", fps=12
+        ) as write_frame:
             for phase_deg in range(0, 360, 5):
                 at_phase(bodies, current, phase_deg)
                 scene.add_mesh(shown, scalars=current, clim=(0.0, 1.0e8), name="field")

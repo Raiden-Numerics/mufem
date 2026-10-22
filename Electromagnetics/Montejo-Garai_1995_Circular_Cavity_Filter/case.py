@@ -308,7 +308,7 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         scene.camera.zoom(1.8)
         scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
 
-        with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
+        with gif(scene, self.results_path / "Animation_Electric_Field.gif", fps=12) as write_frame:
             for phase_deg in range(0, 180, 5):
                 for column, bodies in enumerate(domains):
                     scene.subplot(0, column)

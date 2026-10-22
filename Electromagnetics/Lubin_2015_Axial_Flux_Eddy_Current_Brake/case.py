@@ -368,7 +368,9 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
             scale=1e-7,
         )
 
-        with gif(scene, self.results_path / "Result_Animation.gif") as write_frame:
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif"
+        ) as write_frame:
             for time_step in range(reader.number_time_steps):
                 rpm, torque = torque_vs_rpm[time_step // steps_per_rpm]
                 draw(reader.read(time_step))

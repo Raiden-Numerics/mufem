@@ -373,7 +373,9 @@ class Team7AsymmetricalConductor(ValidationCase):
             scale=1e-6,
         )
 
-        with gif(scene, self.results_path / "Team7_Animation.gif") as write_frame:
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif"
+        ) as write_frame:
             for i in range(frames_per_period):
                 phase = 2 * numpy.pi * i / frames_per_period
                 scene.add_mesh(arrows(numpy.degrees(phase)), **field)

@@ -151,7 +151,7 @@ mesh is kept for its runtime.
 ## Scenes
 
 <div align="center">
-<img src="results/Result_Animation.gif" alt="Result Animation" width="100%">
+<img src="results/Animation_Electric_Current_Density.gif" alt="Result Animation" width="100%">
 <br/>
 <br/>
 <em>Figure 5: Animation of the electric current density, the coil current and the rotor torque over time.</em>

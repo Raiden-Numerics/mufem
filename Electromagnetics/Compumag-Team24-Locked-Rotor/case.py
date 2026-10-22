@@ -387,7 +387,9 @@ class Team24LockedRotor(ValidationCase):
             scene, actor, "Current Density [10⁵ A/m²]", n_labels=7, font_size=19, scale=1e-5
         )
 
-        with gif(scene, self.results_path / "Result_Animation.gif") as write_frame:
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif"
+        ) as write_frame:
             for time_step in range(reader.number_time_steps):
                 scene.add_mesh(reader.read(time_step, hide=["Air"]), **field)
                 for curve, values in curves:

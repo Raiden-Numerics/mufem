@@ -133,7 +133,7 @@ The braking torque initially increases with slip speed because the induced elect
 An animation of the brake is shown below.
 
 <div align="center">
-<img src="./results/Result_Animation.gif" alt="drawing">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="drawing">
 <br/>
 <br/>
 <em>Figure 4: Time evolution of the axial-flux eddy current brake simulation. The rotating magnets induce eddy currents in the copper plate that interact with the magnetic field of the permanent magnets and produce a braking torque, while transient electromagnetic diffusion and skin effects develop over time.</em>

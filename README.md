@@ -108,7 +108,7 @@ vis.save()
 
 <table>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Result_Animation.gif" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="60%" valign="top">
 <strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md">Locked rotor (TEAM 24)</a></strong><br>
 Study the transient rotor torque and coil currents of a rotating machine using the <strong>Time-Domain Magnetic</strong>

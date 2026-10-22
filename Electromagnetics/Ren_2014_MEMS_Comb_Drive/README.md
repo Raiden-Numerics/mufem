@@ -216,7 +216,7 @@ The animation runs from the largest shift to zero shift, which mimics the action
 where the combs are pulled together when voltage is applied.
 
 <div align="center">
-<img src="results/Electric_Potential.gif" width="75%">
+<img src="results/Animation_Electric_Potential.gif" width="75%">
 <br/>
 <br/>
 <em>Figure 6: The distribution of electric potential for various shifts between the combs. The GIF animation is rendered by <code>create_scenes</code> in <a href="case.py">case.py</a>.</em>

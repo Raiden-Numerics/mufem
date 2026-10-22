@@ -319,7 +319,9 @@ class Ren2014MemsCombDrive(ValidationCase):
         scene.camera.zoom(1.15)
         scene.camera.SetWindowCenter(0.0, -0.12)  # room for the color bar below
         add_colorbar(scene, actor, "Electric Potential [V]", **colorbar)
-        with gif(scene, self.results_path / "Electric_Potential.gif", fps=5) as write_frame:
+        with gif(
+            scene, self.results_path / "Animation_Electric_Potential.gif", fps=5
+        ) as write_frame:
             for shift in reversed(range(len(self.xshifts))):
                 scene.add_mesh(clipped(shift), name="field", **field)
                 write_frame()

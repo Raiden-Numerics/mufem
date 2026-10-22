@@ -233,7 +233,7 @@ Figure 4 shows the electric field inside the waveguide filter at both
 frequencies over half a period.
 
 <div align="center">
-<img src="results/Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
+<img src="results/Animation_Electric_Field.gif" alt="Electric field at 12 GHz and 14 GHz" width="100%" />
 <br/>
 <br/>
 <em>Figure 4: Magnitude of the electric field <i>E</i>(<i>t</i>) = <i>E</i><sub>r</sub> cos(<i>ωt</i>) − <i>E</i><sub>i</sub> sin(<i>ωt</i>) inside the waveguide filter at 12 GHz (left) and 14 GHz (right) over half a period.</em>

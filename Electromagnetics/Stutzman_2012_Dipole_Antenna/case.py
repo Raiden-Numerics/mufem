@@ -323,7 +323,7 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         scene.camera.zoom(1.15)
         scene.camera.SetWindowCenter(0.0, -0.14)  # room for the color bar below
         add_colorbar(scene, actor, "Electric Field [V/m]", n_labels=4, **colorbar)
-        with gif(scene, self.results_path / "Electric_Field.gif", fps=12) as write_frame:
+        with gif(scene, self.results_path / "Animation_Electric_Field.gif", fps=12) as write_frame:
             for phase_deg in range(0, 180, 5):
                 scene.add_mesh(section(phase_deg), **field)
                 write_frame()

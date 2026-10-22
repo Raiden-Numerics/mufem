@@ -121,7 +121,7 @@ over one period.
 <br/>
 
 <div align="center">
-<img src="./results/animation.gif" alt="Animation of the electric current density" width="75%">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="Animation of the electric current density" width="75%">
 <br/>
 <br/>
 <em>Figure 4: Electric current density over one period.</em>
