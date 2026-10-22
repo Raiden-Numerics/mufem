@@ -63,6 +63,33 @@ class Berger2017HtsCube(ValidationCase):
 
         mesh_and_save(self.step_path, basesize=5.0e-2, path=self.mesh_path)
 
+    def create_geometry_image(self):
+        # The cube enlarged six times for visibility; the view looks onto the symmetry planes
+        # x = 0 and z = 0.
+        import math
+
+        from netgen.occ import Glue, OCCGeometry, Pnt
+
+        from casekit.netgen_image import snapshot, trim
+
+        solids = OCCGeometry(f"{self.step_path}").shape.solids
+
+        # The 5 mm cube is tiny in the 100 mm air ball: enlarge it for the image.
+        cube = next(solid for solid in solids if solid.name == "Cube").Scale(Pnt(0, 0, 0), 6)
+        air = next(solid for solid in solids if solid.name == "Air") - cube
+        shape = Glue([cube, air])
+
+        # Draw the faces between cube and air in the cube color, not the translucent air color.
+        for face in shape.solids[0].faces:
+            face.col = cube.faces[0].col
+
+        # The isometric view along (-1, 1, -1), turned by -15 deg about y, with the applied
+        # field (y) up: x' = x cos + z sin, z' = z cos - x sin.
+        turn = math.radians(-15.0)
+        direction = (-math.cos(turn) - math.sin(turn), 1.0, math.sin(turn) - math.cos(turn))
+        image = snapshot(shapes=shape.solids, direction=direction, up=(0, 1, 0))
+        trim(image=image).save(self.dir_path / "data" / "Geometry.png")
+
     def setup_case(self):
         sim = mufem.Simulation.New(
             name=self.name,
