@@ -117,13 +117,13 @@ class MontejoGarai1995CavityFilter(ValidationCase):
         gmsh.finalize()
 
         from casekit.gmsh_meshing import color_step
-        from casekit.colors import color_aluminum, color_copper
+        from casekit.colors import color_copper, hex_to_float
 
         color_step(
-            self.step_path,
-            self.physical_groups,
-            {
-                "Walls": color_aluminum + (0.4,),
+            step_path=self.step_path,
+            physical_groups=self.physical_groups,
+            colors={
+                "Walls": hex_to_float("848789", transparency=0.6),
                 "InputPort": color_copper,
                 "OutputPort": color_copper,
             },

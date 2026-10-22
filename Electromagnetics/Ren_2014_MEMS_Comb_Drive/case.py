@@ -114,9 +114,9 @@ class Ren2014MemsCombDrive(ValidationCase):
             gmsh.finalize()
 
             color_step(
-                self.step_path_for(xshift),
-                self.physical_groups[xshift],
-                {
+                step_path=self.step_path_for(xshift),
+                physical_groups=self.physical_groups[xshift],
+                colors={
                     "Comb1": hex_to_float("f0a051"),
                     "Comb2": hex_to_float("aaf8c6"),
                     "Ground": hex_to_float("646464"),

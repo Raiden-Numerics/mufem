@@ -88,9 +88,9 @@ class Stutzman2012DipoleAntenna(ValidationCase):
         from casekit.gmsh_meshing import color_step
 
         color_step(
-            self.step_path,
-            self.physical_groups,
-            {
+            step_path=self.step_path,
+            physical_groups=self.physical_groups,
+            colors={
                 "BoundaryTopArm": hex_to_float("c8c8c8"),
                 "BoundaryBotArm": hex_to_float("c8c8c8"),
                 "Port": hex_to_float("ff6464"),

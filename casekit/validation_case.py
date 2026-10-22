@@ -262,6 +262,10 @@ def run_case(case_class: type[ValidationCase]) -> None:
         help="only create the scenes, from the output of a previous run",
     )
     args = parser.parse_args()
+    if (args.rebuild_mesh or args.render_geometry) and (
+        args.render_scenes or args.render_scenes_only
+    ):
+        parser.error("--rebuild-mesh and --render-geometry do not run the case: no scenes")
 
     case = case_class()
     if args.rebuild_mesh:

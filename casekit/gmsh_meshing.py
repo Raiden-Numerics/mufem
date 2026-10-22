@@ -114,25 +114,35 @@ def color_step(
     gmsh.model.add("imported")
     _import(step_path)
 
-    def written_faces(dim: int, tags: List[int]) -> List[int]:
-        """The indices in the file of the faces of the imported entities `tags`."""
+    def written_faces(name: str) -> List[int]:
+        """The indices in the file of the faces of the physical group `name`."""
+        dim, tags = physical_groups[name]
         gmsh.model.setCurrent("imported")
         if dim == 3:
             boundary = gmsh.model.getBoundary([(3, tag) for tag in tags], combined=False)
             tags = sorted({abs(tag) for _, tag in boundary})
         points = [_point_on(tag) for tag in tags]
         gmsh.model.setCurrent("written")
-        return [
-            min(
-                (i for i, face in enumerate(written) if gmsh.model.isInside(2, face, point)),
-                key=lambda i: math.dist(
-                    point, gmsh.model.getClosestPoint(2, written[i], point)[0]
-                ),
+        indices = []
+        for point in points:
+            # isInside also accepts a face whose surface passes elsewhere: the face closest to
+            # the point among them.
+            candidates = [
+                i for i, face in enumerate(written) if gmsh.model.isInside(2, face, point)
+            ]
+            if not candidates:
+                raise ValueError(f"{name}: a face of the group is not found in {step_path}")
+            indices.append(
+                min(
+                    candidates,
+                    key=lambda i: math.dist(
+                        point, gmsh.model.getClosestPoint(2, written[i], point)[0]
+                    ),
+                )
             )
-            for point in points
-        ]
+        return indices
 
-    faces = {name: written_faces(*physical_groups[name]) for name in colors}
+    faces = {name: written_faces(name) for name in colors}
     gmsh.finalize()
 
     shape = OCCGeometry(str(step_path)).shape

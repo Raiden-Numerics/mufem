@@ -90,8 +90,13 @@ def run_cases(
                 subprocess.run(
                     args=f"{launcher} case.py{geometry_args}", shell=True, check=True, text=True
                 )
-            run_args = " --render-scenes" if render_scenes else ""
-            subprocess.run(args=f"{launcher} case.py{run_args}", shell=True, check=True, text=True)
+            subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
+            if render_scenes:
+                # Serially after the run: the scenes read the complete export, and VTK stays
+                # out of the MPI processes.
+                subprocess.run(
+                    args=[sys.executable, "case.py", "--render-scenes-only"], check=True, text=True
+                )
             print(f"Success: {case_path}")
         except subprocess.CalledProcessError as e:
             print(f"Error running {case_path}: {e}")
