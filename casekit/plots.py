@@ -20,7 +20,10 @@ line with square markers. Line/marker rendering is chosen with the `PlotStyle` e
 """
 
 from enum import Enum
-from typing import Iterable, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 # NOTE: numpy is imported lazily inside the functions below, NOT at module top.
 # On the Windows wheel, importing numpy (its OpenBLAS) *after* mufem corrupts
@@ -67,7 +70,17 @@ class PlotStyle(Enum):
         return self in (PlotStyle.POINTS, PlotStyle.LINE_AND_POINTS)
 
 
-def _draw(ax, values, style, color, label, marker, *, linewidth, markersize):
+def _draw(
+    ax: "Axes",
+    values: Sequence[Tuple[float, float]],
+    style: PlotStyle,
+    color: str,
+    label: str,
+    marker: str,
+    *,
+    linewidth: float,
+    markersize: float,
+) -> None:
     ax.plot(
         [x for x, _ in values],
         [y for _, y in values],
@@ -81,7 +94,7 @@ def _draw(ax, values, style, color, label, marker, *, linewidth, markersize):
 
 
 def xy_axes(
-    ax,
+    ax: "Axes",
     *,
     values: Iterable[Tuple[float, float]],
     xlabel: str,
