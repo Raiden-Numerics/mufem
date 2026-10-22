@@ -5,8 +5,8 @@ on:
     - cron: '0 16 * * 6'  # Sunday 01:00 JST (Saturday 16:00 UTC)
   workflow_dispatch:
 
-# Full example suite end to end: every geometry and mesh rebuilt before the case runs, and the
-# scenes created after it.
+# Full example suite end to end: every geometry, geometry image and mesh rebuilt before the case
+# runs, and the scenes created after it.
 jobs:
   examples:
     uses: ./.github/workflows/run_validations.yaml
@@ -14,4 +14,5 @@ jobs:
       python-version: '3.12'
       case-path: '.'
       run-cases-args: '--rebuild-mesh'
+      render-geometry: true
       render-scenes: true

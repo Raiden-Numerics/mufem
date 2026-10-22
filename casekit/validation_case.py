@@ -3,8 +3,7 @@
 A case implements the steps of two separate workflows:
 
     build_geometry_and_mesh():  build_geometry -> generate_mesh    (--rebuild-mesh)
-                                [-> create_geometry_image, warns without a display]
-    create_geometry_image():    from the committed geometry.step   (--render-geometry)
+    create_geometry_image():    from geometry.step                 (--render-geometry)
     run():                      setup_case -> solve -> validate -> postprocess
                                 [-> create_scenes                  (--render-scenes)]
     create_scenes():            from the output of a run           (--render-scenes-only)
@@ -59,7 +58,6 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
@@ -117,16 +115,6 @@ class ValidationCase(ABC):
         self.build_geometry()
         self.generate_mesh()
 
-    def try_create_geometry_image(self) -> None:
-        """Create the geometry image after a rebuild of the mesh; without a display only warn,
-        the mesh is usable without it."""
-        import tkinter
-
-        try:
-            self.create_geometry_image()
-        except tkinter.TclError as error:
-            warnings.warn(f"{self.name}: geometry image not rendered ({error}); use xvfb-run")
-
     # --- steps ----------------------------------------------------------------
     def build_geometry(self) -> None:
         """Create the geometry and write it to `self.step_path`.
@@ -173,9 +161,9 @@ class ValidationCase(ABC):
         """The image of `self.step_path` in data/, taken with the netgen viewer
         (casekit.netgen_image). Optional.
 
-        Runs after `--rebuild-mesh` (only warning without a display) and alone with
-        `--render-geometry`, not when a missing mesh is built before a run. It needs a display;
-        headless: `xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry`.
+        Runs with `--render-geometry`, from the existing geometry.step (built first with
+        `--rebuild-mesh` if both are given). It needs a display; headless:
+        `xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry`.
         Import netgen inside, as in `build_geometry()`.
         """
 
@@ -245,8 +233,8 @@ class ValidationCase(ABC):
 
 
 def run_case(case_class: type[ValidationCase]) -> None:
-    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh | --render-geometry |
-    --render-scenes | --render-scenes-only]`."""
+    """Command line entry point of a case: `pymufem case.py [--rebuild-mesh] [--render-geometry]`
+    or `pymufem case.py [--render-scenes | --render-scenes-only]`."""
     parser = argparse.ArgumentParser(
         description=case_class.name,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -259,7 +247,8 @@ def run_case(case_class: type[ValidationCase]) -> None:
     parser.add_argument(
         "--render-geometry",
         action="store_true",
-        help="only create the geometry image, from the committed geometry.step",
+        help="create the geometry image from geometry.step instead of running the case "
+        "(needs a display)",
     )
     scenes = parser.add_mutually_exclusive_group()
     scenes.add_argument(
@@ -277,12 +266,14 @@ def run_case(case_class: type[ValidationCase]) -> None:
     case = case_class()
     if args.rebuild_mesh:
         case.build_geometry_and_mesh()
-        if case._is_launcher_main_process():
-            case.try_create_geometry_image()
-        return
-    if args.render_geometry:
-        if case._is_launcher_main_process():
-            case.create_geometry_image()
+    if args.render_geometry and case._is_launcher_main_process():
+        if not case.step_path.is_file():
+            sys.exit(
+                f"{case_class.name}: {case.step_path.name} is missing; build it first with "
+                "`python case.py --rebuild-mesh`"
+            )
+        case.create_geometry_image()
+    if args.rebuild_mesh or args.render_geometry:
         return
     if args.render_scenes_only:
         if case._is_launcher_main_process():

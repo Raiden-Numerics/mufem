@@ -48,6 +48,7 @@ def run_cases(
     launcher: str,
     exclude_tags: Set[str],
     rebuild_mesh: bool = False,
+    render_geometry: bool = False,
     render_scenes: bool = False,
 ) -> None:
 
@@ -82,9 +83,12 @@ def run_cases(
         status = "OK"
         try:
             os.chdir(path=root)
+            geometry_args = " --render-geometry" if render_geometry else ""
             if build_mesh:
+                geometry_args = " --rebuild-mesh" + geometry_args
+            if geometry_args:
                 subprocess.run(
-                    args=f"{launcher} case.py --rebuild-mesh", shell=True, check=True, text=True
+                    args=f"{launcher} case.py{geometry_args}", shell=True, check=True, text=True
                 )
             run_args = " --render-scenes" if render_scenes else ""
             subprocess.run(args=f"{launcher} case.py{run_args}", shell=True, check=True, text=True)
@@ -135,6 +139,11 @@ if __name__ == "__main__":
         help="rebuild each case's geometry and mesh (serially) before running it",
     )
     parser.add_argument(
+        "--render-geometry",
+        action="store_true",
+        help="also create each case's geometry image (needs a display, e.g. xvfb-run)",
+    )
+    parser.add_argument(
         "--render-scenes",
         action="store_true",
         help="also create each case's scenes (needs casekit[scenes])",
@@ -147,5 +156,6 @@ if __name__ == "__main__":
         launcher=args.launcher,
         exclude_tags=set(args.exclude_tag),
         rebuild_mesh=args.rebuild_mesh,
+        render_geometry=args.render_geometry,
         render_scenes=args.render_scenes,
     )

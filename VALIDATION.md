@@ -19,6 +19,7 @@ for the installation and a first run.
 | `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case before running it |
+| `--render-geometry` | also creates the geometry image of each case (`data/Geometry.png`, netgen viewer; needs a display, e.g. `xvfb-run`) |
 | `--render-scenes` | also creates the scenes of each case (see [Scenes](#scenes)) |
 
 ## Scenes
