@@ -19,4 +19,4 @@ jobs:
     with:
       runner: macos-14
       python-version: '3.14'
-      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+      case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'

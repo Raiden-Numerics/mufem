@@ -441,7 +441,7 @@ distribution), and at $`r = 5`$ m, outside the charge, where it is 0.5 % below.
 
 The exported electric field is visualized with [PyVista](https://pyvista.org/) by
 `create_scenes()` in [case.py](case.py) (run the case with `--render-scenes`, or with `--render-scenes-only`
-after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/VALIDATION.md#scenes)).
+after a run; see [Scenes](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md#scenes)).
 Figure 3 illustrates the distribution of the $`x`$-component of the
 electric field in the $`z=0`$ cross-section.
 

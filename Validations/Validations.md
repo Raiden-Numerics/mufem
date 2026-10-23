@@ -10,7 +10,7 @@ for the installation and a first run.
 
 ```bash
 (mufem-venv) python run_cases.py                       # all cases
-(mufem-venv) python run_cases.py Thermal               # all thermal cases
+(mufem-venv) python run_cases.py Validations/Thermal   # all thermal cases
 (mufem-venv) python run_cases.py --exclude-tag long --exclude-tag eternal
 ```
 
@@ -32,7 +32,7 @@ view of the scenes of the case. The viewer needs a display; on a machine without
 virtual X server:
 
 ```bash
-(mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python Structural/Slaughter_2002_Linear_Cantilever_Beam/case.py --render-geometry
+(mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python Validations/Structural/Slaughter_2002_Linear_Cantilever_Beam/case.py --render-geometry
 ```
 
 `--rebuild-mesh --render-geometry` builds `geometry.step` first. The colors of the bodies come from
@@ -48,8 +48,8 @@ rendered from the fields exported to `VisualizationOutput/` with [PyVista](https
 
 ```bash
 (mufem-venv) pip install "./casekit[scenes]"
-(mufem-venv) pymufem Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes
-(mufem-venv) python Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes-only
+(mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes
+(mufem-venv) python Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes-only
 ```
 
 The scenes render off screen and need no display; in a bare Linux container install the EGL
@@ -70,12 +70,12 @@ gmsh). The geometry and mesh are built in the case itself, together with `geomet
 helpers), and can be regenerated with:
 
 ```bash
-(mufem-venv) pymufem Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
+(mufem-venv) pymufem Validations/Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
 ```
 
 The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
 does both for every case). A mesh that is missing, such as those of
-[Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
+[Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
 (`geometry_xshift=<shift>.msh`, one per comb shift, not committed), is built by `run_cases.py`
 before it runs the case, and by a serial `python case.py`; an MPI run asks for `--rebuild-mesh`
 first. The committed netgen meshes were generated with netgen-mesher 6.2.2608; other versions
