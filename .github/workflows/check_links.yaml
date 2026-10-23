@@ -14,6 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # The README links to its own files with absolute main-branch URLs (it is also rendered by
+      # GitHub Pages); check them against the checked-out files, so that a PR that adds or moves
+      # files passes before the merge and a broken path is still caught.
       - name: Run Lychee link checker
         uses: lycheeverse/lychee-action@v2.7.0
         with:
@@ -24,5 +27,6 @@ jobs:
             --retry-wait-time 2
             --require-https
             --accept '200..=299,403,405'
-            --exclude '^https://raw\.githubusercontent\.com/Raiden-Numerics/mufem/'
+            --remap 'https://github\.com/Raiden-Numerics/mufem/blob/main/ file://${{ github.workspace }}/'
+            --remap 'https://raw\.githubusercontent\.com/Raiden-Numerics/mufem/main/ file://${{ github.workspace }}/'
             './**/*.md'

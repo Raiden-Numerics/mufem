@@ -102,6 +102,6 @@ shows them with the displacement scaled 50 times.
 
 ## References
 
-[1] Medusa project. *Cantilever beam*. https://e6.ijs.si/medusa/wiki/index.php/Cantilever_beam
+[1] Medusa project. *Cantilever beam*. https://e6.ijs.si/medusa/wiki/index.php?title=Cantilever_beam
 
 [2] W. S. Slaughter (2002). *The Linearized Theory of Elasticity*. Birkhäuser, Boston, pp. 285–289.
