@@ -1,8 +1,69 @@
-# Running the validation cases
+# Validation cases
 
-This page collects the details of running the validation cases; see the
-[README](https://github.com/Raiden-Numerics/mufem/blob/main/README.md#validation-cases)
-for the installation and a first run.
+The validation cases of mufem (tested against the pinned [version](https://github.com/Raiden-Numerics/mufem/blob/main/VERSION)).
+Each case compares its results with published, measured, or analytical reference values and
+reports every check.
+
+## Getting started
+
+After following the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
+install the shared helpers and dependencies of the cases from the repository root:
+
+```bash
+(mufem-venv) pip install -e ./casekit
+```
+
+Then run a specific case with:
+
+```bash
+(mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
+```
+
+To run all cases, or all cases below a directory, use [run_cases.py](#run_casespy).
+
+## Cases
+
+### Electromagnetics
+
+mufem supports both low-frequency (magnetostatics, eddy currents, time-domain and time-harmonic magnetics)
+and high-frequency (full-wave Maxwell) electromagnetics.
+
+* [**TEAM (Testing Electromagnetic Analysis Methods) Benchmark Suite**](https://www.compumag.org/wp/team/) \
+  Introduced in the late 1980s and continuously updated, the TEAM benchmarks focus primarily on low-frequency magnetic problems, providing a standard framework for evaluating numerical methods. Available cases:
+
+  - [Compumag TEAM 1b: The FELIX Short Cylinder](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
+  - [Compumag TEAM 7: Asymmetrical Conductor with a Hole](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/README.md)
+  - [Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md)
+  - [Compumag TEAM 20: 3-D Static Force Problem](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
+  - [Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
+  - [Compumag TEAM 36: Induction Heating Device](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md)
+
+* **[Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**
+  - [Ren 2014: MEMS Comb Drive](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
+  - [David 2019: Nonuniform Charge Density](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
+
+* **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
+  - [Lubin 2015: Axial-Flux Eddy-Current Brake](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
+  - [Berger 2017: High-Temperature Superconductor Cube](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Berger_2017_HTS_Cube/README.md)
+
+* **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
+  - [Biro 1993: 3D Iron Core Current Driven Conductors](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md)
+
+* **[Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
+  - [Montejo-Garai 1995: Circular Cavity Filter](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Montejo-Garai_1995_Circular_Cavity_Filter/README.md)
+  - [Stutzman 2012: Dipole Antenna](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)
+
+### Structural
+
+* **[Time-Domain Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)**
+  - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
+
+### Thermal
+
+* **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)**
+  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
+  - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
+  - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 ## run_cases.py
 
