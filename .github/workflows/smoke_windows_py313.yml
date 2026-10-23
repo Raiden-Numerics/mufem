@@ -19,4 +19,4 @@ jobs:
     with:
       runner: windows-latest
       python-version: '3.13'
-      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+      case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'

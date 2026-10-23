@@ -28,7 +28,7 @@ theme: minima
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
-  # Rewrite the README's relative .md links (e.g. Electromagnetics/.../README.md)
+  # Rewrite the README's relative .md links (e.g. Validations/Electromagnetics/.../README.md)
   # to their generated site URLs so they don't 404.
   - jekyll-relative-links
 

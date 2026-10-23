@@ -88,7 +88,7 @@ The magnetic flux density and the current density are exported to
 `VisualizationOutput/`; the scene of Figure 4 was rendered from them.
 
 <div align="center">
-<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
+<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
 <img src="results/TEAM-13-Results.png" alt="TEAM-13 Results" width="75%">
 </a>
 <br/>

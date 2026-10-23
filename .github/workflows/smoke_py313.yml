@@ -19,5 +19,5 @@ jobs:
     uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.13'
-      case-path: 'Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+      case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'
       runner: ubuntu-24.04
