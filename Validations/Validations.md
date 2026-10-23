@@ -7,22 +7,7 @@ reports every check. Many cases are based on well-known benchmark suites, such a
 the International Compumag Society and the
 [NAFEMS](https://www.nafems.org/publications/resource_center/r0006/) benchmarks.
 
-## Getting started
-
-After following the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
-install the shared helpers and dependencies of the cases from the repository root:
-
-```bash
-(mufem-venv) pip install -e ./casekit
-```
-
-Then run a specific case with:
-
-```bash
-(mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
-```
-
-To run all cases, or all cases below a directory, use [run_cases.py](#run_casespy).
+See [Running the cases](#running-the-cases) for how to run them.
 
 ---
 
@@ -254,9 +239,40 @@ interface layers and cooled by convection. The temperature rise of the die and t
 
 ---
 
-## run_cases.py
+## Running the cases
 
-`run_cases.py` runs every `case.py` below a directory (default: the repository root):
+### Setup
+
+After following the mufem
+[Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
+install the shared helpers of the cases (`casekit`) and their dependencies from the repository
+root; the `scenes` extra is needed only to render the [scenes](#scenes):
+
+```bash
+(mufem-venv) pip install -e ./casekit             # helpers, plots, and meshers (netgen, gmsh)
+(mufem-venv) pip install -e "./casekit[scenes]"   # optional: PyVista scenes
+```
+
+### A single case
+
+```bash
+(mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
+```
+
+The case runs with its committed mesh, compares its results with the reference, and reports every
+check; `python case.py` runs it serially. The options of `case.py`:
+
+| Option | Runs the case | Effect |
+| ------ | :-----------: | ------ |
+| `--rebuild-mesh` | no | rebuilds `geometry.step` and the mesh (see [Meshes](#meshes)) |
+| `--render-geometry` | no | creates the geometry image from `geometry.step` (see [Geometry images](#geometry-images)) |
+| `--render-scenes` | yes | also creates the scenes after the run (see [Scenes](#scenes)) |
+| `--render-scenes-only` | no | creates the scenes from the output of a previous run |
+
+### All cases
+
+`run_cases.py` runs every `case.py` below a directory (default: the current directory) and lists
+the failed cases and the run times at the end:
 
 ```bash
 (mufem-venv) python run_cases.py                       # all cases
@@ -268,65 +284,69 @@ interface layers and cooled by convection. The temperature rise of the die and t
 | ------ | ------ |
 | `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
-| `--rebuild-mesh` | rebuilds the geometry and mesh of each case before running it |
-| `--render-geometry` | also creates the geometry image of each case (see [Geometry images](#geometry-images)) |
-| `--render-scenes` | also creates the scenes of each case (see [Scenes](#scenes)) |
+| `--rebuild-mesh` | rebuilds the geometry and mesh of each case, then runs it |
+| `--render-geometry` | also creates the geometry image of each case |
+| `--render-scenes` | also creates the scenes of each case |
 
-## Images
+Unlike for `case.py`, the options of `run_cases.py` never replace the run: every selected case is
+run.
 
-### Geometry images
-
-The geometry image of a case, `data/Geometry.png`, is taken from its `geometry.step` with the
-[netgen](https://ngsolve.org/) viewer by `create_geometry_image()` (`--render-geometry`), in the
-view of the scenes of the case. The viewer needs a display; on a machine without one, run it in a
-virtual X server:
-
-```bash
-(mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python Validations/Structural/Slaughter_2002_Linear_Cantilever_Beam/case.py --render-geometry
-```
-
-`--rebuild-mesh --render-geometry` builds `geometry.step` first. The colors of the bodies come from
-the STEP file: the cases built with netgen set them in `build_geometry()`, and those built with
-gmsh, which writes no colors, add them with `color_step()` of `casekit/gmsh_meshing.py`.
-
-### Scenes
-
-The scenes and animations of a case, `results/Scene_*.png` and `results/Animation_*.gif`, are
-rendered from the fields exported to `VisualizationOutput/` with [PyVista](https://pyvista.org/) by
-`create_scenes()`. They need the optional dependencies and are created after the run
-(`--render-scenes`), or from the output of a previous one (`--render-scenes-only`):
-
-```bash
-(mufem-venv) pip install "./casekit[scenes]"
-(mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes
-(mufem-venv) python Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/case.py --render-scenes-only
-```
-
-The scenes render off screen and need no display; in a bare Linux container install the EGL
-library first (`apt-get install libegl1` on Ubuntu).
-
-## Tags
+#### Tags
 
 | Tag | Meaning |
 | --- | ------- |
 | `moderate`, `long`, `eternal` | run time of the case |
 | `mumps` | needs the MUMPS direct solver |
 
+## Case structure
+
+| Path | Content |
+| ---- | ------- |
+| `case.py` | the case: geometry, mesh, setup, run, checks, plots, and scenes |
+| `README.md` | the description of the case and its results |
+| `geometry.step` | the geometry, built by the case |
+| `geometry.mesh`, `geometry.msh` | the committed mesh (netgen or gmsh) |
+| `data/` | reference data and the geometry image |
+| `results/` | plots, scenes, and animations created from the run |
+| `VisualizationOutput/` | fields exported by the run for the scenes (not committed) |
+
 ## Meshes
 
-Each case loads its committed mesh (`geometry.mesh`, or `geometry.msh` for the cases meshed with
-gmsh). The geometry and mesh are built in the case itself, together with `geometry.step`, using
-[netgen](https://ngsolve.org/) or [gmsh](https://gmsh.info/) (both installed with the shared
-helpers), and can be regenerated with:
+* **Committed meshes.** Each case runs with its committed mesh, `geometry.mesh` (netgen) or
+  `geometry.msh` (gmsh). The netgen meshes were generated with netgen-mesher 6.2.2608; other
+  versions produce slightly different meshes, but the results should still pass the checks.
+* **Regenerating.** The geometry and mesh are built in the case itself, together with
+  `geometry.step`. `case.py --rebuild-mesh` only rebuilds them; run the case afterwards as usual.
+  `run_cases.py --rebuild-mesh` does both for every case.
+* **Missing meshes.** Meshes too large to commit, such as those of
+  [Ren 2014](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md) (`geometry_xshift=<shift>.msh`,
+  one per comb shift), are built by `run_cases.py` and by a serial `python case.py` before the run;
+  an MPI run asks for `--rebuild-mesh` first.
+
+## Images
+
+### Geometry images
+
+The geometry image `data/Geometry.png` is taken from `geometry.step` with the
+[netgen](https://ngsolve.org/) viewer, in the view of the scenes of the case. The colors of the
+bodies come from the STEP file: the cases built with netgen set them in `build_geometry()`, and
+those built with gmsh, which writes no colors, add them with `color_step()` of
+`casekit/gmsh_meshing.py`. The viewer needs a display; on a machine without one, run it in a
+virtual X server:
 
 ```bash
-(mufem-venv) pymufem Validations/Thermal/Cameron_1986_Heat_Transfer_With_Convection/case.py --rebuild-mesh
+(mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry
 ```
 
-The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
-does both for every case). A mesh that is missing, such as those of
-[Ren 2014](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
-(`geometry_xshift=<shift>.msh`, one per comb shift, not committed), is built by `run_cases.py`
-before it runs the case, and by a serial `python case.py`; an MPI run asks for `--rebuild-mesh`
-first. The committed netgen meshes were generated with netgen-mesher 6.2.2608; other versions
-produce slightly different meshes, but the results should still pass the case's checks.
+### Scenes
+
+The scenes and animations, `results/Scene_*.png` and `results/Animation_*.gif`, are rendered with
+[PyVista](https://pyvista.org/) from the fields exported to `VisualizationOutput/`:
+
+```bash
+(mufem-venv) pymufem case.py --render-scenes        # run, then render
+(mufem-venv) python case.py --render-scenes-only    # render from a previous run
+```
+
+The scenes render off screen and need no display; in a bare Linux container, install the EGL
+library first (`apt-get install libegl1` on Ubuntu).
