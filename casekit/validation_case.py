@@ -268,6 +268,9 @@ def run_case(case_class: type[ValidationCase]) -> None:
         parser.error("--rebuild-mesh and --render-geometry do not run the case: no scenes")
 
     case = case_class()
+    # Run in the case directory, as run_cases.py does: the field exporter writes to a relative
+    # VisualizationOutput/, and create_scenes() reads it from the case directory.
+    os.chdir(case.dir_path)
     if args.rebuild_mesh:
         case.build_geometry_and_mesh()
     if args.render_geometry and case._is_launcher_main_process():

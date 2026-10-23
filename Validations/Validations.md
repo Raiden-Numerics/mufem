@@ -1,6 +1,6 @@
 # Validation cases
 
-The validation cases of mufem (tested against the pinned [version](../VERSION)).
+This page lists the validation cases of mufem, tested against the pinned [version](../VERSION).
 Each case compares its results with published, measured, or analytical reference values and
 reports every check. Many cases are based on well-known benchmark suites, such as the
 [TEAM](https://www.compumag.org/wp/team/) (Testing Electromagnetic Analysis Methods) problems of
@@ -25,8 +25,9 @@ capacitors, and MEMS devices.
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md">Ren 2014: MEMS Comb Drive</a></strong><br>
 An electrostatic comb drive, the actuator used in many MEMS sensors and switches: two
-interdigitated micrometer-scale combs above a grounded plate. The capacitance between the combs is
-computed as they slide into each other; its change with displacement sets the actuation force.
+interdigitated micrometer-scale combs above a grounded plate. The capacitance, whose change with
+displacement sets the actuation force, is computed as the combs are pulled apart; at full overlap it
+is checked against the bounds of two published finite-element formulations.
 </td>
 </tr>
 <tr></tr>
@@ -45,8 +46,8 @@ law. The case also serves as a step-by-step mufem tutorial.
 
 Low-frequency magnetic fields in the time domain, solved for the magnetic vector potential with
 displacement currents neglected. Covers static fields, transient eddy currents, saturating
-materials, permanent magnets, and moving parts, as found in electric machines, actuators, and
-transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model.
+materials, permanent magnets, and superconductors, as found in electric machines, actuators, and
+transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model, and moving parts by the Rigid Body Motion model.
 
 <table>
 <tr>
@@ -54,8 +55,9 @@ transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">Compumag TEAM 1b: The FELIX Short Cylinder</a></strong><br>
 A hollow aluminum cylinder in a uniform transverse magnetic field that decays exponentially,
-after the FELIX fusion experiment at Argonne National Laboratory. The induced eddy currents, the
-Ohmic losses, and the stored magnetic energy are tracked in time against the reference.
+after the FELIX fusion experiment at Argonne National Laboratory. The Ohmic loss over time is
+compared with the codes of the 1988 TEAM workshop, and the induced field at the center with
+measurements.
 </td>
 </tr>
 <tr></tr>
@@ -64,8 +66,8 @@ Ohmic losses, and the stored magnetic energy are tracked in time against the ref
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md">Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model</a></strong><br>
 Two steel channels and a steel plate between them, magnetized by a rectangular coil strong
-enough to drive the steel deep into saturation. The computed flux density in the steel and in the
-air gaps is compared with measurements.
+enough to drive the steel deep into saturation. The flux density along a line in the air is
+compared with Hall-probe measurements.
 </td>
 </tr>
 <tr></tr>
@@ -133,10 +135,10 @@ are compared with measurements at 50 Hz and 200 Hz.
 <td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md"><img src="Electromagnetics/Compumag-Team36-Induction-Heating-Device/data/Geometry.png" width="21%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md">Compumag TEAM 36: Induction Heating Device</a></strong><br>
-An induction heater: a coil heats a steel billet through induced eddy currents. All steel
-properties depend on temperature, and the permeability collapses at the Curie point, so the
-magnetic and thermal fields are solved fully coupled. The heating power and the billet temperature
-over the heating cycle are compared with published results.
+An induction heater: a coil heats a steel billet through induced eddy currents. The electrical
+and thermal properties of the steel depend on temperature, and the permeability collapses at the
+Curie point, so the magnetic and thermal fields are solved fully coupled. The heating power and the
+billet temperature over the first 100 s are compared with published results.
 </td>
 </tr>
 <tr></tr>
@@ -145,8 +147,8 @@ over the heating cycle are compared with published results.
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md">Biro 1993: 3D Iron Core Current Driven Conductors</a></strong><br>
 An iron core with an air gap and 25 solid copper turns carrying a 5 kHz current. Skin and
-proximity effects make the loss differ from turn to turn; the Ohmic loss in each turn is checked
-against published values.
+proximity effects make the loss differ from turn to turn; the Ohmic loss in each turn is compared
+with published values.
 </td>
 </tr>
 </table>
@@ -200,8 +202,8 @@ and the stress along the beam are compared with Euler–Bernoulli beam theory.
 
 ### [Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)
 
-Transient heat conduction in solids with volumetric heat sources, and heat exchange at the
-boundaries through convection, radiation, and prescribed heat fluxes. Couples with the
+Steady and transient heat conduction in solids with volumetric heat sources, and heat exchange at
+the boundaries through convection, radiation, and prescribed heat fluxes. Couples with the
 electromagnetic models, for example for induction heating in
 [TEAM 36](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md).
 
@@ -259,8 +261,8 @@ root; the `scenes` extra is needed only to render the [scenes](#scenes):
 (mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
 
-The case runs with its committed mesh, compares its results with the reference, and reports every
-check; `python case.py` runs it serially. The options of `case.py`:
+The case runs in its own directory, whatever the current one, compares its results with the
+reference, and reports every check; `python case.py` runs it serially. The options of `case.py`:
 
 | Option | Runs the case | Effect |
 | ------ | :-----------: | ------ |
@@ -285,7 +287,7 @@ the failed cases and the run times at the end:
 | `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case, then runs it |
-| `--render-geometry` | also creates the geometry image of each case |
+| `--render-geometry` | also creates the geometry image of each case (needs a display, see [Geometry images](#geometry-images)) |
 | `--render-scenes` | also creates the scenes of each case |
 
 Unlike for `case.py`, the options of `run_cases.py` never replace the run: every selected case is
@@ -312,9 +314,10 @@ run.
 
 ## Meshes
 
-* **Committed meshes.** Each case runs with its committed mesh, `geometry.mesh` (netgen) or
-  `geometry.msh` (gmsh). The netgen meshes were generated with netgen-mesher 6.2.2608; other
-  versions produce slightly different meshes, but the results should still pass the checks.
+* **Committed meshes.** Each case, except those listed under missing meshes, runs with its
+  committed mesh, `geometry.mesh` (netgen) or `geometry.msh` (gmsh). The netgen meshes were
+  generated with netgen-mesher 6.2.2608; other versions produce slightly different meshes, but the
+  results should still pass the checks.
 * **Regenerating.** The geometry and mesh are built in the case itself, together with
   `geometry.step`. `case.py --rebuild-mesh` only rebuilds them; run the case afterwards as usual.
   `run_cases.py --rebuild-mesh` does both for every case.
