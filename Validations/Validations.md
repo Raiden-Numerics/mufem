@@ -279,26 +279,16 @@ the failed cases and the run times at the end:
 ```bash
 (mufem-venv) python run_cases.py                       # all cases
 (mufem-venv) python run_cases.py Validations/Thermal   # all thermal cases
-(mufem-venv) python run_cases.py --exclude-tag long --exclude-tag eternal
 ```
 
 | Option | Effect |
 | ------ | ------ |
-| `--exclude-tag TAG` | skips the cases with the tag; repeatable |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case, then runs it |
 | `--render-geometry` | also creates the geometry image of each case (needs a display, see [Geometry images](#geometry-images)) |
 | `--render-scenes` | also creates the scenes of each case |
 
-Unlike for `case.py`, the options of `run_cases.py` never replace the run: every selected case is
-run.
-
-#### Tags
-
-| Tag | Meaning |
-| --- | ------- |
-| `moderate`, `long`, `eternal` | run time of the case |
-| `mumps` | needs the MUMPS direct solver |
+Unlike for `case.py`, the options of `run_cases.py` never replace the run: every case is run.
 
 ## Case structure
 
