@@ -33,9 +33,29 @@ full-wave Maxwell problems. Coils are driven by the
 suite of the International Compumag Society, the standard reference for low-frequency
 electromagnetic solvers.
 
-* **[Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**
-  - [Ren 2014: MEMS Comb Drive](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
-  - [David 2019: Nonuniform Charge Density](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md)
+#### [Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)
+
+<table>
+<tr>
+<td width="30%"><a href="Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md"><img src="Electromagnetics/Ren_2014_MEMS_Comb_Drive/results/Animation_Electric_Potential.gif" width="100%"></a></td>
+<td width="70%" valign="top">
+<strong><a href="Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md">Ren 2014: MEMS Comb Drive</a></strong><br>
+An electrostatic comb drive, the actuator used in many MEMS sensors and switches: two
+interdigitated micrometer-scale combs above a grounded plate. The capacitance between the combs is
+computed as they slide into each other; its change with displacement sets the actuation force.
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td width="30%" align="center"><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md"><img src="Electromagnetics/David_2019_Nonuniform_Charge_Density/results/Scene_Electric_Field.png" width="65%"></a></td>
+<td width="70%" valign="top">
+<strong><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md">David 2019: Nonuniform Charge Density</a></strong><br>
+A spherical cloud of charge in free space whose density falls off as a Gaussian from its center.
+The electric field around the charge is checked against the closed-form solution from Gauss's
+law. The case also serves as a step-by-step mufem tutorial.
+</td>
+</tr>
+</table>
 
 * **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
   - [Compumag TEAM 1b: The FELIX Short Cylinder](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
