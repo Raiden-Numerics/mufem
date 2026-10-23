@@ -2,7 +2,10 @@
 
 The validation cases of mufem (tested against the pinned [version](../VERSION)).
 Each case compares its results with published, measured, or analytical reference values and
-reports every check.
+reports every check. Many cases are based on well-known benchmark suites, such as the
+[TEAM](https://www.compumag.org/wp/team/) (Testing Electromagnetic Analysis Methods) problems of
+the International Compumag Society and the
+[NAFEMS](https://www.nafems.org/publications/resource_center/r0006/) benchmarks.
 
 ## Getting started
 
@@ -21,19 +24,15 @@ Then run a specific case with:
 
 To run all cases, or all cases below a directory, use [run_cases.py](#run_casespy).
 
-## Cases
+---
 
-### Electromagnetics
+## Electromagnetics
 
-mufem covers electromagnetics from electrostatics through low-frequency magnetics, such as
-magnetostatics and eddy currents in the time domain or at a single frequency, to high-frequency
-full-wave Maxwell problems. Coils are driven by the
-[Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model. Many cases come from the
-[TEAM](https://www.compumag.org/wp/team/) (Testing Electromagnetic Analysis Methods) benchmark
-suite of the International Compumag Society, the standard reference for low-frequency
-electromagnetic solvers.
+### [Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)
 
-#### [Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)
+Static electric fields in conductors and dielectrics, solved for the electric potential. Gives
+capacitances, stored energies, and electrostatic forces, as needed for high-voltage insulation,
+capacitors, and MEMS devices.
 
 <table>
 <tr>
@@ -57,7 +56,12 @@ law. The case also serves as a step-by-step mufem tutorial.
 </tr>
 </table>
 
-#### [Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)
+### [Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)
+
+Low-frequency magnetic fields in the time domain, solved for the magnetic vector potential with
+displacement currents neglected. Covers static fields, transient eddy currents, saturating
+materials, permanent magnets, and moving parts, as found in electric machines, actuators, and
+transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model.
 
 <table>
 <tr>
@@ -122,7 +126,12 @@ teams.
 </tr>
 </table>
 
-#### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
+### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
+
+Low-frequency magnetic fields at a single frequency, represented as complex amplitudes, so that the
+AC steady state follows from one solve instead of a time march. Suited to eddy currents and skin
+and proximity effects in transformers, induction heaters, and conductors. Coils are driven by the
+[Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model.
 
 <table>
 <tr>
@@ -157,7 +166,11 @@ against published values.
 </tr>
 </table>
 
-#### [Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
+### [Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
+
+Full-wave electromagnetic fields at a single frequency, solved for the electric field including
+wave propagation. With waveguide ports, absorbing boundaries, S-parameters, and far-field reports,
+it targets RF and microwave devices such as waveguides, filters, and antennas.
 
 <table>
 <tr>
@@ -180,12 +193,12 @@ systems. The far-field radiation pattern is compared with the classical thin-dip
 </tr>
 </table>
 
-### Structural
+## Structural
 
-mufem computes the small-strain, quasi-static deformation of linear elastic solids under
+### [Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)
+
+Small-strain, quasi-static deformation of linear elastic solids, solved for the displacement under
 prescribed displacements and surface tractions.
-
-#### [Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)
 
 <table>
 <tr>
@@ -198,18 +211,14 @@ and the stress along the beam are compared with Euler–Bernoulli beam theory.
 </tr>
 </table>
 
-### Thermal
+## Thermal
 
-mufem solves transient heat conduction in solids with volumetric heat sources, and heat exchange
-at the boundaries through convection, radiation, and prescribed heat fluxes. The thermal model
-couples with the electromagnetic models, for example for induction heating in
+### [Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)
+
+Transient heat conduction in solids with volumetric heat sources, and heat exchange at the
+boundaries through convection, radiation, and prescribed heat fluxes. Couples with the
+electromagnetic models, for example for induction heating in
 [TEAM 36](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md).
-The Cameron 1986 validation case comes from the
-[NAFEMS](https://www.nafems.org/publications/resource_center/r0006/) benchmark suite, a
-long-standing set of reference problems from the NAFEMS simulation community covering structural,
-thermal, fluid, and multi-physics analyses.
-
-#### [Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)
 
 <table>
 <tr>
@@ -242,6 +251,8 @@ interface layers and cooled by convection. The temperature rise of the die and t
 </td>
 </tr>
 </table>
+
+---
 
 ## run_cases.py
 
