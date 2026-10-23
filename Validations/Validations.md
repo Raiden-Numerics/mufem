@@ -1,6 +1,6 @@
 # Validation cases
 
-The validation cases of mufem (tested against the pinned [version](https://github.com/Raiden-Numerics/mufem/blob/main/VERSION)).
+The validation cases of mufem (tested against the pinned [version](../VERSION)).
 Each case compares its results with published, measured, or analytical reference values and
 reports every check.
 
@@ -58,21 +58,21 @@ law. The case also serves as a step-by-step mufem tutorial.
 </table>
 
 * **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
-  - [Compumag TEAM 1b: The FELIX Short Cylinder](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
-  - [Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md)
-  - [Compumag TEAM 20: 3-D Static Force Problem](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
-  - [Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
-  - [Lubin 2015: Axial-Flux Eddy-Current Brake](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
-  - [Berger 2017: High-Temperature Superconductor Cube](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Berger_2017_HTS_Cube/README.md)
+  - [Compumag TEAM 1b: The FELIX Short Cylinder](Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md)
+  - [Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model](Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md)
+  - [Compumag TEAM 20: 3-D Static Force Problem](Electromagnetics/Compumag-Team20-3D-Static-Force-Problem/README.md)
+  - [Compumag TEAM 24: Nonlinear Time-Transient Rotational Test Rig](Electromagnetics/Compumag-Team24-Locked-Rotor/README.md)
+  - [Lubin 2015: Axial-Flux Eddy-Current Brake](Electromagnetics/Lubin_2015_Axial_Flux_Eddy_Current_Brake/README.md)
+  - [Berger 2017: High-Temperature Superconductor Cube](Electromagnetics/Berger_2017_HTS_Cube/README.md)
 
 * **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
-  - [Compumag TEAM 7: Asymmetrical Conductor with a Hole](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/README.md)
-  - [Compumag TEAM 36: Induction Heating Device](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md)
-  - [Biro 1993: 3D Iron Core Current Driven Conductors](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md)
+  - [Compumag TEAM 7: Asymmetrical Conductor with a Hole](Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/README.md)
+  - [Compumag TEAM 36: Induction Heating Device](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md)
+  - [Biro 1993: 3D Iron Core Current Driven Conductors](Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md)
 
 * **[Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
-  - [Montejo-Garai 1995: Circular Cavity Filter](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Montejo-Garai_1995_Circular_Cavity_Filter/README.md)
-  - [Stutzman 2012: Dipole Antenna](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)
+  - [Montejo-Garai 1995: Circular Cavity Filter](Electromagnetics/Montejo-Garai_1995_Circular_Cavity_Filter/README.md)
+  - [Stutzman 2012: Dipole Antenna](Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md)
 
 ### Structural
 
@@ -80,23 +80,23 @@ mufem computes the small-strain, quasi-static deformation of linear elastic soli
 prescribed displacements and surface tractions.
 
 * **[Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)**
-  - [Slaughter 2002: Linear Cantilever Beam](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
+  - [Slaughter 2002: Linear Cantilever Beam](Structural/Slaughter_2002_Linear_Cantilever_Beam/README.md)
 
 ### Thermal
 
 mufem solves transient heat conduction in solids with volumetric heat sources, and heat exchange
 at the boundaries through convection, radiation, and prescribed heat fluxes. The thermal model
 couples with the electromagnetic models, for example for induction heating in
-[TEAM 36](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md).
+[TEAM 36](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md).
 The Cameron 1986 validation case comes from the
 [NAFEMS](https://www.nafems.org/publications/resource_center/r0006/) benchmark suite, a
 long-standing set of reference problems from the NAFEMS simulation community covering structural,
 thermal, fluid, and multi-physics analyses.
 
 * **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)**
-  - [Goldak 1984: Welding Heat Source](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/README.md)
-  - [Cameron 1986: Heat Transfer With Convection](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
-  - [Guenin 2011: Heat Transfer in Electronic Design](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
+  - [Goldak 1984: Welding Heat Source](Thermal/Goldak_1984_Welding_Heat_Source/README.md)
+  - [Cameron 1986: Heat Transfer With Convection](Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md)
+  - [Guenin 2011: Heat Transfer in Electronic Design](Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md)
 
 ## run_cases.py
 
@@ -169,7 +169,7 @@ helpers), and can be regenerated with:
 
 The flag only rebuilds the mesh; run the case afterwards as usual (`run_cases.py --rebuild-mesh`
 does both for every case). A mesh that is missing, such as those of
-[Ren 2014](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
+[Ren 2014](Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md)
 (`geometry_xshift=<shift>.msh`, one per comb shift, not committed), is built by `run_cases.py`
 before it runs the case, and by a serial `python case.py`; an MPI run asks for `--rebuild-mesh`
 first. The committed netgen meshes were generated with netgen-mesher 6.2.2608; other versions
