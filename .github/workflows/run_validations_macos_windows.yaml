@@ -73,4 +73,4 @@ jobs:
           MPLBACKEND: Agg  # headless: no GUI backend
         run: |
           python -c "import mufem; print('import OK', getattr(mufem, '__version__', '?'))"
-          python run_cases.py ${{ inputs.case-path }} --launcher python ${{ inputs.run-cases-args }}
+          python run_cases.py ${{ inputs.case-path }} --launcher python --no-field-export ${{ inputs.run-cases-args }}

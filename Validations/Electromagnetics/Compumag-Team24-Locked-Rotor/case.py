@@ -174,10 +174,10 @@ class Team24LockedRotor(ValidationCase):
             mesh_path=f"{self.mesh_path}",
         )
 
-        self.runner = mufem.UnsteadyRunner(
+        runner = mufem.UnsteadyRunner(
             total_time=0.15, time_step_size=0.005, total_inner_iterations=6
         )
-        sim.set_runner(self.runner)
+        sim.set_runner(runner)
 
         # Model ------------------------------------------------------------------------
         magnetic_model = TimeDomainMagneticModel(order=1)
@@ -272,20 +272,13 @@ class Team24LockedRotor(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.hall_probe_monitor)
 
+        # The fields at the start and after every time step for the scenes of create_scenes().
+        field_exporter = sim.get_field_exporter()
+        field_exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        field_exporter.add_field_outputs(["Electric Current Density", "Element Type"])
+        field_exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
+
         return sim
-
-    def solve(self):
-        # The fields of every time step for the scenes of create_scenes() (collective).
-        exporter = self.sim.get_field_exporter()
-        exporter.set_output_directory(self.dir_path / "VisualizationOutput")
-        exporter.add_field_outputs(["Electric Current Density", "Element Type"])
-
-        self.sim.initialize()
-        exporter.save()
-
-        for _ in range(30):
-            self.runner.advance(1)
-            exporter.save()
 
     def validate(self):
         self.coil_current = self.current_monitor.get_values()

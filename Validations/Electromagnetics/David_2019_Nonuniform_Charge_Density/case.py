@@ -125,6 +125,13 @@ class David2019ChargeDensity(ValidationCase):
 
         model.add_conditions([charge_density_condition, potential_condition])
 
+        # Field export at the end of the run, for the scene of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Electric Field")
+        field_exporter.add_field_output("Electric Potential")
+        field_exporter.set_order(2)
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def electric_field_theory(self, r):
@@ -174,12 +181,6 @@ class David2019ChargeDensity(ValidationCase):
                 ylabel="Electric field $E$ [GV/m]",
                 path=f"{self.results_path / 'Electric_Field.png'}",
             )
-
-        # Field export for the scene of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Electric Field")
-        vis.add_field_output("Electric Potential")
-        vis.save(order=2)
 
     def create_scenes(self):
         # The x-component of the electric field in the cross-section z = 0 of the spherical

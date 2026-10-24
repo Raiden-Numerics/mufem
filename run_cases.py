@@ -50,6 +50,7 @@ def run_cases(
     rebuild_mesh: bool = False,
     render_geometry: bool = False,
     render_scenes: bool = False,
+    field_export: bool = True,
 ) -> None:
 
     failed_cases: List[str] = []
@@ -90,7 +91,8 @@ def run_cases(
                 subprocess.run(
                     args=f"{launcher} case.py{geometry_args}", shell=True, check=True, text=True
                 )
-            subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
+            run_args = "" if field_export else " --no-field-export"
+            subprocess.run(args=f"{launcher} case.py{run_args}", shell=True, check=True, text=True)
             if render_scenes:
                 # Serially after the run: the scenes read the complete export, and VTK stays
                 # out of the MPI processes.
@@ -148,7 +150,13 @@ if __name__ == "__main__":
         action="store_true",
         help="also create each case's geometry image (needs a display, e.g. xvfb-run)",
     )
-    parser.add_argument(
+    scenes = parser.add_mutually_exclusive_group()
+    scenes.add_argument(
+        "--no-field-export",
+        action="store_true",
+        help="run each case with --no-field-export: no fields written (checks only)",
+    )
+    scenes.add_argument(
         "--render-scenes",
         action="store_true",
         help="also create each case's scenes (needs casekit[scenes])",
@@ -163,4 +171,5 @@ if __name__ == "__main__":
         rebuild_mesh=args.rebuild_mesh,
         render_geometry=args.render_geometry,
         render_scenes=args.render_scenes,
+        field_export=not args.no_field_export,
     )

@@ -233,8 +233,8 @@ class MontejoGarai1995CavityFilter(ValidationCase):
             self.frequencies = numpy.array(
                 sorted(self.visualized_frequencies + self.checked_frequencies)
             )
-            vis = self.sim.get_field_exporter()
-            vis.add_field_outputs(["Electric Field-Real", "Electric Field-Imag"])
+            field_exporter = self.sim.get_field_exporter()
+            field_exporter.add_field_outputs(["Electric Field-Real", "Electric Field-Imag"])
 
         self.s21 = numpy.zeros(len(self.frequencies), dtype=complex)
 
@@ -245,8 +245,12 @@ class MontejoGarai1995CavityFilter(ValidationCase):
             self.model.set_frequency(frequency)
             self.runner.advance(1)
 
-            if not self.precalculate and frequency in self.visualized_frequencies:
-                vis.save(order=2)
+            if (
+                self.field_export
+                and not self.precalculate
+                and frequency in self.visualized_frequencies
+            ):
+                field_exporter.save(order=2)
 
             self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
 

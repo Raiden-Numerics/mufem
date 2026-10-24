@@ -1,4 +1,4 @@
-# Validation cases
+# Validations
 
 This page lists the validation cases of mufem, tested against the pinned [version](../VERSION).
 Each case compares its results with published, measured, or analytical reference values and
@@ -9,17 +9,29 @@ the International Compumag Society and the
 
 See [Running the cases](#running-the-cases) for how to run them.
 
----
+## Cases
 
-## Electromagnetics
+[Electromagnetics](#electromagnetics) · [Structural](#structural)
 
-### [Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)
+### Electromagnetics
+
+#### [Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)
 
 Static electric fields in conductors and dielectrics, solved for the electric potential. Gives
 capacitances, stored energies, and electrostatic forces, as needed for high-voltage insulation,
 capacitors, and MEMS devices.
 
 <table>
+<tr>
+<td width="25%" height="130" align="center"><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md"><img src="Electromagnetics/David_2019_Nonuniform_Charge_Density/results/Scene_Electric_Field.png" width="47%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md">David 2019: Nonuniform Charge Density</a></strong><br>
+A spherical cloud of charge in free space whose density falls off as a Gaussian from its center.
+The electric field around the charge is checked against the closed-form solution from Gauss's
+law. The case also serves as a step-by-step mufem tutorial.
+</td>
+</tr>
+<tr></tr>
 <tr>
 <td width="25%" height="130" align="center"><a href="Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md"><img src="Electromagnetics/Ren_2014_MEMS_Comb_Drive/results/Animation_Electric_Potential.gif" width="72%"></a></td>
 <td width="75%" valign="top">
@@ -30,28 +42,28 @@ displacement sets the actuation force, is computed as the combs are pulled apart
 is checked against the bounds of two published finite-element formulations.
 </td>
 </tr>
-<tr></tr>
-<tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md"><img src="Electromagnetics/David_2019_Nonuniform_Charge_Density/results/Scene_Electric_Field.png" width="47%"></a></td>
-<td width="75%" valign="top">
-<strong><a href="Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md">David 2019: Nonuniform Charge Density</a></strong><br>
-A spherical cloud of charge in free space whose density falls off as a Gaussian from its center.
-The electric field around the charge is checked against the closed-form solution from Gauss's
-law. The case also serves as a step-by-step mufem tutorial.
-</td>
-</tr>
 </table>
 
-### [Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)
+#### [Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)
 
 Low-frequency magnetic fields in the time domain, solved for the magnetic vector potential with
 displacement currents neglected. Covers static fields, transient eddy currents, saturating
-materials, permanent magnets, and superconductors, as found in electric machines, actuators, and
-transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model, and moving parts by the Rigid Body Motion model.
+materials, permanent magnets, and superconductors, as found in electric machines, actuators, and transformers.
 
 <table>
 <tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="61%"></a></td>
+<td width="25%" height="130"><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md"><img src="Electromagnetics/Berger_2017_HTS_Cube/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md">Berger 2017: High-Temperature Superconductor Cube</a></strong><br>
+A cube of high-temperature superconductor in a sinusoidal external magnetic field, as found in
+superconducting magnets and power devices. The shielding currents follow a strongly nonlinear
+power law, and the resulting AC loss is checked against results of five independent research
+teams.
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td width="25%" height="130"><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">Compumag TEAM 1b: The FELIX Short Cylinder</a></strong><br>
 A hollow aluminum cylinder in a uniform transverse magnetic field that decays exponentially,
@@ -62,7 +74,7 @@ measurements.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/data/Geometry.png" width="63%"></a></td>
+<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/Scene_Magnetic_Flux_Density.png" width="58%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md">Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model</a></strong><br>
 Two steel channels and a steel plate between them, magnetized by a rectangular coil strong
@@ -100,27 +112,25 @@ The eddy currents induced in the disc produce a braking torque, computed over a 
 compared with a 3-D analytical model.
 </td>
 </tr>
-<tr></tr>
-<tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md"><img src="Electromagnetics/Berger_2017_HTS_Cube/data/Geometry.png" width="63%"></a></td>
-<td width="75%" valign="top">
-<strong><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md">Berger 2017: High-Temperature Superconductor Cube</a></strong><br>
-A cube of high-temperature superconductor in a sinusoidal external magnetic field, as found in
-superconducting magnets and power devices. The shielding currents follow a strongly nonlinear
-power law, and the resulting AC loss is checked against results of five independent research
-teams.
-</td>
-</tr>
 </table>
 
-### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
+#### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
 
 Low-frequency magnetic fields at a single frequency, represented as complex amplitudes, so that the
 AC steady state follows from one solve instead of a time march. Suited to eddy currents and skin
-and proximity effects in transformers, induction heaters, and conductors. Coils are driven by the
-[Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model.
+and proximity effects in transformers, induction heaters, and conductors.
 
 <table>
+<tr>
+<td width="25%" height="130" align="center"><a href="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md"><img src="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/results/Animation_Electric_Current_Density.gif" width="52%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md">Biro 1993: 3D Iron Core Current Driven Conductors</a></strong><br>
+An iron core with an air gap and 25 solid copper turns carrying a 5 kHz current. Skin and
+proximity effects make the loss differ from turn to turn; the Ohmic loss in each turn is compared
+with published values.
+</td>
+</tr>
+<tr></tr>
 <tr>
 <td width="25%" height="130"><a href="Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/README.md"><img src="Electromagnetics/Compumag-Team7-Asymmetrical-Conductor-with-a-Hole/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="75%" valign="top">
@@ -141,19 +151,9 @@ Curie point, so the magnetic and thermal fields are solved fully coupled. The he
 billet temperature over the first 100 s are compared with published results.
 </td>
 </tr>
-<tr></tr>
-<tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md"><img src="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/results/Animation_Electric_Current_Density.gif" width="52%"></a></td>
-<td width="75%" valign="top">
-<strong><a href="Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md">Biro 1993: 3D Iron Core Current Driven Conductors</a></strong><br>
-An iron core with an air gap and 25 solid copper turns carrying a 5 kHz current. Skin and
-proximity effects make the loss differ from turn to turn; the Ohmic loss in each turn is compared
-with published values.
-</td>
-</tr>
 </table>
 
-### [Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
+#### [Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)
 
 Full-wave electromagnetic fields at a single frequency, solved for the electric field including
 wave propagation. With waveguide ports, absorbing boundaries, S-parameters, and far-field reports,
@@ -180,9 +180,9 @@ systems. The far-field radiation pattern is compared with the classical thin-dip
 </tr>
 </table>
 
-## Structural
+### Structural
 
-### [Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)
+#### [Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)
 
 Small-strain, quasi-static deformation of linear elastic solids, solved for the displacement under
 prescribed displacements and surface tractions.
@@ -198,9 +198,7 @@ and the stress along the beam are compared with Euler–Bernoulli beam theory.
 </tr>
 </table>
 
-## Thermal
-
-### [Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)
+#### [Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)
 
 Steady and transient heat conduction in solids with volumetric heat sources, and heat exchange at
 the boundaries through convection, radiation, and prescribed heat fluxes. Couples with the
@@ -208,16 +206,6 @@ electromagnetic models, for example for induction heating in
 [TEAM 36](Electromagnetics/Compumag-Team36-Induction-Heating-Device/README.md).
 
 <table>
-<tr>
-<td width="25%" height="130" align="center"><a href="Thermal/Goldak_1984_Welding_Heat_Source/README.md"><img src="Thermal/Goldak_1984_Welding_Heat_Source/results/Scene_Temperature.png" width="58%"></a></td>
-<td width="75%" valign="top">
-<strong><a href="Thermal/Goldak_1984_Welding_Heat_Source/README.md">Goldak 1984: Welding Heat Source</a></strong><br>
-A weld bead laid on a 10 cm thick steel plate, with the arc represented by Goldak's moving
-double-ellipsoid heat source. The temperature profile across the weld is compared with
-measurements.
-</td>
-</tr>
-<tr></tr>
 <tr>
 <td width="25%" height="130" align="center"><a href="Thermal/Cameron_1986_Heat_Transfer_With_Convection/README.md"><img src="Thermal/Cameron_1986_Heat_Transfer_With_Convection/results/Scene_Temperature.png" width="40%"></a></td>
 <td width="75%" valign="top">
@@ -229,7 +217,17 @@ NAFEMS target.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130" align="center"><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md"><img src="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/data/Geometry.png" width="79%"></a></td>
+<td width="25%" height="130" align="center"><a href="Thermal/Goldak_1984_Welding_Heat_Source/README.md"><img src="Thermal/Goldak_1984_Welding_Heat_Source/results/Scene_Temperature.png" width="58%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Thermal/Goldak_1984_Welding_Heat_Source/README.md">Goldak 1984: Welding Heat Source</a></strong><br>
+A weld bead laid on a 10 cm thick steel plate, with the arc represented by Goldak's moving
+double-ellipsoid heat source. The temperature profile across the weld is compared with
+measurements.
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td width="25%" height="130" align="center"><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md"><img src="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/results/Scene_Temperature.png" width="47%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md">Guenin 2011: Heat Transfer in Electronic Design</a></strong><br>
 A high-power IC package: a silicon die, a copper lid, and a heat sink stacked with thermal
@@ -241,9 +239,11 @@ interface layers and cooled by convection. The temperature rise of the die and t
 
 ---
 
-## Running the cases
+## Working with the Cases
 
-### Setup
+### Running the Cases
+
+#### Setup
 
 After following the mufem
 [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html),
@@ -255,23 +255,25 @@ root; the `scenes` extra is needed only to render the [scenes](#scenes):
 (mufem-venv) pip install -e "./casekit[scenes]"   # optional: PyVista scenes
 ```
 
-### A single case
+#### A Single Case
 
 ```bash
 (mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
 ```
 
 The case runs in its own directory, whatever the current one, compares its results with the
-reference, and reports every check; `python case.py` runs it serially. The options of `case.py`:
+reference, reports every check, and writes its fields to `VisualizationOutput/` for the
+[scenes](#scenes); `python case.py` runs it serially. The options of `case.py`:
 
 | Option | Runs the case | Effect |
 | ------ | :-----------: | ------ |
+| `--no-field-export` | yes | writes no fields (only the checks, e.g. in CI); no scenes can be created from the run |
 | `--rebuild-mesh` | no | rebuilds `geometry.step` and the mesh (see [Meshes](#meshes)) |
 | `--render-geometry` | no | creates the geometry image from `geometry.step` (see [Geometry images](#geometry-images)) |
 | `--render-scenes` | yes | also creates the scenes after the run (see [Scenes](#scenes)) |
 | `--render-scenes-only` | no | creates the scenes from the output of a previous run |
 
-### All cases
+#### All Cases
 
 `run_cases.py` runs every `case.py` below a directory (default: the current directory) and lists
 the failed cases and the run times at the end:
@@ -284,13 +286,15 @@ the failed cases and the run times at the end:
 | Option | Effect |
 | ------ | ------ |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
+| `--exclude-tag TAG` | skips the cases with the tag, e.g. `long`, `eternal` or `mumps` (repeatable) |
+| `--no-field-export` | runs each case with `--no-field-export` |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case, then runs it |
 | `--render-geometry` | also creates the geometry image of each case (needs a display, see [Geometry images](#geometry-images)) |
-| `--render-scenes` | also creates the scenes of each case |
+| `--render-scenes` | also creates the scenes of each case, serially after its run |
 
 Unlike for `case.py`, the options of `run_cases.py` never replace the run: every case is run.
 
-## Case structure
+### Case Structure
 
 | Path | Content |
 | ---- | ------- |
@@ -302,7 +306,7 @@ Unlike for `case.py`, the options of `run_cases.py` never replace the run: every
 | `results/` | plots, scenes, and animations created from the run |
 | `VisualizationOutput/` | fields exported by the run for the scenes (not committed) |
 
-## Meshes
+### Meshes
 
 * **Committed meshes.** Each case, except those listed under missing meshes, runs with its
   committed mesh, `geometry.mesh` (netgen) or `geometry.msh` (gmsh). The netgen meshes were
@@ -316,9 +320,9 @@ Unlike for `case.py`, the options of `run_cases.py` never replace the run: every
   one per comb shift), are built by `run_cases.py` and by a serial `python case.py` before the run;
   an MPI run asks for `--rebuild-mesh` first.
 
-## Images
+### Images
 
-### Geometry images
+#### Geometry Images
 
 The geometry image `data/Geometry.png` is taken from `geometry.step` with the
 [netgen](https://ngsolve.org/) viewer, in the view of the scenes of the case. The colors of the
@@ -331,7 +335,7 @@ virtual X server:
 (mufem-venv) xvfb-run -a -s "-screen 0 2400x1600x24" python case.py --render-geometry
 ```
 
-### Scenes
+#### Scenes
 
 The scenes and animations, `results/Scene_*.png` and `results/Animation_*.gif`, are rendered with
 [PyVista](https://pyvista.org/) from the fields exported to `VisualizationOutput/`:

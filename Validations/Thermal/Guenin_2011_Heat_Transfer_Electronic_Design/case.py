@@ -165,6 +165,14 @@ class Guenin2011ElectronicDesign(ValidationCase):
         self.monitor_lid = mufem.ReportMonitor("Lid Temperature Monitor", "LidTemperatureReport")
         sim.get_monitor_manager().add_monitor(self.monitor_lid)
 
+        # Field export at the end of the run, for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Temperature")
+        field_exporter.add_field_output("Density")
+        field_exporter.add_field_output("Thermal Conductivity")
+        field_exporter.add_field_output("Specific Heat Capacity")
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -232,14 +240,6 @@ class Guenin2011ElectronicDesign(ValidationCase):
                 "Lid Temperature [°C]",
                 "Lid_Temperature_Evolution.png",
             )
-
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Temperature")
-        vis.add_field_output("Density")
-        vis.add_field_output("Thermal Conductivity")
-        vis.add_field_output("Specific Heat Capacity")
-        vis.save()
 
     def create_scenes(self):
         # All images use the isometric view along (1, 1, 1) with the stacking direction of the

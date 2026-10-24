@@ -120,6 +120,11 @@ class Cameron1986(ValidationCase):
 
         model.add_conditions([bc_fixed, bc_ambient, bc_adiabatic])
 
+        # Field export at the end of the run, for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Temperature")
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -153,11 +158,6 @@ class Cameron1986(ValidationCase):
                 ylabel="Temperature [°C]",
                 path=f"{self.results_path}/Temperature.png",
             )
-
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Temperature")
-        vis.save()
 
     def create_scenes(self):
         # The plate (0.6 m x 1.0 m) seen from the front (onto the x-y plane), as

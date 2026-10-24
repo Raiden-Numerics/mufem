@@ -173,6 +173,15 @@ class Biro1993IronCore(ValidationCase):
             )
             coil_model.add_coil_specification(coil)
 
+        # Field export at the end of the run, for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Magnetic Flux Density-Real")
+        field_exporter.add_field_output("Magnetic Flux Density-Imag")
+        field_exporter.add_field_output("Electric Current Density-Real")
+        field_exporter.add_field_output("Electric Current Density-Imag")
+        field_exporter.set_order(2)
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -208,15 +217,6 @@ class Biro1993IronCore(ValidationCase):
             rel_tol=5e-2,
             label="total ohmic loss without turn 21 [W]",
         )
-
-    def postprocess(self):
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density-Real")
-        vis.add_field_output("Magnetic Flux Density-Imag")
-        vis.add_field_output("Electric Current Density-Real")
-        vis.add_field_output("Electric Current Density-Imag")
-        vis.save(order=2)
 
     def create_scenes(self):
         # The magnitude of the fields at the phase, with the core and the conductors seen from

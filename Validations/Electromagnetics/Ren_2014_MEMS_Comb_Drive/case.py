@@ -204,8 +204,8 @@ class Ren2014MemsCombDrive(ValidationCase):
         max_refinements = 10
         max_ncells = 1e5
 
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Electric Potential")
+        field_exporter = self.sim.get_field_exporter()
+        field_exporter.add_field_output("Electric Potential")
 
         # (xshift [um], number of cells, capacitance [F]) for every refinement step
         self.capacitances = []
@@ -218,8 +218,8 @@ class Ren2014MemsCombDrive(ValidationCase):
                 self.runner.advance(2)
 
                 # The initial mesh, shown in the mesh image of create_scenes().
-                if i == 0 and xshift == self.xshifts[0]:
-                    vis.save(order=2)
+                if self.field_export and i == 0 and xshift == self.xshifts[0]:
+                    field_exporter.save(order=2)
 
                 ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
                 capacitance = 2 * self.report.evaluate() / self.voltage**2  # C = 2 W / V^2
@@ -234,7 +234,8 @@ class Ren2014MemsCombDrive(ValidationCase):
                     f"No {max_ncells:.0e} cells after {max_refinements} refinements."
                 )
 
-            vis.save(order=2)
+            if self.field_export:
+                field_exporter.save(order=2)
 
         self.capacitances = numpy.array(self.capacitances)
 

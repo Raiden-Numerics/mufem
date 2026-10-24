@@ -286,26 +286,19 @@ class Team36InductionHeating(ValidationCase):
         return sim
 
     def solve(self):
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Temperature")
-        vis.add_field_output("Magnetic Flux Density-Real")
-        vis.add_field_output("Magnetic Flux Density-Imag")
-        vis.add_field_output("Ohmic Heating")
+        field_exporter = self.sim.get_field_exporter()
+        field_exporter.add_field_output("Temperature")
+        field_exporter.add_field_output("Magnetic Flux Density-Real")
+        field_exporter.add_field_output("Magnetic Flux Density-Imag")
+        field_exporter.add_field_output("Ohmic Heating")
+        field_exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
 
         self.sim.initialize()
-        vis.save()
 
         # dt = 5 s, T_end = 100 s -> 20 steps. Refine once at t = 45 s (step 9).
-        for _ in range(9):
-            self.runner.advance(1)
-            vis.save()
-
+        self.runner.advance(9)
         self.refinement_model.refine_mesh()
-        vis.save()
-
-        for _ in range(11):
-            self.runner.advance(1)
-            vis.save()
+        self.runner.advance(11)
 
     def validate(self):
         # Temperatures at t = 100 s; Di Barba (2018), Fig. 8a, interpolated.

@@ -303,8 +303,14 @@ def gif(scene: pv.Plotter, path: Path, fps: int = 8):
     """Animated GIF of `scene` (save_gif): call the yielded `write_frame()` after each frame
     is drawn. Closes the scene; writes the GIF only if the block completes."""
     frames = []
+
+    def write_frame():
+        # The charts show the data of the previous render: render once more first.
+        scene.render()
+        frames.append(scene.screenshot())
+
     try:
-        yield lambda: frames.append(scene.screenshot())
+        yield write_frame
     finally:
         scene.close()
     save_gif(frames, path, fps)

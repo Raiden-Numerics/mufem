@@ -90,4 +90,4 @@ jobs:
         env:
           # See run_validations.yaml: gmsh's initial-exec TLS after OpenMPI.
           GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
-        run: python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder
+        run: python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder --no-field-export

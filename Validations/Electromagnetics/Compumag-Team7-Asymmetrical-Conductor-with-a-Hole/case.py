@@ -139,6 +139,14 @@ class Team7AsymmetricalConductor(ValidationCase):
         )
         coil_model.add_coil_specification(coil)
 
+        # Field export, saved at the end of solve(), for the animation of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Magnetic Flux Density-Real")
+        field_exporter.add_field_output("Magnetic Flux Density-Imag")
+        field_exporter.add_field_output("Electric Current Density-Real")
+        field_exporter.add_field_output("Electric Current Density-Imag")
+        field_exporter.set_order(3)
+
         return sim
 
     def solve(self):
@@ -149,6 +157,11 @@ class Team7AsymmetricalConductor(ValidationCase):
             self.magnetic_model.set_frequency(frequency)
             self.runner.advance(self.runner.get_total_iterations())
             self.results[frequency] = self.evaluate_lines()
+
+        # The runner is advanced by hand, so no Event.RunCompletion fires: the fields at the
+        # end of the run for the scenes of create_scenes() (collective).
+        if self.field_export:
+            self.sim.get_field_exporter().save()
 
     @staticmethod
     def probe(field, x, y, z):
@@ -220,14 +233,6 @@ class Team7AsymmetricalConductor(ValidationCase):
             # over x [mm], as compared with the measurement (conjugated, see evaluate_lines).
             x, b = numpy.array(self.results[50]["A1-B1"]).T
             numpy.savez(self.scene_data_path, x=x.real, bz=b)
-
-        # Field export for the animation of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density-Real")
-        vis.add_field_output("Magnetic Flux Density-Imag")
-        vis.add_field_output("Electric Current Density-Real")
-        vis.add_field_output("Electric Current Density-Imag")
-        vis.save(order=3)
 
     def plot_line(self, x, values, ref_x, ref_values, ylabel, title, path):
         plt.clf()

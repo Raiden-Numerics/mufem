@@ -403,13 +403,13 @@ information about the field exporter can be found in the
 [Field Exporter](https://raiden-numerics.github.io/mufem-doc/framework/visualization.html#field-exporter)):
 
 ```python
-vis = sim.get_field_exporter()
-vis.add_field_output("Electric Field")
-vis.add_field_output("Electric Potential")
-vis.save(order=2)
+field_exporter = sim.get_field_exporter()
+field_exporter.add_field_output("Electric Field")
+field_exporter.add_field_output("Electric Potential")
+field_exporter.save(order=2)
 ```
 
-Here, we utilize the `order=2` option in the `vis.save` function.
+Here, we utilize the `order=2` option in the `field_exporter.save` function.
 This explicitly instructs the field exporter to use second-order polynomial
 functions to represent the field data.
 This choice aligns with the second-order representation used when setting up the

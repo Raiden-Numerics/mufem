@@ -222,6 +222,12 @@ class Team20StaticForce(ValidationCase):
             for name, x, y in [("P1", 0.0, 0.0), ("P2", 0.0125, 0.005)]
         }
 
+        # Field export, saved at the end of solve(), for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Magnetic Flux Density")
+        field_exporter.add_field_output("Electric Current Density")
+        field_exporter.set_order(1)
+
         return sim
 
     def solve(self):
@@ -238,6 +244,11 @@ class Team20StaticForce(ValidationCase):
             self.gap_field.append(
                 {name: report.evaluate().z for name, report in self.gap_field_reports.items()}
             )
+
+        # The runner is advanced by hand, so no Event.RunCompletion fires: the fields at the
+        # end of the run for the scenes of create_scenes() (collective).
+        if self.field_export:
+            self.sim.get_field_exporter().save()
 
     def validate(self):
         force = dict(self.pole_force)
@@ -272,12 +283,6 @@ class Team20StaticForce(ValidationCase):
                 yticks=[0, 20, 40, 60, 80],
                 path=f"{self.results_path / 'Force_vs_Current.png'}",
             )
-
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density")
-        vis.add_field_output("Electric Current Density")
-        vis.save(order=1)
 
     def create_scenes(self):
         # Both images use the isometric view along (-1, -1, 1) onto the symmetry planes x = 0
