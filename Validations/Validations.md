@@ -11,14 +11,7 @@ See [Running the cases](#running-the-cases) for how to run them.
 
 ## Cases
 
-* [Electromagnetics](#electromagnetics):
-  [Electrostatics](#electrostatics) ·
-  [Time-Domain Magnetic](#time-domain-magnetic) ·
-  [Time-Harmonic Magnetic](#time-harmonic-magnetic) ·
-  [Time-Harmonic Maxwell](#time-harmonic-maxwell)
-* [Structural](#structural):
-  [Solid Mechanics](#solid-mechanics) ·
-  [Solid Temperature](#solid-temperature)
+[Electromagnetics](#electromagnetics) · [Structural](#structural)
 
 ### Electromagnetics
 
@@ -55,8 +48,7 @@ is checked against the bounds of two published finite-element formulations.
 
 Low-frequency magnetic fields in the time domain, solved for the magnetic vector potential with
 displacement currents neglected. Covers static fields, transient eddy currents, saturating
-materials, permanent magnets, and superconductors, as found in electric machines, actuators, and
-transformers.
+materials, permanent magnets, and superconductors, as found in electric machines, actuators, and transformers.
 
 <table>
 <tr>
