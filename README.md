@@ -183,10 +183,10 @@ comparison with an analytical solution, see the
 This repository collects validation cases for mufem, each comparing its results with published,
 measured, or analytical reference values.
 
-**[Browse all validation cases →](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)**, with how to run them.
+[Browse all validation cases here](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md).
 
 <div align="center">
-<a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="100%"></a>
+<a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="80%"></a>
 <br>
 <sub>TEAM 24: eddy currents in a locked rotor after a voltage step (left), and the coil current and the
 rotor torque over time compared with measurements (right).</sub>
