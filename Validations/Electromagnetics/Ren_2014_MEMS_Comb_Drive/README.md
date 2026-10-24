@@ -103,7 +103,7 @@ for xshift in self.xshifts:
         self.runner.advance(2)
 
         # The initial mesh, shown in the mesh image of create_scenes().
-        if i == 0 and xshift == self.xshifts[0]:
+        if self.field_export and i == 0 and xshift == self.xshifts[0]:
             field_exporter.save(order=2)
 
         ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
@@ -119,14 +119,16 @@ for xshift in self.xshifts:
             f"No {max_ncells:.0e} cells after {max_refinements} refinements."
         )
 
-    field_exporter.save(order=2)
+    if self.field_export:
+        field_exporter.save(order=2)
 ```
 <!-- fmt: on -->
 The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
 the mesh of the corresponding shift. Meanwhile, the internal `for` loop refines the mesh according to the
 established mesh refinement algorithm. This loop continues until the number of mesh elements surpasses the
 empirically determined limit of `max_ncells`, which is set at 100,000. For each mesh file, we save the electric potential
-obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format for the images of the Results section.
+obtained on the final mesh, and for the zero shift also on the initial mesh, in the [VTK](https://vtk.org/) file format for the images of the Results section
+(unless the case runs with `--no-field-export`).
 
 
 ## Results

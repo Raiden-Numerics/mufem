@@ -93,7 +93,7 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         mesh_and_save(self.step_path, basesize=2.5e-1, path=self.mesh_path, second_order=True)
 
     def create_geometry_image(self):
-        # The isometric view along (1, 1, 1) with z up of the scene results/TEAM-13-Results.png.
+        # The isometric view along (1, 1, 1) with z up of create_scenes().
         from netgen.occ import OCCGeometry
 
         from casekit.netgen_image import snapshot, trim

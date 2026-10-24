@@ -178,7 +178,11 @@ for i, frequency in enumerate(self.frequencies):
     self.model.set_frequency(frequency)
     self.runner.advance(1)
 
-    if not self.precalculate and frequency in self.visualized_frequencies:
+    if (
+        self.field_export
+        and not self.precalculate
+        and frequency in self.visualized_frequencies
+    ):
         field_exporter.save(order=2)
 
     self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
@@ -187,7 +191,8 @@ for i, frequency in enumerate(self.frequencies):
 At each iteration, we extract the data corresponding to $`S_{21}`$ parameter and
 store it in a separate array.
 At the two visualized frequencies we also save the electric field in the
-[VTK](https://vtk.org/) file format for the animation of Figure 4.
+[VTK](https://vtk.org/) file format for the animation of Figure 4 (unless the case
+runs with `--no-field-export`).
 
 
 ## Results

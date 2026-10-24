@@ -88,12 +88,11 @@ The magnetic flux density and the current density are exported to
 `VisualizationOutput/`; the scene of Figure 4 was rendered from them.
 
 <div align="center">
-<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">
-<img src="results/TEAM-13-Results.png" alt="TEAM-13 Results" width="75%">
-</a>
+<img src="results/Scene_Magnetic_Flux_Density.png" alt="Magnetic flux density" width="75%">
 <br/>
 <br/>
-<em>Figure 4: Magnetic flux density and current density. Click on the image to view the interactive 3D result.</em>
+<em>Figure 4: Magnetic flux density in the steel and the coil, in the view of Figure 1. View the
+<a href="https://raiden-numerics.github.io/mufem-scenes/index.html?url=https://media.githubusercontent.com/media/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/TEAM-13-Results.mufem" target="_blank">interactive 3D result</a>.</em>
 </div>
 <br/>
 
