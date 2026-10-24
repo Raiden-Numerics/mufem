@@ -93,11 +93,16 @@ class ValidationCase(ABC):
     # the Simulation returned by `setup_case()`; available to all later steps
     sim: Optional["mufem.Simulation"] = None
 
+    # True if `run()` creates the scenes afterwards (--render-scenes), set before `setup_case()`;
+    # for a case that exports the fields only for the scenes, e.g. because they are large
+    render_scenes: bool = False
+
     # --- workflow -------------------------------------------------------------
     def run(self, render_scenes: bool = False) -> None:
         """Run the case, with `render_scenes` also its scenes; raises on a failed check, so the
         process exits non-zero."""
         self.results_path.mkdir(exist_ok=True)
+        self.render_scenes = render_scenes
 
         self.sim = self.setup_case()
         self.solve()
