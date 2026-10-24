@@ -5,14 +5,13 @@ mufem (pronounced /ˈmjuːfɛm/) is an API-first finite-element simulation code 
 built for **industry-relevant** engineering applications.
 
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
-and **design optimization**, and a natural fit for **agentic workflows**. The mufem Community version is
-**free for both academic and commercial use**.
+and **design optimization**, and a natural fit for **agentic workflows**.
 
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
-[Getting started](#getting-started) · [Validations](#validations) ·
+[Getting Started](#getting-started) · [Validations](#validations) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -44,7 +43,7 @@ tutorials and the full API reference see the
 
 ### Licensing
 
-The Community version of mufem is **free for academic and commercial use**. It no license key, includes
+The Community version of mufem is **free for academic and commercial use**. It needs no license key, includes
 most physics models, and uses all the cores of your workstation, so you can run real projects and client
 work without paying anything.
 
@@ -58,11 +57,13 @@ When your models outgrow a single machine, a paid license lets mufem grow with t
 
 See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
 
-### Quick example
+### Quick Example
 
 Solve the electrostatic field inside a cube held at 1 V across two faces. The simulation reads a mesh
 whose **tagged attributes** (a `Cube` volume and its `Anode`/`Cathode` boundary faces) are referenced by
-markers (`"Cube" @ Vol`, `"Anode" @ Bnd`, ...):
+markers (`"Cube" @ Vol`, `"Anode" @ Bnd`, ...). The script and its mesh are in
+[QuickExample](https://github.com/Raiden-Numerics/mufem/tree/main/QuickExample); run it there with
+`python charged_cube.py`:
 
 ```python
 import mufem
@@ -104,6 +105,9 @@ vis.add_field_output("Electric Field")
 vis.save()
 ```
 
+It prints the energy of the uniform field between the plates, $`\varepsilon_0 V^2 d / 2 \approx 4.43 \times 10^{-13}`$ J
+for the 10 cm cube.
+
 ## Gallery
 
 <table>
@@ -124,10 +128,10 @@ model.
 </td>
 </tr>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="60%" valign="top">
 <strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">FELIX cylinder (TEAM 1b)</a></strong><br>
-Resolve induced eddy-current density and ohmic losses in a conducting cylinder using the <strong>Time-Domain
+Resolve induced eddy-current density and Ohmic losses in a conducting cylinder using the <strong>Time-Domain
 Magnetic</strong> model.
 </td>
 </tr>
@@ -137,17 +141,23 @@ Magnetic</strong> model.
 
 mufem provides finite-element models across several physics domains, composable for coupled multi-physics:
 
-- **Electrostatics**: electric fields and potentials in dielectrics.
-- **Magnetostatics**: static magnetic fields, including nonlinear materials.
-- **Time-Domain Magnetic**: eddy currents and transient low-frequency magnetics.
-- **Time-Harmonic Magnetic**: steady-state AC magnetics.
-- **Full-wave Maxwell (time-harmonic)**: high-frequency electromagnetics and antennas.
-- **Thermal**: steady and transient heat conduction.
-- **Structural**: linear elasticity.
+- **[Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**: electric fields,
+  capacitances, and electrostatic forces in conductors and dielectrics.
+- **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
+  (magnetostatics, transient eddy currents): low-frequency magnetic fields, including nonlinear
+  materials, permanent magnets, and superconductors.
+- **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
+  (AC magnetics): eddy currents and skin and proximity effects at a single frequency.
+- **[Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
+  (full-wave): high-frequency electromagnetics, waveguides, and antennas.
+- **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)** (thermal): steady and
+  transient heat conduction.
+- **[Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)** (structural): linear
+  elasticity.
 
 See the [documentation](https://raiden-numerics.github.io/mufem-doc/index.html) for the full model list and details.
 
-## Getting started
+## Getting Started
 
 First create and activate a virtual environment:
 
@@ -171,11 +181,18 @@ comparison with an analytical solution, see the
 ## Validations
 
 This repository collects validation cases for mufem, each comparing its results with published,
-measured, or analytical reference values. See
-[Validations.md](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)
-for the list of cases and how to run them.
+measured, or analytical reference values.
 
-[![Validations](https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.validations.png)](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)
+<table>
+<tr>
+<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/results/Animation_Electric_Potential.gif" width="100%"></a><br><sub>MEMS comb drive</sub></td>
+<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/results/Animation_Electric_Current_Density.gif" width="100%"></a><br><sub>Skin and proximity effects</sub></td>
+<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/Scene_Magnetic_Flux_Density.png" width="100%"></a><br><sub>Saturated steel (TEAM 13)</sub></td>
+<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/results/Scene_Temperature.png" width="100%"></a><br><sub>Welding heat source</sub></td>
+</tr>
+</table>
+
+**[Browse all validation cases →](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)**, with how to run them.
 
 ## Tested Platforms
 
@@ -189,7 +206,7 @@ for the list of cases and how to run them.
 | **Linux distros**¹ | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_linux_distros.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_linux_distros.yml) |  |  |  |
 
 - **validations**: all validation cases on Linux; the moderate tier on macOS and Windows (without the `long`, `eternal` and `mumps` cases).
-- **smoke**: a single case (Team1b), confirming that the release installs and runs.
+- **smoke**: a single case (TEAM 1b), confirming that the release installs and runs.
 - **e2e**: weekly; all validation cases with every geometry, mesh and scene regenerated from scratch.
 
 ¹ Ubuntu 26.04, Debian 13, Fedora 43, AlmaLinux 10, openSUSE Tumbleweed and Arch Linux.

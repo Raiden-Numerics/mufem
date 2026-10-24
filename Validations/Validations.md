@@ -9,7 +9,7 @@ the International Compumag Society and the
 
 See [Running the cases](#running-the-cases) for how to run them.
 
-## Validation cases
+## Cases
 
 * [Electromagnetics](#electromagnetics):
   [Electrostatics](#electrostatics) ·
@@ -56,7 +56,7 @@ is checked against the bounds of two published finite-element formulations.
 Low-frequency magnetic fields in the time domain, solved for the magnetic vector potential with
 displacement currents neglected. Covers static fields, transient eddy currents, saturating
 materials, permanent magnets, and superconductors, as found in electric machines, actuators, and
-transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model, and moving parts by the Rigid Body Motion model.
+transformers.
 
 <table>
 <tr>
@@ -126,8 +126,7 @@ compared with a 3-D analytical model.
 
 Low-frequency magnetic fields at a single frequency, represented as complex amplitudes, so that the
 AC steady state follows from one solve instead of a time march. Suited to eddy currents and skin
-and proximity effects in transformers, induction heaters, and conductors. Coils are driven by the
-[Excitation Coil](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/excitation_coil/model.html) model.
+and proximity effects in transformers, induction heaters, and conductors.
 
 <table>
 <tr>
@@ -248,9 +247,9 @@ interface layers and cooled by convection. The temperature rise of the die and t
 
 ---
 
-## Working with the cases
+## Working with the Cases
 
-### Running the cases
+### Running the Cases
 
 #### Setup
 
@@ -264,7 +263,7 @@ root; the `scenes` extra is needed only to render the [scenes](#scenes):
 (mufem-venv) pip install -e "./casekit[scenes]"   # optional: PyVista scenes
 ```
 
-#### A single case
+#### A Single Case
 
 ```bash
 (mufem-venv) pymufem Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/case.py
@@ -280,7 +279,7 @@ reference, and reports every check; `python case.py` runs it serially. The optio
 | `--render-scenes` | yes | also creates the scenes after the run (see [Scenes](#scenes)) |
 | `--render-scenes-only` | no | creates the scenes from the output of a previous run |
 
-#### All cases
+#### All Cases
 
 `run_cases.py` runs every `case.py` below a directory (default: the current directory) and lists
 the failed cases and the run times at the end:
@@ -299,7 +298,7 @@ the failed cases and the run times at the end:
 
 Unlike for `case.py`, the options of `run_cases.py` never replace the run: every case is run.
 
-### Case structure
+### Case Structure
 
 | Path | Content |
 | ---- | ------- |
@@ -327,7 +326,7 @@ Unlike for `case.py`, the options of `run_cases.py` never replace the run: every
 
 ### Images
 
-#### Geometry images
+#### Geometry Images
 
 The geometry image `data/Geometry.png` is taken from `geometry.step` with the
 [netgen](https://ngsolve.org/) viewer, in the view of the scenes of the case. The colors of the
