@@ -10,3 +10,6 @@ build/
 # Built on demand (--rebuild-mesh): one mesh per shift, too large to ship
 Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/geometry_xshift=*
 temp/
+
+# Output of the quick example of the README
+QuickExample/ChargedCubeOutput/

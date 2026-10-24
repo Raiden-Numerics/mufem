@@ -146,14 +146,23 @@ against $`13.009\,\mathrm{mW}`$, the value of model (B.3) in Table III of [1]
 (the six models of [1] spread from $`13.01`$ to
 $`14.34\,\mathrm{mW}`$). mufem gives $`P \approx 14.3\,\mathrm{mW}`$.
 
-The magnetic flux density and the current density are exported to
-`VisualizationOutput/` for ParaView.
-
 <div align="center">
 <img src="./results/Ohmic_Heating.png" alt="AC loss" width="75%">
 <br/>
 <br/>
 <em>Figure 2: Instantaneous AC loss over one period compared against the Berger et al. (2017) reference for the 20 mT, n = 25 full-penetration case.</em>
+</div>
+<br/>
+
+In the full-penetration regime $`|\vec{J}|`$ is close to $`J_c`$ nearly everywhere, but the
+shielding current circulating about the applied field reverses with every half-cycle: a front of
+reversed current sweeps from the surface to the center of the cube (Figure 3).
+
+<div align="center">
+<img src="./results/Animation_Electric_Current_Density.gif" alt="Current density" width="100%">
+<br/>
+<br/>
+<em>Figure 3: Azimuthal current density about the applied field over one period, in the full cube mirrored from the modeled octant with one octant cut away (left), and the AC loss (right).</em>
 </div>
 <br/>
 

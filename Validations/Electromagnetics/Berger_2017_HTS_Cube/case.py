@@ -176,6 +176,12 @@ class Berger2017HtsCube(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.ohmic_heating_monitor)
 
+        # The fields at the start and after every time step for the scenes of create_scenes().
+        exporter = sim.get_field_exporter()
+        exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
+        exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
+
         return sim
 
     def validate(self):
@@ -191,28 +197,106 @@ class Berger2017HtsCube(ValidationCase):
         average_loss = 2.0 / self.period * numpy.trapezoid(loss[half:], time[half:])
         expect(average_loss, 13.009e-3, rel_tol=0.12, label="average AC loss [W]")
 
-    def postprocess(self):
-        if self.is_main():
-            xy_plot(
-                values=self.ohmic_heating_monitor.get_values(),
-                xscale=1.0e3,  # s -> ms
-                yscale=8.0e3,  # octant W -> full-cube mW (x8, x1e3)
-                style=PlotStyle.LINE_AND_POINTS,
-                reference_file=f"{self.dir_path}/data/AC_Losses_B20mT.csv",
-                reference_style=PlotStyle.POINTS,
-                reference_label="Berger (2017)",
-                xlabel="Time [ms]",
-                ylabel="Ohmic Heating [mW]",
-                xlim=(0.0, 1.0e3 * self.period),
-                ylim=(0.0, None),
-                path=f"{self.results_path / 'Ohmic_Heating.png'}",
-            )
+    def loss_plot(self, loss):
+        """The arguments of xy_plot / xy_chart for the full-cube loss [mW] over time [ms],
+        shared by the plot of postprocess() and the animation of create_scenes()."""
+        return dict(
+            values=loss,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=numpy.loadtxt(
+                self.dir_path / "data" / "AC_Losses_B20mT.csv", delimiter=",", comments="#"
+            ),
+            reference_style=PlotStyle.POINTS,
+            reference_label="Berger (2017)",
+            xlabel="Time [ms]",
+            ylabel="Ohmic Heating [mW]",
+            xlim=(0.0, 20.0),
+            ylim=(0.0, 35.0),
+        )
 
-        # ParaView export (collective) ------------------------------------------------
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density")
-        vis.add_field_output("Electric Current Density")
-        vis.save()
+    def postprocess(self):
+        if not self.is_main():
+            return
+
+        # The octant model integrates 1/8 of the cube: s -> ms, octant W -> full-cube mW.
+        time, loss = numpy.array(self.ohmic_heating_monitor.get_values()).T
+        loss = numpy.column_stack([1.0e3 * time, 8.0e3 * loss])
+
+        # The input of the animation of create_scenes().
+        numpy.savez(self.scene_data_path, loss=loss)
+
+        xy_plot(path=f"{self.results_path / 'Ohmic_Heating.png'}", **self.loss_plot(loss))
+
+    def create_scenes(self):
+        # Animation: the shielding current circulating about the applied field (y), in the full
+        # cube mirrored from the octant with the octant toward the camera cut away; the loss up
+        # to the time step in a chart on the right. |J| is close to Jc nearly everywhere in the
+        # full-penetration regime, but the circulation reverses with every half-cycle.
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            create_scene,
+            gif,
+            update_curve,
+            xy_chart,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+
+        def mirrored_cube(time_step):
+            # J_phi = (J_x z - J_z x) / r is even about all three symmetry planes, so the
+            # mirrored copies keep it as it is.
+            octant = reader.read(time_step, hide=["Air"])["Cube"]
+            x, z = octant.points[:, 0], octant.points[:, 2]
+            current_density = octant["Electric Current Density"]
+            octant["J_phi"] = (
+                current_density[:, 0] * z - current_density[:, 2] * x
+            ) / numpy.maximum(numpy.hypot(x, z), 1.0e-9)
+            return [
+                octant.scale((sx, sy, sz), inplace=False)
+                for sx in (1, -1)
+                for sy in (1, -1)
+                for sz in (1, -1)
+                if (sx, sy, sz) != (1, 1, 1)
+            ]
+
+        loss = numpy.load(self.scene_data_path)["loss"]
+        scene = create_scene((1600, 800), shape="1|1", border=False)
+        chart, curve, _ = xy_chart(**self.loss_plot(loss))
+        scene.subplot(1)
+        scene.add_chart(chart)
+        scene.subplot(0)
+
+        field = dict(scalars="J_phi", clim=(-3.0e6, 3.0e6))
+
+        def add_cube(time_step):
+            actors = [
+                scene.add_mesh(part, name=f"field{i}", **field)
+                for i, part in enumerate(mirrored_cube(time_step))
+            ]
+            return actors[0]
+
+        actor = add_cube(0)
+        scene.view_vector((1, 1, 1), viewup=(0, 1, 0))
+        scene.camera.SetWindowCenter(0.2, 0.0)  # room for the color bar on the right
+        scene.camera.zoom(0.9)
+        add_colorbar(
+            scene,
+            actor,
+            "Azimuthal Current Density [10⁶ A/m²]",
+            n_labels=7,
+            label_format="%.0f",
+            font_size=19,
+            scale=1e-6,
+        )
+
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif"
+        ) as write_frame:
+            for time_step in range(reader.number_time_steps):
+                add_cube(time_step)
+                update_curve(curve, loss[: time_step + 1])
+                write_frame()
 
 
 if __name__ == "__main__":

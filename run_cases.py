@@ -90,7 +90,11 @@ def run_cases(
                 subprocess.run(
                     args=f"{launcher} case.py{geometry_args}", shell=True, check=True, text=True
                 )
-            subprocess.run(args=f"{launcher} case.py", shell=True, check=True, text=True)
+            # The fields that only the scenes need are exported with --export-scenes.
+            scene_args = " --export-scenes" if render_scenes else ""
+            subprocess.run(
+                args=f"{launcher} case.py{scene_args}", shell=True, check=True, text=True
+            )
             if render_scenes:
                 # Serially after the run: the scenes read the complete export, and VTK stays
                 # out of the MPI processes.

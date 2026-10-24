@@ -8,6 +8,9 @@ A case implements the steps of two separate workflows:
                                 [-> create_scenes                  (--render-scenes)]
     create_scenes():            from the output of a run           (--render-scenes-only)
 
+`--export-scenes` runs the case like `--render-scenes` but leaves the scenes to a later
+`--render-scenes-only` (run_cases.py renders them serially, outside the MPI processes).
+
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()`, `create_scenes()` and `create_geometry_image()` to doing
 nothing. `build_geometry()` and `generate_mesh()` default to doing nothing; they regenerate
@@ -93,11 +96,17 @@ class ValidationCase(ABC):
     # the Simulation returned by `setup_case()`; available to all later steps
     sim: Optional["mufem.Simulation"] = None
 
+    # True if the scenes are created from this run (--render-scenes or --export-scenes), set
+    # before `setup_case()`; for a case that exports fields only for its scenes, e.g. because
+    # they are large
+    export_scenes: bool = False
+
     # --- workflow -------------------------------------------------------------
-    def run(self, render_scenes: bool = False) -> None:
-        """Run the case, with `render_scenes` also its scenes; raises on a failed check, so the
-        process exits non-zero."""
+    def run(self, render_scenes: bool = False, export_scenes: bool = False) -> None:
+        """Run the case, with `render_scenes` also its scenes, with `export_scenes` only the
+        fields for them; raises on a failed check, so the process exits non-zero."""
         self.results_path.mkdir(exist_ok=True)
+        self.export_scenes = render_scenes or export_scenes
 
         self.sim = self.setup_case()
         self.solve()
@@ -257,13 +266,19 @@ def run_case(case_class: type[ValidationCase]) -> None:
         help="also create the scenes after running the case",
     )
     scenes.add_argument(
+        "--export-scenes",
+        action="store_true",
+        help="run the case and export the fields for the scenes, to create them later with "
+        "--render-scenes-only",
+    )
+    scenes.add_argument(
         "--render-scenes-only",
         action="store_true",
         help="only create the scenes, from the output of a previous run",
     )
     args = parser.parse_args()
     if (args.rebuild_mesh or args.render_geometry) and (
-        args.render_scenes or args.render_scenes_only
+        args.render_scenes or args.export_scenes or args.render_scenes_only
     ):
         parser.error("--rebuild-mesh and --render-geometry do not run the case: no scenes")
 
@@ -296,4 +311,4 @@ def run_case(case_class: type[ValidationCase]) -> None:
                 "`pymufem case.py --rebuild-mesh`"
             )
         case.build_geometry_and_mesh()
-    case.run(render_scenes=args.render_scenes)
+    case.run(render_scenes=args.render_scenes, export_scenes=args.export_scenes)
