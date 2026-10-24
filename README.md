@@ -183,16 +183,14 @@ comparison with an analytical solution, see the
 This repository collects validation cases for mufem, each comparing its results with published,
 measured, or analytical reference values.
 
-<table>
-<tr>
-<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Ren_2014_MEMS_Comb_Drive/results/Animation_Electric_Potential.gif" width="100%"></a><br><sub>MEMS comb drive</sub></td>
-<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Biro_1993_3D_Iron_Core_Current_Driven_Conductors/results/Animation_Electric_Current_Density.gif" width="100%"></a><br><sub>Skin and proximity effects</sub></td>
-<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/Scene_Magnetic_Flux_Density.png" width="100%"></a><br><sub>Saturated steel (TEAM 13)</sub></td>
-<td width="25%" align="center" valign="top"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Thermal/Goldak_1984_Welding_Heat_Source/results/Scene_Temperature.png" width="100%"></a><br><sub>Welding heat source</sub></td>
-</tr>
-</table>
-
 **[Browse all validation cases →](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)**, with how to run them.
+
+<div align="center">
+<a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="100%"></a>
+<br>
+<sub>TEAM 24: eddy currents in a locked rotor after a voltage step (left), and the coil current and the
+rotor torque over time compared with measurements (right).</sub>
+</div>
 
 ## Tested Platforms
 
