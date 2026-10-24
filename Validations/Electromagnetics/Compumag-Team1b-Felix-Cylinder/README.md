@@ -82,13 +82,21 @@ Figure 2 shows the power loss over time, compared with the curve of Fig. 8 of [2
 
 ## Scenes
 
-The magnetic flux density and the electric current density at the final time are exported to `VisualizationOutput/`; Figure 3 shows the eddy currents.
+The magnetic flux density and the electric current density of every time step are exported to `VisualizationOutput/`; Figure 3 shows the eddy currents at the final time, and Figure 4 over time together with the power loss.
 
 <div align="center">
 <img src="results/Scene_Electric_Current_Density.png" alt="Eddy current density" width="75%">
 <br/>
 <br/>
 <em>Figure 3: Eddy currents inside the cylinder at the final time.</em>
+</div>
+<br/>
+
+<div align="center">
+<img src="results/Animation_Electric_Current_Density.gif" alt="Eddy current density over time" width="100%">
+<br/>
+<br/>
+<em>Figure 4: Eddy currents in the cylinder over time (left; arrows capped at 3 × 10⁶ A/m²) and the power loss up to that time (right).</em>
 </div>
 <br/>
 

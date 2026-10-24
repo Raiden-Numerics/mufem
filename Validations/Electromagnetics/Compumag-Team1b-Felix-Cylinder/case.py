@@ -2,6 +2,8 @@ from casekit import PlotStyle, ValidationCase, expect, run_case, xy_plot
 
 import math
 
+import numpy
+
 import mufem
 from mufem import Bnd, Vol
 from mufem.electromagnetics.timedomainmagnetic import (
@@ -89,10 +91,10 @@ class Team1bFelixCylinder(ValidationCase):
             mesh_path=f"{self.mesh_path}",
         )
 
-        runner = mufem.UnsteadyRunner(
+        self.runner = mufem.UnsteadyRunner(
             total_time=0.02, time_step_size=0.001, total_inner_iterations=3
         )
-        sim.set_runner(runner)
+        sim.set_runner(self.runner)
 
         # Model ------------------------------------------------------------------------
         magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
@@ -142,6 +144,19 @@ class Team1bFelixCylinder(ValidationCase):
 
         return sim
 
+    def solve(self):
+        # The fields of every time step for the scenes of create_scenes() (collective).
+        exporter = self.sim.get_field_exporter()
+        exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
+
+        self.sim.initialize()
+        exporter.save()
+
+        for _ in range(20):
+            self.runner.advance(1)
+            exporter.save()
+
     def validate(self):
         def at(monitor, time):
             return min(monitor.get_values(), key=lambda sample: abs(sample[0] - time))[1]
@@ -166,43 +181,68 @@ class Team1bFelixCylinder(ValidationCase):
                 label=f"induced field at the center at t = {1e3 * time:.0f} ms [T]",
             )
 
-    def postprocess(self):
-        if self.is_main():
-            xy_plot(
-                values=self.ohmic_heating_monitor.get_values(),
-                style=PlotStyle.LINE_AND_POINTS,
-                reference_file=f"{self.dir_path}/data/PowerLoss.csv",
-                reference_style=PlotStyle.POINTS,
-                reference_label="Davey (1988)",
-                xlabel="Time [s]",
-                ylabel="Ohmic Heating Loss [W]",
-                xlim=(0.0, 0.02),
-                xticks=[0, 0.01, 0.02],
-                ylim=(0.0, 600.0),
-                path=f"{self.results_path / 'OhmicHeating.png'}",
-            )
-
-        # Field export for the scene of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density")
-        vis.add_field_output("Electric Current Density")
-        vis.save()
-
-    def create_scenes(self):
-        # The eddy currents in the cylinder at the final time as arrows, in the horizontal view
-        # along (-1, 0, 1) with y up of data/Geometry.png.
-
-        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
-
-        cylinder = FieldExportReader(self.dir_path).read()["Cylinder"]
-        arrows = cylinder.glyph(
-            orient="Electric Current Density", scale="Electric Current Density", factor=1e-8
+    def loss_plot(self, loss):
+        """The arguments of xy_plot / xy_chart for the Ohmic loss over time, shared by the plot
+        of postprocess() and the animation of create_scenes()."""
+        return dict(
+            values=loss,
+            style=PlotStyle.LINE_AND_POINTS,
+            reference_values=numpy.loadtxt(
+                self.dir_path / "data" / "PowerLoss.csv", delimiter=",", comments="#"
+            ),
+            reference_style=PlotStyle.POINTS,
+            reference_label="Davey (1988)",
+            xlabel="Time [s]",
+            ylabel="Ohmic Heating Loss [W]",
+            xlim=(0.0, 0.02),
+            xticks=[0, 0.01, 0.02],
+            ylim=(0.0, 600.0),
         )
 
-        scene = create_scene((1300, 1100))
-        scene.add_mesh(cylinder, color=(0.69, 0.69, 0.69))
+    def postprocess(self):
+        if not self.is_main():
+            return
+
+        loss = numpy.array(self.ohmic_heating_monitor.get_values())
+
+        # The input of the animation of create_scenes().
+        numpy.savez(self.scene_data_path, loss=loss)
+
+        xy_plot(path=f"{self.results_path / 'OhmicHeating.png'}", **self.loss_plot(loss))
+
+    def create_scenes(self):
+        # The eddy currents in the cylinder as arrows, in the horizontal view along (-1, 0, 1)
+        # with y up of data/Geometry.png: at the final time, and over time in an animation with
+        # the Ohmic loss up to the time step in a chart on the right.
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            add_colorbar,
+            create_scene,
+            gif,
+            update_curve,
+            xy_chart,
+        )
+
+        reader = FieldExportReader(self.dir_path)
+        cylinder_color = (0.69, 0.69, 0.69)
         # The glyphs keep the current density as GlyphVector.
-        actor = scene.add_mesh(arrows, scalars="GlyphVector", clim=(0.0, 3.0e6))
+        field = dict(scalars="GlyphVector", clim=(0.0, 3.0e6), name="field")
+
+        def arrows(time_step):
+            cylinder = reader.read(time_step)["Cylinder"]
+            # Arrows 3 cm long at 3e6 A/m² and above: the early current density is far higher.
+            return cylinder, cylinder.glyph(
+                orient="Electric Current Density",
+                scale="Electric Current Density",
+                factor=0.03,
+                clamping=True,
+                rng=(0.0, 3.0e6),
+            )
+
+        cylinder, current = arrows(reader.number_time_steps - 1)
+        scene = create_scene((1300, 1100))
+        scene.add_mesh(cylinder, color=cylinder_color)
+        actor = scene.add_mesh(current, **field)
         scene.view_vector((-1, 0, 1), viewup=(0, 1, 0))
         scene.camera.zoom(1.35)
         scene.camera.SetWindowCenter(0.0, -0.18)  # room for the color bar below
@@ -216,6 +256,36 @@ class Team1bFelixCylinder(ValidationCase):
             scale=1e-6,
         )
         scene.show(screenshot=self.results_path / "Scene_Electric_Current_Density.png")
+
+        loss = numpy.load(self.scene_data_path)["loss"]
+        scene = create_scene((1600, 800), shape="1|1", border=False)
+        chart, curve, _ = xy_chart(**self.loss_plot(loss))
+        scene.subplot(1)
+        scene.add_chart(chart)
+        scene.subplot(0)
+
+        scene.add_mesh(cylinder, color=cylinder_color)
+        actor = scene.add_mesh(current, **field)
+        scene.view_vector((-1, 0, 1), viewup=(0, 1, 0))
+        scene.camera.zoom(0.95)
+        scene.camera.SetWindowCenter(0.2, 0.0)  # room for the color bar on the right
+        add_colorbar(
+            scene,
+            actor,
+            "Current Density [10⁶ A/m²]",
+            n_labels=4,
+            label_format="%.0f",
+            font_size=19,
+            scale=1e-6,
+        )
+
+        with gif(
+            scene, self.results_path / "Animation_Electric_Current_Density.gif", fps=4
+        ) as write_frame:
+            for time_step in range(reader.number_time_steps):
+                scene.add_mesh(arrows(time_step)[1], **field)
+                update_curve(curve, loss[: time_step + 1])
+                write_frame()
 
 
 if __name__ == "__main__":

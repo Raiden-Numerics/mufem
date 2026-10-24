@@ -208,11 +208,25 @@ class Team13NonLinearMagnetostatic(ValidationCase):
                 path=f"{self.results_path / 'Magnetic_Flux_Density_Line_Air.png'}",
             )
 
-        # ParaView export (collective) ------------------------------------------------
+        # Field export for the scenes of create_scenes() (collective)
         vis = self.sim.get_field_exporter()
         vis.add_field_output("Magnetic Flux Density")
         vis.add_field_output("Electric Current Density")
         vis.save(order=2)
+
+    def create_scenes(self):
+        # The magnetic flux density in the steel and the coil, in the isometric view along
+        # (1, 1, 1) with z up of data/Geometry.png.
+        from casekit.pyvista_scene import FieldExportReader, add_colorbar, create_scene
+
+        bodies = FieldExportReader(self.dir_path).read(hide=["Air"])
+        scene = create_scene((1400, 1250))
+        actor = scene.add_mesh(bodies, scalars="Magnetic Flux Density", clim=(0.0, 2.0))
+        scene.view_vector((1, 1, 1), viewup=(0, 0, 1))
+        scene.camera.zoom(1.25)  # the default fit leaves room for any rotation
+        scene.camera.SetWindowCenter(0.0, -0.13)  # room for the color bar below
+        add_colorbar(scene, actor, "Magnetic Flux Density [T]", n_labels=5, location="bottom")
+        scene.show(screenshot=self.results_path / "Scene_Magnetic_Flux_Density.png")
 
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ transformers. Coils are driven by the [Excitation Coil](https://raiden-numerics.
 
 <table>
 <tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md"><img src="Electromagnetics/Berger_2017_HTS_Cube/data/Geometry.png" width="63%"></a></td>
+<td width="25%" height="130"><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md"><img src="Electromagnetics/Berger_2017_HTS_Cube/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Berger_2017_HTS_Cube/README.md">Berger 2017: High-Temperature Superconductor Cube</a></strong><br>
 A cube of high-temperature superconductor in a sinusoidal external magnetic field, as found in
@@ -64,7 +64,7 @@ teams.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Scene_Electric_Current_Density.png" width="61%"></a></td>
+<td width="25%" height="130"><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">Compumag TEAM 1b: The FELIX Short Cylinder</a></strong><br>
 A hollow aluminum cylinder in a uniform transverse magnetic field that decays exponentially,
@@ -75,7 +75,7 @@ measurements.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/data/Geometry.png" width="63%"></a></td>
+<td width="25%" height="130" align="center"><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md"><img src="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/results/Scene_Magnetic_Flux_Density.png" width="58%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/Compumag-Team13-3-D-Non-Linear-Magnetostatic-Model/README.md">Compumag TEAM 13: 3-D Non-Linear Magnetostatic Model</a></strong><br>
 Two steel channels and a steel plate between them, magnetized by a rectangular coil strong
@@ -229,7 +229,7 @@ measurements.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130" align="center"><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md"><img src="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/data/Geometry.png" width="79%"></a></td>
+<td width="25%" height="130" align="center"><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md"><img src="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/results/Scene_Temperature.png" width="47%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Thermal/Guenin_2011_Heat_Transfer_Electronic_Design/README.md">Guenin 2011: Heat Transfer in Electronic Design</a></strong><br>
 A high-power IC package: a silicon die, a copper lid, and a heat sink stacked with thermal
