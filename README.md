@@ -12,7 +12,7 @@ For questions or support, please [open an issue](https://github.com/Raiden-Numer
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
-[Getting started](#getting-started) · [Validation cases](#validation-cases) ·
+[Getting started](#getting-started) · [Validations](#validations) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -44,7 +44,7 @@ tutorials and the full API reference see the
 
 ### Licensing
 
-mufem is **free for academic and commercial use**. The Community version needs no license key, includes
+The Community version of mufem is **free for academic and commercial use**. It no license key, includes
 most physics models, and uses all the cores of your workstation, so you can run real projects and client
 work without paying anything.
 
@@ -168,12 +168,14 @@ for tutorials and API reference. For a complete, runnable case, including mesh g
 comparison with an analytical solution, see the
 [electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md).
 
-## Validation cases
+## Validations
 
 This repository collects validation cases for mufem, each comparing its results with published,
 measured, or analytical reference values. See
 [Validations.md](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)
 for the list of cases and how to run them.
+
+[![Validations](https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.validations.png)](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md)
 
 ## Tested Platforms
 
