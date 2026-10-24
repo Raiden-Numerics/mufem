@@ -91,10 +91,10 @@ class Team1bFelixCylinder(ValidationCase):
             mesh_path=f"{self.mesh_path}",
         )
 
-        self.runner = mufem.UnsteadyRunner(
+        runner = mufem.UnsteadyRunner(
             total_time=0.02, time_step_size=0.001, total_inner_iterations=3
         )
-        sim.set_runner(self.runner)
+        sim.set_runner(runner)
 
         # Model ------------------------------------------------------------------------
         magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=True)
@@ -142,20 +142,13 @@ class Team1bFelixCylinder(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.center_field_monitor)
 
-        return sim
-
-    def solve(self):
-        # The fields of every time step for the scenes of create_scenes() (collective).
-        exporter = self.sim.get_field_exporter()
+        # The fields at the start and after every time step for the scenes of create_scenes().
+        exporter = sim.get_field_exporter()
         exporter.set_output_directory(self.dir_path / "VisualizationOutput")
         exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
+        exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
 
-        self.sim.initialize()
-        exporter.save()
-
-        for _ in range(20):
-            self.runner.advance(1)
-            exporter.save()
+        return sim
 
     def validate(self):
         def at(monitor, time):

@@ -100,12 +100,12 @@ class Berger2017HtsCube(ValidationCase):
         frequency = 50.0
         self.period = 1.0 / frequency
 
-        self.runner = mufem.UnsteadyRunner(
+        runner = mufem.UnsteadyRunner(
             total_time=self.period,
             time_step_size=self.period / 50.0,
             total_inner_iterations=10,
         )
-        sim.set_runner(self.runner)
+        sim.set_runner(runner)
 
         # Model ------------------------------------------------------------------------
         magnetic_model = TimeDomainMagneticModel(order=1, magnetostatic_initialization=False)
@@ -176,20 +176,13 @@ class Berger2017HtsCube(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.ohmic_heating_monitor)
 
-        return sim
-
-    def solve(self):
-        # The fields of every time step for the scenes of create_scenes() (collective).
-        exporter = self.sim.get_field_exporter()
+        # The fields at the start and after every time step for the scenes of create_scenes().
+        exporter = sim.get_field_exporter()
         exporter.set_output_directory(self.dir_path / "VisualizationOutput")
         exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
+        exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
 
-        self.sim.initialize()
-        exporter.save()
-
-        for _ in range(50):
-            self.runner.advance(1)
-            exporter.save()
+        return sim
 
     def validate(self):
         # The octant model integrates 1/8 of the cube.
