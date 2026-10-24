@@ -9,9 +9,16 @@ the International Compumag Society and the
 
 See [Running the cases](#running-the-cases) for how to run them.
 
----
-
 ## Validation cases
+
+* [Electromagnetics](#electromagnetics):
+  [Electrostatics](#electrostatics) ·
+  [Time-Domain Magnetic](#time-domain-magnetic) ·
+  [Time-Harmonic Magnetic](#time-harmonic-magnetic) ·
+  [Time-Harmonic Maxwell](#time-harmonic-maxwell)
+* [Structural](#structural):
+  [Solid Mechanics](#solid-mechanics) ·
+  [Solid Temperature](#solid-temperature)
 
 ### Electromagnetics
 
