@@ -93,6 +93,13 @@ class Slaughter2002CantileverBeam(ValidationCase):
 
         model.add_conditions([fixed_cond, traction_cond])
 
+        # Field export at the end of the run, for the scene of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Displacement")
+        field_exporter.add_field_output("Von Mises Stress")
+        field_exporter.set_order(1)
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -172,12 +179,6 @@ class Slaughter2002CantileverBeam(ValidationCase):
                 xlim=(0.0, 1.0),
                 path=f"{self.results_path / 'Von_Mises_Stress_vs_Position.png'}",
             )
-
-        # Field export for the scene of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Displacement")
-        vis.add_field_output("Von Mises Stress")
-        vis.save(order=1)
 
     def create_scenes(self):
         # The deformed beam colored by the von Mises stress, with the edges of the undeformed

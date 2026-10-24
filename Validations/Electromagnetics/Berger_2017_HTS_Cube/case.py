@@ -177,10 +177,10 @@ class Berger2017HtsCube(ValidationCase):
         sim.get_monitor_manager().add_monitor(self.ohmic_heating_monitor)
 
         # The fields at the start and after every time step for the scenes of create_scenes().
-        exporter = sim.get_field_exporter()
-        exporter.set_output_directory(self.dir_path / "VisualizationOutput")
-        exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
-        exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
+        field_exporter = sim.get_field_exporter()
+        field_exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        field_exporter.add_field_outputs(["Magnetic Flux Density", "Electric Current Density"])
+        field_exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
 
         return sim
 

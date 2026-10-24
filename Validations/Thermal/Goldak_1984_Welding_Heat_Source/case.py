@@ -196,6 +196,13 @@ class Goldak1984WeldingHeatSource(ValidationCase):
 
         model.add_conditions([heat_source_condition, mushy_zone_condition, heat_flux_condition])
 
+        # Field export at the end of the run, for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Temperature")
+        field_exporter.add_field_output("VolumetricHeatSource")
+        field_exporter.set_order(2)
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -241,12 +248,6 @@ class Goldak1984WeldingHeatSource(ValidationCase):
                 ylabel="Temperature [°C]",
                 path=f"{self.results_path / 'Temperature_vs_Position.png'}",
             )
-
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Temperature")
-        vis.add_field_output("VolumetricHeatSource")
-        vis.save(order=2)
 
     def create_scenes(self):
         # The modeled half plate at the final time, onto the symmetry plane x = 0 (weld path)

@@ -239,13 +239,12 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         return -self.torque_report.evaluate().z
 
     def solve(self):
-        # The eddy currents after every time step for the animation of create_scenes(), only
-        # for the scenes: the export of all steps takes about 1 GB.
-        if self.export_scenes:
-            exporter = self.sim.get_field_exporter()
-            exporter.set_output_directory(self.dir_path / "VisualizationOutput")
-            exporter.add_field_output("Electric Current Density")
-            exporter.set_events([mufem.Event.TimeStep])
+        # The eddy currents after every time step for the animation of create_scenes(), about
+        # 1 GB.
+        field_exporter = self.sim.get_field_exporter()
+        field_exporter.set_output_directory(self.dir_path / "VisualizationOutput")
+        field_exporter.add_field_output("Electric Current Density")
+        field_exporter.set_events([mufem.Event.TimeStep])
 
         self.sim.initialize()
 
@@ -296,12 +295,11 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         )
 
         # The input of the animation of create_scenes(), besides the exported fields.
-        if self.export_scenes:
-            numpy.savez(
-                self.scene_data_path,
-                torque_vs_rpm=numpy.array(self.torque_vs_rpm),
-                steps_per_rpm=self.steps_per_rpm,
-            )
+        numpy.savez(
+            self.scene_data_path,
+            torque_vs_rpm=numpy.array(self.torque_vs_rpm),
+            steps_per_rpm=self.steps_per_rpm,
+        )
 
     def torque_vs_rpm_plot(self, values):
         """The arguments of xy_plot / xy_chart for the torque against the slip speed, shared by
@@ -323,7 +321,6 @@ class Lubin2015EddyCurrentBrake(ValidationCase):
         )
 
     def create_scenes(self):
-        # Needs the fields of a run with --render-scenes or --export-scenes.
         import pyvista as pv
 
         from casekit.pyvista_scene import (

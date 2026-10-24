@@ -179,7 +179,7 @@ for i, frequency in enumerate(self.frequencies):
     self.runner.advance(1)
 
     if not self.precalculate and frequency in self.visualized_frequencies:
-        vis.save(order=2)
+        field_exporter.save(order=2)
 
     self.s21[i] = self.report_s_parameters.evaluate().to_numpy()[0, 0]
 ```

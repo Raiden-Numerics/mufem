@@ -83,7 +83,7 @@ We use $`\Delta t = 0.5\,\mathrm{ms}`$ throughout, coarser than both estimates: 
 
 Run the case with `pymufem case.py`.
 
-The input of the animation shown in the Scenes section comes from a run with `--render-scenes`, which exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds.
+For the animation of the Scenes section, a run exports the eddy currents after every time step (20 steps per slip speed, about 1 GB) to `VisualizationOutput/`, together with the torque at the three slip speeds; `--no-field-export` skips the export.
 
 ## Results
 

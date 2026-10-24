@@ -156,6 +156,13 @@ class Team13NonLinearMagnetostatic(ValidationCase):
         )
         coil_model.add_coil_specification(coil)
 
+        # Field export at the end of the run, for the scenes of create_scenes()
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Magnetic Flux Density")
+        field_exporter.add_field_output("Electric Current Density")
+        field_exporter.set_order(2)
+        field_exporter.set_events([mufem.Event.RunCompletion])
+
         return sim
 
     def validate(self):
@@ -207,12 +214,6 @@ class Team13NonLinearMagnetostatic(ValidationCase):
                 xlim=(0.0, 120.0),
                 path=f"{self.results_path / 'Magnetic_Flux_Density_Line_Air.png'}",
             )
-
-        # Field export for the scenes of create_scenes() (collective)
-        vis = self.sim.get_field_exporter()
-        vis.add_field_output("Magnetic Flux Density")
-        vis.add_field_output("Electric Current Density")
-        vis.save(order=2)
 
     def create_scenes(self):
         # The magnetic flux density in the steel and the coil, in the isometric view along

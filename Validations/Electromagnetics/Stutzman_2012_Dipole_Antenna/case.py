@@ -4,7 +4,7 @@ from casekit import ValidationCase, expect, run_case
 import matplotlib.pyplot as plt
 import numpy
 
-from mufem import Bnd, Simulation, SteadyRunner, Vol
+from mufem import Bnd, Event, Simulation, SteadyRunner, Vol
 from mufem.electromagnetics.timeharmonicmaxwell import (
     AbsorbingBoundaryCondition,
     FarFieldRadiationSensor,
@@ -193,18 +193,19 @@ class Stutzman2012DipoleAntenna(ValidationCase):
 
         model.add_conditions([condition_outer, condition_arms, condition_port])
 
-        # Field output -----------------------------------------------------------------
-        vis = sim.get_field_exporter()
-        vis.add_field_output("Electric Field-Real")
-        vis.add_field_output("Electric Field-Imag")
-        vis.add_field_output("Magnetic Field-Real")
-        vis.add_field_output("Magnetic Field-Imag")
+        # Field output at the end of the run -------------------------------------------
+        field_exporter = sim.get_field_exporter()
+        field_exporter.add_field_output("Electric Field-Real")
+        field_exporter.add_field_output("Electric Field-Imag")
+        field_exporter.add_field_output("Magnetic Field-Real")
+        field_exporter.add_field_output("Magnetic Field-Imag")
+        field_exporter.set_order(2)
+        field_exporter.set_events([Event.RunCompletion])
 
         return sim
 
     def solve(self):
         self.sim.run()
-        self.sim.get_field_exporter().save(order=2)
 
         sensor = FarFieldRadiationSensor(
             "FarFieldRadiationSensor",

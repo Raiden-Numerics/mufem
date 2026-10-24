@@ -262,10 +262,12 @@ root; the `scenes` extra is needed only to render the [scenes](#scenes):
 ```
 
 The case runs in its own directory, whatever the current one, compares its results with the
-reference, and reports every check; `python case.py` runs it serially. The options of `case.py`:
+reference, reports every check, and writes its fields to `VisualizationOutput/` for the
+[scenes](#scenes); `python case.py` runs it serially. The options of `case.py`:
 
 | Option | Runs the case | Effect |
 | ------ | :-----------: | ------ |
+| `--no-field-export` | yes | writes no fields (only the checks, e.g. in CI); no scenes can be created from the run |
 | `--rebuild-mesh` | no | rebuilds `geometry.step` and the mesh (see [Meshes](#meshes)) |
 | `--render-geometry` | no | creates the geometry image from `geometry.step` (see [Geometry images](#geometry-images)) |
 | `--render-scenes` | yes | also creates the scenes after the run (see [Scenes](#scenes)) |
@@ -284,9 +286,11 @@ the failed cases and the run times at the end:
 | Option | Effect |
 | ------ | ------ |
 | `--launcher CMD` | command that runs each case (default `pymufem`; `python` for a serial run) |
+| `--exclude-tag TAG` | skips the cases with the tag, e.g. `long`, `eternal` or `mumps` (repeatable) |
+| `--no-field-export` | runs each case with `--no-field-export` |
 | `--rebuild-mesh` | rebuilds the geometry and mesh of each case, then runs it |
 | `--render-geometry` | also creates the geometry image of each case (needs a display, see [Geometry images](#geometry-images)) |
-| `--render-scenes` | also creates the scenes of each case |
+| `--render-scenes` | also creates the scenes of each case, serially after its run |
 
 Unlike for `case.py`, the options of `run_cases.py` never replace the run: every case is run.
 

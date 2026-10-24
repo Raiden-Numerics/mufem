@@ -8,8 +8,8 @@ A case implements the steps of two separate workflows:
                                 [-> create_scenes                  (--render-scenes)]
     create_scenes():            from the output of a run           (--render-scenes-only)
 
-`--export-scenes` runs the case like `--render-scenes` but leaves the scenes to a later
-`--render-scenes-only` (run_cases.py renders them serially, outside the MPI processes).
+A run writes the fields of its field exporter to VisualizationOutput/, for the scenes;
+`--no-field-export` turns the exporter off, for runs that only check (CI).
 
 A case must implement `setup_case()` and `validate()`. `solve()` defaults to running
 the simulation, `postprocess()`, `create_scenes()` and `create_geometry_image()` to doing
@@ -96,19 +96,18 @@ class ValidationCase(ABC):
     # the Simulation returned by `setup_case()`; available to all later steps
     sim: Optional["mufem.Simulation"] = None
 
-    # True if the scenes are created from this run (--render-scenes or --export-scenes), set
-    # before `setup_case()`; for a case that exports fields only for its scenes, e.g. because
-    # they are large
-    export_scenes: bool = False
+    # False: the run writes no fields (--no-field-export), for runs that only check
+    field_export: bool = True
 
     # --- workflow -------------------------------------------------------------
-    def run(self, render_scenes: bool = False, export_scenes: bool = False) -> None:
-        """Run the case, with `render_scenes` also its scenes, with `export_scenes` only the
-        fields for them; raises on a failed check, so the process exits non-zero."""
+    def run(self, render_scenes: bool = False) -> None:
+        """Run the case, with `render_scenes` also its scenes; raises on a failed check, so the
+        process exits non-zero."""
         self.results_path.mkdir(exist_ok=True)
-        self.export_scenes = render_scenes or export_scenes
 
         self.sim = self.setup_case()
+        if not self.field_export:
+            self.sim.get_field_exporter().set_active(False)
         self.solve()
         self.validate()
         self.postprocess()
@@ -243,7 +242,7 @@ class ValidationCase(ABC):
 
 def run_case(case_class: type[ValidationCase]) -> None:
     """Command line entry point of a case: `pymufem case.py [--rebuild-mesh] [--render-geometry]`
-    or `pymufem case.py [--render-scenes | --render-scenes-only]`."""
+    or `pymufem case.py [--no-field-export | --render-scenes | --render-scenes-only]`."""
     parser = argparse.ArgumentParser(
         description=case_class.name,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -261,15 +260,14 @@ def run_case(case_class: type[ValidationCase]) -> None:
     )
     scenes = parser.add_mutually_exclusive_group()
     scenes.add_argument(
+        "--no-field-export",
+        action="store_true",
+        help="write no fields to VisualizationOutput/ (checks only); the scenes need them",
+    )
+    scenes.add_argument(
         "--render-scenes",
         action="store_true",
         help="also create the scenes after running the case",
-    )
-    scenes.add_argument(
-        "--export-scenes",
-        action="store_true",
-        help="run the case and export the fields for the scenes, to create them later with "
-        "--render-scenes-only",
     )
     scenes.add_argument(
         "--render-scenes-only",
@@ -278,9 +276,11 @@ def run_case(case_class: type[ValidationCase]) -> None:
     )
     args = parser.parse_args()
     if (args.rebuild_mesh or args.render_geometry) and (
-        args.render_scenes or args.export_scenes or args.render_scenes_only
+        args.no_field_export or args.render_scenes or args.render_scenes_only
     ):
-        parser.error("--rebuild-mesh and --render-geometry do not run the case: no scenes")
+        parser.error(
+            "--rebuild-mesh and --render-geometry do not run the case: no fields or scenes"
+        )
 
     case = case_class()
     # Run in the case directory, as run_cases.py does: the field exporter writes to a relative
@@ -311,4 +311,5 @@ def run_case(case_class: type[ValidationCase]) -> None:
                 "`pymufem case.py --rebuild-mesh`"
             )
         case.build_geometry_and_mesh()
-    case.run(render_scenes=args.render_scenes, export_scenes=args.export_scenes)
+    case.field_export = not args.no_field_export
+    case.run(render_scenes=args.render_scenes)

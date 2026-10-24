@@ -98,11 +98,11 @@ sim.run()
 print("Electric energy:", report.evaluate(), "J")
 
 # Export the fields for visualization (ParaView / VTK)
-vis = sim.get_field_exporter()
-vis.set_output_directory("ChargedCubeOutput")
-vis.add_field_output("Electric Potential")
-vis.add_field_output("Electric Field")
-vis.save()
+field_exporter = sim.get_field_exporter()
+field_exporter.set_output_directory("ChargedCubeOutput")
+field_exporter.add_field_output("Electric Potential")
+field_exporter.add_field_output("Electric Field")
+field_exporter.save()
 ```
 
 It prints the energy of the uniform field between the plates, $`\varepsilon_0 V^2 d / 2 \approx 4.43 \times 10^{-13}`$ J

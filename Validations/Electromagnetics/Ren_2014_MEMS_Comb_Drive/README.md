@@ -104,7 +104,7 @@ for xshift in self.xshifts:
 
         # The initial mesh, shown in the mesh image of create_scenes().
         if i == 0 and xshift == self.xshifts[0]:
-            vis.save(order=2)
+            field_exporter.save(order=2)
 
         ncells = self.sim.get_domain().get_mesh().get_total_number_cells()
         capacitance = 2 * self.report.evaluate() / self.voltage**2  # C = 2 W / V^2
@@ -119,7 +119,7 @@ for xshift in self.xshifts:
             f"No {max_ncells:.0e} cells after {max_refinements} refinements."
         )
 
-    vis.save(order=2)
+    field_exporter.save(order=2)
 ```
 <!-- fmt: on -->
 The external `for` loop iterates through all inter-comb shifts. At the start of each iteration, we load
