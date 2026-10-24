@@ -4,13 +4,22 @@ on:
   schedule:
     - cron: '0 16 * * 6'  # Sunday 01:00 JST (Saturday 16:00 UTC)
   workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - converted_to_draft
 
 # Full example suite end to end: every geometry, geometry image and mesh rebuilt before the case
-# runs, and the scenes created after it.
+# runs, and the scenes created after it. On pull requests only while they are drafts, to check
+# a branch end to end before it is ready for review.
 jobs:
   examples:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft
     uses: ./.github/workflows/run_validations.yaml
     with:
+      run-on-draft: true
       python-version: '3.12'
       case-path: '.'
       run-cases-args: '--rebuild-mesh'
