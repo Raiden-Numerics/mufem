@@ -11,13 +11,13 @@ on:
     branches:
       - main
 
-# The `moderate` validation tier on a GitHub-hosted macos-14 runner (serial; the
+# The `moderate` validation tier on a GitHub-hosted macos-26 runner (serial; the
 # long/eternal tiers and mumps cases are skipped). See run_validations_macos_windows.yaml.
 jobs:
   validations:
     uses: ./.github/workflows/run_validations_macos_windows.yaml
     with:
-      runner: macos-14
+      runner: macos-26
       python-version: '3.12'
       case-path: '.'
       run-cases-args: '--exclude-tag long --exclude-tag eternal --exclude-tag mumps'

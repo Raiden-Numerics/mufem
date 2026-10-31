@@ -10,7 +10,7 @@ name: run-cases macOS/Windows (reusable)
 # MPI launcher); callers --exclude-tag what such a runner can't do in reasonable
 # time: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 #
-# macOS: macos-14 is Apple Silicon — real solves on genuine arm64 (there is no
+# macOS: macos-26 is Apple Silicon — real solves on genuine arm64 (there is no
 # arm64 Mach-O emulator, so this is the only place the macOS wheel is exercised).
 # Windows: real solves on actual Windows (stronger than the Wine check in
 # mufem-dev CI). NOTE: on the Windows wheel, importing numpy's OpenBLAS *after*
@@ -21,7 +21,7 @@ on:
   workflow_call:
     inputs:
       runner:
-        description: GitHub-hosted runner (macos-14 | windows-latest)
+        description: GitHub-hosted runner (macos-26 | windows-latest)
         required: true
         type: string
       python-version:
