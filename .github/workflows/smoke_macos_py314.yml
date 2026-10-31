@@ -17,6 +17,6 @@ jobs:
   smoke:
     uses: ./.github/workflows/run_validations_macos_windows.yaml
     with:
-      runner: macos-14
+      runner: macos-26
       python-version: '3.14'
       case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'
