@@ -21,3 +21,4 @@ jobs:
       python-version: '3.12'
       case-path: '.'
       run-cases-args: '--exclude-tag long --exclude-tag eternal --exclude-tag mumps'
+      run-on-draft: true
