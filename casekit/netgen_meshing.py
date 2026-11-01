@@ -50,12 +50,19 @@ def mesh_and_save(
     if second_order:
         mesh.SecondOrder()
 
+    save_mesh(mesh, path, second_order=second_order)
+
+    return mesh
+
+
+def save_mesh(mesh, path: Union[str, Path] = "geometry.mesh", second_order: bool = False) -> None:
+    """Write a netgen mesh gzipped, for a case that cannot mesh from its STEP file (e.g. because
+    of periodic face identifications or separate sliding faces, which a STEP file does not hold).
+    """
     with gzip.open(path, "wt") as file:
         file.write(_gmsh22(mesh) if second_order else _mfem_v13(mesh))
 
     print(f"Wrote {path} with {mesh.ne} cells.")
-
-    return mesh
 
 
 # MFEM geometry type ids and the netgen -> MFEM vertex order per element size.

@@ -112,6 +112,16 @@ The eddy currents induced in the disc produce a braking torque, computed over a 
 compared with a 3-D analytical model.
 </td>
 </tr>
+<tr></tr>
+<tr>
+<td width="25%" height="130"><a href="Electromagnetics/IEEJ_2009_IPM_Motor_Model_D/README.md"><img src="Electromagnetics/IEEJ_2009_IPM_Motor_Model_D/results/Animation_Magnetic_Flux_Density.gif" width="100%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Electromagnetics/IEEJ_2009_IPM_Motor_Model_D/README.md">IEEJ 2009: IPM Motor Model D</a></strong><br>
+A four-pole interior permanent magnet motor at rated load, with saturating iron and a rotor turning
+on a sliding interface. The torque is compared with published 3-D analyses and the measurement, and
+the flux linkage with a 2-D calculation.
+</td>
+</tr>
 </table>
 
 #### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
