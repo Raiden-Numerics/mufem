@@ -6,11 +6,11 @@ name: run-cases macOS/Windows (reusable)
 # (moderate tier) and smoke_{macos,windows}_py3xx.yml (Team1b only).
 #
 # The macOS and Windows wheels are published as alpha, so they install only with
-# --pre. Cases are launched serially with plain `python` (pymufem is only the Linux
-# MPI launcher); callers --exclude-tag what such a runner can't do in reasonable
+# --pre. Cases are launched with plain `python` (pymufem only ships in the Linux
+# wheels); callers --exclude-tag what such a runner can't do in reasonable
 # time: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 #
-# macOS: macos-14 is Apple Silicon — real solves on genuine arm64 (there is no
+# macOS: macos-26 is Apple Silicon — real solves on genuine arm64 (there is no
 # arm64 Mach-O emulator, so this is the only place the macOS wheel is exercised).
 # Windows: real solves on actual Windows (stronger than the Wine check in
 # mufem-dev CI). NOTE: on the Windows wheel, importing numpy's OpenBLAS *after*
@@ -21,7 +21,7 @@ on:
   workflow_call:
     inputs:
       runner:
-        description: GitHub-hosted runner (macos-14 | windows-latest)
+        description: GitHub-hosted runner (macos-26 | windows-latest)
         required: true
         type: string
       python-version:
@@ -64,10 +64,11 @@ jobs:
         run: |
           # The VERSION release or one of its pre-releases (e.g. 0.7.3a0 .. 0.7.3).
           MUFEM_VERSION=$(cat VERSION)
+          MUFEM_VERSION=${MUFEM_VERSION%%[abr]*}
           pip install --pre --force-reinstall --no-cache-dir "mufem>=${MUFEM_VERSION}a0,<=${MUFEM_VERSION}"
           pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
-      - name: Run the cases (serial; no MPI/pymufem)
+      - name: Run the case
         shell: bash
         env:
           MPLBACKEND: Agg  # headless: no GUI backend

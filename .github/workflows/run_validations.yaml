@@ -1,7 +1,7 @@
 name: run-cases (reusable)
 
 # Reusable workflow: runs the example cases under a given Python version and case
-# path. Called by the per-version workflows (validations_linux_mpi.yml, smoke_py3xx.yml) so the
+# path. Called by the per-version workflows (validations_linux.yml, smoke_py3xx.yml) so the
 # steps live in a single place.
 on:
   workflow_call:
@@ -120,9 +120,14 @@ jobs:
     - name: Run the examples
       env:
         # Enlarge the dynamic loader's static-TLS surplus. Cases that generate a
-        # mesh with gmsh dlopen() libgmsh (initial-exec TLS) inside the MPI process
-        # after OpenMPI has consumed the small default surplus, otherwise failing
-        # with "cannot allocate memory in static TLS block".
+        # mesh with gmsh dlopen() libgmsh (initial-exec TLS) after the small default
+        # surplus has been consumed, otherwise failing with "cannot allocate memory
+        # in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
       run: |
+        # On the self-hosted runner: 15 threads, each pinned to a physical core, and idle
+        # threads sleep instead of spinning. GitHub-hosted runners have far fewer cores.
+        if [ "${{ inputs.runner }}" = "self-hosted" ]; then
+          export OMP_NUM_THREADS=15 OMP_PLACES=cores OMP_PROC_BIND=close OMP_WAIT_POLICY=passive
+        fi
         ${{ inputs.render-geometry && 'xvfb-run -a -s "-screen 0 2400x1600x24"' || '' }} python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }} ${{ inputs.render-geometry && '--render-geometry' || '' }} ${{ inputs.render-scenes && '--render-scenes' || '--no-field-export' }}

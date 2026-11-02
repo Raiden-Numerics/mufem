@@ -1,0 +1,72 @@
+name: run-smoke-pro-gpu (reusable)
+
+# Reusable workflow: installs a GPU wheel from the mufem package index like a customer and runs a
+# single representative case (Team1b) on a single rank, in the GPU vendor's public image. Called by
+# smoke_pro_{cuda,hip}.yml. Needs the secret MUFEM_LICENSE_KEY, which pull requests from forks do
+# not get.
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: GPU profile (cuda | hip)
+        required: true
+        type: string
+      image:
+        description: Public image with the GPU runtime
+        required: true
+        type: string
+      container-options:
+        description: Docker options that give the container the GPU
+        required: true
+        type: string
+      library-path:
+        description: The GPU runtime libraries, when not on the search path of the image
+        required: false
+        type: string
+        default: ''
+    secrets:
+      MUFEM_LICENSE_KEY:
+        required: true
+
+jobs:
+  smoke:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: self-hosted
+    container:
+      image: ${{ inputs.image }}
+      options: ${{ inputs.container-options }}
+    timeout-minutes: 60
+    env:
+      MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
+      MUFEM_DEVICE: ${{ inputs.profile }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          # libgomp1 is for the gmsh -nox build, see run_validations.yaml.
+          apt-get update
+          apt-get install -y libgomp1
+          python -m venv venv
+          venv/bin/pip install -i https://gmsh.info/python-packages-dev-nox gmsh
+          venv/bin/pip install "mufem-${{ inputs.profile }}==$(cat VERSION)" --extra-index-url https://mufem.raiden-numerics.com/packages/
+          venv/bin/pip install -e ./casekit
+
+      - name: Run the case
+        shell: bash
+        env:
+          # See run_validations.yaml: gmsh's initial-exec TLS.
+          GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+          GPU_LIBRARY_PATH: ${{ inputs.library-path }}
+        run: |
+          if [ -n "$GPU_LIBRARY_PATH" ]; then
+            export LD_LIBRARY_PATH="$GPU_LIBRARY_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          fi
+          source venv/bin/activate
+          python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder --launcher "pymufem 1" --no-field-export
