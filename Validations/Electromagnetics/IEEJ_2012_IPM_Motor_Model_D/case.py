@@ -15,7 +15,6 @@ from mufem.electromagnetics.coil import (
 from mufem.electromagnetics.timedomainmagnetic import (
     Formulation,
     InterfaceSymmetry,
-    LineSearchOption,
     LineSearchStrategy,
     MagneticTorqueReport,
     MagnetizationMethodVariable,
@@ -434,7 +433,6 @@ class IpmMotorModelD(ValidationCase):
         # In the saturated rotor bridges a Newton step overshoots far past the energy minimum;
         # the stabilization and the line search on the energy keep the iteration converging.
         solver = magnetic_model.get_solver()
-        solver.set_magnetostatic_initialization(LineSearchOption())
         solver.set_nonlinear_stabilization(NonlinearStabilization.MaterialState)
         line_search = solver.get_line_search()
         line_search.set_active(True)
@@ -583,24 +581,24 @@ class IpmMotorModelD(ValidationCase):
         field_exporter = sim.get_field_exporter()
         field_exporter.set_output_directory(self.dir_path / "VisualizationOutput")
         field_exporter.add_field_outputs(["Magnetic Flux Density"])
-        field_exporter.set_events([mufem.Event.Initialization, mufem.Event.TimeStep])
+        field_exporter.set_events([mufem.Event.TimeStep])
 
         return sim
 
     def validate(self):
-        # The full machine.
+        # The full machine, without t = 0: the solve starts from zero field there, and the period
+        # counts each rotor position once.
         self.rotor_torque = [
-            (t, FULL_MODEL_SCALE * torque.z) for t, torque in self.torque_monitor.get_values()
+            (t, FULL_MODEL_SCALE * torque.z)
+            for t, torque in self.torque_monitor.get_values()
+            if t > 0.0
         ]
         self.flux_linkage = {
-            phase: [(t, FULL_MODEL_SCALE * flux) for t, flux in monitor.get_values()]
+            phase: [(t, FULL_MODEL_SCALE * flux) for t, flux in monitor.get_values() if t > 0.0]
             for phase, monitor in self.flux_monitors.items()
         }
-        # Without the magnetostatic start at t = 0: the period counts each rotor position once.
-        period = -STEPS_PER_PERIOD
-        torque = numpy.array(self.rotor_torque)[period:, 1]
-        time = numpy.array(self.flux_linkage["U"])[period:, 0]
-        flux = numpy.array(self.flux_linkage["U"])[period:, 1]
+        torque = numpy.array(self.rotor_torque)[:, 1]
+        time, flux = numpy.array(self.flux_linkage["U"]).T
         fundamental = 2.0 * numpy.mean(flux * numpy.exp(2j * numpy.pi * FREQUENCY * time))
 
         # IEEJ TR 1244, Fig. 3.36, 3D FEA: mean of the digitised waveform.

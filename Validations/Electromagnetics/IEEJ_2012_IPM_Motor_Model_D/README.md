@@ -99,7 +99,7 @@ I_k(t) = \sqrt{2}\, I_\mathrm{rms} \cos\left(\theta_e + \beta + 90° - 120°\, k
 ```
 
 One electrical period ($`20\,\mathrm{ms}`$) is integrated in 120 steps of $`1/6\,\mathrm{ms}`$
-($`1.5°`$ mechanical), starting from a converged magnetostatic solution. A time step ends when the
+($`1.5°`$ mechanical), starting from zero field. A time step ends when the
 torque has settled, at the latest after 20 nonlinear iterations.
 
 ## Reference Data
