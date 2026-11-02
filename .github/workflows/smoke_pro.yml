@@ -1,0 +1,103 @@
+name: Smoke (Linux x86-64, Professional)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# Smoke test of the Professional wheels: installs them from the mufem package index like a
+# customer and runs a single representative case (Team1b). The GPU builds run a single rank
+# on the self-hosted runner. Needs the secret MUFEM_LICENSE_KEY, and GHCR_PAT for the GPU images;
+# pull requests from forks get neither.
+jobs:
+  smoke-mpi:
+    name: smoke (mpi)
+    if: github.event_name != 'pull_request' || (github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          python -m venv venv
+          venv/bin/pip install "mufem-mpi==$(cat VERSION)" --extra-index-url https://mufem.raiden-numerics.com/packages/
+          venv/bin/pip install -e ./casekit
+
+      - name: Run the case
+        shell: bash
+        env:
+          # See run_validations.yaml: gmsh's initial-exec TLS.
+          GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+        run: |
+          source venv/bin/activate
+          python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder --launcher "pymufem 2" --no-field-export
+
+  smoke-gpu:
+    name: smoke (${{ matrix.profile }})
+    if: github.event_name != 'pull_request' || (github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: cuda
+            options: "--gpus all --runtime=nvidia"
+            device: cuda
+            library-path: /mirror/cuda/lib64:/mirror/cuda/targets/x86_64-linux/lib
+          - profile: hip
+            options: "--device=/dev/kfd --device=/dev/dri --group-add=video --cap-add=SYS_PTRACE --security-opt seccomp=unconfined"
+            device: hip
+            library-path: /mirror/rocm/lib
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raiden-numerics/mufem-devel-${{ matrix.profile }}:latest
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_PAT }}
+      options: ${{ matrix.options }}
+    timeout-minutes: 60
+    env:
+      MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
+      MUFEM_DEVICE: ${{ matrix.device }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          python -m venv venv
+          venv/bin/pip install "mufem-${{ matrix.profile }}==$(cat VERSION)" --extra-index-url https://mufem.raiden-numerics.com/packages/
+          venv/bin/pip install -e ./casekit
+
+      - name: Run the case
+        shell: bash
+        env:
+          # See run_validations.yaml: gmsh's initial-exec TLS.
+          GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+          LIBRARY_PATH_GPU: ${{ matrix.library-path }}
+        run: |
+          # The GPU builds use the system runtime, in the dev image under /mirror.
+          if [ -n "$LIBRARY_PATH_GPU" ]; then
+            export LD_LIBRARY_PATH="$LIBRARY_PATH_GPU${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          fi
+          source venv/bin/activate
+          python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder --launcher "pymufem 1" --no-field-export
