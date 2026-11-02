@@ -719,9 +719,9 @@ class IpmMotorModelD(ValidationCase):
             legend_loc="lower left",
         )
 
-        scene = create_scene((1100, 600), shape=(1, 2), col_weights=[0.54, 0.46], border=False)
+        scene = create_scene((1280, 600), shape=(1, 2), col_weights=[0.5, 0.5], border=False)
         chart, curve, _ = xy_chart(**arguments)
-        chart.size, chart.loc = (0.97, 0.9), (0.0, 0.05)
+        chart.size, chart.loc = (0.92, 0.9), (0.08, 0.05)
         scene.subplot(0, 1)
         scene.add_chart(chart)
         scene.subplot(0, 0)
