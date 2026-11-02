@@ -1,4 +1,4 @@
-# IEEJ 2009: IPM Motor Model D
+# IEEJ 2012: IPM Motor Model D
 
 ## Introduction
 

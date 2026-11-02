@@ -56,7 +56,7 @@ PHASES = ("U", "V", "W")
 
 
 class IpmMotorModelD(ValidationCase):
-    name = "IEEJ 2009: IPM Motor Model D"
+    name = "IEEJ 2012: IPM Motor Model D"
     tags = {"long"}
 
     def build_geometry(self):
@@ -719,9 +719,9 @@ class IpmMotorModelD(ValidationCase):
             legend_loc="lower left",
         )
 
-        scene = create_scene((1280, 600), shape=(1, 2), col_weights=[0.5, 0.5], border=False)
+        scene = create_scene((1408, 600), shape=(1, 2), col_weights=[640, 768], border=False)
         chart, curve, _ = xy_chart(**arguments)
-        chart.size, chart.loc = (0.92, 0.9), (0.08, 0.05)
+        chart.size, chart.loc = (0.933, 0.9), (0.067, 0.05)
         scene.subplot(0, 1)
         scene.add_chart(chart)
         scene.subplot(0, 0)
