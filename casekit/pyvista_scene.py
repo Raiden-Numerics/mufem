@@ -118,19 +118,24 @@ def add_colorbar(
     """Color bar of `actor` in the active renderer with `n_labels` labels from the lowest to the
     highest value of its range (the clim of the mesh). Vertical with the title along it, half as
     high as the renderer, at its right edge, centered ("right") or at the bottom ("lower
-    right"); or horizontal with the labels and the title above it, half as wide as the renderer,
-    centered at its bottom edge ("bottom"). Its box fits the labels and the title. The labels
-    show the values times `scale`, e.g. 1e-5 with a title in 10⁵ units; `boxed` draws it on a
-    white box, for a bar over the content. Move the camera to keep
-    the content clear of it."""
-    if location not in ("right", "lower right", "bottom"):
-        raise ValueError(f"location {location!r} is not 'right', 'lower right' or 'bottom'")
+    right"), or centered at its left edge ("left"); or horizontal with the labels and the title
+    above it, half as wide as the renderer, centered at its bottom edge ("bottom"). Its box fits
+    the labels and the title. The labels show the values times `scale`, e.g. 1e-5 with a title
+    in 10⁵ units; `boxed` draws it on a white box, for a bar over the content. Move the camera
+    to keep the content clear of it."""
+    if location not in ("left", "right", "lower right", "bottom"):
+        raise ValueError(
+            f"location {location!r} is not 'left', 'right', 'lower right' or 'bottom'"
+        )
     vertical = location != "bottom"
     title_size = font_size + 4
 
     # The thickness of the box from the texts, measured in the font of the bar. A leading space
     # keeps the labels off a vertical bar (VTK's text pad also shifts them along the bar).
-    label_format = f" {label_format}" if vertical else label_format
+    if location == "left":
+        label_format = f"{label_format} "
+    elif vertical:
+        label_format = f" {label_format}"
     low, high = scale * np.asarray(actor.mapper.scalar_range)
     labels = [label_format % value for value in np.linspace(low, high, n_labels)]
     label_width = max(ImageFont.truetype(FONT_FILE, font_size).getbbox(t)[2] for t in labels)
@@ -160,9 +165,12 @@ def add_colorbar(
     width, height = (x1 - x0) * scene.window_size[0], (y1 - y0) * scene.window_size[1]
     if vertical:
         bar.SetOrientationToVertical()
+        if location == "left":
+            bar.SetTextPositionToPrecedeScalarBar()
         bar.SetForceVerticalTitle(True)
         bar.SetVerticalTitleSeparation(font_size)
-        bar.SetPosition(1.0 - (box + font_size) / width, 0.25 if location == "right" else 0.05)
+        x = font_size / width if location == "left" else 1.0 - (box + font_size) / width
+        bar.SetPosition(x, 0.05 if location == "lower right" else 0.25)
         bar.SetWidth(box / width)
         bar.SetHeight(0.5)
     else:

@@ -1,8 +1,8 @@
 name: run-cases (reusable)
 
 # Reusable workflow: runs the example cases under a given Python version and case
-# path. Called by the per-version workflows (validations_linux.yml, smoke_py3xx.yml) so the
-# steps live in a single place.
+# path. Called by validations_linux{,_e2e}.yml (Professional mufem-mpi, self-hosted) and
+# smoke_py3xx.yml (Community mufem, GitHub-hosted) so the steps live in a single place.
 on:
   workflow_call:
     inputs:
@@ -14,6 +14,11 @@ on:
         description: Path passed to run_cases.py (a directory or '.' for all cases)
         required: true
         type: string
+      package:
+        description: Package to install (mufem | mufem-mpi); mufem-mpi needs the secret MUFEM_LICENSE_KEY
+        required: false
+        type: string
+        default: mufem
       run-on-draft:
         description: Whether to run when the PR is a draft (each caller decides)
         required: false
@@ -39,14 +44,21 @@ on:
         required: false
         type: boolean
         default: false
+    secrets:
+      MUFEM_LICENSE_KEY:
+        required: false
 
 jobs:
   run-examples:
     runs-on: ${{ inputs.runner }}
     container:
       image: ubuntu:24.04
-    # Run on push/non-PR events, on non-draft PRs, or when the caller opts in to drafts.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false || inputs.run-on-draft
+    # Run on push/non-PR events, on non-draft PRs, or when the caller opts in to drafts. Pull
+    # requests from forks get no license key, so they skip mufem-mpi.
+    if: >-
+      github.event_name != 'pull_request' ||
+      ((github.event.pull_request.draft == false || inputs.run-on-draft) &&
+       (inputs.package == 'mufem' || github.event.pull_request.head.repo.full_name == github.repository))
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -79,22 +91,25 @@ jobs:
         python-version: ${{ inputs.python-version }}
         allow-prereleases: true
 
+    # The self-hosted runner keeps the setup-python interpreter between jobs, so packages installed
+    # into it pile up (mufem and mufem-mpi side by side fail to import): install into a fresh venv.
     # In a container on a GitHub-hosted runner, setup-python puts the *host* path
-    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container
-    # (there the interpreter is mounted under $pythonLocation, /__t/...), and the
-    # pip/console scripts carry that host path in their shebang. Put the real
-    # location on PATH and run pip as `python -m pip`; pymufem (#!/bin/bash) is
-    # unaffected. Harmless on the self-hosted runner.
-    - name: Put the setup-python interpreter on PATH
-      run: echo "$pythonLocation/bin" >> "$GITHUB_PATH"
+    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container; the
+    # interpreter is mounted under $pythonLocation.
+    - name: Create a fresh venv
+      run: |
+        "$pythonLocation/bin/python" -m venv --clear "$RUNNER_TEMP/venv"
+        echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
 
     - name: Install Python dependencies
       env:
         CI: '1'
         PIP_IS_CI: '1'
       run: |
-        # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11).
-        python -m pip install --force-reinstall --no-cache-dir --no-deps mufem==$MUFEM_VERSION
+        # One wheel holds the bindings and the engine (no separate libmufem since 0.6.11). The
+        # Professional packages come from the mufem package index.
+        python -m pip install --force-reinstall --no-cache-dir --no-deps "${{ inputs.package }}==$MUFEM_VERSION" \
+          --extra-index-url https://mufem.raiden-numerics.com/packages/
         # Headless gmsh first, so that casekit's gmsh requirement is already satisfied.
         python -m pip install -i https://gmsh.info/python-packages-dev-nox --no-cache-dir gmsh
         if [ "${{ inputs.render-scenes }}" = "true" ]; then
@@ -124,10 +139,12 @@ jobs:
         # surplus has been consumed, otherwise failing with "cannot allocate memory
         # in static TLS block".
         GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+        MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
       run: |
-        # On the self-hosted runner: 15 threads, each pinned to a physical core, and idle
-        # threads sleep instead of spinning. GitHub-hosted runners have far fewer cores.
-        if [ "${{ inputs.runner }}" = "self-hosted" ]; then
-          export OMP_NUM_THREADS=15 OMP_PLACES=cores OMP_PROC_BIND=close OMP_WAIT_POLICY=passive
+        # mufem-mpi: 15 ranks, each pinned to a physical core by pymufem, with one thread each.
+        LAUNCHER=pymufem
+        if [ "${{ inputs.package }}" = "mufem-mpi" ]; then
+          export OMP_NUM_THREADS=1
+          LAUNCHER="pymufem 15"
         fi
-        ${{ inputs.render-geometry && 'xvfb-run -a -s "-screen 0 2400x1600x24"' || '' }} python ./run_cases.py ${{ inputs.case-path }} ${{ inputs.run-cases-args }} ${{ inputs.render-geometry && '--render-geometry' || '' }} ${{ inputs.render-scenes && '--render-scenes' || '--no-field-export' }}
+        ${{ inputs.render-geometry && 'xvfb-run -a -s "-screen 0 2400x1600x24"' || '' }} python ./run_cases.py ${{ inputs.case-path }} --launcher "$LAUNCHER" ${{ inputs.run-cases-args }} ${{ inputs.render-geometry && '--render-geometry' || '' }} ${{ inputs.render-scenes && '--render-scenes' || '--no-field-export' }}

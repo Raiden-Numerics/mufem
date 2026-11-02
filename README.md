@@ -44,13 +44,14 @@ tutorials and the full API reference see the
 ### Licensing
 
 The Community version of mufem is **free for academic and commercial use**. It needs no license key, includes
-most physics models, and uses all the cores of your workstation, so you can run real projects and client
-work without paying anything.
+most physics models, and runs multithreaded, making good use of the cores of typical desktops and laptops,
+so you can run real projects and client work without paying anything.
 
 When your models outgrow a single machine, a paid license lets mufem grow with them:
 
-- **Bigger models, faster answers**: spread a simulation across a compute cluster or run it on GPUs, for much
-  shorter run times, making large parametric studies practical.
+- **Bigger models, faster answers**: distributed parallel computing that keeps scaling where threads level off, on a
+  many-core workstation, across a compute cluster, or on GPUs. Run times keep dropping as you add cores,
+  nodes or GPUs, which makes large models and parametric studies practical.
 - **Specialized physics models** for advanced applications that go beyond the Community version.
 - **Direct support** from the developers by email, instead of community support via GitHub Issues.
 - **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
@@ -198,14 +199,13 @@ rotor torque over time compared with measurements (right).</sub>
 
 |  | Python 3.12 | Python 3.13 | Python 3.14 | Python 3.15 |
 |---|---|---|---|---|
-| **Linux** x86-64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux.yml) [![e2e](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_e2e.yml?branch=main&label=e2e)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_e2e.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py315.yml) |
+| **Linux** x86-64 | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py312.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py312.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_py315.yml) |
 | **Windows** x86-64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_windows_py312.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_windows_py312.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_windows_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_windows_py315.yml) |
 | **macOS** arm64 | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_macos_py312.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_macos_py312.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py313.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py313.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py314.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py314.yml) | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_macos_py315.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_macos_py315.yml) |
 | **Linux distros**¹ | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_linux_distros.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_linux_distros.yml) |  |  |  |
 
-- **validations**: all validation cases on Linux; the moderate tier on macOS and Windows (without the `long`, `eternal` and `mumps` cases).
+- **validations**: the moderate tier on macOS and Windows (without the `long`, `eternal` and `mumps` cases).
 - **smoke**: a single case (TEAM 1b), confirming that the release installs and runs.
-- **e2e**: weekly; all validation cases with every geometry, mesh and scene regenerated from scratch.
 
 ¹ Ubuntu 26.04, Debian 13, Fedora 43, AlmaLinux 10, openSUSE Tumbleweed and Arch Linux.
 Linux requires glibc ≥ 2.39; Ubuntu 22.04, Debian 12, RHEL 8/9 and SLES 15 are not yet supported.
@@ -214,8 +214,10 @@ Linux requires glibc ≥ 2.39; Ubuntu 22.04, Debian 12, RHEL 8/9 and SLES 15 are
 
 | Package | Platform | Run | Status |
 |---|---|---|---|
-| `mufem-mpi` | Linux x86-64 | 2 MPI ranks | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_mpi.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_mpi.yml) |
+| `mufem-mpi` | Linux x86-64 | 15 MPI ranks | [![validations](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux.yml?branch=main&label=validations)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux.yml) [![e2e](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/validations_linux_e2e.yml?branch=main&label=e2e)](https://github.com/Raiden-Numerics/mufem/actions/workflows/validations_linux_e2e.yml) |
 | `mufem-cuda` | Linux x86-64, NVIDIA GPU | 1 MPI rank | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_cuda.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_cuda.yml) |
 | `mufem-hip` | Linux x86-64, AMD GPU | 1 MPI rank | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_hip.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_hip.yml) |
 
-Each package is installed from the mufem package index and runs a single case (TEAM 1b) on Python 3.12.
+Each package is installed from the mufem package index on Python 3.12. `mufem-mpi` runs all validation cases
+(**validations**), and weekly with every geometry, mesh and scene regenerated from scratch (**e2e**); the GPU
+packages run a single case (TEAM 1b).

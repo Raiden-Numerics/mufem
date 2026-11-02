@@ -1,0 +1,23 @@
+name: Smoke (Linux x86-64, Python 3.12)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# Smoke test of the Community mufem on Python 3.12: runs a single representative case (Team1b) to
+# confirm the release imports and runs on this Python version. Runs on a GitHub-hosted runner (free
+# for this public repo); the full suite runs with the Professional mufem-mpi in validations_linux.yml.
+jobs:
+  smoke:
+    uses: ./.github/workflows/run_validations.yaml
+    with:
+      python-version: '3.12'
+      case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'
+      runner: ubuntu-24.04
