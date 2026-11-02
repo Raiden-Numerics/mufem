@@ -91,14 +91,15 @@ jobs:
         python-version: ${{ inputs.python-version }}
         allow-prereleases: true
 
+    # The self-hosted runner keeps the setup-python interpreter between jobs, so packages installed
+    # into it pile up (mufem and mufem-mpi side by side fail to import): install into a fresh venv.
     # In a container on a GitHub-hosted runner, setup-python puts the *host* path
-    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container
-    # (there the interpreter is mounted under $pythonLocation, /__t/...), and the
-    # pip/console scripts carry that host path in their shebang. Put the real
-    # location on PATH and run pip as `python -m pip`; pymufem (#!/bin/bash) is
-    # unaffected. Harmless on the self-hosted runner.
-    - name: Put the setup-python interpreter on PATH
-      run: echo "$pythonLocation/bin" >> "$GITHUB_PATH"
+    # (/opt/hostedtoolcache/...) on PATH, which does not exist inside the container; the
+    # interpreter is mounted under $pythonLocation.
+    - name: Create a fresh venv
+      run: |
+        "$pythonLocation/bin/python" -m venv --clear "$RUNNER_TEMP/venv"
+        echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
 
     - name: Install Python dependencies
       env:
