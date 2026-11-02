@@ -70,6 +70,7 @@ jobs:
         run: |
           # The VERSION release or one of its pre-releases (e.g. 0.7.3a0 .. 0.7.3).
           MUFEM_VERSION=$(cat VERSION)
+          MUFEM_VERSION=${MUFEM_VERSION%%[abr]*}
           pip install --pre --force-reinstall --no-cache-dir "mufem>=${MUFEM_VERSION}a0,<=${MUFEM_VERSION}"
           pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
