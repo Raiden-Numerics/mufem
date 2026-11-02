@@ -712,7 +712,12 @@ class IpmMotorModelD(ValidationCase):
         bodies = ["Stator", "Rotor", "Magnet::0"]
 
         rotor_torque = numpy.load(self.scene_data_path)["rotor_torque"]
-        arguments = self.torque_plot(rotor_torque)
+        arguments = dict(
+            self.torque_plot(rotor_torque),
+            ylim=(0.0, 2.5),
+            yticks=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5],
+            legend_loc="lower left",
+        )
 
         scene = create_scene((1100, 600), shape=(1, 2), col_weights=[0.54, 0.46], border=False)
         chart, curve, _ = xy_chart(**arguments)

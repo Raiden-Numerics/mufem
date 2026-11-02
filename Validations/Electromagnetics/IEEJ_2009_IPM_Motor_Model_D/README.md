@@ -15,7 +15,7 @@ compared with the published 3D analyses, the measurement, and a 2D calculation. 
 <img src="data/Geometry_Side.png" alt="Geometry from the side" width="45%">
 <br/>
 <br/>
-<em>Figure 1: The modeled sector, without the air: stator, coils, rotor, and magnet, from the top and from the side. The rotor and the coils extend beyond the stator stack; only z &ge; 0 is modeled.</em>
+<em>Figure 1: The modeled sector, without the air: stator, coils, rotor, and magnet, from the top and from the side. The rotor and the coils extend beyond the stator stack; only z &ge; 0 is modeled. The model has no end windings.</em>
 </div>
 <br/>
 
@@ -37,8 +37,6 @@ is modeled in 3D, over one pole pitch (Figure 2).
 | Quantity | Value |
 | -------- | ----- |
 | Poles / slots | $`4`$ / $`24`$ |
-| Stator / rotor outer diameter | $`112.2`$ / $`55\,\mathrm{mm}`$, air gap $`0.5\,\mathrm{mm}`$ |
-| Stack: stator / rotor / magnets | $`60`$ / $`67.5`$ / $`65\,\mathrm{mm}`$ |
 | Iron (stator, rotor) | JIS 50A350 $`B(H)`$ curve ([table](data/JIS50A350_BH.csv)), no eddy currents |
 | Magnets | $`\vert\vec{B}_r\vert = 1.25\,\mathrm{T}`$, $`\mu_r = 1.05`$, along the pole axis in the frame of the rotor, no eddy currents |
 | Coils | stranded copper, no eddy currents |
@@ -81,27 +79,22 @@ The case uses the field-conforming ($`T`$-$`\Omega`$) formulation with first-ord
 
 ### Winding and Excitation
 
-A single-layer full-pitch winding with $`q = 2`$, 35 conductors per slot and 140 turns per phase in
-series; the slots from $`7.5°`$ counter-clockwise are
-
-```
--W, +V, +V, -U, -U, +W, +W, -V, -V, +U, +U, -W   (repeated twice)
-```
+A single-layer full-pitch winding with $`q = 2`$, 35 conductors per slot and 140 turns per phase in series.
 
 <div align="center">
 <img src="data/Winding.png" alt="Winding" width="60%">
 <br/>
 <br/>
-<em>Figure 4: The winding over the drawing of the portal, seen from +z. Positive current leaves the page in the +slots (dot) and enters it in the -slots (cross). The lines show which slots form a coil; the model has no end windings, and the coils of a phase are in series. Created with <a href="data/plot_winding_diagram.py">plot_winding_diagram.py</a>.</em>
+<em>Figure 4: The winding over the drawing of the portal, seen from +z. Positive current leaves the page in the +slots (dot) and enters it in the -slots (cross). The coils of a phase are in series.</em>
 </div>
 <br/>
 
 The rated load is $`3\,\mathrm{A_{rms}}`$ at a current phase of $`\beta = 25°`$ and $`1500\,\mathrm{min^{-1}}`$.
 With the d-axis at the electrical angle $`\theta_e = \omega t - 120°`$ from the axis of phase U, the
-currents $`i_d = -I \sin\beta`$, $`i_q = I \cos\beta`$ give
+currents $`I_d = -I \sin\beta`$, $`I_q = I \cos\beta`$ give
 
 ```math
-i_k(t) = \sqrt{2}\, I_\mathrm{rms} \cos\left(\theta_e + \beta + 90° - 120°\, k\right),
+I_k(t) = \sqrt{2}\, I_\mathrm{rms} \cos\left(\theta_e + \beta + 90° - 120°\, k\right),
 \quad k = 0, 1, 2 \quad (U, V, W), \quad \omega = 2\pi \cdot 50\,\mathrm{Hz} .
 ```
 
@@ -120,12 +113,6 @@ torque has settled, at the latest after 20 nonlinear iterations.
   electrical period. This is a calculation, not a published value; it is the only
   reference for the flux linkage waveform.
 
-[prepare_references.py](data/prepare_references.py) writes them on the time base of the case.
-
-## Running
-
-Run the case with `pymufem case.py`. It takes about 12 minutes on 5 MPI ranks without the field
-export (`--no-field-export`) and about $`1\,\mathrm{GB}`$ of memory.
 
 ## Results
 
@@ -172,12 +159,6 @@ The case checks:
 </div>
 <br/>
 
-## Notes
-
-* The $`B(H)`$ table ends at $`1.8\,\mathrm{T}`$; its continuation to $`3\,\mathrm{T}`$ with a slope of
-  $`\mu_0`$ stays commented out in the table.
-* The inductances of the portal (`Dmodel_inductances.csv`) are single-axis values from dq current
-  sweeps and are not compared.
 
 ## References
 
