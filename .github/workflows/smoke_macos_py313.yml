@@ -20,4 +20,3 @@ jobs:
       runner: macos-26
       python-version: '3.13'
       case-path: 'Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder'
-      run-on-draft: true

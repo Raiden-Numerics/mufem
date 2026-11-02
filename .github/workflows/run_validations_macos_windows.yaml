@@ -37,17 +37,11 @@ on:
         required: false
         type: string
         default: ''
-      run-on-draft:
-        description: Whether to run when the PR is a draft (each caller decides)
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   run-examples:
     runs-on: ${{ inputs.runner }}
-    # Run on push/non-PR events, on non-draft PRs, or when the caller opts in to drafts.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false || inputs.run-on-draft
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
