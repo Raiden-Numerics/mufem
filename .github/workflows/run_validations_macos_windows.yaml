@@ -6,8 +6,8 @@ name: run-cases macOS/Windows (reusable)
 # (moderate tier) and smoke_{macos,windows}_py3xx.yml (Team1b only).
 #
 # The macOS and Windows wheels are published as alpha, so they install only with
-# --pre. Cases are launched serially with plain `python` (pymufem is only the Linux
-# MPI launcher); callers --exclude-tag what such a runner can't do in reasonable
+# --pre. Cases are launched with plain `python` (pymufem only ships in the Linux
+# wheels); callers --exclude-tag what such a runner can't do in reasonable
 # time: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 #
 # macOS: macos-26 is Apple Silicon — real solves on genuine arm64 (there is no
@@ -68,7 +68,7 @@ jobs:
           pip install --pre --force-reinstall --no-cache-dir "mufem>=${MUFEM_VERSION}a0,<=${MUFEM_VERSION}"
           pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
-      - name: Run the cases (serial; no MPI/pymufem)
+      - name: Run the case
         shell: bash
         env:
           MPLBACKEND: Agg  # headless: no GUI backend
