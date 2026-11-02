@@ -194,7 +194,7 @@ rotor torque over time compared with measurements (right).</sub>
 
 ## Tested Platforms
 
-[![tested version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FRaiden-Numerics%2Fmufem%2Fmain%2FVERSION&query=%24&label=tested%20version)](https://pypi.org/project/mufem/)
+[![Tested Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FRaiden-Numerics%2Fmufem%2Fmain%2FVERSION&query=%24&label=tested%20version)](https://pypi.org/project/mufem/)
 
 |  | Python 3.12 | Python 3.13 | Python 3.14 | Python 3.15 |
 |---|---|---|---|---|
