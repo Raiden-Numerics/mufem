@@ -1,18 +1,20 @@
-name: Validations end-to-end (Linux x86-64, Python 3.12)
+name: Validations end-to-end (Linux x86-64, Professional MPI, Python 3.12)
 
 on:
   schedule:
     - cron: '0 16 * * 6'  # Sunday 01:00 JST (Saturday 16:00 UTC)
   workflow_dispatch:
 
-# Full example suite end to end: every geometry, geometry image and mesh rebuilt before the case
-# runs, and the scenes created after it.
+# Full example suite end to end with the Professional mufem-mpi: every geometry, geometry image
+# and mesh rebuilt before the case runs, and the scenes created after it.
 jobs:
   examples:
     uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.12'
       case-path: '.'
+      package: mufem-mpi
       run-cases-args: '--rebuild-mesh'
       render-geometry: true
       render-scenes: true
+    secrets: inherit

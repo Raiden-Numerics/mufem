@@ -1,4 +1,4 @@
-name: Validations (Linux x86-64, Python 3.12)
+name: Validations (Linux x86-64, Professional MPI, Python 3.12)
 
 on:
   pull_request:
@@ -11,10 +11,13 @@ on:
     branches:
       - main
 
-# Full example suite on Python 3.12. Delegates to the reusable _run_cases workflow.
+# Full example suite with the Professional mufem-mpi on Python 3.12. Delegates to the reusable
+# run_validations.yaml workflow.
 jobs:
   examples:
     uses: ./.github/workflows/run_validations.yaml
     with:
       python-version: '3.12'
       case-path: '.'
+      package: mufem-mpi
+    secrets: inherit
