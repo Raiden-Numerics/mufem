@@ -1,0 +1,22 @@
+name: Smoke (Linux x86-64, Professional CUDA)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke:
+    uses: ./.github/workflows/run_smoke_pro_gpu.yaml
+    with:
+      profile: cuda
+      image: nvidia/cuda:13.3.1-runtime-ubuntu24.04
+      container-options: "--gpus all --runtime=nvidia"
+    secrets:
+      MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
