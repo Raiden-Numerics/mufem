@@ -44,13 +44,14 @@ tutorials and the full API reference see the
 ### Licensing
 
 The Community version of mufem is **free for academic and commercial use**. It needs no license key, includes
-most physics models, and uses all the cores of your workstation, so you can run real projects and client
-work without paying anything.
+most physics models, and runs multithreaded, making good use of the cores of typical desktops and laptops,
+so you can run real projects and client work without paying anything.
 
 When your models outgrow a single machine, a paid license lets mufem grow with them:
 
-- **Bigger models, faster answers**: spread a simulation across a compute cluster or run it on GPUs, for much
-  shorter run times, making large parametric studies practical.
+- **Bigger models, faster answers**: distributed parallel computing that keeps scaling where threads level off, on a
+  many-core workstation, across a compute cluster, or on GPUs. Run times keep dropping as you add cores,
+  nodes or GPUs, which makes large models and parametric studies practical.
 - **Specialized physics models** for advanced applications that go beyond the Community version.
 - **Direct support** from the developers by email, instead of community support via GitHub Issues.
 - **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
