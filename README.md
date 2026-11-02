@@ -209,3 +209,13 @@ rotor torque over time compared with measurements (right).</sub>
 
 ¹ Ubuntu 26.04, Debian 13, Fedora 43, AlmaLinux 10, openSUSE Tumbleweed and Arch Linux.
 Linux requires glibc ≥ 2.39; Ubuntu 22.04, Debian 12, RHEL 8/9 and SLES 15 are not yet supported.
+
+### Professional
+
+| Package | Platform | Run | Status |
+|---|---|---|---|
+| `mufem-mpi` | Linux x86-64 | 2 MPI ranks | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_mpi.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_mpi.yml) |
+| `mufem-cuda` | Linux x86-64, NVIDIA GPU | 1 MPI rank | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_cuda.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_cuda.yml) |
+| `mufem-hip` | Linux x86-64, AMD GPU | 1 MPI rank | [![smoke](https://img.shields.io/github/actions/workflow/status/Raiden-Numerics/mufem/smoke_pro_hip.yml?branch=main&label=smoke)](https://github.com/Raiden-Numerics/mufem/actions/workflows/smoke_pro_hip.yml) |
+
+Each package is installed from the mufem package index and runs a single case (TEAM 1b) on Python 3.12.

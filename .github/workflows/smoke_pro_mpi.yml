@@ -1,0 +1,48 @@
+name: Smoke (Linux x86-64, Professional MPI)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - main
+
+# Smoke test of mufem-mpi: installs it from the mufem package index like a customer and runs a
+# single representative case (Team1b). Needs the secret MUFEM_LICENSE_KEY, which pull requests
+# from forks do not get.
+jobs:
+  smoke:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      MUFEM_LICENSE_KEY: ${{ secrets.MUFEM_LICENSE_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          python -m venv venv
+          # Headless gmsh first, so that casekit's gmsh requirement is already satisfied.
+          venv/bin/pip install -i https://gmsh.info/python-packages-dev-nox gmsh
+          venv/bin/pip install "mufem-mpi==$(cat VERSION)" --extra-index-url https://mufem.raiden-numerics.com/packages/
+          venv/bin/pip install -e ./casekit
+
+      - name: Run the case
+        shell: bash
+        env:
+          # See run_validations.yaml: gmsh's initial-exec TLS.
+          GLIBC_TUNABLES: glibc.rtld.optional_static_tls=2000000
+        run: |
+          source venv/bin/activate
+          python ./run_cases.py Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder --launcher "pymufem 2" --no-field-export
