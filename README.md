@@ -10,7 +10,7 @@ and **design optimization**, and a natural fit for **agentic workflows**.
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
-**Contents:** [Introduction](#introduction) · [Gallery](#gallery) · [Models](#models) ·
+**Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
 [Getting Started](#getting-started) · [Validations](#validations) ·
 [Tested Platforms](#tested-platforms)
 
@@ -109,31 +109,22 @@ field_exporter.save()
 It prints the energy of the uniform field between the plates, $`\varepsilon_0 V^2 d / 2 \approx 4.43 \times 10^{-13}`$ J
 for the 10 cm cube.
 
-## Gallery
+## Case Studies
+
+Case studies apply mufem to complete engineering problems, from the geometry to the design decision.
 
 <table>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/PMSM-Motor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/CaseStudies/PMSM-Motor/results/Case_Study_Thumbnail.png" width="100%"></a></td>
 <td width="60%" valign="top">
-<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md">Locked rotor (TEAM 24)</a></strong><br>
-Study the transient rotor torque and coil currents of a rotating machine using the <strong>Time-Domain Magnetic</strong>
-model coupled to an <strong>Excitation Coil</strong>.
-</td>
-</tr>
-<tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Stutzman_2012_Dipole_Antenna/results/Scene_Radiation_Pattern.png" width="100%"></a></td>
-<td width="60%" valign="top">
-<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Stutzman_2012_Dipole_Antenna/README.md">Dipole antenna (Stutzman 2012)</a></strong><br>
-Compute the full-wave radiation pattern and far-field of a dipole antenna using the <strong>Time-Harmonic Maxwell</strong>
-model.
-</td>
-</tr>
-<tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/results/Animation_Electric_Current_Density.gif" width="100%"></a></td>
-<td width="60%" valign="top">
-<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team1b-Felix-Cylinder/README.md">FELIX cylinder (TEAM 1b)</a></strong><br>
-Resolve induced eddy-current density and Ohmic losses in a conducting cylinder using the <strong>Time-Domain
-Magnetic</strong> model.
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/PMSM-Motor/README.md">Step skew in a hairpin IPM traction motor</a></strong><br>
+Follow a skew design from 2D to full 3D on a 48-slot, 8-pole traction motor.
+<ul>
+<li>Cogging torque and load ripple of the skewed and unskewed machine</li>
+<li>Comparison with the fast 2D multi-slice method</li>
+<li>AC copper losses of the whole hairpin winding, end turns included</li>
+<li>Full 3D model: turning rotor, sliding interface, non-linear iron, eddy currents</li>
+</ul>
 </td>
 </tr>
 </table>
