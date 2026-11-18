@@ -738,15 +738,18 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
     def create_scenes(self):
         """The commutated machine over a full turn: the fields of the reported pole pitch, twelve
         times, with a D-shaft turning for the eye only (the bore is air in the model)."""
-        import matplotlib
-
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
         import pyvista as pv
         from PIL import Image
 
         from casekit.colors import color_copper
-        from casekit.pyvista_scene import FieldExportReader
+        from casekit.pyvista_scene import (
+            FieldExportReader,
+            _font,
+            add_colorbar,
+            create_scene,
+            update_curve,
+            xy_chart,
+        )
 
         reader = FieldExportReader(self.dir_path)
         scene_data = numpy.load(self.scene_data_path)
@@ -760,12 +763,10 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
                 f"{reader.number_time_steps} field outputs, {len(angles)} positions"
             )
 
-        field = "Magnetic Flux Density"
-        cmap, color_levels, b_max = "viridis", 64, 2.5
-
         def full_machine(mesh):
-            """The six sectors and their mirror images at the midplane z = 0."""
-            surface = mesh.extract_surface()
+            """The six sectors and their mirror images at the midplane z = 0. The cells of the
+            field export do not share their points: merged, only the outer faces remain."""
+            surface = mesh.clean().extract_surface(algorithm=None)
             copies = []
             for k in range(6):
                 rotated = surface.rotate_z(60.0 * k, point=(0.0, 0.0, 0.0))
@@ -785,63 +786,26 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
             body = profile.extrude((0.0, 0.0, 2.0 * stack_height + 0.07), capping=True)
             return body.triangulate().rotate_z(angle, point=(0.0, 0.0, 0.0))
 
-        def render_machine(bodies, shares, angle):
-            plotter = pv.Plotter(off_screen=True, window_size=(1200, 1200))
-            plotter.set_background("white")
-            plotter.enable_anti_aliasing("ssaa")
-            iron = full_machine(pv.merge([bodies["Rotor"], bodies["Stator"]]))
-            iron.point_data["B"] = numpy.linalg.norm(iron.point_data[field], axis=1)
-            plotter.add_mesh(
-                iron,
-                scalars="B",
-                cmap=cmap,
-                n_colors=color_levels,
-                clim=(0.0, b_max),
-                show_scalar_bar=False,
-                ambient=0.3,
-                diffuse=0.7,
-                specular=0.1,
-            )
-            # All coils copper; the conducting ones outlined in the color of their phase, fading
-            # with their share of the current through the switching ramps.
-            for phase in PHASES:
-                surface = full_machine(bodies[f"Coil::{phase}"])
-                plotter.add_mesh(
-                    surface,
-                    color=color_copper[:3],
-                    ambient=0.3,
-                    diffuse=0.7,
-                    specular=0.3,
-                    specular_power=20.0,
+        machines = {}
+
+        def machine(index):
+            """The iron, the coils and the outlines of the coils at the position `index`; each
+            position is shown in twelve frames, so it is built once."""
+            if index not in machines:
+                bodies = reader.read(index)
+                iron = full_machine(pv.merge([bodies["Rotor"], bodies["Stator"]]))
+                iron.point_data["B"] = numpy.linalg.norm(
+                    iron.point_data["Magnetic Flux Density"], axis=1
                 )
-                if shares[phase] > 0.0:
-                    edges = surface.extract_feature_edges(
+                coils = {phase: full_machine(bodies[f"Coil::{phase}"]) for phase in PHASES}
+                outlines = {
+                    phase: coil.extract_feature_edges(
                         30.0, boundary_edges=False, manifold_edges=False
-                    )
-                    plotter.add_mesh(
-                        edges.tube(radius=0.0013, n_sides=8),
-                        color=PHASE_COLORS[phase],
-                        opacity=shares[phase],
-                        ambient=0.4,
-                        diffuse=0.6,
-                        specular=0.3,
-                    )
-            plotter.add_mesh(
-                d_shaft(angle),
-                color="#868e96",
-                ambient=0.3,
-                diffuse=0.7,
-                specular=0.5,
-                specular_power=30.0,
-            )
-            plotter.view_xy()
-            plotter.camera.elevation = -18.0
-            plotter.camera.azimuth = 15.0
-            plotter.reset_camera()
-            plotter.camera.zoom(1.1)
-            image = plotter.screenshot(return_img=True)
-            plotter.close()
-            return image
+                    ).tube(radius=0.0013, n_sides=8)
+                    for phase, coil in coils.items()
+                }
+                machines[index] = iron, coils, outlines
+            return machines[index]
 
         # The plots run over the angle within the pole pitch; the end of the pitch is the same
         # state as its start, so its values stand at 0 deg as well.
@@ -849,99 +813,143 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         plot_angle = numpy.concatenate([[0.0], angles - PERIOD_START_DEG])
         plot_currents = numpy.vstack([currents[-1:], currents])
         plot_torque = numpy.concatenate([torque[-1:], torque])
-        reference = numpy.array(torque_plot["reference_values"])
 
-        # Every second position (1 deg per frame), ending with the last of the pitch; twelve
-        # pitches make the full turn.
-        schedule = [(pitch, index) for pitch in range(12) for index in range(1, len(angles), 2)]
+        # The machine on the left, the phase currents and the torque on the right.
+        scene = create_scene(
+            (1280, 720),
+            shape=(2, 2),
+            groups=[(numpy.s_[:], 0)],
+            col_weights=[0.56, 0.44],
+            row_weights=[0.45, 0.55],
+            border=False,
+        )
 
-        plt.rcParams.update({"font.size": 14, "axes.edgecolor": "#868e96"})
-        images = []
-        crop = None
-        for pitch, index in schedule:
-            shares = dict(zip(PHASES, currents[index] / PEAK_CURRENT))
-            view = render_machine(
-                reader.read(index), shares, angles[index] + ROTOR_POLE_PITCH_DEG * pitch
+        scene.subplot(0, 1)
+        current_chart = pv.Chart2D(
+            x_label="Rotor Angle [deg]", y_label="Phase Current [A]", grid=False
+        )
+        current_chart.x_range = [0.0, ROTOR_POLE_PITCH_DEG]
+        current_chart.y_range = [0.0, 300.0]
+        current_curves = {}
+        for phase in PHASES:
+            # A phase is drawn only while it carries current, and with the zeros next to that,
+            # so that a ramp starts from 0; a phase conducts at most twice within the pitch.
+            current_curves[phase] = [
+                current_chart.line([0.0], [0.0], color=PHASE_COLORS[phase], width=3.0, label=label)
+                for label in (phase, "")
+            ]
+        cursor = current_chart.line([0.0, 0.0], [0.0, 300.0], color="#495057", width=1.0)
+        scene.add_chart(current_chart)
+
+        scene.subplot(1, 1)
+        torque_chart, torque_curve, _ = xy_chart(
+            **dict(
+                torque_plot,
+                values=[(0.0, plot_torque[0])],
+                xlabel="Rotor Angle [deg]",
+                yticks=[0.0, 100.0, 200.0, 300.0, 400.0],
+                legend_loc="lower right",
             )
-            if crop is None:
-                # The outline of the motor with a small margin, the same for all frames.
-                rows, cols = numpy.nonzero((view < 245).any(axis=2))
-                crop = (
-                    slice(max(rows.min() - 12, 0), rows.max() + 12),
-                    slice(max(cols.min() - 12, 0), cols.max() + 12),
-                )
+        )
+        torque_chart.line(plot_angle, plot_torque, color=(1.0, 0.0, 0.0, 0.2), width=2.0)
+        torque_dot = torque_chart.scatter([0.0], [0.0], color="black", size=12)
+        scene.add_chart(torque_chart)
+        for axis in (current_chart.x_axis, current_chart.y_axis):
+            _font(axis.GetTitleProperties(), 20)
+            _font(axis.GetLabelProperties(), 18)
+        current_chart.size = (0.97, 1.0)
+        current_chart.border_color = "white"
+        current_chart.legend.GetPen().SetOpacity(0)
+        current_chart.legend.GetBrush().SetOpacity(0)
+        _font(current_chart.legend.GetLabelProperties(), 18)
 
-            fig = plt.figure(figsize=(12.8, 7.2), dpi=100, facecolor="white")
-            ax = fig.add_axes([0.01, 0.15, 0.55, 0.83])
-            ax.imshow(view[crop])
-            ax.axis("off")
-            colorbar = fig.colorbar(
-                plt.cm.ScalarMappable(
-                    cmap=plt.get_cmap(cmap, color_levels), norm=plt.Normalize(0.0, b_max)
-                ),
-                cax=fig.add_axes([0.16, 0.1, 0.24, 0.022]),
-                orientation="horizontal",
-            )
-            colorbar.set_label(r"Magnetic Flux Density $|\mathbf{B}|$ [T]")
+        scene.subplot(0, 0)
+        field = dict(
+            scalars="B", cmap="viridis", n_colors=64, clim=(0.0, 2.5), show_scalar_bar=False
+        )
+        shading = dict(ambient=0.3, diffuse=0.7, specular=0.3, specular_power=20.0)
+        iron, coils, _ = machine(0)
+        actor = scene.add_mesh(iron, name="Iron", **field)
+        add_colorbar(
+            scene,
+            actor,
+            "Magnetic Flux Density [T]",
+            n_labels=6,
+            location="bottom",
+            font_size=20,
+        )
+        scene.view_xy()
+        scene.camera.elevation = -18.0
+        scene.camera.azimuth = 15.0
+        scene.reset_camera()
+        scene.camera.zoom(1.0)
+        scene.camera.SetWindowCenter(0.0, -0.15)  # room for the color bar below
 
+        def show_currents(index):
             shown = slice(0, index + 2)
-            current_axes = fig.add_axes([0.62, 0.62, 0.35, 0.31])
             for j, phase in enumerate(PHASES):
-                # A phase only while it carries current, and the zeros next to it, so that a ramp
-                # starts from 0.
-                values = plot_currents[shown, j].copy()
+                values = plot_currents[shown, j]
                 carries = values > 0.0
                 near = carries.copy()
                 near[1:] |= carries[:-1]
                 near[:-1] |= carries[1:]
-                values[~near] = numpy.nan
-                current_axes.plot(
-                    plot_angle[shown], values, color=PHASE_COLORS[phase], lw=2.4, label=phase
+                # The runs of positions to draw, each its own curve.
+                edges = numpy.flatnonzero(numpy.diff(numpy.concatenate([[0], near, [0]])))
+                runs = list(zip(edges[::2], edges[1::2]))
+                for k, curve in enumerate(current_curves[phase]):
+                    curve.visible = k < len(runs)
+                    if curve.visible:
+                        first, last = runs[k]
+                        update_curve(curve, list(zip(plot_angle[first:last], values[first:last])))
+            angle = angles[index] - PERIOD_START_DEG
+            cursor.update([angle, angle], [0.0, 300.0])
+
+        # Every second position (1 deg per frame), ending with the last of the pitch; twelve
+        # pitches make the full turn.
+        frames = []
+        for pitch in range(12):
+            for index in range(1, len(angles), 2):
+                iron, coils, outlines = machine(index)
+                scene.subplot(0, 0)
+                scene.add_mesh(iron, name="Iron", **field)
+                # All coils copper; the conducting ones outlined in the color of their phase,
+                # fading with their share of the current through the switching ramps.
+                for phase in PHASES:
+                    scene.add_mesh(
+                        coils[phase], name=f"Coil {phase}", color=color_copper[:3], **shading
+                    )
+                    share = currents[index][PHASES.index(phase)] / PEAK_CURRENT
+                    if share > 0.0:
+                        scene.add_mesh(
+                            outlines[phase],
+                            name=f"Outline {phase}",
+                            color=PHASE_COLORS[phase],
+                            opacity=share,
+                            ambient=0.4,
+                            diffuse=0.6,
+                        )
+                    else:
+                        scene.remove_actor(f"Outline {phase}")
+                scene.add_mesh(
+                    d_shaft(angles[index] + ROTOR_POLE_PITCH_DEG * pitch),
+                    name="Shaft",
+                    color="#868e96",
+                    **shading,
                 )
-            current_axes.axvline(angles[index] - PERIOD_START_DEG, color="#495057", lw=1.0)
-            current_axes.set_xlim(0.0, ROTOR_POLE_PITCH_DEG)
-            current_axes.set_ylim(0.0, 300.0)
-            current_axes.set_xlabel("Rotor angle [°]")
-            current_axes.set_ylabel("Phase current [A]")
-            current_axes.legend(
-                loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, frameon=False, fontsize=13
-            )
-
-            torque_axes = fig.add_axes([0.62, 0.12, 0.35, 0.37])
-            torque_axes.plot(
-                reference[:, 0], reference[:, 1], color="black", lw=2.2, label="IEEJ 2D FEA"
-            )
-            torque_axes.plot(plot_angle, plot_torque, color=PHASE_COLORS["U"], lw=1.6, alpha=0.2)
-            torque_axes.plot(
-                plot_angle[shown],
-                plot_torque[shown],
-                color=PHASE_COLORS["U"],
-                lw=3.0,
-                label="mufem",
-            )
-            torque_axes.plot(
-                angles[index] - PERIOD_START_DEG, torque[index], "o", color="black", ms=7
-            )
-            torque_axes.set_xlim(0.0, ROTOR_POLE_PITCH_DEG)
-            torque_axes.set_ylim(0.0, 480.0)
-            torque_axes.set_xlabel("Rotor angle [°]")
-            torque_axes.set_ylabel("Torque [N·m]")
-            torque_axes.legend(loc="lower right", frameon=False, fontsize=13)
-
-            fig.canvas.draw()
-            images.append(
-                Image.frombuffer(
-                    "RGBA", fig.canvas.get_width_height(), fig.canvas.buffer_rgba()
-                ).convert("RGB")
-            )
-            plt.close(fig)
+                show_currents(index)
+                update_curve(torque_curve, list(zip(plot_angle[: index + 2], plot_torque)))
+                update_curve(torque_dot, [(angles[index] - PERIOD_START_DEG, torque[index])])
+                # The charts show the data of the previous render: render once more first.
+                scene.render()
+                frames.append(Image.fromarray(scene.screenshot()))
+        scene.close()
 
         # An animated WebP: full color and a fraction of the size of a GIF. 100 ms per frame: a
         # full turn in 36 s.
-        images[0].save(
+        frames[0].save(
             self.results_path / "Animation_Magnetic_Flux_Density.webp",
             save_all=True,
-            append_images=images[1:],
+            append_images=frames[1:],
             duration=100,
             loop=0,
             quality=85,
