@@ -124,7 +124,6 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
     def build_geometry(self):
         import math
 
-        from netgen.meshing import IdentificationType
         from netgen.occ import (
             ArcOfCircle,
             Axis,
@@ -134,7 +133,6 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
             Face,
             Glue,
             Pnt,
-            Rotation,
             Segment,
             Vec,
             Wire,
@@ -142,7 +140,14 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         )
 
         from casekit.colors import color_air, color_copper, color_iron
-        from casekit.netgen_geometry import name_body
+        from casekit.netgen_geometry import (
+            identify_periodic_faces,
+            name_body,
+            name_cut_faces,
+            on_plane,
+            sector,
+            split_cylinder,
+        )
 
         z_axis = Axis(Pnt(0, 0, 0), Vec(0, 0, 1))
 
@@ -180,18 +185,6 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         def polar(radius, angle_deg):
             angle = math.radians(angle_deg)
             return Pnt(radius * math.cos(angle), radius * math.sin(angle), 0)
-
-        def angle_of(point):
-            return math.degrees(math.atan2(point[1], point[0])) % 360.0
-
-        def on_angle(point, angle_deg):
-            return abs((angle_of(point) - angle_deg + 180.0) % 360.0 - 180.0) < 1e-6
-
-        def sector(first_deg, last_deg):
-            half_space = Box(Pnt(-1, 0, -1), Pnt(1, 1, 1))
-            return half_space.Rotate(z_axis, first_deg) * half_space.Rotate(
-                z_axis, last_deg - 180.0
-            )
 
         def slot_strip(center_deg, half_width, height):
             """The parallel-sided strip of a slot, from the axis out past the slot bottom."""
@@ -249,7 +242,7 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
             if len(terminals) != 2:
                 raise RuntimeError(f"{coil_name}: {len(terminals)} faces at z = 0")
             for face in terminals:
-                below = angle_of(face.center) < pole_deg
+                below = math.degrees(math.atan2(face.center[1], face.center[0])) < pole_deg
                 face.name = f"{coil_name}::{'In' if below == (polarity > 0) else 'Out'}"
             coils.append(coil)
 
@@ -306,57 +299,24 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         rotor = rotor * sector(*rotor_sector_deg)
         air_rotor = air_rotor * sector(*rotor_sector_deg)
 
-        def name_cut_faces(body, sector_deg, prefix):
-            for face in body.faces:
-                if math.hypot(face.center[0], face.center[1]) < 1e-9:
-                    continue
-                for side, angle in enumerate(sector_deg):
-                    if on_angle(face.center, angle):
-                        face.name = f"{prefix}::{side}"
-
         for body in (stator, air):
             name_cut_faces(body, stator_sector_deg, "Periodic::Stator")
         for body in (rotor, air_rotor):
             name_cut_faces(body, rotor_sector_deg, "Periodic::Rotor")
         for coil in coils:
             for face in coil.faces:
-                if any(on_angle(face.center, angle) for angle in stator_sector_deg):
+                if any(on_plane(face.center, angle) for angle in stator_sector_deg):
                     raise RuntimeError(f"A coil face lies on a cut plane at {face.center}")
 
         # The sliding cylinder ------------------------------------------------------------------
         # Seams with different counts on the two sides pin their mesh columns, so that the two
         # meshes never coincide while the rotor turns.
-        def split_cylinder(body, sector_deg, number_pieces):
-            first, last = (math.radians(angle) for angle in sector_deg)
-            piece_angle = (last - first) / number_pieces
-            seams = []
-            for k in range(1, number_pieces):
-                x = sliding_radius * math.cos(first + k * piece_angle)
-                y = sliding_radius * math.sin(first + k * piece_angle)
-                seams.append(Segment(Pnt(x, y, 0.0), Pnt(x, y, air_height)))
-            body = Glue([body] + seams)
-
-            piece_area = piece_angle * sliding_radius * air_height
-            # The radius of the centroid of a cylindrical strip.
-            centroid = sliding_radius * math.sin(0.5 * piece_angle) / (0.5 * piece_angle)
-            pieces = [
-                face
-                for face in body.faces
-                if abs(math.hypot(face.center[0], face.center[1]) - centroid)
-                < 1e-3 * sliding_radius
-                and abs(face.center[2] - 0.5 * air_height) < 1e-6
-                and abs(face.mass - piece_area) < 1e-3 * piece_area
-            ]
-            if len(pieces) != number_pieces:
-                raise RuntimeError(f"{len(pieces)} sliding pieces, expected {number_pieces}")
-            return body, pieces
-
-        air_rotor, rotor_pieces = split_cylinder(air_rotor, rotor_sector_deg, 30)
-        air, stator_pieces = split_cylinder(air, stator_sector_deg, 25)
-        for face in rotor_pieces:
-            face.name = "AirRotor::Cylinder"
-        for face in stator_pieces:
-            face.name = "Air::Cylinder"
+        air_rotor = split_cylinder(
+            air_rotor, sliding_radius, air_height, rotor_sector_deg, 30, "AirRotor::Cylinder"
+        )
+        air = split_cylinder(
+            air, sliding_radius, air_height, stator_sector_deg, 25, "Air::Cylinder"
+        )
 
         # Mesh sizes: the air gap of 0.5 mm, the pole tips and the bore refined -------------------
         airgap_maxh = 0.7e-3
@@ -372,32 +332,8 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         geometry = Compound([Glue([rotor, air_rotor]), Glue([stator] + coils + [air])], False)
 
         # Periodic surface meshes on the cut faces.
-        for prefix, sector_deg in (
-            ("Periodic::Stator", stator_sector_deg),
-            ("Periodic::Rotor", rotor_sector_deg),
-        ):
-            side0 = [face for face in geometry.faces if face.name == f"{prefix}::0"]
-            side1 = [face for face in geometry.faces if face.name == f"{prefix}::1"]
-            if len(side0) != len(side1) or not side0:
-                raise RuntimeError(f"{prefix}: {len(side0)} vs {len(side1)} cut faces")
-            turn = math.radians(sector_deg[0] - sector_deg[1])
-            for face1 in side1:
-                # The image of the center under the rotation by -60 deg.
-                x, y, z = face1.center
-                image = (
-                    x * math.cos(turn) - y * math.sin(turn),
-                    x * math.sin(turn) + y * math.cos(turn),
-                    z,
-                )
-                face0 = min(side0, key=lambda face: math.dist(face.center, image))
-                if math.dist(face0.center, image) > 1e-6:
-                    raise RuntimeError(f"{prefix}: no cut face matches {face1.center}")
-                face1.Identify(
-                    face0,
-                    prefix,
-                    IdentificationType.PERIODIC,
-                    Rotation(z_axis, sector_deg[0] - sector_deg[1]),
-                )
+        identify_periodic_faces(geometry, "Periodic::Stator", stator_sector_deg)
+        identify_periodic_faces(geometry, "Periodic::Rotor", rotor_sector_deg)
 
         geometry.WriteStep(f"{self.step_path}")
 
