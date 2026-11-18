@@ -205,7 +205,7 @@ The case checks:
 ## Scenes
 
 <div align="center">
-<img src="results/Animation_Magnetic_Flux_Density.webp" alt="Result Animation" width="100%">
+<img src="results/Animation.webp" alt="Result Animation" width="100%">
 <br/>
 <br/>
 <em>Figure 5: The commutated machine at 250 A over a full turn, repeated from the modeled twelfth. The iron is shaded by the magnetic flux density; the conducting coils are outlined in the color of their phase (U red, V green, W blue), fading in and out with their current through the switching ramps. The field repeats every rotor pole pitch, so the fields of the reported pitch are shown twelve times. The shaft with its flat is drawn for the eye only; the bore is air in the model. Right: the phase currents and the torque over the pitch from the switching on of V.</em>

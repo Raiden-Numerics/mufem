@@ -124,7 +124,7 @@ the flux linkage with a 2-D calculation.
 </tr>
 <tr></tr>
 <tr>
-<td width="25%" height="130"><a href="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor_SRM_HV/README.md"><img src="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor_SRM_HV/results/Animation_Magnetic_Flux_Density.webp" width="100%"></a></td>
+<td width="25%" height="130"><a href="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor_SRM_HV/README.md"><img src="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor_SRM_HV/results/Animation.webp" width="100%"></a></td>
 <td width="75%" valign="top">
 <strong><a href="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor_SRM_HV/README.md">IEEJ 2025: Switched Reluctance Motor SRM_HV</a></strong><br>
 An 18/12 switched reluctance motor without magnets, designed as a rare-earth-free traction motor,

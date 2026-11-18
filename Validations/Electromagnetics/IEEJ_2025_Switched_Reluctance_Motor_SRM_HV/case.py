@@ -947,7 +947,7 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         # An animated WebP: full color and a fraction of the size of a GIF. 100 ms per frame: a
         # full turn in 36 s.
         frames[0].save(
-            self.results_path / "Animation_Magnetic_Flux_Density.webp",
+            self.results_path / "Animation.webp",
             save_all=True,
             append_images=frames[1:],
             duration=100,
