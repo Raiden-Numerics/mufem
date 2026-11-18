@@ -117,8 +117,8 @@ def current_table(phase):
     )
 
 
-class SwitchedReluctanceMotorSrmHv(ValidationCase):
-    name = "IEEJ 2025: Switched Reluctance Motor SRM_HV"
+class SwitchedReluctanceMotor(ValidationCase):
+    name = "IEEJ 2025: Switched Reluctance Motor"
     tags = {"long"}
 
     def build_geometry(self):
@@ -887,4 +887,4 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
 
 
 if __name__ == "__main__":
-    run_case(SwitchedReluctanceMotorSrmHv)
+    run_case(SwitchedReluctanceMotor)

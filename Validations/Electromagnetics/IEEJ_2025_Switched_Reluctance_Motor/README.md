@@ -1,11 +1,11 @@
-# IEEJ 2025: Switched Reluctance Motor SRM_HV
+# IEEJ 2025: Switched Reluctance Motor
 
 ## Introduction
 
-*SRM_HV* (called *SRM2* in its source) is the 18/12 switched reluctance motor of the *IEEJ Public
-Use Motors* [1], designed by Chiba et al. [2] as a rare-earth-free replacement for the interior
-permanent magnet traction motor of the second Toyota Prius hybrid: the same outer diameter
-(269 mm), axial length (155 mm) and torque density, 50 kW from 1200 to 6000 min⁻¹. The portal
+The motor is the 18/12 switched reluctance motor of the *IEEJ Public Use Motors* [1], designed
+by Chiba et al. [2] as a rare-earth-free replacement for the interior permanent magnet traction
+motor of the second Toyota Prius hybrid: the same outer diameter (269 mm), axial length (155 mm)
+and torque density, 50 kW from 1200 to 6000 min⁻¹. The portal
 publishes its cross-section and its static characteristics, torque and flux linkage against rotor
 position and current, from the 2D analysis of IEEJ TR 1589 [3].
 
@@ -238,7 +238,7 @@ them:
 
 ## References
 
-[1] IEEJ Public Use Motors, SRM_HV. http://www2.iee.or.jp/~drm/PublicUseMotors/
+[1] IEEJ Public Use Motors, switched reluctance motor. http://www2.iee.or.jp/~drm/PublicUseMotors/
 
 [2] A. Chiba, K. Kiyota, N. Hoshi, M. Takemoto and S. Ogasawara (2015). *Development of a
 Rare-Earth-Free SR Motor With High Torque Density for Hybrid Vehicles*. IEEE Transactions on Energy
