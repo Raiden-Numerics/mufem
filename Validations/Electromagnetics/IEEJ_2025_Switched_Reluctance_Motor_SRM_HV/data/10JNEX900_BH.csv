@@ -1,7 +1,6 @@
 # B[T], H[A/m]
-# 10JNEX900 (JFE Super Core, 0.1 mm): digitized from the B-H figure of the IEEJ public motor page SRM_HV
-# (http://www2.iee.or.jp/~drm/PublicUseMotors/), source IEEJ TR 1589. Points above 200 kA/m (the extrapolated
-# part of the figure) dropped.
+# 10JNEX900 (JFE Super Core, 0.1 mm)
+# (http://www2.iee.or.jp/~drm/PublicUseMotors/)
 0.0000,0
 0.0563,8.35875
 0.0986,11.2695

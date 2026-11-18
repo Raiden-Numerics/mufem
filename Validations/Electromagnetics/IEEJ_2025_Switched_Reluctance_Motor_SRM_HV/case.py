@@ -829,16 +829,19 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
             x_label="Rotor Angle [deg]", y_label="Phase Current [A]", grid=False
         )
         current_chart.x_range = [0.0, ROTOR_POLE_PITCH_DEG]
-        current_chart.y_range = [0.0, 300.0]
-        current_curves = {}
-        for phase in PHASES:
-            # A phase is drawn only while it carries current, and with the zeros next to that,
-            # so that a ramp starts from 0; a phase conducts at most twice within the pitch.
-            current_curves[phase] = [
-                current_chart.line([0.0], [0.0], color=PHASE_COLORS[phase], width=3.0, label=label)
-                for label in (phase, "")
-            ]
-        cursor = current_chart.line([0.0, 0.0], [0.0, 300.0], color="#495057", width=1.0)
+        current_chart.y_range = [-10.0, 300.0]
+        current_chart.y_axis.tick_locations = [0.0, 50.0, 100.0, 150.0, 200.0, 250.0, 300.0]
+        current_chart.y_axis.tick_labels = ["0", "50", "100", "150", "200", "250", "300"]
+        # The zero level, drawn first so that the currents lie on top of it.
+        current_chart.line([0.0, ROTOR_POLE_PITCH_DEG], [0.0, 0.0], color="#868e96", width=1.5)
+        # The current rotor angle, also behind the currents.
+        cursor = current_chart.line([0.0, 0.0], [-10.0, 300.0], color="#495057", width=1.0)
+        current_curves = {
+            phase: current_chart.line(
+                [0.0], [0.0], color=PHASE_COLORS[phase], width=3.0, label=phase
+            )
+            for phase in PHASES
+        }
         scene.add_chart(current_chart)
 
         scene.subplot(1, 1)
@@ -888,21 +891,11 @@ class SwitchedReluctanceMotorSrmHv(ValidationCase):
         def show_currents(index):
             shown = slice(0, index + 2)
             for j, phase in enumerate(PHASES):
-                values = plot_currents[shown, j]
-                carries = values > 0.0
-                near = carries.copy()
-                near[1:] |= carries[:-1]
-                near[:-1] |= carries[1:]
-                # The runs of positions to draw, each its own curve.
-                edges = numpy.flatnonzero(numpy.diff(numpy.concatenate([[0], near, [0]])))
-                runs = list(zip(edges[::2], edges[1::2]))
-                for k, curve in enumerate(current_curves[phase]):
-                    curve.visible = k < len(runs)
-                    if curve.visible:
-                        first, last = runs[k]
-                        update_curve(curve, list(zip(plot_angle[first:last], values[first:last])))
+                update_curve(
+                    current_curves[phase], list(zip(plot_angle[shown], plot_currents[shown, j]))
+                )
             angle = angles[index] - PERIOD_START_DEG
-            cursor.update([angle, angle], [0.0, 300.0])
+            cursor.update([angle, angle], [-10.0, 300.0])
 
         # Every second position (1 deg per frame), ending with the last of the pitch; twelve
         # pitches make the full turn.

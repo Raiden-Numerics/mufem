@@ -107,12 +107,8 @@ The run has two parts, at two rotor positions per degree:
   $`2.5°`$, U to W at $`12.5°`$ and W to V at $`22.5°`$ from the unaligned position of U, the
   switching of the portal's commutated torque. The drive starts where the stroke ends and is
   reported over one rotor pole pitch ($`30°`$, each phase once) from the switching on of V at
-  $`22.5°`$.
-
-The current of a phase cannot jump: in a real drive it rises and falls over several degrees. As a
-modification of the ideal commutation of the portal, the current crosses over from one phase to the
-next linearly within $`\pm 1°`$ of each switching angle, with the two currents adding up to
-$`250\,\mathrm{A}`$.
+  $`22.5°`$. At each switching the current crosses over within $`\pm 1°`$ (see
+  [Modifications](#modifications)).
 
 ### Modifications
 
@@ -125,10 +121,11 @@ following, which are not part of the portal data:
   published.
 * **Slot separator.** The two coil sides of a slot are kept $`1\,\mathrm{mm}`$ apart at the slot
   center, so that the stator cut runs through air and each coil lies whole inside the sector.
-* **Switching ramp.** The portal's commutated torque switches the current instantly. Here the
-  current crosses over from one phase to the next linearly within $`\pm 1°`$ of each switching
-  angle (see above). The dips of the torque at the switching angles therefore differ from the
-  portal's.
+* **Switching ramp.** The current of a phase cannot jump: in a real drive it rises and falls over
+  several degrees. The portal's commutated torque switches the current instantly; here it crosses
+  over from one phase to the next linearly within $`\pm 1°`$ of each switching angle, with the two
+  currents adding up to $`250\,\mathrm{A}`$. The dips of the torque at the switching angles
+  therefore differ from the portal's.
 * **Ideal current drive.** The phases carry a flat-top current; the drive of the prototype, its
   turn-on and turn-off angles and current waveforms, is not published.
 * **Shaft.** The shaft is non-magnetic (air). The D-shaft in the animation is drawn for the eye
@@ -182,13 +179,8 @@ The case checks:
 * **Torque.** The shape and the position of the peak agree. From the peak to the aligned position
   the torque is within −3 to +2 % of the reference; early in the stroke, with only the pole tips
   facing each other, it is 4 to 5 % above it.
-* **Flux linkage.** 7 to 13 % above the 2D table, most at the unaligned position. This is the end
-  field that a 2D model does not have: the end turns and the fringing at the stack ends, which leak
-  most where the air gap is wide.
-* **End turns.** Against straight coil sides ending at a flux-tangential plane 10 mm beyond the
-  stack, the end turns and the open air above them lower the torque by 2.5 to 7 % over the stroke
-  and raise the unaligned flux linkage by 3 %. Chiba et al. [2] found the same direction with their
-  3D analysis.
+* **Flux linkage.** 7 to 13 % above the 2D table, most at the unaligned position: mostly the end
+  field that a 2D model does not have (see [3D Effects](#3d-effects)).
 * **Commutated torque.** The ripple follows the portal's commutated torque in shape, with the peaks
   about 5 % higher and the mean within 1 %. The dips at the switching angles are a little deeper and
   wider than with the instant switching of the portal: within the ramp the two phases share the
@@ -201,6 +193,38 @@ The case checks:
 | Commutated Torque at 250 A |
 | -------------------------- |
 | ![Commutated Torque vs Angle](results/Commutated_Torque_vs_Angle.png) |
+
+### 3D Effects
+
+A 2D analysis sees an infinitely long machine. The 3D model adds what happens at the ends of the
+stack: the field fringing out of the air gap and the iron at the stack ends, and the leakage field
+of the end turns. Two variants of the model, run separately and not part of this case, separate
+them:
+
+* **Without end effects.** The stack end is a flux-tangential plane and the coils end there, so the
+  field cannot leave the stack: in effect a 2D model in 3D.
+* **Straight coils.** The coil sides reach 10 mm beyond the stack and end at a flux-tangential
+  plane, without end turns and without air beyond them.
+
+| Rotor angle [deg] | Ψ straight coils / 2D | Ψ without end effects / 2D | T straight coils / 2D | T without end effects / 2D |
+| ----------------: | --------------------: | -------------------------: | --------------------: | -------------------------: |
+| 0 (unaligned) | 1.108 | 1.027 | - | - |
+| 6 | 1.093 | 1.046 | 1.058 | 1.070 |
+| 10 | 1.076 | 1.054 | 1.021 | 1.062 |
+| 15 (aligned) | 1.070 | 1.053 | - | - |
+
+* **Flux linkage.** The end effects raise the flux linkage by 2 to 8 %, most at the unaligned
+  position, where the wide air gap lets the field leak out of the ends of the stack; aligned, the
+  flux stays in the iron. The 3 to 5 % that remain without end effects are of the order of the
+  differences between 2D models of this machine with the same table: they come from the model data
+  (the digitized $`B(H)`$ curve, the cross-section), not from the 3D model.
+* **Torque.** The end effects change the torque by up to 4 %, less than the flux linkage: the
+  torque follows the change of the co-energy with the rotor angle, and the end field depends little
+  on the angle.
+* **End turns.** Against the straight coils, the end turns and the open air above them lower the
+  torque by 2.5 to 7 % over the stroke and raise the unaligned flux linkage by 3 %: more of the
+  flux of the coil closes around the end turns without crossing the air gap. Chiba et al. [2] found
+  the same direction with their 3D analysis, which gives a torque below their 2D analysis.
 
 ## Scenes
 
