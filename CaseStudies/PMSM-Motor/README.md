@@ -1,5 +1,9 @@
 # Step Skew in a Hairpin IPM Traction Motor
 
+| Full 3D machine | Load ripple | Cogging torque | Copper loss | In the end turns | Per 3D run |
+| :-------------: | :---------: | :------------: | :---------: | :--------------: | :--------: |
+| **13 M** elements | **−65 %** | **−85 %** | **3.5 kW** | **≈ 30 %** | **≈ 1 h**, 8 cores |
+
 ## Introduction
 
 **The engineering question.** An e-drive team has a hairpin interior permanent-magnet (IPM)
@@ -38,19 +42,45 @@ with [pmsm_motor.py](pmsm_motor.py).
 - **Recommendation:** lay out the skew with the 2D multi-slice method, and use one full 3D run per
   candidate design to sign off the losses and the 3D effects of the skew.
 
+**What mufem brings to this study**
+
+- Eddy currents together with a sliding rotor–stator interface and non-linear iron, in one
+  time-domain run of the complete machine.
+- A complete hairpin winding, each parallel path a solid conductor with its own current, end turns
+  and terminal leads included.
+- The AC loss of the whole winding, slots and end turns, from the same model that gives the torque
+  and the back EMF.
+- One tool from the 2D sweep to the 13-million-element 3D machine, so the 2D and 3D results share
+  materials, operating point and post-processing.
+
 ## Why Skew?
 
-Each axial step of a skewed rotor produces the same torque ripple, shifted in time, so the ripples
-of the steps partly cancel along the axis [4]. A V arrangement is symmetric about the stack centre
-and balances the axial forces [5].
+An IPM machine makes torque from its magnets and from the saliency of its rotor. This torque is not
+constant over a revolution:
+
+- **Cogging torque:** without current, the magnets are pulled towards the stator teeth. It is felt
+  at standstill and at low speed, for example when creeping in traffic.
+- **Load ripple:** with current, the slotted winding and the saturating rotor bridges create an air
+  gap field that is not a pure sine wave, and the torque pulsates at multiples of 6 times the
+  electrical frequency.
+
+In a traction drive the ripple excites the gearbox and the housing and is heard as whine; NVH
+targets are typically a few per cent of the rated torque. A step skew addresses both effects: each
+axial step produces the same ripple, shifted in time, so the ripples of the steps partly cancel
+along the axis [4]. A V arrangement, turning the steps out and back again, is symmetric about the
+stack centre and balances the axial forces on the rotor [5].
 
 <div align="center">
-<img src="data/Skew_Concept.png" alt="Step skew" width="80%">
+<img src="data/Skew_Concept.png" alt="Step skew" width="70%">
 <br/>
 <br/>
 <em>Figure 2: Schematic 8-pole rotors: no skew, a linear step skew and a V step skew (step angle exaggerated).</em>
 </div>
 <br/>
+
+The skew also turns the fundamental field of each step slightly away from the stator currents, so
+it costs some mean torque, and it lets flux cross axially between neighbouring steps. How large
+these effects are for a given design is exactly what the simulation has to tell.
 
 ## The Machine
 
@@ -66,6 +96,11 @@ none.
 </div>
 <br/>
 
+Each rotor pole carries 3 magnet slabs, and finger-shaped flux barriers between the poles raise the
+saliency for reluctance torque. The thin iron bridges between the barriers and the rotor surface
+hold the rotor together at speed and saturate in operation; their non-linear behaviour shapes both
+the torque ripple and the response to the skew.
+
 | Quantity | Value |
 | -------- | ----- |
 | Slots / poles | 48 / 8 |
@@ -79,16 +114,19 @@ none.
 | Copper | $`\sigma = 58\,\mathrm{MS/m}`$, with eddy currents for the loss runs |
 
 <div align="center">
-<img src="data/Winding.png" alt="Winding" width="48%">
-<img src="data/Winding_Phase_A.png" alt="Developed winding of phase A" width="48%">
+<img src="data/Winding.png" alt="Winding" width="60%">
+<br/>
+<img src="data/Winding_Phase_A.png" alt="Developed winding of phase A" width="95%">
 <br/>
 <br/>
-<em>Figure 4: The winding. Left: phase and current direction of each slot and the end connections. Right: phase A developed, its 2 parallel paths wave-wound through the 4 layers.</em>
+<em>Figure 4: The winding. Top: phase and current direction of each slot and the end connections. Bottom: phase A developed, its 2 parallel paths wave-wound through the 4 layers.</em>
 </div>
 <br/>
 
-The end connections span 6 slots, a full pole pitch: the crowns make them at one end of the stack,
-the welds at the other.
+Each parallel path has 32 bars and passes through all 4 layers, so both paths of a phase see the
+same slot leakage field and carry the same loss. The end connections span 6 slots, a full pole
+pitch: the crowns make them at one end of the stack, the welds at the other. Phases B and C are
+copies of phase A, shifted by 4 and 8 slots.
 
 ## Setup
 
@@ -98,6 +136,9 @@ conductor, fed with half the phase current between its two terminal faces. The r
 rotor and stator meet at a sliding interface in the middle of the air gap. A magnetostatic
 initialization is followed by 30 time steps of 0.5°, which cover 15° mech, one full period of the
 dominant 6th torque harmonic.
+
+<details>
+<summary>Model settings</summary>
 
 | Setting | Value |
 | ------- | ----- |
@@ -109,14 +150,21 @@ dominant 6th torque harmonic.
 | Losses | conducting copper with eddy currents in the whole winding (`--eddy`) |
 | Reports | rotor torque, flux linkage per path, Ohmic loss of the winding |
 
+</details>
+
+The skewed and unskewed machines differ only in the rotor: stator, winding, materials and
+operating point are the same, so the differences in the results come from the skew.
+
 ## Results
 
 ### 2D: the Unskewed Baseline and Multi-Slice Skew
 
 A 2D model of one pole gives the baseline: 313 N m mean torque with a ripple of 49 N m peak to peak
-(16 %), and 25 N m cogging torque. The multi-slice method models each skew step as its own 2D slice
-with the rotor turned by the step angle, and sums torque and flux linkage with the step lengths as
-weights.
+(16 %), and 25 N m cogging torque, both well above the levels a quiet traction drive needs.
+
+The multi-slice method models each skew step as its own 2D slice with the rotor turned by the step
+angle, and sums torque and flux linkage with the step lengths as weights. For 7 steps and a full
+period of rotor positions this takes a few minutes on a workstation.
 
 <div align="center">
 <img src="results/Torque_2D_Multi_Slice.png" alt="Load torque per skew step" width="70%">
@@ -126,23 +174,50 @@ weights.
 </div>
 <br/>
 
-Under load each step runs at its own load angle, between 23° and 53°, with its own saturation, so
-the multi-slice sum captures how the steps differ, not only how they are shifted.
+| 2D | Unskewed | Skewed (multi-slice) | Change |
+| -- | -------- | -------------------- | ------ |
+| Mean torque | 313.2 N m | 305.9 N m | −2.4 % |
+| Load ripple, peak to peak | 48.8 N m | 16.3 N m | **−67 %** |
+| Cogging torque, peak to peak | 25.3 N m | 3.6 N m | **−86 %** |
+
+The cogging torque nearly vanishes: without current, the steps are shifted copies of each other
+and their ripples cancel almost completely. Under load the picture is richer. The stator currents
+follow the mean rotor position, so each step runs at its own load angle, between 23° and 53°, with
+its own saturation of the rotor bridges. The steps are then no longer identical copies, and the
+cancellation is less complete. The ripple that remains is mostly the 6th harmonic, of which a skew
+of one slot pitch spans half a period. This tells the designer where further gains lie: a longer
+skew, or a shaping of the rotor barriers that targets the 6th harmonic.
 
 ### 3D: Agreement with 2D on an Extruded Slice
 
-On a thin extruded slice of the unskewed machine, where 2D and 3D must agree, the 3D torque matches
-the 2D one to 0.14 % under load and to 0.6 % for the cogging torque.
+Before comparing complete machines, the 3D model is checked against 2D where both must agree: on a
+thin extruded slice of the unskewed machine, with flux-tangential end faces and each bar a separate
+conductor. Swept over the rotor position, the 3D torque matches the 2D one to **0.14 %** under load
+and to **0.6 %** for the cogging torque, with second-order fields and 0.1 mm elements in the air
+gap. This confirms that rotor position, magnet directions, current phase and signs are consistent
+between the 2D and 3D models, so the differences in the full machines are physics.
 
 <div align="center">
-<img src="results/Validation_Cogging.png" alt="Cogging torque, 2D against 3D" width="60%">
+<img src="data/Validation_Slice.png" alt="Extruded validation slice" width="60%">
 <br/>
 <br/>
-<em>Figure 6: Cogging torque over one period on the extruded slice: 2D (line) and mufem 3D (circles).</em>
+<em>Figure 6: The 3D validation model, the 2D section extruded to a 5 mm slice: stator and rotor core (grey), magnets (blue) and the 192 bars (orange), each a separate conductor; the air is not shown.</em>
+</div>
+<br/>
+
+<div align="center">
+<img src="results/Validation_Cogging.png" alt="Cogging torque, 2D against 3D" width="70%">
+<br/>
+<br/>
+<em>Figure 7: Cogging torque over one period on the extruded slice: 2D (line) and mufem 3D (circles).</em>
 </div>
 <br/>
 
 ### 3D: the Full Skewed and Unskewed Machines
+
+The full models contain everything a 2D model leaves out: the fringing field at both ends of the
+165 mm stack, the 7 rotor steps turned against each other, the connected hairpin winding with its
+end turns and terminal leads, and the air around the stack ends.
 
 <div align="center">
 <img src="results/Magnetic_Flux_Density.png" alt="Magnetic flux density" width="60%">
@@ -150,46 +225,72 @@ the 2D one to 0.14 % under load and to 0.6 % for the cogging torque.
 <img src="results/Magnetic_Flux_Density_Colorbar.png" alt="Colour bar" width="40%">
 <br/>
 <br/>
-<em>Figure 7: Magnetic flux density in the skewed machine at load (air and shaft not shown). The cut face shows the staggered magnet steps of the skew.</em>
+<em>Figure 8: Magnetic flux density in the skewed machine at load (air and shaft not shown). The cut face shows the staggered magnet steps of the skew.</em>
 </div>
 <br/>
+
+The flux density is highest in the saturated rotor bridges and the stator teeth. On the cut face
+the magnet steps are staggered from one end of the stack to the centre and back, the V of the skew.
 
 | Effect of the skew | 2D multi-slice | 3D full machine |
 | ------------------ | -------------- | --------------- |
 | Load ripple | **−67 %** | **−65 %** |
 | Cogging torque | **−86 %** | **−85 %** |
 | Mean torque | −2.4 % | −4.0 % |
+| Back EMF peak | −3 % | −4 % |
 
 - **2D and 3D agree on the benefit of the skew:** −67 % and −65 % ripple, −86 % and −85 % cogging.
 - **The 3D model captures the axial flux between the steps,** which the multi-slice method
-  ignores [4]; it shows a slightly larger cost in mean torque.
-- **The back EMF agrees within 1 %:** 153 V in 3D and 154 V in 2D for the unskewed machine.
+  ignores [4]; it shows a slightly larger cost in mean torque, 4.0 % instead of 2.4 %.
+- **The back EMF agrees within 1 %:** 153 V in 3D and 154 V in 2D for the unskewed machine. In both
+  models the skew smooths its trapezoidal shape towards a sine wave.
 
 ### Copper Loss in the Whole Winding
 
 At 268.7 Hz the skin depth in copper is 4.0 mm, about the height of a hairpin bar. The slot leakage
-field pushes the current towards the slot opening, and the AC loss rises well above the DC loss. In
-the 3D runs the whole winding conducts with eddy currents, end turns and leads included, with the
-rotor turning and the iron saturating.
+field, which grows from the slot bottom towards the slot opening, pushes the current towards the
+opening, and the AC loss rises well above the DC loss. In the 3D runs the whole winding conducts
+with eddy currents, end turns and leads included, with the rotor turning, the magnets and the
+saturating iron at the operating point. The runs start from the DC current distribution, and the
+eddy currents build up within the first 4–5° of rotation.
 
 <div align="center">
 <img src="results/Winding_Loss.png" alt="Winding loss" width="70%">
 <br/>
 <br/>
-<em>Figure 8: Winding loss (top) and torque (bottom) with conducting copper, skewed and unskewed.</em>
+<em>Figure 9: Winding loss (top) and torque (bottom) with conducting copper, skewed and unskewed. Dotted: the DC loss; dashed: a conventional 2D estimate with AC loss in the slots and DC loss in the end turns.</em>
 </div>
 <br/>
 
 <div align="center">
-<img src="results/Current_Density_Bars.png" alt="Current density in the bars" width="48%">
-<img src="results/Current_Density_Winding.png" alt="Current density in the winding" width="36%">
+<img src="results/Current_Density_Bars.png" alt="Current density in the bars" width="60%">
+<img src="results/Current_Density_Winding.png" alt="Current density in the winding" width="35%">
 <br/>
 <img src="results/Current_Density_Colorbar.png" alt="Colour bar" width="40%">
 <br/>
 <br/>
-<em>Figure 9: Current density in the skewed machine. Left: the bars at mid-stack, crowding towards the slot opening. Right: the whole winding with its end turns.</em>
+<em>Figure 10: Instantaneous current density in the skewed machine. Left: the bars in a 50° sector at mid-stack, seen from the bore; in the loaded slots the current crowds into the bar next to the slot opening, up to about 40 A/mm². Right: the back half of the winding with the crowns at the top and the welds and leads at the bottom; in the end turns the current spreads almost evenly over the cross-section.</em>
 </div>
 <br/>
+
+The current density is a snapshot: the bars of the phase near its peak current show the strongest
+crowding, those of a phase near its zero crossing carry little current. Over an electrical period
+every slot passes through the same states, so the averaged loss is the same in every slot.
+
+<div align="center">
+<img src="results/Loss_Density_Winding.png" alt="Loss density in the winding" width="47%">
+<img src="results/Loss_Density_Section.png" alt="Loss density at mid-stack" width="47%">
+<br/>
+<img src="results/Loss_Density_Colorbar.png" alt="Colour bar" width="40%">
+<br/>
+<br/>
+<em>Figure 11: Instantaneous Ohmic loss density in the skewed machine, log scale. Left: the whole winding; the crowns, welds and leads carry a large share of the loss. Right: the cross-section at mid-stack; in each loaded slot the loss concentrates in the bar next to the slot opening.</em>
+</div>
+<br/>
+
+The loss density makes the split between slots and end turns visible: inside the stack the loss
+concentrates where the slot leakage field is strongest, while the long end connections add a
+nearly uniform DC-like loss along their whole length.
 
 | Winding loss | 3D unskewed | 3D skewed |
 | ------------ | ----------- | --------- |
@@ -199,9 +300,36 @@ rotor turning and the iron saturating.
 
 - **The DC loss matches the 2D value to 0.4 %:** the 3D winding has the right length and
   cross-section.
-- **About 30 % of the copper loss is in the end turns,** which a 2D model can only estimate.
-- **The skew leaves the AC loss unchanged** (−0.7 %), and the eddy currents barely change the
-  torque (−0.2 to −0.5 %).
+- **About 30 % of the copper loss is in the end turns.** The 3D model computes it directly, where a
+  2D model has to add it as an estimate from the conductor length.
+- **The crowding sits in the bar next to the slot opening,** which makes that bar the first
+  candidate for a smaller height or a transposition in a next design iteration.
+- **The skew leaves the AC loss unchanged** (−0.7 %), so its NVH benefit comes without a thermal
+  penalty, and the eddy currents barely change the torque (−0.2 to −0.5 %).
+
+## Discussion
+
+The study gives the e-drive team a clear path:
+
+1. **The skew works as designed.** A 7-step V skew of one slot pitch removes two thirds of the load
+   ripple and 86 % of the cogging torque, for 2–4 % of the mean torque. The residual ripple is the
+   6th harmonic, which a longer skew or a change of the rotor barriers can address next.
+2. **Multi-slice 2D is a good design tool for the skew.** It predicts the relative reductions within
+   2 percentage points of the full 3D model, in minutes instead of an hour, and is the right tool
+   to sweep the number of steps, their angles and their order.
+3. **3D signs off the design.** The end turns carry about 30 % of the copper loss, and the axial
+   coupling of the steps costs a little extra torque; both come directly out of one full 3D run.
+   For the thermal design, the end-winding cooling deserves as much attention as the slot cooling.
+
+The same workflow carries straight into the next design iteration:
+
+| Design variation | Question | Tool |
+| ---------------- | -------- | ---- |
+| Number of steps, skew angle | How far can the residual 6th harmonic be pushed down? | 2D multi-slice sweep |
+| Step order (V, linear, zig-zag) | Which order balances ripple, axial force and mean torque best? | 2D multi-slice, 3D for the axial effects |
+| Rotor barrier shape | Can the barriers target the 6th harmonic directly? | 2D sweep, 3D sign-off |
+| Bar height, layer split | How much AC loss does a lower bar at the slot opening save? | 3D with eddy currents |
+| Operating points | How do ripple and losses change over the torque–speed map? | 3D runs per point, in parallel |
 
 ## Workflow and Compute
 
@@ -213,7 +341,8 @@ rotor turning and the iron saturating.
 | 3D full machine with eddy currents in the winding | same, conducting copper | 32 cores (cloud), 48 GB | 44–51 min |
 
 The 2D multi-slice method gives the skew layout in minutes; one full 3D run per design adds the
-end-winding losses and the 3D effects of the skew within an hour.
+end-winding losses and the 3D effects of the skew within an hour. The 13-million-element machine
+with a turning rotor and non-linear iron runs on a single 8-core workstation.
 
 ## Running the Case
 
@@ -233,6 +362,12 @@ CSV files, and the fields at the end of the run. Its inputs are in [data](data):
 | [Winding_Skewed.json](data/Winding_Skewed.json), [Winding_Unskewed.json](data/Winding_Unskewed.json) | parallel paths and their terminals, magnet groups with their directions, main dimensions |
 | [HF10X_BH.csv](data/HF10X_BH.csv) | $`B(H)`$ curve of the laminations |
 | `Geometry_Skewed.msh`, `Geometry_Unskewed.msh` | the meshes, about 0.7 GB each, not part of the repository |
+
+## Get in Touch
+
+Would you like to run a study like this on your own machine, or see mufem on your design
+questions? Contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com) or visit
+[mufem.raiden-numerics.com](https://mufem.raiden-numerics.com).
 
 ## References
 
