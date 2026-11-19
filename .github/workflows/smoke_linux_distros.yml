@@ -14,6 +14,10 @@ on:
     - cron: '0 16 * * *'  # daily 01:00 JST (16:00 UTC)
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Smoke test across common Linux distributions: runs Team1b inside each distro's
 # container to confirm the manylinux wheel installs and runs there. Ubuntu 24.04 is
 # covered by smoke_py3xx.yml. The wheel is manylinux_2_39, so only distros with
@@ -48,9 +52,6 @@ jobs:
       # from the GITHUB_PATH entries alone and loses /usr/bin once setup-uv adds one.
       env:
         PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.image }}
-      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
     defaults:
       run:
         shell: bash

@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Smoke test on Python 3.14: runs a single representative case (Team1b) to confirm
 # the release imports and runs on this Python version. See run_validations_macos_windows.yaml.
 jobs:

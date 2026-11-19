@@ -14,6 +14,10 @@ on:
     - cron: '0 16 * * *'  # daily 01:00 JST (16:00 UTC)
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Smoke test on Python 3.15: runs a single representative case (Team1b) to confirm
 # the release imports and runs on this Python version. Runs on a GitHub-hosted
 # runner (free for this public repo); the full suite stays on the self-hosted one.
