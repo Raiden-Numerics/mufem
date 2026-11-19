@@ -372,7 +372,27 @@ class IpmMotorModelD(ValidationCase):
         image.save(self.dir_path / "data" / "Geometry_Side.png")
 
     def setup_case(self):
-        sim = mufem.Simulation.New(name=self.name, mesh_path=f"{self.mesh_path}")
+        # The periodic cut faces of each side are paired by the rotation by -90 deg; the two sides
+        # of the sliding cylinder are meshed independently.
+        interfaces = [
+            mufem.MatchingInterface(
+                name=f"Periodic {side}",
+                marker0=f"Periodic::{side}::0",
+                marker1=f"Periodic::{side}::1",
+                rotation=ROTATION_MINUS_90_Z,
+            )
+            for side in ("Rotor", "Stator")
+        ]
+        interfaces.append(
+            mufem.NonMatchingInterface(
+                name="AirRotor<->Air sliding",
+                marker0="AirRotor::Cylinder",
+                marker1="Air::Cylinder",
+                rotation=ROTATION_MINUS_90_Z,
+            )
+        )
+        sim = mufem.Simulation.New(name=self.name)
+        sim.get_domain().load_mesh(f"{self.mesh_path}", interfaces=interfaces)
 
         dt = 1.0 / (FREQUENCY * STEPS_PER_PERIOD)
         runner = mufem.UnsteadyRunner(
@@ -456,10 +476,8 @@ class IpmMotorModelD(ValidationCase):
             magnetic_model.add_condition(
                 MatchingInterfaceCondition(
                     name=f"Periodic {side}",
-                    marker0=f"Periodic::{side}::0" @ Bnd,
-                    marker1=f"Periodic::{side}::1" @ Bnd,
+                    marker=f"Periodic {side}" @ mufem.Interface,
                     symmetry=InterfaceSymmetry.ANTI_PERIODIC,
-                    rotation=ROTATION_MINUS_90_Z,
                 )
             )
 
@@ -467,11 +485,9 @@ class IpmMotorModelD(ValidationCase):
         # anti-periodic image of the stator.
         magnetic_model.add_condition(
             NonMatchingInterfaceCondition(
-                "AirRotor<->Air sliding",
-                "AirRotor::Cylinder" @ Bnd,
-                "Air::Cylinder" @ Bnd,
+                name="AirRotor<->Air sliding",
+                marker="AirRotor<->Air sliding" @ mufem.Interface,
                 symmetry=InterfaceSymmetry.ANTI_PERIODIC,
-                rotation=ROTATION_MINUS_90_Z,
                 coupling=NonMatchingCoupling.CONSERVATIVE,
             )
         )
