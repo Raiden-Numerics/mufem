@@ -11,7 +11,7 @@ For questions or support, please [open an issue](https://github.com/Raiden-Numer
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
-[Getting Started](#getting-started) · [Validations](#validations) ·
+[Getting Started](#getting-started) · [Validations](#validations) · [Benchmarks](#benchmarks) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -183,6 +183,14 @@ measured, or analytical reference values.
 <sub>TEAM 24: eddy currents in a locked rotor after a voltage step (left), and the coil current and the
 rotor torque over time compared with measurements (right).</sub>
 </div>
+
+## Benchmarks
+
+Performance measurements on reproducible cases, with the machine and how each was run and measured:
+for example the strong scaling of the Community (OpenMP) and Professional (MPI) editions on TEAM 1b
+from 1 to 8 cores.
+
+[See the benchmarks here](https://github.com/Raiden-Numerics/mufem/blob/main/Benchmarks/README.md).
 
 ## Tested Platforms
 
