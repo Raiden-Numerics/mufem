@@ -61,7 +61,6 @@ class IpmMotorModelD(ValidationCase):
     def build_geometry(self):
         import math
 
-        from netgen.meshing import IdentificationType
         from netgen.occ import (
             ArcOfCircle,
             Axis,
@@ -71,7 +70,6 @@ class IpmMotorModelD(ValidationCase):
             Face,
             Glue,
             Pnt,
-            Rotation,
             Segment,
             Vec,
             Wire,
@@ -79,7 +77,13 @@ class IpmMotorModelD(ValidationCase):
         )
 
         from casekit.colors import color_air, color_blue, color_copper, color_iron
-        from casekit.netgen_geometry import name_body
+        from casekit.netgen_geometry import (
+            identify_periodic_faces,
+            name_body,
+            name_cut_faces,
+            sector,
+            split_cylinder,
+        )
 
         sector_deg = (0.0, 90.0)
         z_axis = Axis(Pnt(0, 0, 0), Vec(0, 0, 1))
@@ -249,63 +253,24 @@ class IpmMotorModelD(ValidationCase):
             air = air - coil
 
         # Cut to the sector ----------------------------------------------------------------
-        half_space = Box(Pnt(-1, 0, -1), Pnt(1, 1, 1))
-        sector = half_space.Rotate(z_axis, sector_deg[0]) * half_space.Rotate(
-            z_axis, sector_deg[1] - 180.0
-        )
-        stator = stator * sector
-        air = air * sector
-        rotor = rotor * sector
-        air_rotor = air_rotor * sector
-
-        def name_cut_faces(body, prefix):
-            for face in body.faces:
-                x, y, _ = face.center
-                if math.hypot(x, y) < 1e-9:
-                    continue
-                for side, angle in enumerate(sector_deg):
-                    delta = (math.degrees(math.atan2(y, x)) - angle + 180.0) % 360.0 - 180.0
-                    if abs(delta) < 1e-6:
-                        face.name = f"{prefix}::{side}"
+        cut = sector(*sector_deg)
+        stator = stator * cut
+        air = air * cut
+        rotor = rotor * cut
+        air_rotor = air_rotor * cut
 
         for body in (stator, air):
-            name_cut_faces(body, "Periodic::Stator")
+            name_cut_faces(body, sector_deg, "Periodic::Stator")
         for body in (rotor, air_rotor):
-            name_cut_faces(body, "Periodic::Rotor")
+            name_cut_faces(body, sector_deg, "Periodic::Rotor")
 
         # The sliding cylinder ---------------------------------------------------------------
         # Seams with different counts on the two sides pin their mesh columns, so that the two
         # meshes never coincide while the rotor turns.
-        def split_cylinder(body, number_pieces):
-            piece_angle = math.radians(sector_deg[1] - sector_deg[0]) / number_pieces
-            seams = []
-            for k in range(1, number_pieces):
-                x = sliding_radius * math.cos(k * piece_angle)
-                y = sliding_radius * math.sin(k * piece_angle)
-                seams.append(Segment(Pnt(x, y, 0.0), Pnt(x, y, air_height)))
-            body = Glue([body] + seams)
-
-            piece_area = piece_angle * sliding_radius * air_height
-            # The radius of the centroid of a cylindrical strip.
-            centroid = sliding_radius * math.sin(0.5 * piece_angle) / (0.5 * piece_angle)
-            pieces = [
-                face
-                for face in body.faces
-                if abs(math.hypot(face.center[0], face.center[1]) - centroid)
-                < 1e-3 * sliding_radius
-                and abs(face.center[2] - 0.5 * air_height) < 1e-6
-                and abs(face.mass - piece_area) < 1e-3 * piece_area
-            ]
-            if len(pieces) != number_pieces:
-                raise RuntimeError(f"{len(pieces)} sliding pieces, expected {number_pieces}")
-            return body, pieces
-
-        air_rotor, rotor_pieces = split_cylinder(air_rotor, 30)
-        air, stator_pieces = split_cylinder(air, 25)
-        for face in rotor_pieces:
-            face.name = "AirRotor::Cylinder"
-        for face in stator_pieces:
-            face.name = "Air::Cylinder"
+        air_rotor = split_cylinder(
+            air_rotor, sliding_radius, air_height, sector_deg, 30, "AirRotor::Cylinder"
+        )
+        air = split_cylinder(air, sliding_radius, air_height, sector_deg, 25, "Air::Cylinder")
 
         # Mesh sizes -----------------------------------------------------------------------
         rotor.faces.maxh = 0.003
@@ -335,18 +300,7 @@ class IpmMotorModelD(ValidationCase):
 
         # Periodic surface meshes on the cut faces.
         for prefix in ("Periodic::Stator", "Periodic::Rotor"):
-            side0 = [face for face in geometry.faces if face.name == f"{prefix}::0"]
-            side1 = [face for face in geometry.faces if face.name == f"{prefix}::1"]
-            if len(side0) != len(side1) or not side0:
-                raise RuntimeError(f"{prefix}: {len(side0)} vs {len(side1)} cut faces")
-            for face1 in side1:
-                # The image of the center under the rotation by -90 deg.
-                x, y, z = face1.center
-                image = (y, -x, z)
-                face0 = min(side0, key=lambda face: math.dist(face.center, image))
-                if math.dist(face0.center, image) > 1e-6:
-                    raise RuntimeError(f"{prefix}: no cut face matches {face1.center}")
-                face1.Identify(face0, prefix, IdentificationType.PERIODIC, Rotation(z_axis, -90.0))
+            identify_periodic_faces(geometry, prefix, sector_deg)
 
         geometry.WriteStep(f"{self.step_path}")
 
@@ -418,7 +372,27 @@ class IpmMotorModelD(ValidationCase):
         image.save(self.dir_path / "data" / "Geometry_Side.png")
 
     def setup_case(self):
-        sim = mufem.Simulation.New(name=self.name, mesh_path=f"{self.mesh_path}")
+        # The periodic cut faces of each side are paired by the rotation by -90 deg; the two sides
+        # of the sliding cylinder are meshed independently.
+        interfaces = [
+            mufem.MatchingInterface(
+                name=f"Periodic {side}",
+                marker0=f"Periodic::{side}::0",
+                marker1=f"Periodic::{side}::1",
+                rotation=ROTATION_MINUS_90_Z,
+            )
+            for side in ("Rotor", "Stator")
+        ]
+        interfaces.append(
+            mufem.NonMatchingInterface(
+                name="AirRotor<->Air sliding",
+                marker0="AirRotor::Cylinder",
+                marker1="Air::Cylinder",
+                rotation=ROTATION_MINUS_90_Z,
+            )
+        )
+        sim = mufem.Simulation.New(name=self.name)
+        sim.get_domain().load_mesh(f"{self.mesh_path}", interfaces=interfaces)
 
         dt = 1.0 / (FREQUENCY * STEPS_PER_PERIOD)
         runner = mufem.UnsteadyRunner(
@@ -502,10 +476,8 @@ class IpmMotorModelD(ValidationCase):
             magnetic_model.add_condition(
                 MatchingInterfaceCondition(
                     name=f"Periodic {side}",
-                    marker0=f"Periodic::{side}::0" @ Bnd,
-                    marker1=f"Periodic::{side}::1" @ Bnd,
+                    marker=f"Periodic {side}" @ mufem.Interface,
                     symmetry=InterfaceSymmetry.ANTI_PERIODIC,
-                    rotation=ROTATION_MINUS_90_Z,
                 )
             )
 
@@ -513,11 +485,9 @@ class IpmMotorModelD(ValidationCase):
         # anti-periodic image of the stator.
         magnetic_model.add_condition(
             NonMatchingInterfaceCondition(
-                "AirRotor<->Air sliding",
-                "AirRotor::Cylinder" @ Bnd,
-                "Air::Cylinder" @ Bnd,
+                name="AirRotor<->Air sliding",
+                marker="AirRotor<->Air sliding" @ mufem.Interface,
                 symmetry=InterfaceSymmetry.ANTI_PERIODIC,
-                rotation=ROTATION_MINUS_90_Z,
                 coupling=NonMatchingCoupling.CONSERVATIVE,
             )
         )

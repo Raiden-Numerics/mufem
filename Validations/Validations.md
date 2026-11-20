@@ -122,6 +122,17 @@ on a sliding interface. The torque is compared with published 3-D analyses and t
 the flux linkage with a 2-D calculation.
 </td>
 </tr>
+<tr></tr>
+<tr>
+<td width="25%" height="130"><a href="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor/README.md"><img src="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor/results/Animation.webp" width="100%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Electromagnetics/IEEJ_2025_Switched_Reluctance_Motor/README.md">IEEJ 2025: Switched Reluctance Motor</a></strong><br>
+An 18/12 switched reluctance motor without magnets, designed as a rare-earth-free traction motor,
+with deeply saturating pole tips across a 0.5 mm air gap. The static torque and flux linkage over
+the stroke and the torque ripple of the commutated machine are compared with the published 2-D
+analysis.
+</td>
+</tr>
 </table>
 
 #### [Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)
