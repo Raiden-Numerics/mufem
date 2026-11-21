@@ -11,7 +11,7 @@ For questions or support, please [open an issue](https://github.com/Raiden-Numer
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
-[Getting Started](#getting-started) · [Validations](#validations) · [Benchmarks](#benchmarks) ·
+[Getting Started](#getting-started) · [Validations](#validations) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -44,15 +44,16 @@ tutorials and the full API reference see the
 ### Licensing
 
 The Community version of mufem is **free for academic and commercial use**. It needs no license key, includes
-most physics models, and runs multithreaded, making good use of the cores of typical desktops and laptops,
+all physics models, and runs multithreaded, making good use of the cores of typical desktops and laptops,
 so you can run real projects and client work without paying anything.
 
 When your models outgrow a single machine, a paid license lets mufem grow with them:
 
 - **Bigger models, faster answers**: distributed parallel computing that keeps scaling where threads level off, on a
   many-core workstation, across a compute cluster, or on GPUs. Run times keep dropping as you add cores,
-  nodes or GPUs, which makes large models and parametric studies practical.
-- **Specialized physics models** for advanced applications that go beyond the Community version.
+  nodes or GPUs, which makes large models and parametric studies practical. See
+  [benchmarks](https://github.com/Raiden-Numerics/mufem/blob/main/Benchmarks/README.md) for more
+  details.
 - **Direct support** from the developers by email, instead of community support via GitHub Issues.
 - **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
 
@@ -185,14 +186,6 @@ measured, or analytical reference values.
 <sub>TEAM 24: eddy currents in a locked rotor after a voltage step (left), and the coil current and the
 rotor torque over time compared with measurements (right).</sub>
 </div>
-
-## Benchmarks
-
-Performance measurements on reproducible cases, with the machine and how each was run and measured:
-for example the strong scaling of the Community (OpenMP) and Professional (MPI) editions on TEAM 1b
-from 1 to 8 cores.
-
-[See the benchmarks here](https://github.com/Raiden-Numerics/mufem/blob/main/Benchmarks/README.md).
 
 ## Tested Platforms
 
