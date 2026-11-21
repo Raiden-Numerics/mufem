@@ -1,4 +1,4 @@
-"""Plot results/Team1b_Scaling.csv (written by scaling.py) to results/Team1b_Scaling.png."""
+"""Plot the results of scaling.py to results/Team1b_Scaling.png and results/ModelD_Scaling.png."""
 
 import csv
 import statistics
@@ -9,16 +9,10 @@ import matplotlib.pyplot as plt
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
 
-# Categorical slots 1-3; marker shapes as a second cue besides color.
+# Categorical slots 1-2; marker shapes as a second cue besides color.
 STYLE = {
-    "Professional": {"color": "#2a78d6", "marker": "o"},
-    "Community": {"color": "#eb6834", "marker": "s"},
-    "Community, KMP_BLOCKTIME=1": {"color": "#1baf7a", "marker": "^"},
-}
-LABEL = {
-    "Professional": "Professional (MPI)",
-    "Community": "Community (OpenMP, wheel default)",
-    "Community, KMP_BLOCKTIME=1": "Community (OpenMP, KMP_BLOCKTIME=1)",
+    "Professional (MPI)": {"color": "#2a78d6", "marker": "o"},
+    "Community (OpenMP)": {"color": "#eb6834", "marker": "s"},
 }
 SURFACE = "#fcfcfb"
 INK = "#1f1f1e"
@@ -55,11 +49,11 @@ def style_axes(ax, ylabel: str) -> None:
     ax.tick_params(colors=MUTED, labelcolor=INK)
 
 
-def main() -> None:
-    data = medians(RESULTS / "Team1b_Scaling.csv")
+def plot(stem: str, ticks: tuple[float, ...]) -> None:
+    """Solver time and speedup over 1 core of results/<stem>.csv, drawn to results/<stem>.png."""
+    data = medians(RESULTS / f"{stem}.csv")
     cores = sorted(next(iter(data.values())))
 
-    plt.rcParams.update({"font.size": 11})
     fig, (ax_time, ax_speedup) = plt.subplots(1, 2, figsize=(11, 4.6), facecolor=SURFACE)
 
     for name, times in data.items():
@@ -73,7 +67,7 @@ def main() -> None:
             "markersize": 8,
         }
         common["markeredgecolor"] = SURFACE
-        ax_time.plot(x, t, label=LABEL[name], **common)
+        ax_time.plot(x, t, label=name, **common)
         ax_speedup.plot(x, [t[0] / v for v in t], **common)
         # Direct label: the time on the largest core count.
         ax_time.annotate(
@@ -102,8 +96,10 @@ def main() -> None:
     ax_time.minorticks_off()
     ticks = [
         t
-        for t in (2, 3, 4, 6, 8, 12, 16, 24, 32)
-        if t <= 1.1 * max(max(v.values()) for v in data.values())
+        for t in ticks
+        if 0.9 * min(min(v.values()) for v in data.values())
+        <= t
+        <= 1.1 * max(max(v.values()) for v in data.values())
     ]
     ax_time.set_yticks(ticks, [str(t) for t in ticks])
     ax_time.set_xlim(0.85, 11)
@@ -116,10 +112,17 @@ def main() -> None:
     ax_speedup.set_title("Speedup (higher is better)", color=INK, loc="left", fontsize=12)
 
     fig.legend(
-        loc="upper center", ncol=3, frameon=False, labelcolor=INK, bbox_to_anchor=(0.5, 1.0)
+        loc="upper center", ncol=2, frameon=False, labelcolor=INK, bbox_to_anchor=(0.5, 1.0)
     )
     fig.tight_layout(rect=(0, 0, 1, 0.92))
-    fig.savefig(RESULTS / "Team1b_Scaling.png", dpi=150, facecolor=SURFACE)
+    fig.savefig(RESULTS / f"{stem}.png", dpi=150, facecolor=SURFACE)
+
+
+def main() -> None:
+    plt.rcParams.update({"font.size": 11})
+    plot("Team1b_Scaling", (2, 3, 4, 6, 8, 12, 16, 24, 32))
+    if (RESULTS / "ModelD_Scaling.csv").exists():
+        plot("ModelD_Scaling", (100, 150, 200, 300, 400, 600))
 
 
 if __name__ == "__main__":

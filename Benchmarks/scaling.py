@@ -1,9 +1,11 @@
-"""Strong scaling of mufem Community (OpenMP) and Professional (MPI) on TEAM 1b.
+"""Strong scaling of mufem Community (OpenMP) and Professional (MPI).
 
-Runs the TEAM 1b validation case on 1, 2, 4 and 8 cores with each configuration and
-writes the solver times to results/Team1b_Scaling.csv; plot_scaling.py draws them.
+Runs a validation case (TEAM 1b or IEEJ Model D) on 1, 2, 4 and 8 cores
+with each edition and writes the solver times to results/<case>_Scaling.csv;
+plot_scaling.py draws them.
 
     python scaling.py --community /path/to/community-venv --professional /path/to/professional-venv
+    python scaling.py --case modeld --repeats 1 --community ... --professional ...
 
 Each environment holds one mufem build (`pip install mufem` or `pip install mufem-mpi`)
 and casekit (`pip install -e ./casekit`). The Professional build reads its license from
@@ -22,9 +24,14 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CASE_DIR = HERE.parent / "Validations" / "Electromagnetics" / "Compumag-Team1b-Felix-Cylinder"
+VALIDATIONS = HERE.parent / "Validations" / "Electromagnetics"
 CASE_FILES = ("case.py", "geometry.mesh", "geometry.step", "data")
-CORES = (1, 2, 4, 8)
+
+# name -> (case directory, core counts, results file)
+CASES = {
+    "team1b": (VALIDATIONS / "Compumag-Team1b-Felix-Cylinder", (1, 2, 4, 8), "Team1b_Scaling.csv"),
+    "modeld": (VALIDATIONS / "IEEJ_2012_IPM_Motor_Model_D", (1, 2, 4, 8), "ModelD_Scaling.csv"),
+}
 
 # Times ValidationCase.solve (the time stepping) on the main process; the import, the
 # mesh loading and the post-processing are left out.
@@ -51,12 +58,10 @@ validation_case.ValidationCase.solve = _timed_solve
 runpy.run_path("case.py", run_name="__main__")
 """
 
-# name -> (build, extra environment). The Community wheel defaults to
-# OMP_WAIT_POLICY=passive; KMP_BLOCKTIME=1 lets idle threads spin for 1 ms first.
+# name -> (build, extra environment).
 CONFIGURATIONS = {
-    "Professional": ("professional", {"OMP_NUM_THREADS": "1"}),
-    "Community": ("community", {}),
-    "Community, KMP_BLOCKTIME=1": ("community", {"KMP_BLOCKTIME": "1"}),
+    "Professional (MPI)": ("professional", {"OMP_NUM_THREADS": "1"}),
+    "Community (OpenMP)": ("community", {}),
 }
 
 
@@ -100,22 +105,25 @@ def main() -> None:
     parser.add_argument(
         "--professional", type=Path, required=True, help="environment with mufem-mpi"
     )
+    parser.add_argument("--case", choices=CASES, default="team1b")
     parser.add_argument("--repeats", type=int, default=3)
-    parser.add_argument("--output", type=Path, default=HERE / "results" / "Team1b_Scaling.csv")
+    parser.add_argument("--output", type=Path, help="default: results/<case>_Scaling.csv")
     args = parser.parse_args()
+    case_dir, cores_list, results_file = CASES[args.case]
+    output = args.output or HERE / "results" / results_file
     venvs = {"community": args.community.resolve(), "professional": args.professional.resolve()}
 
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         for name in CASE_FILES:
-            source = CASE_DIR / name
+            source = case_dir / name
             (shutil.copytree if source.is_dir() else shutil.copy)(source, work / name)
         (work / "driver.py").write_text(DRIVER)
 
         rows = []
         # Interleaved, so that a drift of the machine spreads over all configurations.
         for repeat in range(1, args.repeats + 1):
-            for cores in CORES:
+            for cores in cores_list:
                 for name, (build, extra) in CONFIGURATIONS.items():
                     solve, wall = run(build, venvs[build], extra, cores, work)
                     rows.append(
@@ -128,12 +136,12 @@ def main() -> None:
                         }
                     )
                     print(
-                        f"{name:28s} {cores} cores, repeat {repeat}: "
+                        f"{name:20s} {cores} cores, repeat {repeat}: "
                         f"solve {solve:6.2f} s, wall {wall:6.2f} s"
                     )
 
-    args.output.parent.mkdir(exist_ok=True)
-    with args.output.open("w", newline="") as file:
+    output.parent.mkdir(exist_ok=True)
+    with output.open("w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
@@ -144,9 +152,9 @@ def main() -> None:
             statistics.median(
                 r["solve_s"] for r in rows if r["configuration"] == name and r["cores"] == c
             )
-            for c in CORES
+            for c in cores_list
         ]
-        print(f"  {name:28s} " + "  ".join(f"{m:6.2f}" for m in medians))
+        print(f"  {name:20s} " + "  ".join(f"{m:6.2f}" for m in medians))
 
 
 if __name__ == "__main__":
