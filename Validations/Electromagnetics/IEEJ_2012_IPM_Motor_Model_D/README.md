@@ -37,7 +37,7 @@ is modeled in 3D, over one pole pitch (Figure 2).
 | Quantity | Value |
 | -------- | ----- |
 | Poles / slots | $`4`$ / $`24`$ |
-| Iron (stator, rotor) | JIS 50A350 $`B(H)`$ curve ([table](data/JIS50A350_BH.csv)), no eddy currents |
+| Iron (stator, rotor) | JIS 50A350 $`B(H)`$ curve ([table](data/JIS50A350_BH.csv)), no eddy currents; iron loss post-processed (see [Iron Loss](#iron-loss)) |
 | Magnets | $`\vert\vec{B}_r\vert = 1.25\,\mathrm{T}`$, $`\mu_r = 1.05`$, along the pole axis in the frame of the rotor, no eddy currents |
 | Coils | stranded copper, no eddy currents |
 | Air, shaft, pockets, bolt holes | $`\mu_0`$ |
@@ -99,8 +99,24 @@ I_k(t) = \sqrt{2}\, I_\mathrm{rms} \cos\left(\theta_e + \beta + 90° - 120°\, k
 ```
 
 One electrical period ($`20\,\mathrm{ms}`$) is integrated in 120 steps of $`1/6\,\mathrm{ms}`$
-($`1.5°`$ mechanical), starting from zero field. A time step ends when the
-torque has settled, at the latest after 20 nonlinear iterations.
+($`1.5°`$ mechanical), starting from a magnetostatic solution
+(`magnetostatic_initialization=True`). A time step ends when the torque has settled, at the latest
+after 20 nonlinear iterations.
+
+### Iron Loss
+
+The laminations carry no eddy currents in the field solution; their iron loss is post-processed from
+$`\vec B(t)`$ by the `CoreLossModel` with a `BertottiModelMaterial` on rotor and stator, averaged
+over the simulated period. Per element:
+
+* hysteresis $`k_h f \hat B^{\beta}`$ from rainflow-counted loops along the principal axes of
+  $`\vec B`$ in the frame of the rotor or stator;
+* classical eddy current $`k_c f^2 \hat B^2`$ from $`\langle|\dot{\vec B}|^2\rangle`$.
+
+50A350 at $`50\,\mathrm{Hz}`$: $`k_c = 1.512 \times 10^{-4}`$ (IEEJ committee), $`k_h = 0.022203`$,
+$`\beta = 1.6479`$ (fit of the portal loss curve over 0.3–1.8 T), $`\rho = 7650\,\mathrm{kg/m^3}`$.
+The period starts from the converged magnetostatic field; a jump of the field in the first time
+step would add to the eddy-current loss.
 
 ## Reference Data
 
@@ -112,6 +128,9 @@ torque has settled, at the latest after 20 nonlinear iterations.
 * **rfmkit** (2D, second-order elements, same cross-section): flux linkage and torque over one
   electrical period. This is a calculation, not a published value; it is the only
   reference for the flux linkage waveform.
+* **Iron loss:** rfmkit (2D, harmonic Steinmetz with the same coefficients) by part and mechanism, and
+  the total of IEEJ analysis No. 1 (lab A, 3D, sinusoidal current; TR 1244 [2], Fig. 3.41 and [3],
+  Fig. 14 at $`1500\,\mathrm{min^{-1}}`$).
 
 
 ## Results
