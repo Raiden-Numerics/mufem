@@ -143,6 +143,7 @@ All values are for the full machine.
 | Torque ripple, peak-to-peak [Nm] | 0.82 | 1.02 | 0.99 | - |
 | 12th harmonic of the torque [Nm] | 0.25 | 0.37 | 0.33 | - |
 | Fundamental of the flux linkage [mWb] | 163.4 | - | 153.8 | - |
+| Iron loss, mean over the period [W] | 4.76 | ≈ 4.6 (No. 1, sinusoidal) | 4.71 | - |
 
 The case checks:
 
@@ -151,6 +152,8 @@ The case checks:
 | Mean torque against IEEJ 3D FEA | 1.941 Nm | 5 % | -1.9 % |
 | Mean torque against the measurement | 1.746 Nm | 15 % | +9.0 % |
 | Fundamental of the flux linkage against rfmkit | 153.8 mWb | 10 % | +6.3 % |
+| Iron loss against IEEJ analysis No. 1 | 4.6 W | 10 % | +3.6 % |
+| Iron loss against rfmkit | 4.71 W | 5 % | +1.1 % |
 
 * **Torque.** The waveform follows the IEEJ 3D result in phase and shape, and the mean lies between
   the 3D and the 2D analyses. Like all analyses it is above the measurement (IEEJ: 5 to 13 %). The
@@ -159,6 +162,11 @@ The case checks:
 * **Flux linkage.** The shape agrees with the 2D calculation and the amplitude is about 6 % higher.
   A run with the flux-conforming formulation on a mesh of the same settings gives 156.6 mWb, so most
   of the difference comes from the formulation. The 10 % tolerance of this check reflects that.
+* **Iron loss.** The total lies 4 % above IEEJ analysis No. 1, lab A's detailed 3D model with
+  sinusoidal current, whose total is read from a figure, and 1 % above the 2D calculation with the
+  same coefficients. The stator carries about 92 % of it, two thirds of that hysteresis. With PWM the
+  same IEEJ model gives about 8.1 W and the measurement 5.8 to 7.4 W; the PWM carrier is not modeled,
+  so these are not references.
 
 | Rotor Torque |
 | ------------ |
@@ -167,6 +175,12 @@ The case checks:
 | Flux Linkage U | Flux Linkage V | Flux Linkage W |
 | -------------- | -------------- | -------------- |
 | ![Flux Linkage U vs Time](results/Flux_Linkage_U_vs_Time.png) | ![Flux Linkage V vs Time](results/Flux_Linkage_V_vs_Time.png) | ![Flux Linkage W vs Time](results/Flux_Linkage_W_vs_Time.png) |
+
+The iron loss averaged from $`t = 0`$ to $`t`$; only the value at one period is a result:
+
+| Stator Iron Loss | Rotor Iron Loss |
+| ---------------- | --------------- |
+| ![Stator Iron Loss vs Time](results/Stator_Iron_Loss_vs_Time.png) | ![Rotor Iron Loss vs Time](results/Rotor_Iron_Loss_vs_Time.png) |
 
 ## Scenes
 

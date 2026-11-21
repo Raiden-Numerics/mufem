@@ -684,10 +684,9 @@ class IpmMotorModelD(ValidationCase):
             xy_plot(
                 values=self.iron_loss[f"{part} Core Loss"],
                 reference_values=[(0.0, reference), (20.0, reference)],
-                reference_label="rfmkit (2D), mean over the period",
                 ylabel=f"{part} Iron Loss, Mean over [0, t] [W]",
                 path=f"{self.results_path / f'{part}_Iron_Loss_vs_Time.png'}",
-                **common,
+                **dict(common, reference_label="rfmkit (2D), mean over the period"),
             )
 
         reference_file = f"{self.dir_path / 'data' / 'Reference_rfmkit_2D_Load.csv'}"
