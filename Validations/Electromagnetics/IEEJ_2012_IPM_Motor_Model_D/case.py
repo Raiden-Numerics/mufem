@@ -12,6 +12,7 @@ from mufem.electromagnetics.coil import (
     ExcitationCoilModel,
     MagneticFluxLinkageReport,
 )
+from mufem.electromagnetics.core_loss import BertottiModelMaterial, CoreLossModel
 from mufem.electromagnetics.timedomainmagnetic import (
     Formulation,
     InterfaceSymmetry,
@@ -52,6 +53,13 @@ ROTATION_MINUS_90_Z = [
 ]
 
 PHASES = ("U", "V", "W")
+
+# Iron loss of 50A350 at 50 Hz: eddy coefficient of the IEEJ committee, hysteresis k_h f B^beta fitted to the
+# loss curve of the portal over 0.3-1.8 T.
+KH, BETA_STEINMETZ, KC, RHO_IRON = 0.022203, 1.6479, 1.512e-4, 7650.0
+
+# Iron loss of the 2D reference (rfmkit, same coefficients) by part: hysteresis, classical eddy current [W].
+REFERENCE_IRON_LOSS = {"Stator": (2.940, 1.339), "Rotor": (0.131, 0.302)}
 
 
 class IpmMotorModelD(ValidationCase):
@@ -401,7 +409,11 @@ class IpmMotorModelD(ValidationCase):
         sim.set_runner(runner)
 
         # Model ------------------------------------------------------------------------
-        magnetic_model = TimeDomainMagneticModel(order=1, formulation=Formulation.FieldConforming)
+        # The period starts from the converged magnetostatic field: a jump of the field in the first time
+        # step would add to the eddy-current part of the iron loss.
+        magnetic_model = TimeDomainMagneticModel(
+            order=1, formulation=Formulation.FieldConforming, magnetostatic_initialization=True
+        )
         sim.get_model_manager().add_model(magnetic_model)
 
         # In the saturated rotor bridges a Newton step overshoots far past the energy minimum;
@@ -535,6 +547,38 @@ class IpmMotorModelD(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.torque_monitor)
 
+        # Iron loss -------------------------------------------------------------------
+        # Post-processed from B(t) of each element and averaged over the simulated period.
+        core_loss_model = CoreLossModel(averaging_start_time=0.0, period=1.0 / FREQUENCY)
+        core_loss_model.add_materials(
+            [
+                BertottiModelMaterial(
+                    name="50A350",
+                    marker=["Rotor", "Stator"] @ Vol,
+                    kh=KH,
+                    beta=BETA_STEINMETZ,
+                    kc=KC,
+                    ke=0.0,
+                    rho=RHO_IRON,
+                )
+            ]
+        )
+        sim.get_model_manager().add_model(core_loss_model)
+
+        self.iron_loss_monitors = {}
+        for part in REFERENCE_IRON_LOSS:
+            for quantity in ("Core Loss", "Hysteresis Loss", "Classical Eddy Current Loss"):
+                report_name = f"{part} {quantity}"
+                sim.get_report_manager().add_report(
+                    mufem.VolumeIntegralReport(
+                        name=report_name, marker=part @ Vol, cff_name=f"{quantity} Density"
+                    )
+                )
+                self.iron_loss_monitors[report_name] = mufem.ReportMonitor(
+                    name=f"{report_name} Monitor", report_name=report_name
+                )
+                sim.get_monitor_manager().add_monitor(self.iron_loss_monitors[report_name])
+
         # A time step ends once the torque has settled, at the latest after the inner iterations
         # of the runner. At a tolerance of 1e-4 the flux linkages still change by a few percent.
         runner.add_convergence_criterion(
@@ -579,6 +623,18 @@ class IpmMotorModelD(ValidationCase):
         # formulation lies about 6 % above it, see the README.
         expect(abs(fundamental), 0.1538, rel_tol=10e-2, label="flux linkage, rfmkit 2D [Wb]")
 
+        # The iron loss: the mean over the period of each part (the last value of its running mean).
+        self.iron_loss = {
+            name: [(t, FULL_MODEL_SCALE * loss) for t, loss in monitor.get_values()]
+            for name, monitor in self.iron_loss_monitors.items()
+        }
+        total = sum(self.iron_loss[f"{part} Core Loss"][-1][1] for part in REFERENCE_IRON_LOSS)
+        # IEEJ TR 1244, Fig. 3.41: analysis No. 1 (3D, sinusoidal current), about 4.6 W.
+        expect(total, 4.6, rel_tol=10e-2, label="iron loss, IEEJ 3D FEA [W]")
+        # The 2D reference with the same coefficients.
+        reference_total = sum(sum(loss) for loss in REFERENCE_IRON_LOSS.values())
+        expect(total, reference_total, rel_tol=5e-2, label="iron loss, rfmkit 2D [W]")
+
     def torque_plot(self, rotor_torque):
         """The arguments of xy_plot / xy_chart for the rotor torque over time, shared by the plot
         of postprocess() and the animation of create_scenes()."""
@@ -621,6 +677,17 @@ class IpmMotorModelD(ValidationCase):
             reference_label="rfmkit (2D)",
             reference_style=PlotStyle.LINE,
         )
+
+        # The iron loss averaged from t = 0 to t; the value at one period is the result.
+        for part, (hysteresis, eddy) in REFERENCE_IRON_LOSS.items():
+            reference = hysteresis + eddy
+            xy_plot(
+                values=self.iron_loss[f"{part} Core Loss"],
+                reference_values=[(0.0, reference), (20.0, reference)],
+                ylabel=f"{part} Iron Loss, Mean over [0, t] [W]",
+                path=f"{self.results_path / f'{part}_Iron_Loss_vs_Time.png'}",
+                **dict(common, reference_label="rfmkit (2D), mean over the period"),
+            )
 
         reference_file = f"{self.dir_path / 'data' / 'Reference_rfmkit_2D_Load.csv'}"
         for column, phase in enumerate(PHASES, start=2):

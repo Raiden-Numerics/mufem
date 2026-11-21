@@ -11,7 +11,7 @@ For questions or support, please [open an issue](https://github.com/Raiden-Numer
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
-[Getting Started](#getting-started) · [Validations](#validations) ·
+[Getting Started](#getting-started) · [Validations](#validations) · [Benchmarks](#benchmarks) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -113,6 +113,8 @@ for the 10 cm cube.
 
 Case studies apply mufem to complete engineering problems, from the geometry to the design decision.
 
+[Browse all case studies here](https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/README.md).
+
 <table>
 <tr>
 <td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/PMSM-Motor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/CaseStudies/PMSM-Motor/results/Case_Study_Thumbnail.png" width="100%"></a></td>
@@ -175,7 +177,7 @@ comparison with an analytical solution, see the
 This repository collects validation cases for mufem, each comparing its results with published,
 measured, or analytical reference values.
 
-[Browse all validation cases here](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Validations.md).
+[Browse all validation cases here](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/README.md).
 
 <div align="center">
 <a href="https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/Validations/Electromagnetics/Compumag-Team24-Locked-Rotor/results/Animation_Electric_Current_Density.gif" width="80%"></a>
@@ -183,6 +185,14 @@ measured, or analytical reference values.
 <sub>TEAM 24: eddy currents in a locked rotor after a voltage step (left), and the coil current and the
 rotor torque over time compared with measurements (right).</sub>
 </div>
+
+## Benchmarks
+
+Performance measurements on reproducible cases, with the machine and how each was run and measured:
+for example the strong scaling of the Community (OpenMP) and Professional (MPI) editions on TEAM 1b
+from 1 to 8 cores.
+
+[See the benchmarks here](https://github.com/Raiden-Numerics/mufem/blob/main/Benchmarks/README.md).
 
 ## Tested Platforms
 
