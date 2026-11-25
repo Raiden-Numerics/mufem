@@ -135,23 +135,9 @@ Follow a skew design from 2D to full 3D on a 48-slot, 8-pole traction motor.
 
 ## Models
 
-mufem provides finite-element models across several physics domains, composable for coupled multi-physics:
+<a href="https://raiden-numerics.github.io/mufem-doc/models/models.html"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.mufem-models.svg" alt="mufem models" width="100%"></a>
 
-- **[Electrostatics](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/electrostatics/model.html)**: electric fields,
-  capacitances, and electrostatic forces in conductors and dielectrics.
-- **[Time-Domain Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_domain_magnetic/model.html)**
-  (magnetostatics, transient eddy currents): low-frequency magnetic fields, including nonlinear
-  materials, permanent magnets, and superconductors.
-- **[Time-Harmonic Magnetic](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_magnetic/model.html)**
-  (AC magnetics): eddy currents and skin and proximity effects at a single frequency.
-- **[Time-Harmonic Maxwell](https://raiden-numerics.github.io/mufem-doc/models/electromagnetics/time_harmonic_maxwell/model.html)**
-  (full-wave): high-frequency electromagnetics, waveguides, and antennas.
-- **[Solid Temperature](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_temperature/model.html)** (thermal): steady and
-  transient heat conduction.
-- **[Solid Mechanics](https://raiden-numerics.github.io/mufem-doc/models/mechanical/solid_mechanics/model.html)** (structural): linear
-  elasticity.
-
-See the [documentation](https://raiden-numerics.github.io/mufem-doc/index.html) for the full model list and details.
+See the [List of Models](https://raiden-numerics.github.io/mufem-doc/models/models.html) for all models and details.
 
 ## Getting Started
 
