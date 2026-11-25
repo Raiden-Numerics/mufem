@@ -12,15 +12,6 @@ See [Running the case studies](#running-the-case-studies) for how to run them.
 
 ## Cases
 
-[Electromagnetics](#electromagnetics)
-
-### Electromagnetics
-
-#### Electric Machines
-
-Electric motors and generators for traction drives and industrial applications: torque, torque
-ripple, losses, and the effect of design changes such as rotor skew.
-
 <table>
 <tr>
 <td width="25%" height="130" align="center"><a href="PMSM-Motor/README.md"><img src="PMSM-Motor/results/Case_Study_Thumbnail.png" width="100%"></a></td>
