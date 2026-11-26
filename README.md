@@ -15,17 +15,15 @@ or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 ## Introduction
 
-This repository hosts a quick introduction to mufem together with a collection of validation and example
-cases. For platform-specific setup see the
+https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
+
+This 8-minute introduction covers what mufem is and what API first and AI ready mean, walks through the
+[QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md) from the gmsh
+geometry to post-processing in PyVista and ParaView, and ends with the validation cases and case studies.
+For platform-specific setup see the
 [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
 tutorials and the full API reference see the
 [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
-
-https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
-
-*Introduction to mufem (8 min): what it is, API first and AI ready, a walkthrough of the
-[QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md) (its README has the
-steps to run it yourself), post-processing, validations and case studies.*
 
 ### Why mufem
 
