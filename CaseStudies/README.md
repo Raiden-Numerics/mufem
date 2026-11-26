@@ -8,8 +8,6 @@ The [validation cases](../Validations/README.md) check single models against pub
 analytical reference values. The case studies show how these models work together on an industrial
 design task.
 
-See [Running the case studies](#running-the-case-studies) for how to run them.
-
 ## Cases
 
 <table>
@@ -25,23 +23,20 @@ turns, and eddy currents in all copper. The 3D model gives the AC copper loss of
 end turns included.
 </td>
 </tr>
+<tr></tr>
+<tr>
+<td width="25%" height="130" align="center"><a href="Grating-Coupler/README.md"><img src="Grating-Coupler/results/Animation_Electric_Field_Optimized.gif" width="70%"></a></td>
+<td width="75%" valign="top">
+<strong><a href="Grating-Coupler/README.md">Optimizing a Fan Grating Coupler for a Multimode Fiber Link</a></strong><br>
+A fan-shaped silicon-photonics grating coupler that sends the light of a chip-scale transmitter
+through a tilted resin pillar into a 50 µm multimode fiber. The study first finds how much light the
+published coupler delivers into the fiber's acceptance, then lets the Bayesian optimizer Ax/BoTorch
+drive full 3D time-harmonic Maxwell simulations to improve it, on the same chip area and within the
+fabrication rules and beam requirements. The optimized coupler delivers 7.8 % more light into the
+fiber, with the reflection below 1 %.
+</td>
+</tr>
 </table>
-
-## Running the Case Studies
-
-Each case study has its own script and its own run instructions in its README. Some case studies
-need large meshes that are not part of the repository; the README of each case study lists them.
-
-Install mufem as described in the [README](../README.md#getting-started), then run the script of the
-case study from its folder. For example:
-
-```bash
-(mufem-venv) cd CaseStudies/PMSM-Motor
-(mufem-venv) mpirun -np 8 python pmsm_motor.py --machine skewed --steps 30 --out results_skewed
-```
-
-Full 3D case studies need a parallel run. Refer to the README of each case study for the
-recommended number of processes and the run time.
 
 ## Get in Touch
 
