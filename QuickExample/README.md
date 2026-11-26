@@ -1,7 +1,7 @@
 # Quick Example: Charged Cube
 
 The electrostatic field in a 10 cm cube of air with 1 V across it: the top face (anode) at 1 V, the bottom face
-(cathode) grounded. The introduction video in the [main README](../README.md#getting-started) walks through it.
+(cathode) grounded. The introduction video in the [main README](../README.md#introduction) walks through it.
 
 * `setup.py` builds the cube with gmsh, tags its volume and the two faces (`Cube`, `Anode`, `Cathode`), meshes it
   with six tetrahedra along each edge, and writes `cube.msh` (and `cube.step` for CAD tools).

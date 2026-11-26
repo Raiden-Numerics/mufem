@@ -10,9 +10,8 @@ and **design optimization**, and a natural fit for **agentic workflows**.
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
-**Contents:** [Introduction](#introduction) · [Getting Started](#getting-started) ·
-[Case Studies](#case-studies) · [Models](#models) · [Validations](#validations) ·
-[Tested Platforms](#tested-platforms)
+**Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
+[Validations](#validations) · [Tested Platforms](#tested-platforms)
 
 ## Introduction
 
@@ -22,7 +21,11 @@ cases. For platform-specific setup see the
 tutorials and the full API reference see the
 [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
-![Marquee](https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.marquee.png)
+https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
+
+*Introduction to mufem (8 min): what it is, API first and AI ready, a walkthrough of the
+[QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md) (its README has the
+steps to run it yourself), post-processing, validations and case studies.*
 
 ### Why mufem
 
@@ -40,16 +43,6 @@ tutorials and the full API reference see the
 <td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/docs/assets/icons/check_circle.svg" width="20" align="absmiddle"> <strong>Free</strong><br>mufem (Community) is free for academic and commercial use, with no license fees, covering most workflows on a single workstation. See <a href="https://mufem.raiden-numerics.com/#pricing">pricing</a> for paid tiers.</td>
 </tr>
 </table>
-
-### Getting started
-
-https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
-
-*Introduction to mufem (7 min): what it is, API first and AI ready, and a walkthrough of the quick example.*
-
-The video walks through the [QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md):
-a cube meshed with gmsh and solved for its electrostatic field, viewed in PyVista and ParaView. Its README has the
-steps to run it yourself.
 
 ### Licensing
 
