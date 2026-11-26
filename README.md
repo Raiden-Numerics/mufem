@@ -7,11 +7,11 @@ built for **industry-relevant** engineering applications.
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
 and **design optimization**, and a natural fit for **agentic workflows**.
 
-This repository hosts a quick introduction to mufem together with a collection of validation and example
-cases. For platform-specific setup see the
+This repository hosts a quick introduction to mufem together with tutorials, such as the step-by-step
+[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md),
+and a collection of validation and example cases. For platform-specific setup see the
 [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
-tutorials and the full API reference see the
-[mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
+the full API reference see the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
