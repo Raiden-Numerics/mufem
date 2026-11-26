@@ -9,7 +9,7 @@ and **design optimization**, and a natural fit for **agentic workflows**.
 
 This repository hosts a quick introduction to mufem together with tutorials, such as the step-by-step
 [electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md),
-and a collection of validation and example cases. For platform-specific setup see the
+and a collection of validation cases and case studies. For platform-specific setup see the
 [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
 the full API reference see the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
