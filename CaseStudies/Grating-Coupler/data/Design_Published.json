@@ -1,0 +1,9 @@
+{
+  "groove": 0.6,
+  "n_periods": 20,
+  "r_first": 13.3,
+  "fan_angle": 16.7,
+  "pitch": 0.524,
+  "ramp_grooves": 0,
+  "ramp_start": 1.0
+}

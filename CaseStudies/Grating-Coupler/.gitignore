@@ -1,0 +1,4 @@
+results_*/*
+!results_*/metrics.json
+__pycache__/
+results_*.log
