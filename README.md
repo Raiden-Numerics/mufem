@@ -131,6 +131,19 @@ Follow a skew design from 2D to full 3D on a 48-slot, 8-pole traction motor.
 </ul>
 </td>
 </tr>
+<tr>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/Grating-Coupler/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/CaseStudies/Grating-Coupler/results/Case_Study_Thumbnail.png" width="100%"></a></td>
+<td width="60%" valign="top">
+<strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/Grating-Coupler/README.md">Optimizing a fan grating coupler for a multimode fiber link</a></strong><br>
+Drive full 3D optical simulations with a Bayesian optimizer to improve a published silicon-photonics grating coupler.
+<ul>
+<li>Coupling efficiency into the fiber's acceptance, published vs. optimized design</li>
+<li>Bayesian optimization with Ax/BoTorch under fabrication and beam constraints</li>
+<li>+7.8 % coupled light on the same footprint, reflection below 1 %</li>
+<li>Full 3D model: time-harmonic Maxwell, curved grooves, near- and far-field evaluation</li>
+</ul>
+</td>
+</tr>
 </table>
 
 ## Models
