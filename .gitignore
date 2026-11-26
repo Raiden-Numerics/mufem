@@ -13,3 +13,6 @@ temp/
 
 # Output of the quick example of the README
 QuickExample/ChargedCubeOutput/
+
+# Geometry export of the quick example (written by setup.py)
+QuickExample/cube.step

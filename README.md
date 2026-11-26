@@ -10,8 +10,8 @@ and **design optimization**, and a natural fit for **agentic workflows**.
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
-**Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
-[Getting Started](#getting-started) · [Validations](#validations) ·
+**Contents:** [Introduction](#introduction) · [Getting Started](#getting-started) ·
+[Case Studies](#case-studies) · [Models](#models) · [Validations](#validations) ·
 [Tested Platforms](#tested-platforms)
 
 ## Introduction
@@ -60,56 +60,28 @@ The Professional packages are `mufem-mpi`, `mufem-cuda` and `mufem-hip`:
 
 See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
 
-### Quick Example
+## Getting Started
 
-Solve the electrostatic field inside a cube held at 1 V across two faces. The simulation reads a mesh
-whose **tagged attributes** (a `Cube` volume and its `Anode`/`Cathode` boundary faces) are referenced by
-markers (`"Cube" @ Vol`, `"Anode" @ Bnd`, ...). The script and its mesh are in
-[QuickExample](https://github.com/Raiden-Numerics/mufem/tree/main/QuickExample); run it there with
-`python charged_cube.py`:
+https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
 
-```python
-import mufem
-import mufem.electromagnetics.electrostatics as estat
-from mufem import Vol, Bnd
+*Introduction to mufem (7 min): what it is, API first and AI ready, and a walkthrough of the quick example.*
 
-sim = mufem.Simulation.New(name="Charged Cube", mesh_path="cube.msh")
-sim.set_runner(mufem.SteadyRunner(total_iterations=1))
+The video walks through the [QuickExample](https://github.com/Raiden-Numerics/mufem/tree/main/QuickExample):
+`setup.py` builds the geometry and mesh of a cube with gmsh (and saves it as a STEP file), and `case.py`
+solves the electrostatic field with 1 V across the cube. The results are then viewed in PyVista and ParaView.
+To run it yourself:
 
-# Electrostatics model, with air filling the tagged "Cube" volume
-model = estat.ElectrostaticsModel(order=2)
-sim.get_model_manager().add_model(model)
-model.add_material(estat.ElectrostaticMaterial(name="Air", marker="Cube" @ Vol))
-
-# Apply 1 V across the cube: anode at 1 V, cathode grounded
-model.add_conditions(
-    [
-        estat.ElectricPotentialCondition(
-            name="Anode", marker="Anode" @ Bnd, electric_potential=1.0
-        ),
-        estat.ElectricPotentialCondition(
-            name="Cathode", marker="Cathode" @ Bnd, electric_potential=0.0
-        ),
-    ]
-)
-
-# Report the stored electric energy
-report = mufem.VolumeIntegralReport(name="Energy", cff_name="Electric Energy Density")
-sim.get_report_manager().add_report(report)
-
-sim.run()
-print("Electric energy:", report.evaluate(), "J")
-
-# Export the fields for visualization (ParaView / VTK)
-field_exporter = sim.get_field_exporter()
-field_exporter.set_output_directory("ChargedCubeOutput")
-field_exporter.add_field_output("Electric Potential")
-field_exporter.add_field_output("Electric Field")
-field_exporter.save()
+```bash
+python -m venv mufem-venv
+source mufem-venv/bin/activate
+pip install mufem gmsh pyvista
+cd QuickExample
+python setup.py   # geometry and mesh; add -nopopup to skip the gmsh GUI
+python case.py    # prints the stored electric energy, about 4.43e-13 J
 ```
 
-It prints the energy of the uniform field between the plates, $`\varepsilon_0 V^2 d / 2 \approx 4.43 \times 10^{-13}`$ J
-for the 10 cm cube.
+For platform-specific installation, the mufem (Professional) packages, tutorials, and the API reference, see
+the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
 ## Case Studies
 
@@ -165,30 +137,6 @@ mufem provides finite-element models across several physics domains, composable 
   elasticity.
 
 See the [documentation](https://raiden-numerics.github.io/mufem-doc/index.html) for the full model list and details.
-
-## Getting Started
-
-First create and activate a virtual environment:
-
-```bash
-python -m venv mufem-venv
-source mufem-venv/bin/activate
-```
-
-Then install the latest release of mufem (Community) from PyPI:
-
-```bash
-pip install mufem
-```
-
-The mufem (Professional) packages come from the mufem package index; see
-[Install mufem package](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html#install-mufem-package).
-
-See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
-for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
-for tutorials and API reference. For a complete, runnable case, including mesh generation and a
-comparison with an analytical solution, see the
-[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md).
 
 ## Validations
 
