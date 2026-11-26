@@ -1,0 +1,9 @@
+configuration,cores,repeat,solve_s,wall_s
+Professional (MPI),1,1,566.3,568.9
+Community (OpenMP),1,1,565.4,567.2
+Professional (MPI),2,1,312.8,315.0
+Community (OpenMP),2,1,334.5,336.3
+Professional (MPI),4,1,179.5,181.4
+Community (OpenMP),4,1,211.0,212.8
+Professional (MPI),8,1,111.7,113.5
+Community (OpenMP),8,1,147.4,149.3
