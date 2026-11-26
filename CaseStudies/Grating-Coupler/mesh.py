@@ -2,12 +2,12 @@
 
     python mesh.py --design published --resolution nominal --out results_published/mesh.msh
 
-Meshes a design with gmsh into a gmsh 2.2 file for grating_coupler.py; "./case.sh run" runs both. The fan is cut
-along its axis, a symmetry plane. Its plan view, structured in cells along the grooves and the
-rays from the focus and triangulated around the wire, is extruded through the layers, from 0.5 um
-of substrate through the buried oxide and the silicon to the SiO2 over-cladding and the pin's core
-resin. Physical groups: the volumes Silicon, SiO2 and Resin; the faces InputPort, Symmetry, Top,
-Bottom, Sides and End, and the power planes UpPlane and DownPlane.
+Meshes a design with gmsh into a gmsh 2.2 file for grating_coupler.py; "./case.sh run" runs both.
+The fan is cut along its axis, a symmetry plane. Its plan view, structured in cells along the
+grooves and the rays from the focus and triangulated around the wire, is extruded through the
+layers, from 0.5 um of substrate through the buried oxide and the silicon to the SiO2 over-cladding
+and the pin's core resin. Physical groups: the volumes Silicon, SiO2 and Resin; the faces
+InputPort, Symmetry, Top, Bottom, Sides and End, and the power planes UpPlane and DownPlane.
 
 A design is published or optimized (data/Design_Published.json, data/Design_Optimized.json) or
 the path of a design JSON with the keys
@@ -42,7 +42,8 @@ H_BOX, H_SUBSTRATE, H_OVERCLAD, H_RESIN = 2.0, 0.5, 2.0, 1.0  # [um] layers kept
 W_WIRE, L_WIRE = 0.35, 1.5  # [um] feed wire width, port to focus
 MIN_FEATURE = 0.070  # [um] smallest groove or tooth
 
-# ---- domain [um]: from the bottom of the substrate to the top of the resin, the power planes in the SiO2
+# ---- domain [um] -----------------------------------------------------------------------
+# From the bottom of the substrate to the top of the resin, the power planes in the SiO2.
 Z_BOTTOM, Z_TOP = -H_BOX - H_SUBSTRATE, T_SI + H_OVERCLAD + H_RESIN
 Z_DOWN_PLANE, Z_UP_PLANE = -0.5, T_SI + 0.5
 L_AFTER, L_END, MARGIN_ANGLE, X_PORT, R_START = 0.5, 1.0, 6.0, 2.0, 5.0
@@ -54,7 +55,8 @@ RESOLUTION = {  # coarse: the optimization; nominal: the reported results
 }
 H_SI, H_CLAD, H_ARC, H_SUB, H_PLANE = 0.06, 0.30, 0.60, 0.125, 0.12
 MIN_GROOVE_CELLS = 3
-PLANES = {"box_low": "DownPlane", "overclad_low": "UpPlane"}  # the power plane on top of each layer
+# The power plane on top of each layer.
+PLANES = {"box_low": "DownPlane", "overclad_low": "UpPlane"}
 
 
 def slab_index(thickness):
@@ -74,7 +76,15 @@ def slab_pitch(groove):
     return WAVELENGTH / (n_mean - np.sin(np.radians(EXIT_ANGLE)))
 
 
-DESIGN_KEYS = ("groove", "n_periods", "r_first", "fan_angle", "pitch", "ramp_grooves", "ramp_start")
+DESIGN_KEYS = (
+    "groove",
+    "n_periods",
+    "r_first",
+    "fan_angle",
+    "pitch",
+    "ramp_grooves",
+    "ramp_start",
+)
 
 
 def load_design(design):
@@ -89,8 +99,8 @@ def load_design(design):
 
 @dataclasses.dataclass
 class Coupler:
-    """The geometry of a design. Grooves lie on the ellipses F = n_g r - sin_exit Y around the focus
-    (Y = y - L_WIRE, r = sqrt(x^2 + Y^2)), which every ray from the focus crosses at the same
+    """The geometry of a design. Grooves lie on the ellipses F = n_g r - sin_exit Y around the
+    focus (Y = y - L_WIRE, r = sqrt(x^2 + Y^2)), which every ray from the focus crosses at the same
     grating phase; on the axis, F grows by scale = n_g - sin_exit per um."""
 
     groove: float
@@ -102,7 +112,8 @@ class Coupler:
     ramp_start: float
 
     def __post_init__(self):
-        # Each ramp groove's pitch is the slab model's for its width, with the full grooves' offset.
+        # Each ramp groove's pitch is the slab model's for its width, with the full grooves'
+        # offset.
         self.pitch_offset = self.pitch - slab_pitch(self.groove)
         self.sin_exit = np.sin(np.radians(EXIT_ANGLE))
         self.n_g = WAVELENGTH / self.pitch + self.sin_exit
@@ -110,8 +121,8 @@ class Coupler:
         self.y_wire_end = L_WIRE + 0.5 * W_WIRE / np.tan(np.radians(self.fan_angle))
         self.side_angle = self.fan_angle + MARGIN_ANGLE
 
-        # The soft start: the ramp grooves widen linearly; each one's groove fraction is found at its
-        # own pitch, fraction = width / pitch(fraction).
+        # The soft start: the ramp grooves widen linearly; each one's groove fraction is found at
+        # its own pitch, fraction = width / pitch(fraction).
         full_width, n_ramp = self.groove * self.pitch, int(self.ramp_grooves)
         first_width = MIN_FEATURE + self.ramp_start * (full_width - MIN_FEATURE)
         periods = []  # (groove fraction, pitch) of each groove
@@ -123,7 +134,8 @@ class Coupler:
             periods.append((fraction, slab_pitch(fraction) + self.pitch_offset))
         periods += [(self.groove, self.pitch)] * int(self.n_periods)
 
-        # The grooves as (F at their start, F at their end), then the end of the silicon and of the domain.
+        # The grooves as (F at their start, F at their end), then the end of the silicon and of the
+        # domain.
         self.grooves, level = [], self.r_first * self.scale
         for fraction, period in periods:
             self.grooves.append((level, level + fraction * period * self.scale))
@@ -149,8 +161,11 @@ class Coupler:
         """True on the silicon of the wire and the fan."""
         if x <= 0.5 * W_WIRE and y <= self.y_wire_end:
             return True
-        return (y > L_WIRE and np.degrees(np.arctan2(x, y - L_WIRE)) <= self.fan_angle
-                and self.f_of(x, y) <= self.f_si_end)
+        return (
+            y > L_WIRE
+            and np.degrees(np.arctan2(x, y - L_WIRE)) <= self.fan_angle
+            and self.f_of(x, y) <= self.f_si_end
+        )
 
     def in_groove(self, x, y):
         """True in a groove (where it is etched)."""
@@ -176,11 +191,20 @@ class Coupler:
             return c.radius(c.f_si_end, 0.0)
 
         n_periods = max(1, round(((1.0 - taper) * r_end - length(0)) / pitch))
-        return cls(groove, n_periods, r_end - length(n_periods), fan_angle, pitch, ramp_grooves, ramp_start)
+        return cls(
+            groove,
+            n_periods,
+            r_end - length(n_periods),
+            fan_angle,
+            pitch,
+            ramp_grooves,
+            ramp_start,
+        )
 
 
 def graded(length, h_bottom, h_top, h_max, growth):
-    """Layer thicknesses filling @p length, growing from h_bottom and h_top at its ends to h_max."""
+    """Layer thicknesses filling @p length, growing from h_bottom and h_top at its ends to
+    h_max."""
     low, high, total = [], [], 0.0
     while total < length - 1e-9:
         a, b = min(h_bottom * growth ** len(low), h_max), min(h_top * growth ** len(high), h_max)
@@ -196,7 +220,8 @@ def uniform(length, h):
 
 
 def radial_cells(c, h):
-    """The ellipses bounding the structured blocks of the fan, and the radial cells between them."""
+    """The ellipses bounding the structured blocks of the fan, and the radial cells between
+    them."""
     levels, cells = [c.f_start], []
 
     def add(f, size, minimum=1):
@@ -214,14 +239,17 @@ def radial_cells(c, h):
 
 
 def plan_view(c, levels):
-    """The plan view at the bottom of the substrate: the blocks between the ellipses @p levels and the
-    rays at 0, fan_angle and side_angle, and the wire region; its curves and surfaces."""
+    """The plan view at the bottom of the substrate: the blocks between the ellipses @p levels and
+    the rays at 0, fan_angle and side_angle, and the wire region; its curves and surfaces."""
     import gmsh
 
     occ = gmsh.model.occ
     angles = (0.0, c.fan_angle, c.side_angle)
-    pts = {(i, j): occ.addPoint(*c.point(f, phi), Z_BOTTOM)
-           for i, f in enumerate(levels) for j, phi in enumerate(angles)}
+    pts = {
+        (i, j): occ.addPoint(*c.point(f, phi), Z_BOTTOM)
+        for i, f in enumerate(levels)
+        for j, phi in enumerate(angles)
+    }
 
     def arc(i, j):
         phis = [angles[j] + (angles[j + 1] - angles[j]) * k / 8 for k in range(1, 8)]
@@ -229,9 +257,18 @@ def plan_view(c, levels):
         return occ.addSpline([pts[i, j]] + inner + [pts[i, j + 1]])
 
     arcs = {(i, j): arc(i, j) for i in range(len(levels)) for j in range(2)}
-    rays = {(i, j): occ.addLine(pts[i, j], pts[i + 1, j]) for i in range(len(levels) - 1) for j in range(3)}
-    blocks = [occ.addPlaneSurface([occ.addCurveLoop([rays[i, j], arcs[i + 1, j], -rays[i, j + 1], -arcs[i, j]])])
-              for i in range(len(levels) - 1) for j in range(2)]
+    rays = {
+        (i, j): occ.addLine(pts[i, j], pts[i + 1, j])
+        for i in range(len(levels) - 1)
+        for j in range(3)
+    }
+    blocks = [
+        occ.addPlaneSurface(
+            [occ.addCurveLoop([rays[i, j], arcs[i + 1, j], -rays[i, j + 1], -arcs[i, j]])]
+        )
+        for i in range(len(levels) - 1)
+        for j in range(2)
+    ]
 
     # The wire, the fan up to the first ellipse, and the SiO2 beside them, in triangles.
     a, b = occ.addPoint(0, 0, Z_BOTTOM), occ.addPoint(0.5 * W_WIRE, 0, Z_BOTTOM)
@@ -241,8 +278,12 @@ def plan_view(c, levels):
     axis, port_si, port_ox = occ.addLine(a, pts[0, 0]), occ.addLine(a, b), occ.addLine(b, e)
     wire_side, fan_edge = occ.addLine(b, d), occ.addLine(d, pts[0, 1])
     side_a, side_b = occ.addLine(e, g), occ.addLine(g, pts[0, 2])
-    tri_si = occ.addPlaneSurface([occ.addCurveLoop([port_si, wire_side, fan_edge, -arcs[0, 0], -axis])])
-    tri_ox = occ.addPlaneSurface([occ.addCurveLoop([port_ox, side_a, side_b, -arcs[0, 1], -fan_edge, -wire_side])])
+    tri_si = occ.addPlaneSurface(
+        [occ.addCurveLoop([port_si, wire_side, fan_edge, -arcs[0, 0], -axis])]
+    )
+    tri_ox = occ.addPlaneSurface(
+        [occ.addCurveLoop([port_ox, side_a, side_b, -arcs[0, 1], -fan_edge, -wire_side])]
+    )
     occ.synchronize()
     return arcs, rays, blocks, tri_si, tri_ox, fan_edge
 
@@ -258,7 +299,9 @@ def set_sizes(c, h, cells, arcs, rays, blocks, tri_si, fan_edge):
             fields.setNumber(field, key, value)
 
     r_end = c.radius(c.f_end, c.side_angle)
-    n_phi = [max(2, int(np.ceil(np.radians(a) * r_end / H_ARC))) for a in (c.fan_angle, MARGIN_ANGLE)]
+    n_phi = [
+        max(2, int(np.ceil(np.radians(a) * r_end / H_ARC))) for a in (c.fan_angle, MARGIN_ANGLE)
+    ]
     for (i, j), tag in arcs.items():
         mesh.setTransfiniteCurve(tag, n_phi[j] + 1)
     for (i, j), tag in rays.items():
@@ -268,8 +311,18 @@ def set_sizes(c, h, cells, arcs, rays, blocks, tri_si, fan_edge):
         mesh.setRecombine(2, tag)
 
     box = fields.add("Box")
-    set_numbers(box, VIn=H_SI, VOut=H_CLAD, XMin=-1.0, XMax=0.5 * W_WIRE + 0.3, YMin=-1.0, YMax=c.y_wire_end + 0.3,
-                ZMin=Z_BOTTOM - 1.0, ZMax=Z_BOTTOM + 1.0, Thickness=1.0)
+    set_numbers(
+        box,
+        VIn=H_SI,
+        VOut=H_CLAD,
+        XMin=-1.0,
+        XMax=0.5 * W_WIRE + 0.3,
+        YMin=-1.0,
+        YMax=c.y_wire_end + 0.3,
+        ZMin=Z_BOTTOM - 1.0,
+        ZMax=Z_BOTTOM + 1.0,
+        Thickness=1.0,
+    )
     taper = fields.add("MathEval")
     fields.setString(taper, "F", f"{h['h_taper']}")
     in_fan = fields.add("Restrict")
@@ -279,7 +332,9 @@ def set_sizes(c, h, cells, arcs, rays, blocks, tri_si, fan_edge):
     fields.setNumbers(edge, "CurvesList", [fan_edge])
     fields.setNumber(edge, "Sampling", 200)
     beside = fields.add("Threshold")
-    set_numbers(beside, InField=edge, SizeMin=h["h_taper"], SizeMax=H_CLAD, DistMin=0.0, DistMax=1.0)
+    set_numbers(
+        beside, InField=edge, SizeMin=h["h_taper"], SizeMax=H_CLAD, DistMin=0.0, DistMax=1.0
+    )
     finest = fields.add("Min")
     fields.setNumbers(finest, "FieldsList", [box, in_fan, beside])
     fields.setAsBackgroundMesh(finest)
@@ -289,28 +344,34 @@ def set_sizes(c, h, cells, arcs, rays, blocks, tri_si, fan_edge):
 
 
 def extrude_stack(faces, h):
-    """Extrude the plan view @p faces through the layers, with fine layers at the silicon and at the
-    power planes; the layer of each volume, and the faces of the power planes."""
+    """Extrude the plan view @p faces through the layers, with fine layers at the silicon and at
+    the power planes; the layer of each volume, and the faces of the power planes."""
     import gmsh
 
     hz, growth = h["h_z"], h["z_growth"]
     box_low, over_low = Z_DOWN_PLANE + H_BOX, Z_UP_PLANE - T_SI
-    stack = [  # name, thickness, layers (the thickness is given: the layers sum to it only up to rounding)
+    # name, thickness, layers (the thickness is given: the layers sum to it only up to rounding)
+    stack = [
         ("substrate", H_SUBSTRATE, uniform(H_SUBSTRATE, H_SUB)),
         ("box_low", box_low, graded(box_low, 1.5 * H_SUB, H_PLANE, hz, growth)),
         ("box", H_BOX - box_low, graded(H_BOX - box_low, H_PLANE, H_SI, hz, growth)),
         ("slab", T_SI - ETCH, uniform(T_SI - ETCH, H_SI)),
         ("etch", ETCH, uniform(ETCH, H_SI)),
         ("overclad_low", over_low, graded(over_low, H_SI, H_PLANE, hz, growth)),
-        ("overclad", H_OVERCLAD - over_low, graded(H_OVERCLAD - over_low, H_PLANE, hz, hz, growth)),
+        (
+            "overclad",
+            H_OVERCLAD - over_low,
+            graded(H_OVERCLAD - over_low, H_PLANE, hz, hz, growth),
+        ),
         ("resin", H_RESIN, uniform(H_RESIN, hz)),
     ]
     layer_of, planes = {}, {}
     for name, thickness, layers in stack:
         heights = [sum(layers[: k + 1]) / thickness for k in range(len(layers))]
         heights[-1] = 1.0
-        out = gmsh.model.occ.extrude(faces, 0, 0, thickness, numElements=[1] * len(layers), heights=heights,
-                                     recombine=True)
+        out = gmsh.model.occ.extrude(
+            faces, 0, 0, thickness, numElements=[1] * len(layers), heights=heights, recombine=True
+        )
         faces = [out[k - 1] for k, (dim, _) in enumerate(out) if dim == 3]
         layer_of.update({tag: name for dim, tag in out if dim == 3})
         if name in PLANES:
@@ -323,8 +384,11 @@ def material_of(c, layer, x, y):
     """The material at (@p x, @p y) in @p layer."""
     if layer == "resin":
         return "Resin"
-    if layer == "substrate" or (layer == "slab" and c.in_fan(x, y)) or (
-            layer == "etch" and c.in_fan(x, y) and not c.in_groove(x, y)):
+    if (
+        layer == "substrate"
+        or (layer == "slab" and c.in_fan(x, y))
+        or (layer == "etch" and c.in_fan(x, y) and not c.in_groove(x, y))
+    ):
         return "Silicon"
     return "SiO2"
 
@@ -336,12 +400,15 @@ def physical_groups(c, layer_of, planes):
 
     model, occ = gmsh.model, gmsh.model.occ
 
-    # Materials, read in the middle of each block in (F, angle): the centre of mass of a long, thin,
-    # curved block can lie outside it.
+    # Materials, read in the middle of each block in (F, angle): the centre of mass of a long,
+    # thin, curved block can lie outside it.
     volumes = {"Silicon": [], "SiO2": [], "Resin": []}
     for _, tag in model.getEntities(3):
         x, y, _ = occ.getCenterOfMass(3, tag)
-        corners = [model.getValue(0, t, []) for _, t in model.getBoundary([(3, tag)], combined=False, recursive=True)]
+        corners = [
+            model.getValue(0, t, [])
+            for _, t in model.getBoundary([(3, tag)], combined=False, recursive=True)
+        ]
         fs = [c.f_of(p[0], p[1]) for p in corners]
         if min(fs) >= c.f_start - 1e-6:
             phis = [np.degrees(np.arctan2(p[0], p[1] - L_WIRE)) for p in corners]
@@ -375,7 +442,8 @@ def physical_groups(c, layer_of, planes):
 
 
 def build_mesh(c, resolution, path):
-    """Mesh the coupler @p c at @p resolution (coarse or nominal) into the gmsh 2.2 file @p path."""
+    """Mesh the coupler @p c at @p resolution (coarse or nominal) into the gmsh 2.2
+    file @p path."""
     import gmsh
 
     h = RESOLUTION[resolution]
@@ -396,19 +464,27 @@ def build_mesh(c, resolution, path):
 
 def write(design, resolution, path):
     """Mesh the design (published, optimized or the path of a design JSON) at resolution into path.
-    The mesh goes to a temporary file first, renamed at the end, so that other processes waiting for
-    path never read it half-written."""
+    The mesh goes to a temporary file first, renamed at the end, so that other processes waiting
+    for path never read it half-written."""
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    partial = os.path.join(os.path.dirname(os.path.abspath(path)), "partial_" + os.path.basename(path))
+    partial = os.path.join(
+        os.path.dirname(os.path.abspath(path)), "partial_" + os.path.basename(path)
+    )
     build_mesh(Coupler(**load_design(design)), resolution, partial)
     os.replace(partial, path)
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--design", default="published", help="published, optimized or a design JSON")
-    ap.add_argument("--resolution", choices=sorted(RESOLUTION), default="nominal",
-                    help="coarse (the optimization) or nominal (the reported results)")
+    ap.add_argument(
+        "--resolution",
+        choices=sorted(RESOLUTION),
+        default="nominal",
+        help="coarse (the optimization) or nominal (the reported results)",
+    )
     ap.add_argument("--out", required=True, help="the mesh file")
     args = ap.parse_args()
     write(args.design, args.resolution, args.out)

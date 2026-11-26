@@ -1,6 +1,7 @@
-"""Fan grating coupler for a multimode optical pin: one design in 3D.
+r"""Fan grating coupler for a multimode optical pin: one design in 3D.
 
-    pymufem grating_coupler.py --design published --mesh results_published/mesh.msh --out results_published
+    pymufem grating_coupler.py --design published --mesh results_published/mesh.msh \
+        --out results_published
 
 "./case.sh run" meshes the design with mesh.py and runs this script.
 
@@ -55,14 +56,23 @@ PIN_TILT, NA_GI50 = 8.0, 0.2  # [deg] pin axis in its core; GI50 fibre behind th
 
 def power_up(plane):
     """The power through the horizontal @p plane, upwards [W]; the input is 1 W."""
-    return mufem.SurfaceIntegralReport(name=plane, marker=plane @ Bnd, cff_name="Poynting Vector").evaluate().z
+    return (
+        mufem.SurfaceIntegralReport(name=plane, marker=plane @ Bnd, cff_name="Poynting Vector")
+        .evaluate()
+        .z
+    )
 
 
 def probe_line(cff, x, z, y0, y1, n):
     """The field @p cff at @p n points along y from @p y0 to @p y1 at (@p x, @p z) [um]; None
     outside the mesh."""
-    values = mufem.ProbeReport.Line(name=cff, cff_name=cff, start=(x * UM, y0 * UM, z * UM),
-                                    end=(x * UM, y1 * UM, z * UM), number_points=n).evaluate_all()
+    values = mufem.ProbeReport.Line(
+        name=cff,
+        cff_name=cff,
+        start=(x * UM, y0 * UM, z * UM),
+        end=(x * UM, y1 * UM, z * UM),
+        number_points=n,
+    ).evaluate_all()
     return [v for _, v in values]
 
 
@@ -75,8 +85,8 @@ def ex_line(x, z, y0, y1, n):
 
 def solve(c, mesh_path, out_of_core, field_path=None):
     """Solve the coupler @p c meshed in @p mesh_path, the solver's factors in @p out_of_core, the
-    electric field exported to the folder @p field_path if given; return its metrics and the beam plane (on the
-    main process), else None."""
+    electric field exported to the folder @p field_path if given; return its metrics and the beam
+    plane (on the main process), else None."""
     # The mesh is in um; one steady solve.
     sim = mufem.Simulation.New(name="Grating Coupler", mesh_path=mesh_path)
     sim.get_domain().get_mesh().scale(UM)
@@ -93,11 +103,14 @@ def solve(c, mesh_path, out_of_core, field_path=None):
     direct.set_out_of_core_directory(out_of_core)
 
     silicon = TimeHarmonicMaxwellGeneralMaterial.Constant(
-        name="Silicon", marker="Silicon" @ Vol, relative_electric_permittivity=N_SI**2)
+        name="Silicon", marker="Silicon" @ Vol, relative_electric_permittivity=N_SI**2
+    )
     sio2 = TimeHarmonicMaxwellGeneralMaterial.Constant(
-        name="SiO2", marker="SiO2" @ Vol, relative_electric_permittivity=N_SIO2**2)
+        name="SiO2", marker="SiO2" @ Vol, relative_electric_permittivity=N_SIO2**2
+    )
     resin = TimeHarmonicMaxwellGeneralMaterial.Constant(
-        name="Resin", marker="Resin" @ Vol, relative_electric_permittivity=N_CORE**2)  # the pin's core
+        name="Resin", marker="Resin" @ Vol, relative_electric_permittivity=N_CORE**2
+    )  # the pin's core
     model.add_materials([silicon, sio2, resin])
 
     # The TE0 mode of the wire enters through the port; the outer faces absorb. The mode is even in
@@ -106,7 +119,9 @@ def solve(c, mesh_path, out_of_core, field_path=None):
     model.add_condition(port)
     for name in ("Top", "Bottom", "Sides", "End"):
         model.add_condition(AbsorbingBoundaryCondition(name=name, marker=name @ Bnd))
-    model.add_condition(PerfectElectricConductorCondition(name="Symmetry", marker="Symmetry" @ Bnd))
+    model.add_condition(
+        PerfectElectricConductorCondition(name="Symmetry", marker="Symmetry" @ Bnd)
+    )
 
     exporter = sim.get_field_exporter()
     exporter.set_active(field_path is not None)
@@ -119,24 +134,32 @@ def solve(c, mesh_path, out_of_core, field_path=None):
 
     sim.run()
 
-    result = dict(up=power_up("UpPlane"), down=-power_up("DownPlane"),
-                  r=float(abs(SParametersReport("S11", port, 1).evaluate()[0, 0]) ** 2))
+    result = dict(
+        up=power_up("UpPlane"),
+        down=-power_up("DownPlane"),
+        r=float(abs(SParametersReport("S11", port, 1).evaluate()[0, 0]) ** 2),
+    )
 
-    # Beam plane, 1 um above the silicon, over the fan, clear of the absorbing faces: E_x and S_z on a
-    # grid over the half x > 0, zero elsewhere.
+    # Beam plane, 1 um above the silicon, over the fan, clear of the absorbing faces: E_x and S_z
+    # on a grid over the half x > 0, zero elsewhere.
     k = 2.0 * np.pi / WAVELENGTH  # [1/um]
     ys = np.arange(L_WIRE + c.r_first - 3.0, c.point(c.f_end - 0.3 * c.scale, 0.0)[1], 0.02)
     xs = np.arange(1e-3, c.point(c.f_end, c.side_angle)[0] - 0.2, 0.1)
     ex, sz = np.zeros((len(xs), len(ys)), dtype=complex), np.zeros((len(xs), len(ys)))
     tan_side, y_side0 = np.tan(np.radians(c.side_angle)), c.point(c.f_start, c.side_angle)[1]
     for i, x in enumerate(xs):
-        inside = np.flatnonzero((ys - L_WIRE > x / tan_side + 0.1) & (c.f_of(x, ys) < c.f_end - 0.2 * c.scale)
-                                & ((ys > y_side0 + 0.05) | (x < X_PORT - 0.05)))
+        inside = np.flatnonzero(
+            (ys - L_WIRE > x / tan_side + 0.1)
+            & (c.f_of(x, ys) < c.f_end - 0.2 * c.scale)
+            & ((ys > y_side0 + 0.05) | (x < X_PORT - 0.05))
+        )
         if len(inside) > 1:
             j0, j1 = inside[0], inside[-1]
-            ex[i, j0:j1 + 1] = ex_line(x, Z_BEAM, ys[j0], ys[j1], j1 - j0 + 1)
-            sz[i, j0:j1 + 1] = [0.0 if v is None else v.z
-                                for v in probe_line("Poynting Vector", x, Z_BEAM, ys[j0], ys[j1], j1 - j0 + 1)]
+            ex[i, j0 : j1 + 1] = ex_line(x, Z_BEAM, ys[j0], ys[j1], j1 - j0 + 1)
+            sz[i, j0 : j1 + 1] = [
+                0.0 if v is None else v.z
+                for v in probe_line("Poynting Vector", x, Z_BEAM, ys[j0], ys[j1], j1 - j0 + 1)
+            ]
 
     # Near field: D4 sigma diameters of the upward S_z (mirrored in x).
     up = np.clip(sz, 0.0, None)
@@ -146,14 +169,19 @@ def solve(c, mesh_path, out_of_core, field_path=None):
 
     # The sign that turns the guided wave's phase into a forward wavenumber, independent of the
     # time convention: read in the plain fan ahead of the grating.
-    phase = np.unwrap(np.angle(ex_line(1e-3, 0.5 * T_SI, L_WIRE + 2.0, L_WIRE + c.r_first - 1.0, 201)))
+    phase = np.unwrap(
+        np.angle(ex_line(1e-3, 0.5 * T_SI, L_WIRE + 2.0, L_WIRE + c.r_first - 1.0, 201))
+    )
     sign = 1.0 if phase[-1] < phase[0] else -1.0
 
     # Far field: the peak direction along the axis, and the share of the power carried into the
     # pin core within the GI50 fibre's acceptance.
     weights = np.full(len(xs), 2.0 * (xs[1] - xs[0]))  # the half x > 0, mirrored (E_x even in x)
     u_along = np.sin(np.radians(np.arange(-30.0, 40.0, 0.01)))
-    along = np.abs(np.exp(1j * sign * k * np.outer(u_along, ys)) @ (weights[:, None] * ex).sum(axis=0)) ** 2
+    along = (
+        np.abs(np.exp(1j * sign * k * np.outer(u_along, ys)) @ (weights[:, None] * ex).sum(axis=0))
+        ** 2
+    )
     u_peak = u_along[np.argmax(along * (1.0 - u_along**2))]
     result["angle_core"] = np.degrees(np.arcsin(u_peak / N_CORE))
     _, _, power, accepted = far_field(xs, ys, ex, sign)
@@ -192,13 +220,14 @@ def far_field(xs, ys, e, sign):
 
 
 def run(design, mesh, out, field_export=True):
-    """Solve the design (published, optimized or a design JSON) on its mesh and write the results to
-    out (see the module's docstring)."""
+    """Solve the design (published, optimized or a design JSON) on its mesh and write the results
+    to out (see the module's docstring)."""
     os.makedirs(out, exist_ok=True)
     out_of_core = os.path.join(os.path.dirname(os.path.abspath(mesh)), "ooc")
     try:
-        solved = solve(Coupler(**load_design(design)), mesh, out_of_core,
-                       out if field_export else None)
+        solved = solve(
+            Coupler(**load_design(design)), mesh, out_of_core, out if field_export else None
+        )
     finally:
         shutil.rmtree(out_of_core, ignore_errors=True)
     if solved is None:  # not the main process
@@ -209,17 +238,26 @@ def run(design, mesh, out, field_export=True):
     with open(os.path.join(out, "metrics.json"), "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"P_GI50 {result['p_gi50']:.4f}: up {result['up']:.4f}, R {100 * result['r']:.2f}%, "
-          f"beam {result['angle_core']:.2f} deg in the core, spot {result['spot_x']:.1f} x "
-          f"{result['spot_y']:.1f} um; written to {out}", flush=True)
+    print(
+        f"P_GI50 {result['p_gi50']:.4f}: up {result['up']:.4f}, R {100 * result['r']:.2f}%, "
+        f"beam {result['angle_core']:.2f} deg in the core, spot {result['spot_x']:.1f} x "
+        f"{result['spot_y']:.1f} um; written to {out}",
+        flush=True,
+    )
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--design", default="published", help="published, optimized or a design JSON (see mesh.py)")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--design", default="published", help="published, optimized or a design JSON (see mesh.py)"
+    )
     ap.add_argument("--mesh", required=True, help="the mesh of the design, from mesh.py")
     ap.add_argument("--out", required=True, help="the output folder")
-    ap.add_argument("--no-field-export", action="store_true", help="skip the field export (optimization runs)")
+    ap.add_argument(
+        "--no-field-export", action="store_true", help="skip the field export (optimization runs)"
+    )
     args = ap.parse_args()
     run(args.design, args.mesh, args.out, field_export=not args.no_field_export)
 

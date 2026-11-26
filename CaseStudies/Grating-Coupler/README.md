@@ -312,10 +312,17 @@ PARAMETERS = [
     dict(name="pitch_offset", type="range", bounds=[-0.005, 0.005], value_type="float"),
 ]
 client.create_experiment(
-    name="grating_coupler", parameters=PARAMETERS,
+    name="grating_coupler",
+    parameters=PARAMETERS,
     objectives={"p_gi50": ObjectiveProperties(minimize=False)},
-    outcome_constraints=["r <= 0.01", "angle_core >= 7.5", "angle_core <= 8.5",
-                         "spot_x <= 20.0", "spot_y <= 20.0"])
+    outcome_constraints=[
+        "r <= 0.01",
+        "angle_core >= 7.5",
+        "angle_core <= 8.5",
+        "spot_x <= 20.0",
+        "spot_y <= 20.0",
+    ],
+)
 ```
 
 The fabrication rules and the fixed footprint are not outcome constraints: they are built into the
