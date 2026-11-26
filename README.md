@@ -7,22 +7,25 @@ built for **industry-relevant** engineering applications.
 mufem is driven through a **Python interface**, making it ideal for exploratory work, **parametric studies**
 and **design optimization**, and a natural fit for **agentic workflows**.
 
+This repository hosts a quick introduction to mufem together with tutorials, such as the step-by-step
+[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md),
+and a collection of validation cases and case studies. For platform-specific setup see the
+[Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
+the full API reference see the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
+
 For questions or support, please [open an issue](https://github.com/Raiden-Numerics/mufem/issues/new/choose)
 or contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.com).
 
 **Contents:** [Introduction](#introduction) · [Case Studies](#case-studies) · [Models](#models) ·
-[Getting Started](#getting-started) · [Validations](#validations) ·
-[Tested Platforms](#tested-platforms)
+[Validations](#validations) · [Tested Platforms](#tested-platforms)
 
 ## Introduction
 
-This repository hosts a quick introduction to mufem together with a collection of validation and example
-cases. For platform-specific setup see the
-[Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html), and for
-tutorials and the full API reference see the
-[mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
+https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
 
-![Marquee](https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.marquee.png)
+This 8-minute introduction covers what mufem is and what API first and AI ready mean, walks through the
+[QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md) from the gmsh
+geometry to post-processing in PyVista and ParaView, and ends with the validation cases and case studies.
 
 ### Why mufem
 
@@ -60,57 +63,6 @@ The Professional packages are `mufem-mpi`, `mufem-cuda` and `mufem-hip`:
 
 See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
 
-### Quick Example
-
-Solve the electrostatic field inside a cube held at 1 V across two faces. The simulation reads a mesh
-whose **tagged attributes** (a `Cube` volume and its `Anode`/`Cathode` boundary faces) are referenced by
-markers (`"Cube" @ Vol`, `"Anode" @ Bnd`, ...). The script and its mesh are in
-[QuickExample](https://github.com/Raiden-Numerics/mufem/tree/main/QuickExample); run it there with
-`python charged_cube.py`:
-
-```python
-import mufem
-import mufem.electromagnetics.electrostatics as estat
-from mufem import Vol, Bnd
-
-sim = mufem.Simulation.New(name="Charged Cube", mesh_path="cube.msh")
-sim.set_runner(mufem.SteadyRunner(total_iterations=1))
-
-# Electrostatics model, with air filling the tagged "Cube" volume
-model = estat.ElectrostaticsModel(order=2)
-sim.get_model_manager().add_model(model)
-model.add_material(estat.ElectrostaticMaterial(name="Air", marker="Cube" @ Vol))
-
-# Apply 1 V across the cube: anode at 1 V, cathode grounded
-model.add_conditions(
-    [
-        estat.ElectricPotentialCondition(
-            name="Anode", marker="Anode" @ Bnd, electric_potential=1.0
-        ),
-        estat.ElectricPotentialCondition(
-            name="Cathode", marker="Cathode" @ Bnd, electric_potential=0.0
-        ),
-    ]
-)
-
-# Report the stored electric energy
-report = mufem.VolumeIntegralReport(name="Energy", cff_name="Electric Energy Density")
-sim.get_report_manager().add_report(report)
-
-sim.run()
-print("Electric energy:", report.evaluate(), "J")
-
-# Export the fields for visualization (ParaView / VTK)
-field_exporter = sim.get_field_exporter()
-field_exporter.set_output_directory("ChargedCubeOutput")
-field_exporter.add_field_output("Electric Potential")
-field_exporter.add_field_output("Electric Field")
-field_exporter.save()
-```
-
-It prints the energy of the uniform field between the plates, $`\varepsilon_0 V^2 d / 2 \approx 4.43 \times 10^{-13}`$ J
-for the 10 cm cube.
-
 ## Case Studies
 
 Case studies apply mufem to complete engineering problems, from the geometry to the design decision.
@@ -132,7 +84,7 @@ Follow a skew design from 2D to full 3D on a 48-slot, 8-pole traction motor.
 </td>
 </tr>
 <tr>
-<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/Grating-Coupler/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/CaseStudies/Grating-Coupler/results/Case_Study_Thumbnail.png" width="100%"></a></td>
+<td width="40%"><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/Grating-Coupler/README.md"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/CaseStudies/Grating-Coupler/results/Animation_Electric_Field_Optimized.gif" width="100%"></a></td>
 <td width="60%" valign="top">
 <strong><a href="https://github.com/Raiden-Numerics/mufem/blob/main/CaseStudies/Grating-Coupler/README.md">Optimizing a fan grating coupler for a multimode fiber link</a></strong><br>
 Drive full 3D optical simulations with a Bayesian optimizer to improve a published silicon-photonics grating coupler.
@@ -165,30 +117,6 @@ mufem provides finite-element models across several physics domains, composable 
   elasticity.
 
 See the [documentation](https://raiden-numerics.github.io/mufem-doc/index.html) for the full model list and details.
-
-## Getting Started
-
-First create and activate a virtual environment:
-
-```bash
-python -m venv mufem-venv
-source mufem-venv/bin/activate
-```
-
-Then install the latest release of mufem (Community) from PyPI:
-
-```bash
-pip install mufem
-```
-
-The mufem (Professional) packages come from the mufem package index; see
-[Install mufem package](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html#install-mufem-package).
-
-See the [Installation guide](https://raiden-numerics.github.io/mufem-doc/getting_started/installation.html)
-for platform-specific instructions, and the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html)
-for tutorials and API reference. For a complete, runnable case, including mesh generation and a
-comparison with an analytical solution, see the
-[electrostatics tutorial](https://github.com/Raiden-Numerics/mufem/blob/main/Validations/Electromagnetics/David_2019_Nonuniform_Charge_Density/README.md).
 
 ## Validations
 
