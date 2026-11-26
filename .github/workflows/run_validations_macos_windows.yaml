@@ -5,8 +5,7 @@ name: run-cases macOS/Windows (reusable)
 # under a given Python version and case path. Called by validations_{macos,windows}_py312.yml
 # (moderate tier) and smoke_{macos,windows}_py3xx.yml (Team1b only).
 #
-# The macOS and Windows wheels are published as alpha, so they install only with
-# --pre. Cases are launched with plain `python` (pymufem only ships in the Linux
+# Cases are launched with plain `python` (pymufem only ships in the Linux
 # wheels); callers --exclude-tag what such a runner can't do in reasonable
 # time: the `long`/`eternal` tiers and `mumps` (direct-solver cases).
 #
@@ -42,9 +41,6 @@ jobs:
   run-examples:
     runs-on: ${{ inputs.runner }}
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}
-      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
     steps:
       - name: Checkout repository
@@ -56,16 +52,14 @@ jobs:
           python-version: ${{ inputs.python-version }}
           allow-prereleases: true
 
-      - name: Install mufem (alpha wheel)
+      - name: Install mufem
         shell: bash
         env:
           CI: '1'
           PIP_IS_CI: '1'
         run: |
-          # The VERSION release or one of its pre-releases (e.g. 0.7.3a0 .. 0.7.3).
-          MUFEM_VERSION=$(cat VERSION)
-          MUFEM_VERSION=${MUFEM_VERSION%%[abr]*}
-          pip install --pre --force-reinstall --no-cache-dir "mufem>=${MUFEM_VERSION}a0,<=${MUFEM_VERSION}"
+          # Exactly the VERSION release, as on Linux (run_validations.yaml).
+          pip install --force-reinstall --no-cache-dir "mufem==$(cat VERSION)"
           pip install -e ./casekit  # matplotlib/numpy/gmsh/netgen: not mufem deps
 
       - name: Run the case

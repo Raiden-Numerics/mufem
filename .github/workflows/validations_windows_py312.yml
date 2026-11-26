@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # The `moderate` validation tier on a GitHub-hosted windows-latest runner (serial; the
 # long/eternal tiers and mumps cases are skipped). See run_validations_macos_windows.yaml.
 jobs:
