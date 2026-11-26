@@ -41,7 +41,7 @@ Here, we take the published coupler as the starting point and ask:
 3. What limits the improvement: the physics, the fabrication rules or the footprint?
 
 This case study answers them with mufem's Time-Harmonic Maxwell model, driven by the Bayesian
-optimizer Ax/BoTorch [6]: every design the optimizer proposes is solved in full 3D. The case is run
+optimizer Ax/BoTorch [6, 7]: every design the optimizer proposes is solved in full 3D. The case is run
 with [case.sh](case.sh).
 
 **Outcome**
@@ -293,7 +293,7 @@ Figure 5 sketches the constraints on the beam and the variables of the fan at th
 Each design requires a time-consuming 3D solve, so the study uses Bayesian optimization, which finds
 good designs in few evaluations: it builds a statistical model of the objective and the constraints
 from the designs solved so far and proposes as the next design the one most likely to improve on the
-best feasible design. It runs on the open-source Ax platform with its BoTorch back end [6].
+best feasible design. It runs on the open-source Ax platform with its BoTorch back end [6, 7].
 
 <details>
 <summary>How the optimization is set up in Ax</summary>
@@ -508,14 +508,16 @@ questions? Contact us at [info@raiden-numerics.com](mailto:info@raiden-numerics.
 
 ## References
 
-[1] K. Yashiki et al. (2016). *25-Gbps/ch error-free operation over 300-m MMF of low-power-consumption silicon-photonics-based chip-scale optical I/O cores*. IEICE Transactions on Electronics, E99-C(2), 148.
+[1] K. Yashiki, T. Uemura, M. Kurihara, Y. Suzuki, M. Tokushima, Y. Hagihara and K. Kurata (2016). *25-Gbps/ch Error-Free Operation over 300-m MMF of Low-Power-Consumption Silicon-Photonics-Based Chip-Scale Optical I/O Cores*. IEICE Transactions on Electronics, E99-C(2), 148–156. https://doi.org/10.1587/transele.E99.C.148
 
-[2] J. Ushida et al. (2015). *Highly fabrication-tolerant shallow-grating coupler for robust coupling to multimode optical pin*. Extended Abstracts of SSDM 2015, 248.
+[2] J. Ushida, M. Tokushima, T. Uemura and K. Kurata (2015). *Highly Fabrication-Tolerant Shallow-Grating Coupler for Robust Coupling to Multimode "Optical Pin"*. Extended Abstracts of the 2015 International Conference on Solid State Devices and Materials (SSDM), Sapporo, 248–249.
 
-[3] M. Tokushima, J. Ushida and K. Kurata (2017). *Folded shallow grating couplers with minimal back reflection and extended coupling bandwidth for robust coupling to multimode fibers*. Journal of Lightwave Technology, 35(2), 246.
+[3] M. Tokushima, J. Ushida and K. Kurata (2017). *Folded Shallow Grating Couplers with Minimal Back Reflection and Extended Coupling Bandwidth for Robust Coupling to Multimode Fibers*. Journal of Lightwave Technology, 35(2), 246–257. https://doi.org/10.1109/JLT.2016.2639544
 
-[4] T. Mogami et al. (2018). *1.2 Tbps/cm² enabling silicon photonics IC technology based on 40-nm generation platform*. Journal of Lightwave Technology, 36(20).
+[4] T. Mogami, T. Horikawa, K. Kinoshita, Y. Hagihara, J. Ushida, M. Tokushima, J. Fujikata, S. Takahashi, T. Shimizu, A. Ukita, K. Takemura, M. Kurihara, K. Yashiki, D. Okamoto, Y. Suzuki, Y. Sobu, S.-H. Jeong, Y. Tanaka, T. Nakamura and K. Kurata (2018). *1.2 Tbps/cm² Enabling Silicon Photonics IC Technology Based on 40-nm Generation Platform*. Journal of Lightwave Technology, 36(20), 4701–4712. https://doi.org/10.1109/JLT.2018.2863779
 
-[5] T. Uemura et al. (2015). *125-µm-pitch × 12-channel "Optical Pin" array as I/O structure for novel miniaturized optical transceiver chips*. Electronic Components and Technology Conference (ECTC) 2015.
+[5] T. Uemura, A. Ukita, K. Takemura, M. Kurihara, D. Okamoto, J. Ushida, K. Yashiki and K. Kurata (2015). *125-µm-pitch × 12-channel "Optical Pin" Array as I/O Structure for Novel Miniaturized Optical Transceiver Chips*. IEEE 65th Electronic Components and Technology Conference (ECTC), 1305–1309. https://doi.org/10.1109/ECTC.2015.7159766
 
-[6] M. Balandat et al. (2020). *BoTorch: a framework for efficient Monte-Carlo Bayesian optimization*. NeurIPS 2020. Ax: https://ax.dev
+[6] M. Balandat, B. Karrer, D. R. Jiang, S. Daulton, B. Letham, A. G. Wilson and E. Bakshy (2020). *BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization*. Advances in Neural Information Processing Systems, 33, 21524–21538.
+
+[7] Meta. *Ax: Adaptive Experimentation Platform*. https://ax.dev
