@@ -41,6 +41,16 @@ tutorials and the full API reference see the
 </tr>
 </table>
 
+### Getting started
+
+https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
+
+*Introduction to mufem (7 min): what it is, API first and AI ready, and a walkthrough of the quick example.*
+
+The video walks through the [QuickExample](https://github.com/Raiden-Numerics/mufem/blob/main/QuickExample/README.md):
+a cube meshed with gmsh and solved for its electrostatic field, viewed in PyVista and ParaView. Its README has the
+steps to run it yourself.
+
 ### Licensing
 
 mufem (Community) is **free for academic and commercial use**. It needs no license key, includes
@@ -59,29 +69,6 @@ The Professional packages are `mufem-mpi`, `mufem-cuda` and `mufem-hip`:
 - **Enterprise options**: multi-seat and on-premises licensing, integration and validation services.
 
 See [mufem.raiden-numerics.com](https://mufem.raiden-numerics.com/#pricing) for plans and pricing.
-
-## Getting Started
-
-https://github.com/user-attachments/assets/50112394-3092-4bda-8332-ef08e0b85296
-
-*Introduction to mufem (7 min): what it is, API first and AI ready, and a walkthrough of the quick example.*
-
-The video walks through the [QuickExample](https://github.com/Raiden-Numerics/mufem/tree/main/QuickExample):
-`setup.py` builds the geometry and mesh of a cube with gmsh (and saves it as a STEP file), and `case.py`
-solves the electrostatic field with 1 V across the cube. The results are then viewed in PyVista and ParaView.
-To run it yourself:
-
-```bash
-python -m venv mufem-venv
-source mufem-venv/bin/activate
-pip install mufem gmsh pyvista
-cd QuickExample
-python setup.py   # geometry and mesh; add -nopopup to skip the gmsh GUI
-python case.py    # prints the stored electric energy, about 4.43e-13 J
-```
-
-For platform-specific installation, the mufem (Professional) packages, tutorials, and the API reference, see
-the [mufem documentation](https://raiden-numerics.github.io/mufem-doc/index.html).
 
 ## Case Studies
 
