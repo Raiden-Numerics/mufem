@@ -270,8 +270,9 @@ class Team36InductionHeating(ValidationCase):
         )
         sim.get_monitor_manager().add_monitor(self.ohmic_heating_monitor)
 
-        # The surface probe sits 0.1 mm inside the billet: between surface nodes the flat mesh faces
-        # lie up to about 17 um inside the true radius, so a point closer to it can fall in the air.
+        # The surface probe sits 0.1 mm inside the billet: between surface nodes the flat mesh
+        # faces lie up to about 17 um inside the true radius, so a point closer to it can fall in
+        # the air.
         eps = 1.0e-6
         self.temperature_monitors = {}
         for name, point in [("Center", (eps, eps, 0.0)), ("Surface", (0.03 - 1.0e-4, eps, 0.0))]:

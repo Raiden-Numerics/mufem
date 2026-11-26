@@ -54,11 +54,12 @@ ROTATION_MINUS_90_Z = [
 
 PHASES = ("U", "V", "W")
 
-# Iron loss of 50A350 at 50 Hz: eddy coefficient of the IEEJ committee, hysteresis k_h f B^beta fitted to the
-# loss curve of the portal over 0.3-1.8 T.
+# Iron loss of 50A350 at 50 Hz: eddy coefficient of the IEEJ committee, hysteresis k_h f B^beta
+# fitted to the loss curve of the portal over 0.3-1.8 T.
 KH, BETA_STEINMETZ, KC, RHO_IRON = 0.022203, 1.6479, 1.512e-4, 7650.0
 
-# Iron loss of the 2D reference (rfmkit, same coefficients) by part: hysteresis, classical eddy current [W].
+# Iron loss of the 2D reference (rfmkit, same coefficients) by part: hysteresis, classical eddy
+# current [W].
 REFERENCE_IRON_LOSS = {"Stator": (2.940, 1.339), "Rotor": (0.131, 0.302)}
 
 
@@ -409,8 +410,8 @@ class IpmMotorModelD(ValidationCase):
         sim.set_runner(runner)
 
         # Model ------------------------------------------------------------------------
-        # The period starts from the converged magnetostatic field: a jump of the field in the first time
-        # step would add to the eddy-current part of the iron loss.
+        # The period starts from the converged magnetostatic field: a jump of the field in the
+        # first time step would add to the eddy-current part of the iron loss.
         magnetic_model = TimeDomainMagneticModel(
             order=1, formulation=Formulation.FieldConforming, magnetostatic_initialization=True
         )
@@ -623,7 +624,8 @@ class IpmMotorModelD(ValidationCase):
         # formulation lies about 6 % above it, see the README.
         expect(abs(fundamental), 0.1538, rel_tol=10e-2, label="flux linkage, rfmkit 2D [Wb]")
 
-        # The iron loss: the mean over the period of each part (the last value of its running mean).
+        # The iron loss: the mean over the period of each part (the last value of its running
+        # mean).
         self.iron_loss = {
             name: [(t, FULL_MODEL_SCALE * loss) for t, loss in monitor.get_values()]
             for name, monitor in self.iron_loss_monitors.items()
