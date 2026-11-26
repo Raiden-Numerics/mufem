@@ -115,7 +115,7 @@ def crop(images):
 
 def save_gif(frames, path, fps):
     """An animated GIF of the screenshots with one palette for all of them; white stays
-    white, and pixels that do not change between frames keep their colour, so that the dithering
+    white, and pixels that do not change between frames keep their color, so that the dithering
     does not shimmer."""
     palette = Image.fromarray(np.vstack(frames)).quantize(method=Image.Quantize.MAXCOVERAGE)
     indices = [np.array(Image.fromarray(frame).quantize(palette=palette)) for frame in frames]
@@ -399,7 +399,7 @@ def figure_constraints():
         fontsize=10,
         va="top",
         arrowprops=dict(arrowstyle="-", color="k", lw=0.6, relpos=(0.5, 1.0)),
-    )  # from the label's top centre
+    )  # from the label's top center
     plan.set_xlim(-14.0, 14.0)
     plan.set_ylim(-2.0, 35.0)
     plan.set_aspect("equal")
@@ -420,7 +420,7 @@ def read_mesh(design):
 
 
 def material_legend(ax, names, corner):
-    """Colour boxes of the materials names, their lower right corner at corner (axes fraction)."""
+    """Color boxes of the materials names, their lower right corner at corner (axes fraction)."""
     handles = [
         matplotlib.patches.Patch(facecolor=MATERIALS[n], edgecolor="0.4", label=MATERIAL_LABEL[n])
         for n in names
@@ -622,7 +622,7 @@ def complex_ex(mesh):
 
 @functools.cache
 def field_limit():
-    """The colour range of E_x [V/m], for both designs: the E_x the published coupler radiates
+    """The color range of E_x [V/m], for both designs: the E_x the published coupler radiates
     above the grating, on the symmetry plane; the guided wave, much stronger, saturates."""
     sym = read_fields("published").slice(normal="x", origin=(1e-3, 0, 0))
     above = sym.points[:, 2] > T_SI + 0.5
@@ -635,7 +635,7 @@ ANIMATION_SCALE = 11.6
 
 def figure_animation(design):
     """E_x(t) = Re(E_x e^{j phase}) over one period on the surface of the half model, seen as in
-    the 3D views of the device: the symmetry plane towards the camera, the beam leaving through the
+    the 3D views of the device: the symmetry plane toward the camera, the beam leaving through the
     top."""
     surface = (
         read_fields(design).extract_surface(algorithm=None).reflect((1, 0, 0), point=(0, 0, 0))
@@ -663,7 +663,7 @@ def figure_animation(design):
 
 
 def colorbar_image(width):
-    """The colour bar of the animations as an RGB image width pixels wide, to go under their
+    """The color bar of the animations as an RGB image width pixels wide, to go under their
     frames."""
     limit = field_limit() / 1e6
     fig = plt.figure(figsize=(width / DPI, 1.0), dpi=DPI)
@@ -732,7 +732,7 @@ def figure_trial_history():
         bbox=LABEL_BOX,
     )
     ax.set_xlabel("Trial")
-    ax.set_ylabel("Power into the GI50 fibre, $P_{GI50}$")
+    ax.set_ylabel("Power into the GI50 fiber, $P_{GI50}$")
     ax.set_ylim(0.36, 0.56)
     ax.set_title("Optimization at the published footprint, coarse mesh")
     ax.grid(alpha=0.3)
@@ -764,7 +764,7 @@ def figure_fan_outlines():
 
 
 def relative_map(ax, h, v, values):
-    """values (0 to 1) over the grid h, v as a colour map."""
+    """values (0 to 1) over the grid h, v as a color map."""
     return ax.pcolormesh(
         h, v, values, cmap=MAGNITUDE_MAP, vmin=0.0, vmax=1.0, shading="auto", rasterized=True
     )
@@ -796,7 +796,7 @@ def figure_near_field():
 
 
 def acceptance_cone():
-    """The edge of the GI50 fibre's acceptance (NA 0.2 around the pin's 8 deg axis in its core) as
+    """The edge of the GI50 fiber's acceptance (NA 0.2 around the pin's 8 deg axis in its core) as
     (angle along, angle across) [deg]."""
     tilt, half = np.radians(PIN_TILT), np.arcsin(NA_GI50 / N_CORE)
     psi = np.linspace(0.0, 2.0 * np.pi, 361)
@@ -823,7 +823,7 @@ def figure_far_field():
         ax.plot(*acceptance_cone(), color="w", lw=1.5, ls="--")
         m = metrics(design)
         ax.set_title(
-            f"{LABEL[design]}: {100 * m['acc_gi50']:.1f}% inside the fibre's acceptance",
+            f"{LABEL[design]}: {100 * m['acc_gi50']:.1f}% inside the fiber's acceptance",
             fontsize=11,
         )
         ax.set_xlim(-12.0, 28.0)

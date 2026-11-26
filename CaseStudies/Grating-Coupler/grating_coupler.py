@@ -21,7 +21,7 @@ plane runs through the fan axis. The script writes to --out:
     r           reflection back into the wire, |S11|^2
     angle_core  beam angle in the pin core [deg], from the far field of the beam plane
     spot_x/y    near-field D4 sigma diameters on the beam plane [um]
-    acc_gi50    share of the upward beam inside the GI50 fibre's acceptance (NA 0.2 around the
+    acc_gi50    share of the upward beam inside the GI50 fiber's acceptance (NA 0.2 around the
                 pin's 8 deg axis in its core)
     p_gi50      up * acc_gi50: the objective of the optimization
 
@@ -51,7 +51,7 @@ from mesh import L_WIRE, N_CORE, N_SI, N_SIO2, T_SI, WAVELENGTH, X_PORT, Coupler
 UM = 1e-6  # [m]
 SPEED_OF_LIGHT = 299792458.0  # [m/s]
 Z_BEAM = T_SI + 1.0  # [um] the beam plane, in the SiO2 above the silicon
-PIN_TILT, NA_GI50 = 8.0, 0.2  # [deg] pin axis in its core; GI50 fibre behind the pin
+PIN_TILT, NA_GI50 = 8.0, 0.2  # [deg] pin axis in its core; GI50 fiber behind the pin
 
 
 def power_up(plane):
@@ -175,7 +175,7 @@ def solve(c, mesh_path, out_of_core, field_path=None):
     sign = 1.0 if phase[-1] < phase[0] else -1.0
 
     # Far field: the peak direction along the axis, and the share of the power carried into the
-    # pin core within the GI50 fibre's acceptance.
+    # pin core within the GI50 fiber's acceptance.
     weights = np.full(len(xs), 2.0 * (xs[1] - xs[0]))  # the half x > 0, mirrored (E_x even in x)
     u_along = np.sin(np.radians(np.arange(-30.0, 40.0, 0.01)))
     along = (
@@ -195,7 +195,7 @@ def far_field(xs, ys, e, sign):
     """The power the beam plane's E_x (@p e on the grid @p xs, @p ys, x > 0) carries into the pin
     core per direction u = (u_x, u_y), the tangential wavenumber over k0, conserved through the
     planar layers: u_x >= 0 (E_x even in x), and the mask of the directions inside the GI50
-    fibre's acceptance around the pin axis. @p sign turns the phase into a forward wavenumber."""
+    fiber's acceptance around the pin axis. @p sign turns the phase into a forward wavenumber."""
     k = 2.0 * np.pi / WAVELENGTH
     dx, dy = xs[1] - xs[0], ys[1] - ys[0]
 
@@ -212,7 +212,7 @@ def far_field(xs, ys, e, sign):
     cos_core = np.sqrt(np.clip(1.0 - sin2_core, 0.0, None))
     power = np.where(sin2_core < (N_SIO2 / N_CORE) ** 2, np.abs(spectrum) ** 2 * cos_core, 0.0)
 
-    # The fibre's acceptance: within asin(NA / n_core) of the pin axis, tilted by PIN_TILT along y.
+    # The fiber's acceptance: within asin(NA / n_core) of the pin axis, tilted by PIN_TILT along y.
     tilt = np.radians(PIN_TILT)
     cos_axis = uy / N_CORE * np.sin(tilt) + cos_core * np.cos(tilt)
     accepted = cos_axis >= np.cos(np.arcsin(NA_GI50 / N_CORE))

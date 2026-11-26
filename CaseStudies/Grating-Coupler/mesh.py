@@ -17,7 +17,7 @@ the path of a design JSON with the keys
     r_first       distance from the focus to the first groove, on the axis [um]
     fan_angle     half angle of the fan [deg]
     pitch         grating period [um]
-    ramp_grooves  soft-start grooves before the full periods, widening towards the full groove
+    ramp_grooves  soft-start grooves before the full periods, widening toward the full groove
     ramp_start    width of the first ramp groove: 0 the 70 nm minimum feature, 1 the full groove
 
 The resolution is coarse (the optimization) or nominal (the reported results). Units throughout:
@@ -400,7 +400,7 @@ def physical_groups(c, layer_of, planes):
 
     model, occ = gmsh.model, gmsh.model.occ
 
-    # Materials, read in the middle of each block in (F, angle): the centre of mass of a long,
+    # Materials, read in the middle of each block in (F, angle): the center of mass of a long,
     # thin, curved block can lie outside it.
     volumes = {"Silicon": [], "SiO2": [], "Resin": []}
     for _, tag in model.getEntities(3):

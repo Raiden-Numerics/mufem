@@ -1,4 +1,4 @@
-# Optimizing a Fan Grating Coupler for a Multimode Fibre Link
+# Optimizing a Fan Grating Coupler for a Multimode Fiber Link
 
 We combine mufem with the Bayesian optimizer Ax/BoTorch to optimize a published silicon-photonics
 grating coupler, solving every design in full 3D. Within the fabrication constraints and meeting the
@@ -6,22 +6,22 @@ device's requirements, the optimized coupler performs 7.8 % better than the publ
 
 ## Introduction
 
-**The device.** Data centres and high-performance computers exchange growing amounts of data
-between chips, boards and racks over short optical links, up to a few hundred metres of multimode
-fibre. At each end of a link sits a transceiver: its transmitter turns the electrical signal into
+**The device.** Data centers and high-performance computers exchange growing amounts of data
+between chips, boards and racks over short optical links, up to a few hundred meters of multimode
+fiber. At each end of a link sits a transceiver: its transmitter turns the electrical signal into
 modulated light, its receiver turns the light back into an electrical signal. Silicon photonics
 builds the optical parts of a transceiver, the waveguides, modulators and photodetectors, on a
 silicon chip with the processes of microelectronics. The difficult step is the connection between
-the chip and the fibre: on the chip the light travels in waveguides less than half a micrometre
-wide, while the core of a multimode fibre is 50 µm across. A grating coupler bridges the two: a
+the chip and the fiber: on the chip the light travels in waveguides less than half a micrometer
+wide, while the core of a multimode fiber is 50 µm across. A grating coupler bridges the two: a
 pattern of shallow grooves etched into the waveguide scatters the light out of the chip surface,
-towards the fibre above it.
+toward the fiber above it.
 
 **The engineering question.** This study takes a specific, published device: a chip-scale
-silicon-photonics transmitter [1]. It couples the chip to a graded-index multimode fibre (GI50, NA
+silicon-photonics transmitter [1]. It couples the chip to a graded-index multimode fiber (GI50, NA
 0.2) through a fan-shaped grating coupler and an "optical pin" [1–3, 5]: a pillar of resin formed on
 the chip over the coupler and tilted by 8°, whose core, of index 1.585 and 35 µm in diameter at its
-base, guides the light up to the fibre. The coupler must therefore send its beam into the pin's
+base, guides the light up to the fiber. The coupler must therefore send its beam into the pin's
 resin at 8° to the normal, with a spot that fits the core. Figure 1 shows the geometry of this
 grating coupler.
 
@@ -35,7 +35,7 @@ grating coupler.
 
 Here, we take the published coupler as the starting point and ask:
 
-1. How much of the light does the published coupler deliver into the fibre's acceptance?
+1. How much of the light does the published coupler deliver into the fiber's acceptance?
 2. Can an optimizer driving 3D simulations find a better coupler on the same platform and chip
    area, within the fabrication rules and the beam requirements?
 3. What limits the improvement: the physics, the fabrication rules or the footprint?
@@ -46,7 +46,7 @@ with [case.sh](case.sh).
 
 **Outcome**
 
-- The published coupler delivers **52.8 %** of the light into the fibre's acceptance.
+- The published coupler delivers **52.8 %** of the light into the fiber's acceptance.
 - The optimized coupler delivers **56.9 %**, **+7.8 % (+0.33 dB)**, on **the same footprint** and
   within all constraints: its reflection is 0.86 % (−20.7 dB) and its beam is at 7.56°, inside the
   8° ± 0.5° window. The optimizer found it in 38 designs, each solved in 3D.
@@ -67,7 +67,7 @@ with [case.sh](case.sh).
 ## How a Grating Coupler Works
 
 The light arrives in a silicon wire 350 nm wide and 200 nm thick, guided in its TE0 mode. The fan
-widens it to several micrometres, and a grating of shallow grooves etched into the silicon scatters
+widens it to several micrometers, and a grating of shallow grooves etched into the silicon scatters
 it out of the plane (Figure 2, left). Each groove sends a small wavelet up and down; at the pitch of
 the grating the wavelets add up in phase at one angle, 12.7° to the normal in air or 8° in the resin
 above the chip. The grooves are not straight: they are confocal ellipses around a focus in the wire,
@@ -84,8 +84,8 @@ both directions (Figure 2, right).
 
 Not all the light goes up: the grating unavoidably radiates downwards as well, through the buried
 oxide into the substrate, where the light is lost. Additionally, part of the upward beam travels at
-angles the fibre does not accept. A good coupler sends as much light as possible up and within the
-fibre's acceptance, so the optimization goal of this study is the power within the fibre's
+angles the fiber does not accept. A good coupler sends as much light as possible up and within the
+fiber's acceptance, so the optimization goal of this study is the power within the fiber's
 acceptance:
 
 ```math
@@ -93,7 +93,7 @@ P_\mathrm{GI50} = P_\mathrm{up} \cdot a_\mathrm{GI50}
 ```
 
 with $`P_\mathrm{up}`$ the share of the input power going up, and $`a_\mathrm{GI50}`$ the share of
-the upward beam whose direction in the resin lies within the acceptance of the graded-index fibre.
+the upward beam whose direction in the resin lies within the acceptance of the graded-index fiber.
 
 <details>
 <summary>How the upward power and the acceptance are computed</summary>
@@ -123,8 +123,8 @@ p(\mathbf{u}) = |A(\mathbf{u})|^2 \cos\theta ,
 ```
 
 counted for the directions that propagate in the SiO₂, $`|\mathbf{u}| < n_\mathrm{SiO_2}`$. A
-direction is inside the fibre's acceptance if its angle $`\gamma`$ to the pin axis, tilted by
-$`\alpha = 8°`$ along the fan, is at most the fibre's acceptance angle in the resin,
+direction is inside the fiber's acceptance if its angle $`\gamma`$ to the pin axis, tilted by
+$`\alpha = 8°`$ along the fan, is at most the fiber's acceptance angle in the resin,
 $`\gamma_\mathrm{max}`$:
 
 ```math
@@ -155,7 +155,7 @@ inside the pin, so $`P_\mathrm{GI50}`$ is an upper bound of the coupled power.
 | Published grating | 20 grooves, 524 nm pitch, groove width 0.60 of the pitch [1–3] |
 | Published fan | half angle 16.7°, first groove 13.3 µm from the focus, footprint 172 µm² |
 | Exit angle | 12.7° in air, 8° in the resin |
-| Optical pin | resin pillar over the coupler, core Ø35 µm, tilted 8° [5]; GI50 fibre behind it (NA 0.2) |
+| Optical pin | resin pillar over the coupler, core Ø35 µm, tilted 8° [5]; GI50 fiber behind it (NA 0.2) |
 
 ## Setup
 
@@ -168,7 +168,7 @@ from the symmetry plane and the input port of the wire.
 The mesh is built in plan view and extruded through the layers. Over the fan, structured cells
 follow the grooves and the rays from the focus, so that the curved grooves are reproduced exactly;
 triangles fill the region around the wire (Figure 3, middle). Through the layers, thin cells
-resolve the silicon and grow thicker towards the substrate and the resin (Figure 3, bottom).
+resolve the silicon and grow thicker toward the substrate and the resin (Figure 3, bottom).
 
 <div align="center">
 <img src="data/Mesh_stack.png" alt="Model" width="50%">
@@ -180,7 +180,7 @@ resolve the silicon and grow thicker towards the substrate and the resin (Figure
 <img src="data/Mesh_side_zoom.png" alt="Mesh on the symmetry plane, detail" width="28.8%">
 <br/>
 <br/>
-<em>Figure 3: The model of the published coupler. Top: in 3D, its face on the symmetry plane towards the camera. Below: its mesh in plan view and on the symmetry plane, with close-ups of the start of the grating on the right (red rectangles).</em>
+<em>Figure 3: The model of the published coupler. Top: in 3D, its face on the symmetry plane toward the camera. Below: its mesh in plan view and on the symmetry plane, with close-ups of the start of the grating on the right (red rectangles).</em>
 </div>
 <br/>
 
@@ -224,17 +224,17 @@ downwards through the buried oxide. On the top face, the beam leaves the model u
 | Reflection into the wire | 0.64 % (−21.9 dB) |
 | Beam angle in the resin | 8.02° |
 | Near field (D4σ), across × along | 6.9 × 11.6 µm |
-| Upward beam inside the fibre's acceptance | 87.2 % |
-| **Into the fibre, $`P_\mathrm{GI50}`$** | **52.8 %** |
+| Upward beam inside the fiber's acceptance | 87.2 % |
+| **Into the fiber, $`P_\mathrm{GI50}`$** | **52.8 %** |
 
 The beam leaves at 8°, as published, and its spot, the second-moment (D4σ) diameter of the upward
 power 1 µm above the silicon, fits the pin's 35 µm core easily. The losses are in the power split:
 more than a third of the light goes down into the substrate. The near field falls off steeply from
-the start of the grating, and its far field has wings outside the fibre's acceptance.
+the start of the grating, and its far field has wings outside the fiber's acceptance.
 
 ### Optimization
 
-The optimization maximizes $`P_\mathrm{GI50}`$, the power the coupler delivers into the fibre,
+The optimization maximizes $`P_\mathrm{GI50}`$, the power the coupler delivers into the fiber,
 while it keeps the characteristics the transceiver relies on: the reflection back into the laser,
 the beam angle along the pin and the size of the spot. These enter as constraints. The fabrication
 rules bound the variables of the design, and the footprint of the fan stays the published one.
@@ -351,7 +351,7 @@ beats the published coupler (Figure 6), and after 38 designs the run stops, 21 o
 <img src="results/Trial_History.png" alt="Trial history" width="80%">
 <br/>
 <br/>
-<em>Figure 6: The power into the fibre of each design on the coarse mesh: feasible (red), infeasible (open), and the published coupler (dashed).</em>
+<em>Figure 6: The power into the fiber of each design on the coarse mesh: feasible (red), infeasible (open), and the published coupler (dashed).</em>
 </div>
 <br/>
 
@@ -384,7 +384,7 @@ The optimized coupler differs from the published one in three ways (Figure 7):
 
 The fields show the effect. The optimized grating starts radiating closer to the wire and over a
 longer stretch of the fan (Figure 8), and its near field is stronger close to the focus (Figure 9).
-Both beams lie centred in the fibre's acceptance (Figure 10).
+Both beams lie centered in the fiber's acceptance (Figure 10).
 
 <div align="center">
 <img src="results/Animation_Electric_Field_Published.gif" alt="Electric field, published coupler" width="47%">
@@ -407,7 +407,7 @@ Both beams lie centred in the fibre's acceptance (Figure 10).
 <img src="results/Far_Field.png" alt="Far fields" width="90%">
 <br/>
 <br/>
-<em>Figure 10: The power per direction in the resin of both couplers, with the fibre's acceptance (dashed).</em>
+<em>Figure 10: The power per direction in the resin of both couplers, with the fiber's acceptance (dashed).</em>
 </div>
 <br/>
 
@@ -417,11 +417,11 @@ Both beams lie centred in the fibre's acceptance (Figure 10).
 | Reflection into the wire | 0.64 % (−21.9 dB) | 0.86 % (−20.7 dB) | |
 | Beam angle in the resin | 8.02° | 7.56° | −0.46° |
 | Near field (D4σ), across × along | 6.9 × 11.6 µm | 5.6 × 11.6 µm | |
-| Upward beam inside the fibre's acceptance | 87.2 % | 87.6 % | +0.4 points |
-| **Into the fibre, $`P_\mathrm{GI50}`$** | **52.8 %** | **56.9 %** | **+7.8 % (+0.33 dB)** |
+| Upward beam inside the fiber's acceptance | 87.2 % | 87.6 % | +0.4 points |
+| **Into the fiber, $`P_\mathrm{GI50}`$** | **52.8 %** | **56.9 %** | **+7.8 % (+0.33 dB)** |
 
 - **The gain is in the power split:** 4.5 points more of the light goes up. The acceptance barely
-  changes; both beams are well centred in it.
+  changes; both beams are well centered in it.
 - **The optimum lies at the edges of the constraints:** the beam at 7.56°, near the low edge of the
   ±0.5° window, and the reflection, 0.86 %, close to the 1 % limit.
 - **The coarse mesh kept the order of the two designs:** it gave 48.8 % and 54.0 %, +5.2 points;
@@ -429,9 +429,9 @@ Both beams lie centred in the fibre's acceptance (Figure 10).
 
 ## Discussion
 
-1. **The published coupler delivers 52.8 % of the light into the fibre**, limited by the third of
+1. **The published coupler delivers 52.8 % of the light into the fiber**, limited by the third of
    the light that goes down into the substrate and by the share of the upward beam outside the
-   fibre's acceptance.
+   fiber's acceptance.
 2. **An optimizer driving 3D simulations finds a better coupler on the same footprint**, +7.8 %
    (+0.33 dB), within all constraints, in 38 designs.
 3. **What limits the improvement:** not the fabrication rules, since the optimized grooves and teeth
@@ -446,7 +446,7 @@ The same workflow can take the study further:
 | --------- | -------- | ---- |
 | Fabrication tolerance | How does the performance of the coupler change when the groove width, the etch depth or the silicon thickness deviates by ±10 nm (typical fabrication tolerance)? | 3D runs per deviation |
 | Operating temperature | How does the performance change as the chip heats up, with the uncooled laser drifting to longer wavelengths and the silicon index rising? | 3D runs over temperature |
-| Coupler, pin and fibre | How much of $`P_\mathrm{GI50}`$ reaches the fibre through a real pin? | one 3D model of the whole path |
+| Coupler, pin and fiber | How much of $`P_\mathrm{GI50}`$ reaches the fiber through a real pin? | one 3D model of the whole path |
 
 ## Workflow and Compute
 

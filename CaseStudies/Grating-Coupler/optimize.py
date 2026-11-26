@@ -4,7 +4,7 @@ grating_coupler.py mesh and solve them.
     python optimize.py --trials 60          (or ./case.sh optimize --trials 60)
 
 Starts from the published coupler (trial 0) and searches the variables below within the fabrication
-rules (grooves and teeth >= 70 nm) for the most upward power inside the GI50 fibre's acceptance
+rules (grooves and teeth >= 70 nm) for the most upward power inside the GI50 fiber's acceptance
 (p_gi50), subject to the constraints below. The fan's footprint is fixed (by default the published
 one's): the fan may be wider and shorter or narrower and longer, but not larger (Coupler.at_area).
 Each trial writes its design to trials/trial_NNN.json in --out, meshes it on the coarse mesh with
