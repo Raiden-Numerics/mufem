@@ -75,6 +75,13 @@
     }
     .page-content table a:hover img[width="100%"] { box-shadow: 0 4px 14px rgba(31, 35, 40, .18); }
 
+    /* Intro video (replaces the github.com-only video embed). */
+    .page-content .intro-video { margin: 16px 0 24px; }
+    .page-content .intro-video video {
+      display: block; width: 100%; aspect-ratio: 16 / 9; background: #000;
+      border-radius: 8px; box-shadow: 0 1px 3px rgba(31, 35, 40, .12);
+    }
+
     /* CI badges: a little breathing room between wrapped rows. */
     .page-content img[src*="img.shields.io"] { margin: 2px 0; }
 
