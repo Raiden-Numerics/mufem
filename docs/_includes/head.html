@@ -75,6 +75,19 @@
     }
     .page-content table a:hover img[width="100%"] { box-shadow: 0 4px 14px rgba(31, 35, 40, .18); }
 
+    /* Intro video poster (replaces the github.com-only video embed). */
+    .page-content .intro-video { position: relative; display: block; margin: 16px 0 24px; }
+    .page-content .intro-video img {
+      display: block; width: 100%; border-radius: 8px; box-shadow: 0 1px 3px rgba(31, 35, 40, .12);
+    }
+    .page-content .intro-video span {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      padding: 10px 20px; border-radius: 999px; background: rgba(31, 35, 40, .8);
+      color: #fff; font-weight: 600; white-space: nowrap;
+    }
+    .page-content .intro-video:hover span { background: rgba(31, 35, 40, .95); }
+    .page-content .intro-video:hover { text-decoration: none; }
+
     /* CI badges: a little breathing room between wrapped rows. */
     .page-content img[src*="img.shields.io"] { margin: 2px 0; }
 

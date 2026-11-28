@@ -37,7 +37,13 @@ jobs:
         # (authoritative, so it still renders on github.com). Copy it in so
         # index.md's include_relative resolves. Images are referenced by
         # absolute raw.githubusercontent URLs, so nothing else needs copying.
-        run: cp README.md docs/README.md
+        #
+        # A bare github.com/user-attachments video URL only becomes a player on
+        # github.com; Jekyll would print it as plain text and the asset is not
+        # publicly fetchable. Replace it with a poster linking to the README video.
+        run: |
+          cp README.md docs/README.md
+          sed -i -E 's#^https://github\.com/user-attachments/assets/[0-9a-f-]+$#<a class="intro-video" href="https://github.com/Raiden-Numerics/mufem\#introduction"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.marquee.png" alt="Watch the mufem introduction video"><span>▶ Watch the introduction video</span></a>#' docs/README.md
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
