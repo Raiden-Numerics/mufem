@@ -43,7 +43,7 @@ jobs:
         # publicly fetchable. Replace it with a <video> served from the public
         # release asset, and fail if any such URL is left unreplaced.
         env:
-          INTRO_VIDEO_URL: https://github.com/${{ github.repository }}/releases/download/intro-video/mufem-intro.mp4
+          INTRO_VIDEO_URL: https://github.com/${{ github.repository }}/releases/download/intro-video/mufem_intro.mp4
         run: |
           cp README.md docs/README.md
           sed -i -E "s#^https://github\.com/user-attachments/assets/[0-9a-f-]+[[:space:]]*\$#<div class=\"intro-video\"><video controls preload=\"metadata\" playsinline src=\"${INTRO_VIDEO_URL}\"></video></div>#" docs/README.md
