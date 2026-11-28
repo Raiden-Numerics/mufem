@@ -40,10 +40,14 @@ jobs:
         #
         # A bare github.com/user-attachments video URL only becomes a player on
         # github.com; Jekyll would print it as plain text and the asset is not
-        # publicly fetchable. Replace it with a poster linking to the README video.
+        # publicly fetchable. Replace it with a <video> served from the public
+        # release asset, and fail if any such URL is left unreplaced.
+        env:
+          INTRO_VIDEO_URL: https://github.com/${{ github.repository }}/releases/download/intro-video/mufem-intro.mp4
         run: |
           cp README.md docs/README.md
-          sed -i -E 's#^https://github\.com/user-attachments/assets/[0-9a-f-]+$#<a class="intro-video" href="https://github.com/Raiden-Numerics/mufem\#introduction"><img src="https://raw.githubusercontent.com/Raiden-Numerics/mufem/main/.marquee.png" alt="Watch the mufem introduction video"><span>▶ Watch the introduction video</span></a>#' docs/README.md
+          sed -i -E "s#^https://github\.com/user-attachments/assets/[0-9a-f-]+[[:space:]]*\$#<div class=\"intro-video\"><video controls preload=\"metadata\" playsinline src=\"${INTRO_VIDEO_URL}\"></video></div>#" docs/README.md
+          ! grep -q 'github.com/user-attachments/assets' docs/README.md
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
